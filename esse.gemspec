@@ -9,13 +9,11 @@ Gem::Specification.new do |spec|
   spec.email         = ['mgzmaster@gmail.com']
 
   spec.summary       = %[Pure Ruby toolkit based on official elasticsearch-ruby library. (No! It isn't a new DSL)]
-  spec.description   = 'All the elegance of ruby with the elasticsearch flexibility. This gem is a pretty simple' \
+  spec.description   = 'All the elegance of ruby with the elasticsearch flexibility. This gem is a pretty simple ' \
                        'but excential helpers to deal with mapping, indexing, serialization and search.'
   spec.homepage      = 'https://github.com/marcosgz/esse'
   spec.license       = 'MIT'
   spec.required_ruby_version = Gem::Requirement.new('>= 2.3.0')
-
-  spec.metadata['allowed_push_host'] = 'https://rubygems.org/gems/esse'
 
   spec.metadata['homepage_uri'] = spec.homepage
   spec.metadata['source_code_uri'] = 'https://github.com/marcosgz/esse'
