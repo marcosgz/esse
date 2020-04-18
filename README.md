@@ -1,8 +1,18 @@
-# Esse
+# esse
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/esse`. To experiment with that code, run `bin/console` for an interactive prompt.
+Simple and efficient way to organize queries/mapping/indices/tasks based on the official elasticsearch-ruby.
 
-TODO: Delete this and the text above, and describe your gem
+## Why to use it?
+Some facts to use this library:
+
+### Don't spend time learning our DLS
+You don't need to spend time learning our DSL or gem usage to start using it. All you need know is the elasticsearch syntax. You are free to build your queries/mappings/settings using JSON/RubyHash flexibility. And keeping simple any elasticsearch upgrade and its syntax changes.
+
+### Multiple ElasticSearch Versions
+You can use multiple elasticsearch servers with different versions in an elegant way. Take a look at [LINK TO TOPIC](#anchors-id-here) for more details.
+
+### It's pure Ruby
+Yeah!! Nor [activesupport](http://github.com/rails/rails/tree/master/activesupport) dependency and all its monkey patchings. But if you are using rails, suggest install `esse-rails` extension that makes things even easier. Use the [Get started with esse-rails](#anchors-id-here) for more details.
 
 ## Installation
 
