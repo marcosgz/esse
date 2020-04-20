@@ -1,0 +1,60 @@
+# frozen_string_literal: true
+
+class <%= @index_name %> < <%= @base_class %>
+  # plugin :active_record
+  # plugin :sequel
+  <%- @types.each do |type| -%>
+
+  define_type :<%= type %> do
+    # Collection
+    # ==========
+    #
+    # Collection wraps the data into an array of items that should be serialized. The first argument that is
+    # yielded must extends Enumerable.
+    # Useful for eager loading data from database or any other repository. Below is an example of a rails like
+    # application could load using activerecord.
+    #
+    #   collection do |conditions|
+    #     context = {}
+    #     <%= type.capitalize %>.where(conditions).find_in_batches(batch_size: 5000) do |batch|
+    #       yield batch, context, ...
+    #     end
+    #   end
+    #
+    #
+    # Serializer
+    # ==========
+    #
+    # The serializer can be any class that respond with the `call` class method.
+    # And the result of its call is a Hash or a JSON.
+    #
+    # Here is an example of a simple serializer:
+    # app/serializers/<%= type %>_serializer.rb
+    #   class <%= type.camelize %>Serializer
+    #     def initialize(<%= type %>, _context)
+    #       @<%= type %> = <%= type %>
+    #     end
+    #
+    #     def call
+    #       { name: @<%= type %>.name }
+    #     end
+    #   end
+    #
+    # And here you specify your serializer classe.
+    #
+    #    serializer <%= type.capitalize %>Serializer
+    #
+    # You can also serialize the collection entry using a block:
+    #
+    #   serializer(<%= type %>, context = {}) do
+    #     hash = {
+    #       name: <%= type %>.name,
+    #     }
+    #     # Context is just an example here. But it's useful for eager loading data.
+    #     # I'll think a better example when implement this idea.
+    #     hash[:some_attribute] = <%= type %>.some_attribute if context[:include_some_attribute]
+    #     hash
+    #   end
+  end
+  <%- end -%>
+end
