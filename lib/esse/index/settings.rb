@@ -24,7 +24,7 @@ module Esse
       #     end
       #   end
       def settings(hash = {}, &block)
-        @setting = Esse::IndexSetting.new(self, hash)
+        @setting = Esse::IndexSetting.new(body: hash, paths: template_dirs)
         return unless block_given?
 
         @setting.define_singleton_method(:as_json, &block)
@@ -33,7 +33,7 @@ module Esse
       private
 
       def setting
-        @setting ||= Esse::IndexSetting.new(self)
+        @setting ||= Esse::IndexSetting.new(paths: template_dirs)
       end
     end
 

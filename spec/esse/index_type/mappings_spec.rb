@@ -8,6 +8,10 @@ RSpec.describe Esse::IndexType do
     specify do
       expect {
         Class.new(Esse::IndexType) do
+          def self.type_name
+            'test'
+          end
+
           mappings do
           end
         end
@@ -17,6 +21,10 @@ RSpec.describe Esse::IndexType do
     specify do
       expect {
         Class.new(Esse::IndexType) do
+          def self.type_name
+            'test'
+          end
+
           mappings({})
         end
       }.not_to raise_error
@@ -31,7 +39,7 @@ RSpec.describe Esse::IndexType do
     subject { EventsIndex::Event.send(:mapping) }
     before { stub_index(:events) { define_type(:event) } }
 
-    it { is_expected.to be_an_instance_of(Esse::Types::Mapping) }
+    it { is_expected.to be_an_instance_of(Esse::IndexMapping) }
   end
 
   describe '.mappings' do

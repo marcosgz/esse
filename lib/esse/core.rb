@@ -39,7 +39,7 @@ module Esse
   require_relative 'primitives'
   require_relative 'index_type'
   require_relative 'index_setting'
-  require_relative 'types'
+  require_relative 'index_mapping'
   require_relative 'template_loader'
   require_relative 'version'
 end

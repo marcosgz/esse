@@ -3,9 +3,9 @@
 module Esse
   # https://www.elastic.co/guide/en/elasticsearch/reference/1.7/indices.html
   class IndexSetting
-    def initialize(index, settings = {})
-      @parent = index
-      @settings = settings
+    def initialize(body: {}, paths: [])
+      @paths = Array(paths)
+      @settings = body
     end
 
     # This method will be overwrited when passing a block during the settings
@@ -35,21 +35,10 @@ module Esse
     end
 
     def from_template
-      loader = Esse::TemplateLoader.new(paths)
+      return if @paths.empty?
+
+      loader = Esse::TemplateLoader.new(@paths)
       loader.read('{setting,settings}')
-    end
-
-    def paths
-      return [] unless @parent
-      return [] unless @parent < Esse::Index
-
-      dir = Hstring.new(@parent.name).underscore.presence.value
-      return [] unless dir
-
-      [
-        Esse.config.indices_directory.join(dir, 'templates'),
-        Esse.config.indices_directory.join(dir)
-      ]
     end
   end
 end

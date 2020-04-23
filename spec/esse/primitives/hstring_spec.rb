@@ -106,18 +106,21 @@ RSpec.describe Esse::Hstring do
       let(:arg) { '' }
 
       it { is_expected.to eq(nil) }
+      it { is_expected.not_to be_an_instance_of(described_class) }
     end
 
     context 'with a nil value' do
       let(:arg) { nil }
 
       it { is_expected.to eq(nil) }
+      it { is_expected.not_to be_an_instance_of(described_class) }
     end
 
     context 'when the value is not blank' do
       let(:arg) { 'a' }
 
       it { is_expected.to eq('a') }
+      it { is_expected.not_to be_an_instance_of(described_class) }
     end
   end
 end

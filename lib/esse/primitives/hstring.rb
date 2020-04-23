@@ -73,7 +73,7 @@ module Esse
       return @value = nil if @value == ''
       return @value = nil unless @value
 
-      self
+      @value
     end
     def_conventional :presence!
   end

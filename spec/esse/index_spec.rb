@@ -39,17 +39,35 @@ RSpec.describe Esse::Index do
     end
   end
 
-  describe '.index_name' do
+  describe '.uname' do
     before { stub_index(:users) }
 
-    it 'returns class name expect the "index" suffix' do
-      Esse.config.index_prefix = nil
-      expect(UsersIndex.index_name).to eq('users')
+    it 'returns underscored class name' do
+      expect(UsersIndex.uname).to eq('users_index')
     end
 
-    it 'appends index_prefix from global config' do
-      Esse.config.index_prefix = 'esse'
-      expect(UsersIndex.index_name).to eq('esse_users')
+    it 'returns nil for anonymous classes' do
+      klass = Class.new(Esse::Index)
+      expect(klass.uname).to eq(nil)
+    end
+  end
+
+  describe '.dirname' do
+    it 'returns list of template directories from current index file' do
+      expect(Esse::Index.dirname).to include('lib/esse/index')
+    end
+  end
+
+  describe '.template_dirs' do
+    before { stub_index(:events) }
+
+    it 'returns list of template directories from current index file' do
+      expect(EventsIndex.template_dirs).to match_array(
+        [
+          'app/indices/events_index/templates',
+          'app/indices/events_index'
+        ],
+      )
     end
   end
 

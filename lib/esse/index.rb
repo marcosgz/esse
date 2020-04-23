@@ -10,6 +10,7 @@ module Esse
     require_relative 'index/naming'
     require_relative 'index/type'
     require_relative 'index/settings'
+    require_relative 'index/mappings'
     require_relative 'index/descendants'
 
     @elasticsearch_client = nil

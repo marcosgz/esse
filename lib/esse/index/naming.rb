@@ -3,6 +3,11 @@
 module Esse
   class Index
     module ClassMethods
+      TEMPLATE_DIRS = [
+        '%<dirname>s/templates',
+        '%<dirname>s'
+      ].freeze
+
       def index_name=(value)
         @index_name = index_prefixed_name(value)
       end
@@ -13,6 +18,20 @@ module Esse
 
       def index_name?
         !index_name.nil?
+      end
+
+      def uname
+        Hstring.new(name).underscore.presence
+      end
+
+      def dirname
+        filename = File.expand_path(__FILE__)
+        strip_ext_re = Regexp.new("#{Regexp.escape(File.extname(filename))}$")
+        filename.sub(strip_ext_re, '')
+      end
+
+      def template_dirs
+        TEMPLATE_DIRS.map { |term| format(term, dirname: dirname) }
       end
 
       protected
