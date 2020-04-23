@@ -4,6 +4,37 @@ require 'spec_helper'
 require 'support/esse_config'
 
 RSpec.describe Esse::IndexType do
+  describe '.mappings_hash' do
+    before do
+      stub_index(:geos) do
+        define_type :county do
+          mappings('properties' => { 'name' => { 'type' => 'string' } })
+        end
+
+        define_type :city do
+          mappings('name' => { 'type' => 'string' })
+        end
+      end
+    end
+
+    specify do
+      expect(GeosIndex::County.mappings_hash).to eq(
+        'county' => {
+          'properties' => {
+            'name' => { 'type' => 'string' }
+          }
+        },
+      )
+      expect(GeosIndex::City.mappings_hash).to eq(
+        'city' => {
+          'properties' => {
+            'name' => { 'type' => 'string' }
+          }
+        },
+      )
+    end
+  end
+
   describe '.mappings class definition' do
     specify do
       expect {

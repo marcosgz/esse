@@ -56,4 +56,40 @@ RSpec.describe Esse::Index do
       end
     end
   end
+
+  describe '.settings_hash' do
+    context 'without the settings node' do
+      before do
+        stub_index(:geos) do
+          settings do
+            { 'number_of_replicas' => '4'.to_i }
+          end
+        end
+      end
+
+      specify do
+        expect(GeosIndex.settings_hash).to eq(
+          'settings' => { 'number_of_replicas' => 4 },
+        )
+      end
+    end
+
+    context 'with the settings node' do
+      before do
+        stub_index(:geos) do
+          settings do
+            {
+              'settings' => { 'number_of_replicas' => '6'.to_i }
+            }
+          end
+        end
+      end
+
+      specify do
+        expect(GeosIndex.settings_hash).to eq(
+          'settings' => { 'number_of_replicas' => 6 },
+        )
+      end
+    end
+  end
 end

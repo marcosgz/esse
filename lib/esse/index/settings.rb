@@ -4,6 +4,13 @@ module Esse
   # https://github.com/elastic/elasticsearch-ruby/blob/master/elasticsearch-api/lib/elasticsearch/api/actions/indices/put_settings.rb
   class Index
     module ClassMethods
+      SETTING_ROOT_KEY = 'settings'
+
+      def settings_hash
+        hash = setting.body
+        { SETTING_ROOT_KEY => (hash.key?(SETTING_ROOT_KEY) ? hash[SETTING_ROOT_KEY] : hash) }
+      end
+
       # Define /_settings definition by each index.
       #
       # +hash+: The body of the request includes the updated settings.
