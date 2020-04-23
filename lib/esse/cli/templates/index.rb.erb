@@ -16,7 +16,7 @@ class <%= @index_name %> < <%= @base_class %>
     #
     #   collection do |conditions|
     #     context = {}
-    #     <%= type.capitalize %>.where(conditions).find_in_batches(batch_size: 5000) do |batch|
+    #     <%= type.camelize %>.where(conditions).find_in_batches(batch_size: 5000) do |batch|
     #       yield batch, context, ...
     #     end
     #   end
@@ -25,8 +25,8 @@ class <%= @index_name %> < <%= @base_class %>
     # Serializer
     # ==========
     #
-    # The serializer can be any class that respond with the `call` class method.
-    # And the result of its call is a Hash or a JSON.
+    # The serializer can be any class that respond with the `as_json` class method.
+    # And the result of its as_json is a Hash.
     #
     # Here is an example of a simple serializer:
     # app/serializers/<%= type %>_serializer.rb
@@ -35,14 +35,13 @@ class <%= @index_name %> < <%= @base_class %>
     #       @<%= type %> = <%= type %>
     #     end
     #
-    #     def call
-    #       { name: @<%= type %>.name }
+    #     def as_json
+    #       { id: @<%= type %>.id, name: @<%= type %>.name }
     #     end
     #   end
     #
     # And here you specify your serializer classe.
-    #
-    #    serializer <%= type.capitalize %>Serializer
+    #    serializer <%= @index_name %>::Serializers::<%= type.camelize %>Serializer
     #
     # You can also serialize the collection entry using a block:
     #

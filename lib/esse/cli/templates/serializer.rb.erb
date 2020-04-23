@@ -1,0 +1,14 @@
+# frozen_string_literal: true
+
+class <%= @index_name %>::Serializers::<%= @type.camelize %>Serializer
+  def initialize(<%= @type %>, *_other)
+    @entity = <%= @type %>
+  end
+
+  def as_json
+    {
+      id: @entity.id, # This field is required
+      name: @entity.name,
+    }
+  end
+end

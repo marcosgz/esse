@@ -3,7 +3,7 @@ PATH
   specs:
     esse (0.0.1)
       elasticsearch-transport (>= 1.0)
-      thor (>= 1.0)
+      thor (>= 0.19)
 
 GEM
   remote: https://rubygems.org/

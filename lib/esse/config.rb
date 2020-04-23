@@ -16,6 +16,7 @@ module Esse
   #   end
   class Config
     CLIENT_DEFAULT_KEY = :_default
+    SETUP_ATTRIBUTES = %i[index_prefix index_settings indices_directory].freeze
 
     # The index prefix. For example an index named UsersIndex.
     # With `index_prefix = 'app1'`. Final index/alias is: 'app1_users'
@@ -56,6 +57,16 @@ module Esse
 
     def indices_directory=(value)
       @indices_directory = value.is_a?(Pathname) ? value : Pathname.new(value)
+    end
+
+    def setup(hash)
+      return unless hash.is_a?(Hash)
+
+      hash.each do |key, value|
+        next unless SETUP_ATTRIBUTES.include? key.to_sym
+
+        public_send(:"#{key}=", value)
+      end
     end
   end
 end

@@ -14,11 +14,37 @@ RSpec.describe Esse::CLI::Generate, type: :cli do
       expect_contains(expected_filename, 'define_type :normal do')
     end
 
+    it 'generates the mappings template for each type' do
+      expected_filename = Esse.config.indices_directory.join('users_index/templates/user_mapping.json')
+
+      expect_generate(%w[index users user], expected_filename)
+    end
+
+    it 'generates a serializer for each type' do
+      expected_filename = Esse.config.indices_directory.join('users_index/serializers/user_serializer.rb')
+
+      expect_generate(%w[index users user], expected_filename)
+      expect_contains(expected_filename, 'class UsersIndex::Serializers::UserSerializer')
+    end
+
     it 'generates a new index class with namespace' do
       expected_filename = Esse.config.indices_directory.join('v1/users_index.rb')
 
       expect_generate(%w[index v1/users user], expected_filename)
       expect_contains(expected_filename, 'class V1::UsersIndex < Esse::Index')
+    end
+
+    it 'generates the mappings template for each type using an index class with namespace' do
+      expected_filename = Esse.config.indices_directory.join('v1/users_index/templates/user_mapping.json')
+
+      expect_generate(%w[index v1/users user], expected_filename)
+    end
+
+    it 'generates a serializer for each type under a namespace' do
+      expected_filename = Esse.config.indices_directory.join('v1/users_index/serializers/user_serializer.rb')
+
+      expect_generate(%w[index v1/users user], expected_filename)
+      expect_contains(expected_filename, 'class V1::UsersIndex::Serializers::UserSerializer')
     end
   end
 end

@@ -59,19 +59,19 @@ RSpec.describe Esse::Hstring do
     subject { model.modulize }
 
     context 'delimited by backslashes' do
-      let(:arg) { 'foo\bar'}
+      let(:arg) { 'foo\bar' }
 
       it { is_expected.to eq('Foo::Bar') }
     end
 
     context 'delimited by forward slashes' do
-      let(:arg) { 'foo/bar'}
+      let(:arg) { 'foo/bar' }
 
       it { is_expected.to eq('Foo::Bar') }
     end
 
     context 'modulized like argument' do
-      let(:arg) { 'Foo::bar_baz'}
+      let(:arg) { 'Foo::bar_baz' }
 
       it { is_expected.to eq('Foo::BarBaz') }
     end
@@ -96,6 +96,28 @@ RSpec.describe Esse::Hstring do
       let(:arg) { 'userIndex' }
 
       it { is_expected.to eq('UserIndex') }
+    end
+  end
+
+  describe '.presence' do
+    subject { model.presence }
+
+    context 'with a empty string' do
+      let(:arg) { '' }
+
+      it { is_expected.to eq(nil) }
+    end
+
+    context 'with a nil value' do
+      let(:arg) { nil }
+
+      it { is_expected.to eq(nil) }
+    end
+
+    context 'when the value is not blank' do
+      let(:arg) { 'a' }
+
+      it { is_expected.to eq('a') }
     end
   end
 end

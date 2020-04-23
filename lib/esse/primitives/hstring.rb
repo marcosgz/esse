@@ -8,6 +8,7 @@ module Esse
     extend Forwardable
 
     def_delegators :@value, :==, :eq, :to_s, :inspect, :sub, :capitalize
+    attr_reader :value
 
     def self.def_conventional(bang_method, conv_method = nil)
       conv_method ||= bang_method.to_s.sub(/[!?]*$/, '')
@@ -51,7 +52,7 @@ module Esse
     def_conventional :demodulize!
 
     def modulize!
-      @value = @value.split(/\:\:|\\|\//).map { |part| self.class.new(part).camelize.to_s }.join('::')
+      @value = @value.split(%r{\:\:|\\|/}).map { |part| self.class.new(part).camelize.to_s }.join('::')
       self
     end
     def_conventional :modulize!
@@ -67,5 +68,13 @@ module Esse
       self
     end
     def_conventional :underscore!
+
+    def presence!
+      return @value = nil if @value == ''
+      return @value = nil unless @value
+
+      self
+    end
+    def_conventional :presence!
   end
 end

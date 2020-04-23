@@ -5,6 +5,24 @@ require 'spec_helper'
 RSpec.describe Esse::Config do
   let(:model) { described_class.new }
 
+  describe '.setup' do
+    Esse::Config::SETUP_ATTRIBUTES.each do |name|
+      context "with the #{name} writer attribute" do
+        it 'allows a hash with string keys' do
+          expect(model).to receive(:"#{name}=").and_return(true)
+
+          model.setup(name.to_s => true, 'other' => false)
+        end
+
+        it 'allows a hash with symbol keys' do
+          expect(model).to receive(:"#{name}=").and_return(true)
+
+          model.setup(name.to_sym => true, :other => false)
+        end
+      end
+    end
+  end
+
   describe '.index_settings' do
     it { expect(model.index_settings).to eq({}) }
 
