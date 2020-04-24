@@ -6,11 +6,12 @@ RSpec.describe Esse::Index do
   let(:client1) { double }
   let(:client2) { double }
 
-  before do
+  before(:each) do
+    reset_config!
     Esse.config do |conf|
       conf.client = {
-        _default: client1,
-        v2: client2
+        default: client1,
+        v2: client2,
       }
     end
   end
@@ -53,8 +54,18 @@ RSpec.describe Esse::Index do
   end
 
   describe '.dirname' do
-    it 'returns list of template directories from current index file' do
-      expect(Esse::Index.dirname).to include('lib/esse/index')
+    it 'returns a directory where the index file is stored' do
+      expect(File).to receive(:expand_path).and_return('/tmp/app/indices/users_index.rb')
+      expect(Esse::Index.dirname).to include('/tmp/app/indices/users_index')
+    end
+
+    it 'returns nil for the Esse::Index' do
+      expect(Esse::Index.dirname).to eq(nil)
+    end
+
+    it 'returns nil for a anonymous class' do
+      c = Class.new(Esse::Index)
+      expect(c.dirname).to eq(nil)
     end
   end
 
@@ -68,6 +79,19 @@ RSpec.describe Esse::Index do
           'app/indices/events_index'
         ],
       )
+    end
+  end
+
+  describe '.index_version' do
+    before { stub_index(:users) }
+
+    it 'does not have a default value' do
+      expect(UsersIndex.index_version).to eq(nil)
+    end
+
+    it 'allows to modify the index_version value' do
+      UsersIndex.index_version = 'v1'
+      expect(UsersIndex.index_version).to eq('v1')
     end
   end
 
@@ -102,8 +126,10 @@ RSpec.describe Esse::Index do
   end
 
   describe '.abstract_class?' do
-    it 'defaults to false' do
+    it 'defaults to true for anonymous classes' do
       c = Class.new(Esse::Index)
+      expect(c.abstract_class?).to eq(true)
+      c.index_name = 'my_index'
       expect(c.abstract_class?).to eq(false)
     end
 
@@ -112,7 +138,7 @@ RSpec.describe Esse::Index do
         self.abstract_class = true
       end
       expect(c.abstract_class?).to eq(true)
-      child = Class.new(c)
+      child = stub_index(:users, c)
       expect(child.abstract_class?).to eq(false)
     end
   end
@@ -166,6 +192,13 @@ RSpec.describe Esse::Index do
 
       c = Class.new(Esse::Index)
       expect(c.type_hash).to eq({})
+    end
+  end
+
+  describe '.backend' do
+    specify do
+      c = Class.new(Esse::Index)
+      expect(c.backend).to be_an_instance_of(Esse::Backend::Index)
     end
   end
 end

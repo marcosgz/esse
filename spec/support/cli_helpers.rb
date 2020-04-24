@@ -3,7 +3,6 @@
 require 'thor'
 require 'fileutils'
 require 'esse/cli'
-require 'support/esse_config'
 
 module CliHelpers
   def self.included(base)
@@ -13,7 +12,7 @@ module CliHelpers
     end
 
     base.after(:each) do
-      reset_esse_config
+      reset_config!
     end
   end
 

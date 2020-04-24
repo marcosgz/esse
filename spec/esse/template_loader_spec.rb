@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'spec_helper'
-require 'support/esse_config'
 
 RSpec.describe Esse::TemplateLoader do
   describe '.read' do

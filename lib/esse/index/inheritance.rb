@@ -7,7 +7,9 @@ module Esse
       attr_accessor :abstract_class
 
       def abstract_class?
-        !!defined?(@abstract_class) && @abstract_class == true # rubocop:disable Style/DoubleNegation
+        return @abstract_class == true if defined?(@abstract_class)
+
+        !index_name?
       end
     end
 

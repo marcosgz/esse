@@ -54,6 +54,9 @@ Style/BlockDelimiters:
   Exclude:
     - spec/**/*_spec.rb
 
+Style/TrailingCommaInHashLiteral:
+  EnforcedStyleForMultiline: consistent_comma
+
 Layout/SpaceAroundMethodCallOperator:
   Enabled: true
 

@@ -3,6 +3,9 @@
 module Esse
   class Index
     module ClassMethods
+      def backend
+        Esse::Backend::Index.new(self)
+      end
     end
 
     extend ClassMethods

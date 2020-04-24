@@ -26,8 +26,7 @@ module Esse
       #
       #   class UserIndex < Esse::Index
       #     settings do
-      #       file = File.open('path/to/json')
-      #       JSON.parse(file.read)
+      #       # do something to load settings..
       #     end
       #   end
       def settings(hash = {}, &block)

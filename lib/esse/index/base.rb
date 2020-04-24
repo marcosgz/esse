@@ -16,7 +16,7 @@ module Esse
       #     EsIndex.def_Index(self)
       #
       #     class Bar < EsIndex
-      #       # Uses :_default elasticsearch client connection
+      #       # Uses :default elasticsearch client connection
       #     end
       #
       #     class Baz < EsIndex(:v1)

@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'forwardable'
+
 module Esse
   # The idea here is to add useful methods to the ruby core objects without
   # monkey patching.

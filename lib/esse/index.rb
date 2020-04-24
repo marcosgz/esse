@@ -12,6 +12,7 @@ module Esse
     require_relative 'index/settings'
     require_relative 'index/mappings'
     require_relative 'index/descendants'
+    require_relative 'index/backend'
 
     @elasticsearch_client = nil
 

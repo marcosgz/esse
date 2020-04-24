@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'spec_helper'
-require 'support/esse_config'
 
 RSpec.describe Esse::IndexSetting do
   describe '.as_json' do
@@ -34,9 +33,8 @@ RSpec.describe Esse::IndexSetting do
 
     context 'with defautl settings' do
       specify do
-        with_config do
-          expect(model.body).to eq({})
-        end
+        reset_config!
+        expect(model.body).to eq({})
       end
     end
 

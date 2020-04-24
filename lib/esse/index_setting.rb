@@ -14,7 +14,7 @@ module Esse
     # Example:
     #   class UserIndex < Esse::Index
     #     settings do
-    #       JSON.parse('my/path/to/json')
+    #       # do something to load settings..
     #     end
     #   end
     #

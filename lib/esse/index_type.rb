@@ -5,5 +5,6 @@ module Esse
     require_relative 'index_type/actions'
     require_relative 'index_type/mappings'
     require_relative 'index_type/serializer'
+    require_relative 'index_type/backend'
   end
 end

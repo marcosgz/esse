@@ -3,5 +3,18 @@
 require 'bundler/setup'
 require 'esse'
 require 'pry'
+require 'awesome_print'
+
+Esse.config.index_prefix = 'esse_console'
+
+class ApplicationIndex < Esse::Index
+  self.abstract_class = true
+end
+class GeosIndex < ApplicationIndex
+  self.index_version = 'v1'
+
+  define_type :county
+  define_type :city
+end
 
 Pry.start

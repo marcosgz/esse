@@ -7,9 +7,9 @@ require 'json'
 module Esse
   class TemplateLoader
     EXT_PARSER = {
-      'json' => ->(file) { JSON.parse(File.read(file)) },
+      'json' => ->(file) { MultiJson.load(File.read(file)) },
       'yaml' => ->(file) { YAML.load_file(file) },
-      'yml' => ->(file) { YAML.load_file(file) }
+      'yml' => ->(file) { YAML.load_file(file) },
     }.freeze
 
     def initialize(directories, extensions: EXT_PARSER.keys)
@@ -39,6 +39,8 @@ module Esse
       return unless parser
 
       parser.call(file)
+    rescue MultiJson::ParseError
+      nil
     end
   end
 end

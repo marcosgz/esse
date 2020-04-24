@@ -10,8 +10,8 @@ RSpec.describe Esse::Index do
           mappings do
             {
               'properties' => {
-                'age' => { 'type' => 'integer' }
-              }
+                'age' => { 'type' => 'integer' },
+              },
             }
           end
 
@@ -24,8 +24,8 @@ RSpec.describe Esse::Index do
         expect(GeosIndex.mappings_hash).to eq(
           'mappings' => {
             'properties' => {
-              'age' => { 'type' => 'integer' }
-            }
+              'age' => { 'type' => 'integer' },
+            },
           },
         )
       end
@@ -49,14 +49,14 @@ RSpec.describe Esse::Index do
           'mappings' => {
             'county' => {
               'properties' => {
-                'name' => { 'type' => 'string' }
-              }
+                'name' => { 'type' => 'string' },
+              },
             },
             'city' => {
               'properties' => {
-                'name' => { 'type' => 'string' }
-              }
-            }
+                'name' => { 'type' => 'string' },
+              },
+            },
           },
         )
       end

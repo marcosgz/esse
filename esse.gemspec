@@ -28,8 +28,10 @@ Gem::Specification.new do |spec|
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ['lib']
 
-  spec.add_dependency 'elasticsearch-transport', '>= 1.0'
+  spec.add_dependency 'elasticsearch'
+  spec.add_dependency 'multi_json'
   spec.add_dependency 'thor', '>= 0.19'
+  spec.add_development_dependency 'awesome_print'
   spec.add_development_dependency 'pry'
   spec.add_development_dependency 'rake', '~> 10.0'
   spec.add_development_dependency 'rspec', '~> 3.0'

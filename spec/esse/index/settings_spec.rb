@@ -1,11 +1,10 @@
 # frozen_string_literal: true
 
 require 'spec_helper'
-require 'support/esse_config'
 
 RSpec.describe Esse::Index do
   before do
-    reset_esse_config
+    reset_config!
   end
 
   describe '.setting' do
@@ -79,7 +78,7 @@ RSpec.describe Esse::Index do
         stub_index(:geos) do
           settings do
             {
-              'settings' => { 'number_of_replicas' => '6'.to_i }
+              'settings' => { 'number_of_replicas' => '6'.to_i },
             }
           end
         end

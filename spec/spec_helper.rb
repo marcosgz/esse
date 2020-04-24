@@ -3,6 +3,8 @@
 require 'bundler/setup'
 require 'esse'
 require 'support/class_helpers'
+require 'support/config_helpers'
+require 'support/elasticsearch_helpers'
 require 'pry'
 
 RSpec.configure do |config|
@@ -12,4 +14,6 @@ RSpec.configure do |config|
     c.syntax = :expect
   end
   config.include ClassHelpers
+  config.include ConfigHelpers
+  config.include ElasticsearchHelpers
 end

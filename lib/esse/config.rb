@@ -15,7 +15,7 @@ module Esse
   #     }
   #   end
   class Config
-    CLIENT_DEFAULT_KEY = :_default
+    CLIENT_DEFAULT_KEY = :default
     SETUP_ATTRIBUTES = %i[index_prefix index_settings indices_directory].freeze
 
     # The index prefix. For example an index named UsersIndex.

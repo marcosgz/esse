@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'spec_helper'
-require 'support/esse_config'
 
 RSpec.describe Esse::IndexType do
   describe '.mappings_hash' do
@@ -21,15 +20,15 @@ RSpec.describe Esse::IndexType do
       expect(GeosIndex::County.mappings_hash).to eq(
         'county' => {
           'properties' => {
-            'name' => { 'type' => 'string' }
-          }
+            'name' => { 'type' => 'string' },
+          },
         },
       )
       expect(GeosIndex::City.mappings_hash).to eq(
         'city' => {
           'properties' => {
-            'name' => { 'type' => 'string' }
-          }
+            'name' => { 'type' => 'string' },
+          },
         },
       )
     end
@@ -63,7 +62,7 @@ RSpec.describe Esse::IndexType do
   end
 
   before do
-    reset_esse_config
+    reset_config!
   end
 
   describe '.mapping' do

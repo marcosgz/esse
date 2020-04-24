@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
-require 'elasticsearch/transport'
+require 'multi_json'
+require 'elasticsearch'
 
 module Esse
   @single_threaded = false
@@ -35,11 +36,35 @@ module Esse
     @single_threaded ? yield : @data_mutex.synchronize(&block)
   end
 
+  # Generates an unique timestamp to be used as a index suffix.
+  # Time.now.to_i could also do the job. But I think this format
+  # is more readable for humans
+  def self.timestamp
+    Time.now.strftime('%Y%m%d%H%M%S')
+  end
+
+  # Find the :id from a serialized document
+  # @param [Hash] the JSON document
+  # @param [Array] the list of keys to be used to fetch hash values
+  # @return [*Object, nil] returns the value from one of the keys
+  def self.doc_id(hash, keys: %w[id _id])
+    return unless hash.is_a?(Hash)
+
+    id = nil
+    Array(keys).each do |key|
+      id = hash[key] || hash[key.to_sym]
+      break if id
+    end
+    id
+  end
+
   require_relative 'config'
   require_relative 'primitives'
   require_relative 'index_type'
   require_relative 'index_setting'
   require_relative 'index_mapping'
   require_relative 'template_loader'
+  require_relative 'backend/index'
+  require_relative 'backend/index_type'
   require_relative 'version'
 end

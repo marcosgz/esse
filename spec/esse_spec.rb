@@ -13,4 +13,8 @@ RSpec.describe Esse do
     it { expect(described_class.config).to be_an_instance_of(Esse::Config) }
     it { expect { described_class.config(&:to_s) }.not_to raise_error }
   end
+
+  describe '.timestamp' do
+    it { expect(Esse.timestamp).to be_kind_of(String) }
+  end
 end

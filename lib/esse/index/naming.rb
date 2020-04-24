@@ -20,17 +20,29 @@ module Esse
         !index_name.nil?
       end
 
+      def index_version=(value)
+        @index_version = Hstring.new(value.to_s).underscore.presence
+      end
+
+      def index_version
+        @index_version
+      end
+
       def uname
         Hstring.new(name).underscore.presence
       end
 
       def dirname
         filename = File.expand_path(__FILE__)
+        return if filename.include?('lib/esse/index/naming')
+
         strip_ext_re = Regexp.new("#{Regexp.escape(File.extname(filename))}$")
         filename.sub(strip_ext_re, '')
       end
 
       def template_dirs
+        return [] unless dirname
+
         TEMPLATE_DIRS.map { |term| format(term, dirname: dirname) }
       end
 

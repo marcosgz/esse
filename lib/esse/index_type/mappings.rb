@@ -16,7 +16,7 @@ module Esse
       def mappings_hash
         hash = mapping.body
         {
-          type_name => (hash.key?('properties') ? hash : { 'properties' => hash })
+          type_name => (hash.key?('properties') ? hash : { 'properties' => hash }),
         }
       end
 

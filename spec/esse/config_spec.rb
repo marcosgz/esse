@@ -50,7 +50,7 @@ RSpec.describe Esse::Config do
 
     it 'allows define a single connection' do
       model.client = connection
-      is_expected.to eq(_default: connection)
+      is_expected.to eq(default: connection)
     end
 
     it 'allows to define multiple connections' do
@@ -64,7 +64,7 @@ RSpec.describe Esse::Config do
       model.client = { bar: 'bar' }
       model.client = 'default'
 
-      is_expected.to eq(foo: 'foo', bar: 'bar', _default: 'default')
+      is_expected.to eq(foo: 'foo', bar: 'bar', default: 'default')
     end
 
     it 'allows define a connection from Esse module' do
@@ -82,7 +82,7 @@ RSpec.describe Esse::Config do
 
     it 'store connection using default key' do
       model.client
-      expect(model.instance_variable_get(:@clients)).to have_key(:_default)
+      expect(model.instance_variable_get(:@clients)).to have_key(:default)
     end
 
     it 'returns existing connection using a custom key' do
