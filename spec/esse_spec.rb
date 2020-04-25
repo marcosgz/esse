@@ -17,4 +17,61 @@ RSpec.describe Esse do
   describe '.timestamp' do
     it { expect(Esse.timestamp).to be_kind_of(String) }
   end
+
+  describe '.doc_id!' do
+    specify do
+      hash = {}
+      id, newhash = Esse.doc_id!(hash)
+      expect(id).to eq(nil)
+      expect(newhash).to eq(hash)
+    end
+
+    specify do
+      hash = { id: 1, foo: :bar }
+      id, newhash = Esse.doc_id!(hash)
+      expect(id).to eq(1)
+      expect(newhash).to eq(hash)
+      expect(hash).to eq(hash)
+    end
+
+    specify do
+      hash = { 'id' => 1, 'foo' => :bar }
+      id, newhash = Esse.doc_id!(hash)
+      expect(id).to eq(1)
+      expect(newhash).to eq(hash)
+      expect(hash).to eq(hash)
+    end
+
+    specify do
+      hash = { id: 1, foo: :bar }
+      id, newhash = Esse.doc_id!(hash)
+      expect(id).to eq(1)
+      expect(newhash).to eq(hash)
+      expect(hash).to eq(hash)
+    end
+
+    specify do
+      hash = { _id: 1, id: 2, foo: :bar }
+      id, newhash = Esse.doc_id!(hash)
+      expect(id).to eq(1)
+      expect(newhash).to eq(id: 2, foo: :bar)
+      expect(hash).to eq(hash)
+    end
+
+    specify do
+      hash = { '_id' => 1, 'id' => 2, 'foo' => :bar }
+      id, newhash = Esse.doc_id!(hash)
+      expect(id).to eq(1)
+      expect(newhash).to eq('id' => 2, 'foo' => :bar)
+      expect(hash).to eq(hash)
+    end
+
+    specify do
+      hash = { '_id' => nil, 'id' => 2, 'foo' => :bar }
+      id, newhash = Esse.doc_id!(hash)
+      expect(id).to eq(2)
+      expect(newhash).to eq('id' => 2, 'foo' => :bar)
+      expect(hash).to eq(hash)
+    end
+  end
 end

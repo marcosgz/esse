@@ -36,7 +36,7 @@ class <%= @index_name %> < <%= @base_class %>
     #     end
     #
     #     def as_json
-    #       { id: @<%= type %>.id, name: @<%= type %>.name }
+    #       { '_id' => @<%= type %>.id, 'name' => @<%= type %>.name }
     #     end
     #   end
     #

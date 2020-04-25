@@ -43,19 +43,33 @@ module Esse
     Time.now.strftime('%Y%m%d%H%M%S')
   end
 
-  # Find the :id from a serialized document
+  # Simple helper used to fetch Hash value using Symbol and String keys.
+  #
   # @param [Hash] the JSON document
-  # @param [Array] the list of keys to be used to fetch hash values
-  # @return [*Object, nil] returns the value from one of the keys
-  def self.doc_id(hash, keys: %w[id _id])
+  # @option [Array] :delete Removes the hash key and return its value
+  # @option [Array] :keep Fetch the hash key and return its value
+  # @return [Array([Integer, String, nil], Hash)] return the key value and the modified hash
+  def self.doc_id!(hash, delete: %w[_id], keep: %w[id])
     return unless hash.is_a?(Hash)
 
-    id = nil
-    Array(keys).each do |key|
-      id = hash[key] || hash[key.to_sym]
+    id, modified = [nil, nil]
+    Array(delete).each do |key|
+      k = key.to_s if hash.key?(key.to_s)
+      k ||= key.to_sym if hash.key?(key.to_sym)
+      if k
+        modified ||= hash.dup
+        id = modified.delete(k)
+        break if id
+      end
+    end
+    return [id, modified] if id
+
+    modified ||= hash
+    Array(keep).each do |key|
+      id = modified[key.to_s] || modified[key.to_sym]
       break if id
     end
-    id
+    [id, modified]
   end
 
   require_relative 'config'

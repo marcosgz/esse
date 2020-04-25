@@ -5,7 +5,15 @@ module Esse
     class Index
       module InstanceMethods
         def import!(**options)
-          # @TODO
+          type_hash.each_value do |type|
+            type.backend.import!(**options)
+          end
+        end
+
+        def import(**options)
+          type_hash.each_value do |type|
+            type.backend.import(**options)
+          end
         end
       end
 

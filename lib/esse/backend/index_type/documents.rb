@@ -4,28 +4,40 @@ module Esse
   module Backend
     class IndexType
       module InstanceMethods
+        # Resolve collection and index data
+        #
+        # @param options [Hash] Hash of paramenters that will be passed along to elasticsearch request
+        # @option [Hash] :context The collection context. This value will be passed as argument to the collection
+        #   May be SQL condition or any other filter you have defined on the collection.
+        def import(context: {}, **options)
+          each_serialized_batch(context || {}) do |batch|
+            bulk(index: batch, **options)
+          end
+        end
+        alias import! import
+
         # Performs multiple indexing or delete operations in a single API call.
         # This reduces overhead and can greatly increase indexing speed.
         #
         # @param options [Hash] Hash of paramenters that will be passed along to elasticsearch request
         # @param options [Array] :index list of serialized documents to be indexed(Optional)
-        # @param options [Array] :update list of serialized documents to be updated(Optional)
         # @param options [Array] :delete list of serialized documents to be deleted(Optional)
+        # @param options [Array] :create list of serialized documents to be created(Optional)
         # @return [Hash, nil] the elasticsearch response or nil if there is no data.
         #
         # @see https://www.elastic.co/guide/en/elasticsearch/reference/7.5/docs-bulk.html
-        def bulk(index: nil, update: nil, delete: nil, **options)
+        def bulk(index: nil, delete: nil, create: nil, **options)
           body = []
           Array(index).each do |entry|
-            id = Esse.doc_id(entry)
-            body << { index: { _id: id, data: entry } } if id
+            id, data = Esse.doc_id!(entry)
+            body << { index: { _id: id, data: data } } if id
           end
-          Array(update).each do |entry|
-            id = Esse.doc_id(entry)
-            body << { update: { _id: id, data: entry } } if id
+          Array(create).each do |entry|
+            id, data = Esse.doc_id!(entry)
+            body << { create: { _id: id, data: data } } if id
           end
           Array(delete).each do |entry|
-            id = Esse.doc_id(entry)
+            id, _data = Esse.doc_id!(entry, delete: [], keep: %w[_id id])
             body << { delete: { _id: id } } if id
           end
 
@@ -39,11 +51,12 @@ module Esse
 
           client.bulk(definition)
         end
+        alias bulk! bulk
 
         # Adds a JSON document to the specified index and makes it searchable. If the document
         # already exists, updates the document and increments its version.
         #
-        #   UsersIndex::User.create!(id: 1, body: { name: 'name' }) # { '_id' => 1, ...}
+        #   UsersIndex::User.index(id: 1, body: { name: 'name' }) # { '_id' => 1, ...}
         #
         # @param options [Hash] Hash of paramenters that will be passed along to elasticsearch request
         # @param options [String, Integer] :id The `_id` of the elasticsearch document
@@ -51,28 +64,45 @@ module Esse
         # @return [Hash] the elasticsearch response Hash
         #
         # @see https://www.elastic.co/guide/en/elasticsearch/reference/7.5/docs-index_.html
-        def create(id:, body:, **options)
+        def index(id:, body:, **options)
           client.index(
             options.merge(index: index_name, type: type_name, id: id, body: body),
           )
         end
-        alias create! create
+        alias index! index
 
         # Updates a document using the specified script.
         #
-        #   UsersIndex::User.update!(id: 1, body: { script: { ... } }) # { '_id' => 1, ...}
+        #   UsersIndex::User.update!(id: 1, body: { doc: { ... } }) # { '_id' => 1, ...}
         #
         # @param options [Hash] Hash of paramenters that will be passed along to elasticsearch request
         # @param options [String, Integer] :id The `_id` of the elasticsearch document
         # @param options [Hash] :body the body of the request
-        # @return [Hash] the elasticsearch response Hash
+        # @raise [Elasticsearch::Transport::Transport::Errors::NotFound] when the doc does not exist
+        # @return [Hash] elasticsearch response hash
         #
         # @see https://www.elastic.co/guide/en/elasticsearch/reference/7.5/docs-update.html
-        # def update!(id:, body:, **options)
-        #   client.create(
-        #     options.merge(index: index_name, type: type_name, id: id, body: body)
-        #   )
-        # end
+        def update!(id:, body:, **options)
+          client.update(
+            options.merge(index: index_name, type: type_name, id: id, body: body),
+          )
+        end
+
+        # Updates a document using the specified script.
+        #
+        #   UsersIndex::User.update(id: 1, body: { doc: { ... } }) # { '_id' => 1, ...}
+        #
+        # @param options [Hash] Hash of paramenters that will be passed along to elasticsearch request
+        # @param options [String, Integer] :id The `_id` of the elasticsearch document
+        # @param options [Hash] :body the body of the request
+        # @return [Hash, false] the elasticsearch response hash, or false in case of failure
+        #
+        # @see https://www.elastic.co/guide/en/elasticsearch/reference/7.5/docs-update.html
+        def update(id:, body:, **options)
+          update!(id: id, body: body, **options)
+        rescue Elasticsearch::Transport::Transport::Errors::NotFound
+          false
+        end
 
         # Removes a JSON document from the specified index.
         #

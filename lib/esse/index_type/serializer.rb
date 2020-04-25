@@ -67,6 +67,18 @@ module Esse
       rescue LocalJumpError
         raise(SyntaxError, 'block must be explicitly declared in the collection definition')
       end
+
+      # Wrap collection data into serialized batches
+      #
+      # @param [*Object] Any argument is allowed here. The collection will be called with same arguments.
+      #   And the serializer will be initialized with those arguments too.
+      # @yield [Array, *Object] serialized collection and method arguments
+      def each_serialized_batch(*args, &block)
+        each_batch(*args) do |batch, *serializer_args|
+          entries = batch.map { |entry| serialize(entry, *serializer_args) }.compact
+          block.call(entries, *args)
+        end
+      end
     end
 
     extend ClassMethods

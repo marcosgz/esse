@@ -10,9 +10,9 @@ module Esse
       extend Forwardable
 
       # Type delegators
-      def_delegators :@index_type, :type_name, :index
+      def_delegators :@index_type, :type_name, :each_serialized_batch, :serialize
       # Index delegators
-      def_delegators :index, :index_name
+      def_delegators :index_class, :index_name
 
       def initialize(type)
         @index_type = type
@@ -20,8 +20,12 @@ module Esse
 
       protected
 
+      def index_class
+        @index_type.index
+      end
+
       def client
-        index.elasticsearch_client
+        index_class.elasticsearch_client
       end
     end
   end

@@ -17,7 +17,7 @@ module Esse
       NAMING = %i[index_name index_version].freeze
       DEFINITION = %i[settings_hash mappings_hash].freeze
 
-      def_delegators :@index, *(NAMING + DEFINITION)
+      def_delegators :@index, :type_hash, *(NAMING + DEFINITION)
 
       def initialize(index)
         @index = index
