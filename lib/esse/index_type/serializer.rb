@@ -22,8 +22,9 @@ module Esse
         elsif klass.is_a?(Class) && klass.instance_methods.include?(:call)
           @serializer_proc = proc { |*args| klass.new(*args).call }
         else
-          raise ArgumentError, format('%<arg>p is not a valid serializer. The serializer should ' \
-                                      'respond with `as_json` instance method.', arg: klass,)
+          msg = format('%<arg>p is not a valid serializer. The serializer should ' \
+                       'respond with `as_json` instance method.', arg: klass,)
+          raise ArgumentError, msg
         end
       end
 

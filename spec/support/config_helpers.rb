@@ -2,25 +2,33 @@
 
 module ConfigHelpers
   DEFAULTS = {
-    index_prefix: 'esse_test',
     indices_directory: 'tmp/indices',
-    index_settings: {
-      number_of_shards: 1,
-      number_of_replicas: 0,
+    clusters: {
+      default: {
+        index_prefix: 'esse_test',
+        index_settings: {
+          number_of_shards: 1,
+          number_of_replicas: 0,
+        },
+      },
     },
   }.freeze
 
   def reset_config!
-    Esse::Index.elasticsearch_client = nil
+    Esse::Index.cluster_id = nil
     Esse.instance_variable_set(:@config, nil)
   end
 
   def with_config(opts = {})
     settings = DEFAULTS.dup.merge(opts)
-    Esse.config.setup(settings)
+    Esse.config.load(settings)
 
     yield Esse.config
 
     reset_config!
+  end
+
+  def with_cluster_config(id: :default, **opts)
+    with_config { |c| c.clusters(id).assign(**opts) }
   end
 end

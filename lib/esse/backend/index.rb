@@ -31,7 +31,7 @@ module Esse
       end
 
       def client
-        @index.elasticsearch_client
+        @index.cluster.client
       end
     end
   end

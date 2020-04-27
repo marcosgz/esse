@@ -7,51 +7,32 @@ module Esse
   #
   # Example
   #   Esse.config do |conf|
-  #     conf.client = Elasticsearch::Client.new
-  #     conf.index_prefix = 'backend'
-  #     conf.index_settings = {
-  #       number_of_shards: 2,
-  #       number_of_replicas: 0
-  #     }
+  #     conf.indices_directory = 'app/indices'
   #   end
   class Config
-    CLIENT_DEFAULT_KEY = :default
-    SETUP_ATTRIBUTES = %i[index_prefix index_settings indices_directory].freeze
-
-    # The index prefix. For example an index named UsersIndex.
-    # With `index_prefix = 'app1'`. Final index/alias is: 'app1_users'
-    attr_accessor :index_prefix
-
-    # This settings will be passed through all indices during the mapping
-    attr_accessor :index_settings
+    DEFAULT_CLUSTER_ID = :default
+    ATTRIBUTES = %i[indices_directory].freeze
 
     # The location of the indices. Defaults to the `app/indices`
     attr_reader :indices_directory
 
     def initialize
-      @clients = {}
-      @index_settings = {}
       self.indices_directory = 'app/indices'
+      @clusters = {}
+      clusters(DEFAULT_CLUSTER_ID) # initialize the :default client
     end
 
-    def client(key = CLIENT_DEFAULT_KEY)
-      @clients[key] ||= Elasticsearch::Client.new
+    def cluster_ids
+      @clusters.keys
     end
 
-    # It's possible to define multiple elasticsearch clients.
-    # For example if your application is using two versions of es.
-    # Client definition could be something like:
-    #
-    #   Esse.config.client = {
-    #     v5: Elasticsearch::Client.new(url: 'v5.example.com:9200'),
-    #     v6: Elasticsearch::Client.new(url: 'v6.example.com:9200')
-    #   }
-    def client=(val)
-      case val
-      when Hash
-        @clients.merge!(val)
-      else
-        @clients[CLIENT_DEFAULT_KEY] = val
+    def clusters(key = DEFAULT_CLUSTER_ID, **options)
+      return unless key
+
+      id = key.to_sym
+      (@clusters[id] ||= Cluster.new(id: id)).tap do |c|
+        c.assign(**options) if options
+        yield c if block_given?
       end
     end
 
@@ -59,14 +40,34 @@ module Esse
       @indices_directory = value.is_a?(Pathname) ? value : Pathname.new(value)
     end
 
-    def setup(hash)
-      return unless hash.is_a?(Hash)
-
-      hash.each do |key, value|
-        next unless SETUP_ATTRIBUTES.include? key.to_sym
-
-        public_send(:"#{key}=", value)
+    def load(arg)
+      case arg
+      when Hash
+        assign(arg)
+      when File, Pathname
+        # @TODO Load JSON or YAML
+      when String
+        # @TODO Load JSON or YAML if File.exist?(arg)
+      else
+        raise ArgumentError, printf('could not load configuration using: %p', val)
       end
+    end
+
+    private
+
+    def assign(hash)
+      hash.each do |key, value|
+        method = (ATTRIBUTES & [key.to_s, key.to_sym]).first
+        next unless method
+
+        public_send("#{method}=", value)
+      end
+      if (connections = hash['clusters'] || hash[:clusters]).is_a?(Hash)
+        connections.each do |key, value|
+          clusters(key).assign(value) if value.is_a?(Hash)
+        end
+      end
+      true
     end
   end
 end

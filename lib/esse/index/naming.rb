@@ -50,9 +50,9 @@ module Esse
 
       def index_prefixed_name(value)
         return if value == '' || value.nil?
-        return value.to_s unless Esse.config.index_prefix
+        return value.to_s unless cluster.index_prefix
 
-        [Esse.config.index_prefix, value].join('_')
+        [cluster.index_prefix, value].join('_')
       end
 
       def normalized_name

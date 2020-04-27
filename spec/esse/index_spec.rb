@@ -3,34 +3,36 @@
 require 'spec_helper'
 
 RSpec.describe Esse::Index do
-  let(:client1) { double }
-  let(:client2) { double }
+  let(:client1) { instance_double(Elasticsearch::Transport::Client) }
+  let(:client2) { instance_double(Elasticsearch::Transport::Client) }
 
   before(:each) do
     reset_config!
     Esse.config do |conf|
-      conf.client = {
-        default: client1,
-        v2: client2,
-      }
+      conf.clusters do |cluster|
+        cluster.client = client1
+      end
+      conf.clusters(:v2) do |cluster|
+        cluster.client = client2
+      end
     end
   end
 
   it 'allows overwrite elasticearch client from index model' do
     c = Class.new(Esse::Index)
-    c.elasticsearch_client = client2
-    expect(c.elasticsearch_client).to eq(client2)
+    c.cluster_id = :v2
+    expect(c.cluster.client).to eq(client2)
   end
 
   it 'returns an index subclass with default elasticsearch client' do
     c = Class.new(Esse::Index)
-    expect(c.elasticsearch_client).to eq(client1)
+    expect(c.cluster.client).to eq(client1)
     expect(c.superclass).to eq(Esse::Index)
   end
 
   it 'returns an index subclass with a v2 elasticsearch client' do
     c = Esse::Index(:v2)
-    expect(c.elasticsearch_client).to eq(client2)
+    expect(c.cluster.client).to eq(client2)
     expect(c.superclass).to eq(Esse::Index)
   end
 
@@ -99,29 +101,29 @@ RSpec.describe Esse::Index do
     before { stub_index(:users) }
 
     it 'returns class name expect the "index" suffix' do
-      Esse.config.index_prefix = nil
-      expect(UsersIndex.index_name).to eq('users')
+      with_cluster_config(index_prefix: nil) do
+        expect(UsersIndex.index_name).to eq('users')
+      end
     end
 
     it 'appends index_prefix from global config' do
-      Esse.config.index_prefix = 'esse'
-      expect(UsersIndex.index_name).to eq('esse_users')
+      with_cluster_config(index_prefix: 'esse') do
+        expect(UsersIndex.index_name).to eq('esse_users')
+      end
     end
 
     it 'returns nil with an abstract class' do
-      Esse.config.index_prefix = nil
-      klass = Class.new(Esse::Index) { self.abstract_class = true }
-      expect(klass.index_name).to eq(nil)
-      Esse.config.index_prefix = 'esse'
-      expect(klass.index_name).to eq(nil)
+      with_cluster_config(index_prefix: nil) do
+        klass = Class.new(Esse::Index) { self.abstract_class = true }
+        expect(klass.index_name).to eq(nil)
+      end
     end
 
     it 'returns nil with an anonymous class' do
-      Esse.config.index_prefix = nil
-      klass = Class.new(Esse::Index)
-      expect(klass.index_name).to eq(nil)
-      Esse.config.index_prefix = 'esse'
-      expect(klass.index_name).to eq(nil)
+      with_cluster_config(index_prefix: 'esse') do
+        klass = Class.new(Esse::Index)
+        expect(klass.index_name).to eq(nil)
+      end
     end
   end
 
@@ -147,15 +149,17 @@ RSpec.describe Esse::Index do
     before { stub_index(:users) }
 
     it 'overwrites default index_name' do
-      Esse.config.index_prefix = nil
-      UsersIndex.index_name = 'admins'
-      expect(UsersIndex.index_name).to eq('admins')
+      with_cluster_config(index_prefix: nil) do
+        UsersIndex.index_name = 'admins'
+        expect(UsersIndex.index_name).to eq('admins')
+      end
     end
 
     it 'overwrites default index_prefix with prefixed global config' do
-      Esse.config.index_prefix = 'esse'
-      UsersIndex.index_name = 'admins'
-      expect(UsersIndex.index_name).to eq('esse_admins')
+      with_cluster_config(index_prefix: 'esse') do
+        UsersIndex.index_name = 'admins'
+        expect(UsersIndex.index_name).to eq('esse_admins')
+      end
     end
   end
 

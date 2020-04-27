@@ -29,18 +29,18 @@ RSpec.describe Esse::IndexSetting do
   end
 
   describe '.body' do
-    let(:model) { described_class.new }
-
     context 'with defautl settings' do
       specify do
         reset_config!
+        model = described_class.new
         expect(model.body).to eq({})
       end
     end
 
     context 'with global settings' do
       specify do
-        with_config(index_settings: { refresh_interval: '1s' }) do
+        with_cluster_config(index_settings: { refresh_interval: '1s' }) do
+          model = described_class.new
           expect(model.body).to eq(refresh_interval: '1s')
         end
       end

@@ -5,6 +5,8 @@ module Esse
     module Serializers; end
 
     module ClassMethods
+      attr_reader :cluster_id
+
       # Define a Index method on the given module that calls the Index
       # method on the receiver. This is how the Esse::Index() method is
       # defined, and allows you to define Index() methods on other modules,
@@ -31,54 +33,74 @@ module Esse
         end
       end
 
-      # Lets you create a Index subclass with its elasticsearch client
+      # Lets you create a Index subclass with its elasticsearch cluster
       #
       # Example:
-      #   # Using a symbol
+      #   # Using a custom cluster
+      #   Esse.config.clusters(:v1).client = Elasticsearch::Client.new
       #   class UsersIndex < Esse::Index(:v1)
-      #     # self.elasticsearch_client == Esse.config.client(:v1)
       #   end
       #
-      #   # Using custom elasticsearch client
-      #   ES_CLIENT = ::Elasticsearch::Client.new
-      #
-      #   class UsersIndex < Esse::Index(ES_CLIENT)
-      #     # self.elasticsearch_client == ES_CLIENT
+      #   # Using :default cluster
+      #   class UsersIndex < Esse::Index
       #   end
       def Index(source) # rubocop:disable Naming/MethodName
         klass = Class.new(self)
 
-        klass.elasticsearch_client = \
-          if source.is_a?(::Elasticsearch::Client)
-            source
-          else
-            Esse.config.client(source)
+        valid_ids = Esse.config.cluster_ids
+        klass.cluster_id = \
+          case source
+          when Esse::Cluster
+            source.id
+          when String, Symbol
+            id = source.to_sym
+            id if valid_ids.include?(id)
           end
+
+        msg = <<~MSG
+          We could not resolve the index cluster using the argument %<arg>p. \n
+          It must be previously defined in the `Esse.config' settings. \n
+          Here is the list of cluster ids we have configured: %<ids>s\n
+
+          You can ignore this cluster id entirely. That way the :default id will be used.\n
+          Example: \n
+            class UsersIndex < Esse::Index\n
+            end\n
+        MSG
+        unless klass.cluster_id
+          raise ArgumentError.new, format(msg, arg: source, ids: valid_ids.map(&:inspect).join(', '))
+        end
 
         klass.type_hash = {}
         klass
       end
 
-      # Return an instance of Elasticsearch::Client
-      def elasticsearch_client
-        return @elasticsearch_client if @elasticsearch_client
-
-        @elasticsearch_client = \
-          if self == Index
-            Esse.synchronize { Esse.config.client }
-          else
-            superclass.elasticsearch_client
-          end
+      # Sets the client_id associated with the Index class.
+      # This can be used directly on Esse::Index to set the :default es cluster
+      # to be used by subclasses, or to override the es client used for specific indices:
+      #   Esse::Index.cluster_id = :v1
+      #   ArtistIndex = Class.new(Esse::Index)
+      #   ArtistIndex.cluster_id = :v2
+      def cluster_id=(cluster_id)
+        @cluster_id = cluster_id
       end
 
-      # Sets the elasticsearch_client associated with the Index class.
-      # This can be used directly on Esse::Index to set the default es client
-      # to be used by subclasses, or to override the es client used for specific indices:
-      #   Esse::Index.elasticsearch_client = CLIENT_V1
-      #   ArtistIndex = Class.new(Esse::Index)
-      #   ArtistIndex.elasticsearch_client = CLIENT_V2
-      def elasticsearch_client=(elasticsearch_client)
-        @elasticsearch_client = elasticsearch_client
+      # @return [Symbol] reads the @cluster_id instance variable or :default
+      def cluster_id
+        @cluster_id || Config::DEFAULT_CLUSTER_ID
+      end
+
+      # @return [Esse::Cluster] an instance of cluster based on its cluster_id
+      def cluster
+        unless Esse.config.cluster_ids.include?(cluster_id)
+          binding.pry
+          raise NotImplementedError, <<~MSG
+            There is no cluster configured for this index. Use `Esse.config.clusters(cluster_id) { ... }' define the elasticsearch
+            client connection.
+          MSG
+        end
+
+        Esse.synchronize { Esse.config.clusters(cluster_id) }
       end
 
       def inspect

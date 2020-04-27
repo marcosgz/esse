@@ -10,17 +10,20 @@ module Esse
 
   # Block configurations
   #   Esse.config do |conf|
-  #     conf.client = Elasticsearch::Client.new
-  #     conf.index_prefix = 'backend'
-  #     conf.index_settings = {
-  #       number_of_shards: 2,
-  #       number_of_replicas: 0
-  #     }
+  #     conf.indices_directory = 'app/indices/directory'
+  #     conf.clusters(:v1) do |cluster|
+  #       cluster.index_prefix = 'backend'
+  #       cluster.client = Elasticsearch::Client.new
+  #       cluster.index_settings = {
+  #         number_of_shards: 2,
+  #         number_of_replicas: 0
+  #       }
+  #     end
   #   end
   #
   # Inline configurations
-  #   Esse.config.index_prefix = 'backend'
-  #   Esse.config.client = Elasticsearch::Client.new
+  #   Esse.config.indices_directory = 'app/indices/directory'
+  #   Esse.config.clusters(:v1).client = Elasticsearch::Client.new
   def self.config
     @config ||= Config.new
     yield(@config) if block_given?
@@ -52,15 +55,16 @@ module Esse
   def self.doc_id!(hash, delete: %w[_id], keep: %w[id])
     return unless hash.is_a?(Hash)
 
-    id, modified = [nil, nil]
+    id = nil
+    modified = nil
     Array(delete).each do |key|
       k = key.to_s if hash.key?(key.to_s)
       k ||= key.to_sym if hash.key?(key.to_sym)
-      if k
-        modified ||= hash.dup
-        id = modified.delete(k)
-        break if id
-      end
+      next unless k
+
+      modified ||= hash.dup
+      id = modified.delete(k)
+      break if id
     end
     return [id, modified] if id
 
@@ -73,6 +77,7 @@ module Esse
   end
 
   require_relative 'config'
+  require_relative 'cluster'
   require_relative 'primitives'
   require_relative 'index_type'
   require_relative 'index_setting'

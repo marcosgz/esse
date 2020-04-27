@@ -23,14 +23,15 @@ RSpec.describe Esse::Index do
       end
 
       specify do
-        is_expected.to eq(number_of_replicas: 4)
+        with_cluster_config do
+          is_expected.to eq(number_of_replicas: 4)
+        end
       end
 
       specify do
-        Esse.config do |c|
-          c.index_settings = { number_of_replicas: 3, refresh_interval: '1s' }
+        with_cluster_config(index_settings: { number_of_replicas: 3, refresh_interval: '1s' }) do
+          is_expected.to eq(number_of_replicas: 4, refresh_interval: '1s')
         end
-        is_expected.to eq(number_of_replicas: 4, refresh_interval: '1s')
       end
     end
 
@@ -48,10 +49,9 @@ RSpec.describe Esse::Index do
       end
 
       specify do
-        Esse.config do |c|
-          c.index_settings = { number_of_replicas: 3, refresh_interval: '1s' }
+        with_cluster_config(index_settings: { number_of_replicas: 3, refresh_interval: '1s' }) do
+          is_expected.to eq(number_of_replicas: 4, refresh_interval: '1s')
         end
-        is_expected.to eq(number_of_replicas: 4, refresh_interval: '1s')
       end
     end
   end

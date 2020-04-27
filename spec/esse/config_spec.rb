@@ -5,90 +5,62 @@ require 'spec_helper'
 RSpec.describe Esse::Config do
   let(:model) { described_class.new }
 
-  describe '.setup' do
-    Esse::Config::SETUP_ATTRIBUTES.each do |name|
+  describe '.cluster_ids' do
+    specify do
+      expect(model.cluster_ids).to match_array(%i[default])
+
+      model.clusters(:v1) {}
+      expect(model.cluster_ids).to match_array(%i[default v1])
+
+      model.clusters('v1') {}
+      expect(model.cluster_ids).to match_array(%i[default v1])
+
+      model.clusters('v2') {}
+      expect(model.cluster_ids).to match_array(%i[default v1 v2])
+    end
+  end
+
+  describe '.load' do
+    Esse::Config::ATTRIBUTES.each do |name|
       context "with the #{name} writer attribute" do
         it 'allows a hash with string keys' do
           expect(model).to receive(:"#{name}=").and_return(true)
 
-          model.setup(name.to_s => true, 'other' => false)
+          model.load(name.to_s => true, 'other' => false)
         end
 
         it 'allows a hash with symbol keys' do
           expect(model).to receive(:"#{name}=").and_return(true)
 
-          model.setup(name.to_sym => true, :other => false)
+          model.load(name.to_sym => true, :other => false)
         end
       end
-    end
-  end
 
-  describe '.index_settings' do
-    it { expect(model.index_settings).to eq({}) }
+      context 'with cluster write attribute' do
+        it 'ignores objects different than Hash' do
+          expect(model).not_to receive(:clusters)
+          model.load(clusters: 'test', other: false)
+          model.load('clusters' => 'test', :other => false)
+          model.load(clusters: nil, other: false)
+          model.load('clusters' => nil, :other => false)
+          model.load(clusters: [], other: false)
+          model.load('clusters' => [], :other => false)
+        end
 
-    it 'allows overwriting default value' do
-      model.index_settings = { foo: 'bar' }
-      expect(model.index_settings).to eq(foo: 'bar')
-    end
-  end
+        it 'configures each cluster using key string as cluster id' do
+          cluster = instance_double(Esse::Cluster, assign: true)
+          expect(model).to receive(:clusters).with('v1').and_return(cluster)
 
-  describe '.index_prefix' do
-    it { expect(model.index_prefix).to eq nil }
+          model.load(clusters: { 'v1' => { client: nil } }, other: false)
+        end
 
-    it 'allows overwriting default value' do
-      model.index_prefix = 'prefix'
-      expect(model.index_prefix).to eq('prefix')
-    end
-  end
+        it 'configures each cluster using key symbol as cluster id' do
+          cluster = instance_double(Esse::Cluster, assign: true)
+          expect(model).to receive(:clusters).with(:v1).and_return(cluster)
 
-  describe '.client=' do
-    subject { model.instance_variable_get(:@clients) }
-
-    let(:connection) { double }
-
-    it { expect(model).to respond_to(:"client=") }
-
-    it 'allows define a single connection' do
-      model.client = connection
-      is_expected.to eq(default: connection)
-    end
-
-    it 'allows to define multiple connections' do
-      model.client = { other: connection }
-      is_expected.to eq(other: connection)
-    end
-
-    it 'keeps existing connections' do
-      model.client = { foo: 'foo' }
-      model.client = 'test'
-      model.client = { bar: 'bar' }
-      model.client = 'default'
-
-      is_expected.to eq(foo: 'foo', bar: 'bar', default: 'default')
-    end
-
-    it 'allows define a connection from Esse module' do
-      Esse.config { |c| c.client = connection }
-      expect(Esse.config.client).to eq(connection)
-    end
-  end
-
-  describe '.client' do
-    it { expect(model).to respond_to(:client) }
-
-    it 'retuns an instance of elasticsearch client with no key' do
-      expect(model.client).to be_an_instance_of(Elasticsearch::Transport::Client)
-    end
-
-    it 'store connection using default key' do
-      model.client
-      expect(model.instance_variable_get(:@clients)).to have_key(:default)
-    end
-
-    it 'returns existing connection using a custom key' do
-      connection = double
-      model.instance_variable_set(:@clients, { other: connection })
-      expect(model.client(:other)).to eq(connection)
+          model.load(clusters: { v1: { client: nil } }, other: false)
+        end
+      end
     end
   end
 

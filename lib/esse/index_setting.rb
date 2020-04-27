@@ -3,7 +3,8 @@
 module Esse
   # https://www.elastic.co/guide/en/elasticsearch/reference/1.7/indices.html
   class IndexSetting
-    def initialize(body: {}, paths: [])
+    def initialize(body: {}, paths: [], globals: {})
+      @globals = globals || {}
       @paths = Array(paths)
       @settings = body
     end
@@ -25,14 +26,10 @@ module Esse
     end
 
     def body
-      global_settings.merge(as_json)
+      @globals.merge(as_json)
     end
 
     protected
-
-    def global_settings
-      Esse.config.index_settings
-    end
 
     def from_template
       return if @paths.empty?

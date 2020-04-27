@@ -14,7 +14,7 @@ module Esse
     require_relative 'index/descendants'
     require_relative 'index/backend'
 
-    @elasticsearch_client = nil
+    @cluster_id = nil
 
     def_Index(::Esse)
   end
