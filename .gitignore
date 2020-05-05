@@ -9,3 +9,4 @@
 /tmp/
 esse-*.gem
 /app
+/.env

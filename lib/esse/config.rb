@@ -31,7 +31,7 @@ module Esse
 
       id = key.to_sym
       (@clusters[id] ||= Cluster.new(id: id)).tap do |c|
-        c.assign(**options) if options
+        c.assign(options) if options
         yield c if block_given?
       end
     end

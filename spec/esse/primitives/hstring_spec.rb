@@ -31,6 +31,18 @@ RSpec.describe Esse::Hstring do
 
       it { is_expected.to eq('foo_bar') }
     end
+
+    context 'with camelized string under a namespace' do
+      let(:arg) { 'Apiv2::UserName' }
+
+      it { is_expected.to eq('apiv2/user_name') }
+    end
+
+    context 'with camelized string with a root namespace' do
+      let(:arg) { '::UserName' }
+
+      it { is_expected.to eq('user_name') }
+    end
   end
 
   describe '.demodulize' do

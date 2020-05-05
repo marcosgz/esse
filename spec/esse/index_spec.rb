@@ -55,19 +55,33 @@ RSpec.describe Esse::Index do
     end
   end
 
-  describe '.dirname' do
-    it 'returns a directory where the index file is stored' do
-      expect(File).to receive(:expand_path).and_return('/tmp/app/indices/users_index.rb')
-      expect(Esse::Index.dirname).to include('/tmp/app/indices/users_index')
+  describe '.index_directory' do
+    before { stub_index(:users) }
+
+    it 'returns a directory using the index class location' do
+      with_cluster_config do
+        expect(UsersIndex.index_directory).to eq('/tmp/app/indices/users_index')
+      end
+    end
+
+    it 'includes the namespace of the index class' do
+      with_cluster_config do
+        expect(UsersIndex).to receive(:uname).and_return('V1::UsersIndex')
+        expect(UsersIndex.index_directory).to eq('/tmp/app/indices/v1/users_index')
+      end
     end
 
     it 'returns nil for the Esse::Index' do
-      expect(Esse::Index.dirname).to eq(nil)
+      with_cluster_config do
+        expect(Esse::Index.index_directory).to eq(nil)
+      end
     end
 
     it 'returns nil for a anonymous class' do
-      c = Class.new(Esse::Index)
-      expect(c.dirname).to eq(nil)
+      with_cluster_config do
+        c = Class.new(Esse::Index)
+        expect(c.index_directory).to eq(nil)
+      end
     end
   end
 

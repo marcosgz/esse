@@ -16,10 +16,10 @@ module Esse
     def initialize(id:, **options)
       @id = id.to_sym
       @index_settings = {}
-      assign(**options)
+      assign(options)
     end
 
-    def assign(**hash)
+    def assign(hash)
       return unless hash.is_a?(Hash)
 
       hash.each do |key, value|
@@ -39,7 +39,8 @@ module Esse
     #   with the settings that will be used to initialize Elasticsearch::Client
     def client=(val)
       @client = if val.is_a?(Hash)
-        Elasticsearch::Client.new(val)
+        settings = val.each_with_object({}) { |(k,v), r| r[k.to_sym] = v }
+        Elasticsearch::Client.new(settings)
       else
         val
       end

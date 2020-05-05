@@ -2,8 +2,6 @@
 
 module Esse
   class Index
-    module Serializers; end
-
     module ClassMethods
       attr_reader :cluster_id
 
@@ -93,7 +91,6 @@ module Esse
       # @return [Esse::Cluster] an instance of cluster based on its cluster_id
       def cluster
         unless Esse.config.cluster_ids.include?(cluster_id)
-          binding.pry
           raise NotImplementedError, <<~MSG
             There is no cluster configured for this index. Use `Esse.config.clusters(cluster_id) { ... }' define the elasticsearch
             client connection.

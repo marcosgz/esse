@@ -61,12 +61,15 @@ module Esse
 
     def underscore!
       @value = @value
+        .sub(/^\:\:/, '')
+        .gsub('::', '/')
         .gsub(/([A-Z]+)([A-Z][a-z])/, '\1_\2')
         .gsub(/([a-z\d])([A-Z])/, '\1_\2')
         .tr('-', '_')
         .gsub(/\s/, '_')
         .gsub(/__+/, '_')
         .downcase
+
       self
     end
     def_conventional :underscore!

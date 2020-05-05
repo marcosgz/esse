@@ -32,18 +32,17 @@ module Esse
         Hstring.new(name).underscore.presence
       end
 
-      def dirname
-        filename = File.expand_path(__FILE__)
-        return if filename.include?('lib/esse/index/naming')
+      def index_directory
+        return unless uname
+        return if uname == 'Esse::Index'
 
-        strip_ext_re = Regexp.new("#{Regexp.escape(File.extname(filename))}$")
-        filename.sub(strip_ext_re, '')
+        Esse.config.indices_directory.join(uname).to_s
       end
 
       def template_dirs
-        return [] unless dirname
+        return [] unless index_directory
 
-        TEMPLATE_DIRS.map { |term| format(term, dirname: dirname) }
+        TEMPLATE_DIRS.map { |term| format(term, dirname: index_directory) }
       end
 
       protected

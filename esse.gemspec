@@ -31,6 +31,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'elasticsearch'
   spec.add_dependency 'multi_json'
   spec.add_dependency 'thor', '>= 0.19'
+  spec.add_development_dependency 'dotenv'
   spec.add_development_dependency 'awesome_print'
   spec.add_development_dependency 'pry'
   spec.add_development_dependency 'rake', '~> 10.0'
