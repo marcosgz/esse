@@ -7,11 +7,10 @@
 module Esse
   class Index
     module ClassMethods
-      MAPPING_ROOT_KEY = 'mappings'
 
       # This is the actually content that will be passed through the ES api
       def mappings_hash
-        { MAPPING_ROOT_KEY => (index_mapping || type_mapping) }
+        { Esse::MAPPING_ROOT_KEY => (index_mapping || type_mapping) }
       end
 
       # This method is only used to define mapping
@@ -32,7 +31,7 @@ module Esse
         return if mapping.empty?
 
         hash = mapping.body
-        hash.key?(MAPPING_ROOT_KEY) ? hash[MAPPING_ROOT_KEY] : hash
+        hash.key?(Esse::MAPPING_ROOT_KEY) ? hash[Esse::MAPPING_ROOT_KEY] : hash
       end
 
       def type_mapping
