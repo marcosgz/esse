@@ -47,7 +47,7 @@ RSpec.describe Esse::Backend::Index do
     end
   end
 
-  describe '.close!' do
+  describe '.close' do
     specify do
       es_client do |client, _conf, cluster|
         expect(DummiesIndex.backend.close).to eq(false)
