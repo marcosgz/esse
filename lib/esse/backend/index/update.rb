@@ -57,6 +57,62 @@ module Esse
         rescue Elasticsearch::Transport::Transport::ServerError
           false
         end
+
+
+        # Closes the index for read/write operations, updates the index settings, and open it again
+        #
+        # @option options [String] :expand_wildcards Whether to expand wildcard expression to concrete indices that
+        #   are open, closed or both. (options: open, closed)
+        # @option options [String] :ignore_indices When performed on multiple indices, allows to ignore
+        #   `missing` ones (options: none, missing) @until 1.0
+        # @option options [Boolean] :ignore_unavailable Whether specified concrete indices should be ignored when
+        #   unavailable (missing, closed, etc)
+        # @option options [Boolean] :include_defaults Whether to return all default clusters setting
+        # @option options [Boolean] :preserve_existing Whether to update existing settings.
+        #   If set to `true` existing settings on an index remain unchanged, the default is `false`
+        # @option options [Time] :master_timeout Specify timeout for connection to master
+        # @option options [Boolean] :flat_settings Return settings in flat format (default: false)
+        # @raise [Elasticsearch::Transport::Transport::Errors::BadRequest, Elasticsearch::Transport::Transport::Errors::NotFound]
+        #   in case of failure
+        # @return [Hash] the elasticsearch response
+        #
+        # @see http://www.elasticsearch.org/guide/reference/api/admin-indices-update-settings/
+        def update_settings!(suffix: index_version, **options)
+          name = suffix ? real_index_name(suffix) : index_name
+          response = nil
+
+          close!(suffix: suffix)
+          begin
+            body = settings_hash(cluster_settings: false).fetch(Esse::SETTING_ROOT_KEY)
+            response = client.indices.put_settings(options.merge(index: name, body: body))
+          ensure
+            open!(suffix: suffix)
+          end
+
+          response
+        end
+
+        # Closes the index for read/write operations, updates the index settings, and open it again
+        #
+        # @option options [String] :expand_wildcards Whether to expand wildcard expression to concrete indices that
+        #   are open, closed or both. (options: open, closed)
+        # @option options [String] :ignore_indices When performed on multiple indices, allows to ignore
+        #   `missing` ones (options: none, missing) @until 1.0
+        # @option options [Boolean] :ignore_unavailable Whether specified concrete indices should be ignored when
+        #   unavailable (missing, closed, etc)
+        # @option options [Boolean] :include_defaults Whether to return all default clusters setting
+        # @option options [Boolean] :preserve_existing Whether to update existing settings.
+        #   If set to `true` existing settings on an index remain unchanged, the default is `false`
+        # @option options [Time] :master_timeout Specify timeout for connection to master
+        # @option options [Boolean] :flat_settings Return settings in flat format (default: false)
+        # @return [Hash, false] the elasticsearch response, false in case of failure
+        #
+        # @see http://www.elasticsearch.org/guide/reference/api/admin-indices-update-settings/
+        def update_settings(suffix: index_version, **options)
+          update_settings!(suffix: suffix, **options)
+        rescue Elasticsearch::Transport::Transport::ServerError
+          false
+        end
       end
 
       include InstanceMethods
