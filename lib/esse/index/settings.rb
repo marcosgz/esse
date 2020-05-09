@@ -6,7 +6,7 @@ module Esse
     module ClassMethods
 
       def settings_hash
-        hash = setting.body
+        hash = cluster.index_settings.merge(setting.body)
         { Esse::SETTING_ROOT_KEY => (hash.key?(Esse::SETTING_ROOT_KEY) ? hash[Esse::SETTING_ROOT_KEY] : hash) }
       end
 
