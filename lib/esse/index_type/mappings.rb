@@ -2,7 +2,7 @@
 
 module Esse
   class IndexType
-    # https://github.com/elastic/elasticsearch-ruby/blob/master/elasticsearch-api/lib/elasticsearch/api/actions/indices/put_mapping.rb
+    # https://www.elastic.co/guide/en/elasticsearch/reference/master/indices-put-mapping.html
     module ClassMethods
       # This method is only used to define mapping
       def mappings(hash = {}, &block)
