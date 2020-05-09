@@ -1,0 +1,53 @@
+# frozen_string_literal: true
+
+module Esse
+  module Backend
+    class Index
+      module InstanceMethods
+        # Close an index (keep the data on disk, but deny operations with the index).
+        #
+        # @option options [String, nil] :suffix The index suffix. Defaults to the index_version.
+        #   Use nil if you want to check existence of the `index_name` index or alias.
+        # @option options [String] :expand_wildcards Whether to expand wildcard expression to concrete indices that
+        #   are open, closed or both. (options: open, closed)
+        # @option options [String] :ignore_indices When performed on multiple indices, allows to ignore
+        #   `missing` ones (options: none, missing) @until 1.0
+        # @option options [Boolean] :ignore_unavailable Whether specified concrete indices should be ignored when
+        #   unavailable (missing, closed, etc)
+        # @option options [Time] :timeout Explicit operation timeout
+        # @raise [Elasticsearch::Transport::Transport::Errors::BadRequest, Elasticsearch::Transport::Transport::Errors::NotFound]
+        #   in case of failure
+        # @return [Hash] the elasticsearch response
+        #
+        # @see https://www.elastic.co/guide/en/elasticsearch/reference/master/indices-open-close.html
+        def close!(suffix: index_version, **options)
+          name = suffix ? real_index_name(suffix) : index_name
+
+          client.indices.close(options.merge(index: name))
+        end
+
+        # Close an index (keep the data on disk, but deny operations with the index).
+        #
+        # @option options [String, nil] :suffix The index suffix. Defaults to the index_version.
+        #   Use nil if you want to check existence of the `index_name` index or alias.
+        # @option options [String] :expand_wildcards Whether to expand wildcard expression to concrete indices that
+        #   are open, closed or both. (options: open, closed)
+        # @option options [String] :ignore_indices When performed on multiple indices, allows to ignore
+        #   `missing` ones (options: none, missing) @until 1.0
+        # @option options [Boolean] :ignore_unavailable Whether specified concrete indices should be ignored when
+        #   unavailable (missing, closed, etc)
+        # @option options [Time] :timeout Explicit operation timeout
+        # @return [Hash, false] the elasticsearch response, or false in case of failure
+        #
+        # @see https://www.elastic.co/guide/en/elasticsearch/reference/master/indices-open-close.html
+        def close(suffix: index_version, **options)
+          close!(suffix: suffix, **options)
+        rescue Elasticsearch::Transport::Transport::ServerError
+          false
+        end
+      end
+
+      include InstanceMethods
+    end
+  end
+end
