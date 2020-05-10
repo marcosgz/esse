@@ -10,7 +10,7 @@ module Esse
 
         # Creates index and applies mappings and settings.
         #
-        #   UsersIndex.backend.create # creates index named `<prefix_>users_<suffix|index_version|timestamp>`
+        #   UsersIndex.backend.create_index # creates index named `<prefix_>users_<suffix|index_version|timestamp>`
         #
         # @param options [Hash] Options hash
         # @option options [Boolean] :alias Update `index_name` alias along with the new index
@@ -19,15 +19,15 @@ module Esse
         # @return [Hash, false] the elasticsearch response or false in case of unsuccessful creation.
         #
         # @see http://www.elasticsearch.org/blog/changing-mapping-with-zero-downtime/
-        def create(suffix: nil, **options)
-          create!(suffix: suffix, **options)
+        def create_index(suffix: nil, **options)
+          create_index!(suffix: suffix, **options)
         rescue Elasticsearch::Transport::Transport::Errors::BadRequest
           false
         end
 
         # Creates index and applies mappings and settings.
         #
-        #   UsersIndex.backend.create! # creates index named `<prefix_>users_<suffix|index_version|timestamp>`
+        #   UsersIndex.backend.create_index! # creates index named `<prefix_>users_<suffix|index_version|timestamp>`
         #
         # @param options [Hash] Options hash
         # @option options [Boolean] :alias Update `index_name` alias along with the new index
@@ -37,7 +37,7 @@ module Esse
         # @return [Hash] the elasticsearch response
         #
         # @see http://www.elasticsearch.org/blog/changing-mapping-with-zero-downtime/
-        def create!(suffix: nil, **options)
+        def create_index!(suffix: nil, **options)
           options = DEFAULT_OPTIONS.merge(options)
           name = real_index_name(suffix)
           definition = [settings_hash, mappings_hash].reduce(&:merge)

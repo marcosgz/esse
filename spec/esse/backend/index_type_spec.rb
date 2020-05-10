@@ -258,7 +258,7 @@ RSpec.describe Esse::Backend::Index do
   describe '.import' do
     specify do
       es_client do
-        GeosIndex.backend.create
+        GeosIndex.backend.create_index
         expect { GeosIndex::State.backend.import(context: {}, refresh: true) }.not_to raise_error
         expect(GeosIndex::State.backend.count).to eq(3)
         expect(GeosIndex::County.backend.count).to eq(0)
@@ -267,7 +267,7 @@ RSpec.describe Esse::Backend::Index do
 
     specify do
       es_client do
-        GeosIndex.backend.create
+        GeosIndex.backend.create_index
         context = {
           conditions: ->(entry) { entry.id < 3 },
         }

@@ -26,7 +26,7 @@ RSpec.describe Esse::Backend::Index do
 
     specify do
       es_client do |client, _conf, cluster|
-        expect(DummiesIndex.backend.create(alias: true, suffix: 'v1')['acknowledged']).to eq(true)
+        expect(DummiesIndex.backend.create_index(alias: true, suffix: 'v1')['acknowledged']).to eq(true)
         client.cluster.health(wait_for_status: 'green')
         client.indices.close(index: "#{cluster.index_prefix}_dummies_v1", wait_for_active_shards: 1)
         expect(DummiesIndex.backend.open!['acknowledged']).to eq(true)
@@ -40,8 +40,8 @@ RSpec.describe Esse::Backend::Index do
 
     specify do
       es_client do |client, _conf, cluster|
-        expect(DummiesIndex.backend.create(alias: true, suffix: 'v1')['acknowledged']).to eq(true)
-        expect(DummiesIndex.backend.create(alias: false, suffix: 'v2')['acknowledged']).to eq(true)
+        expect(DummiesIndex.backend.create_index(alias: true, suffix: 'v1')['acknowledged']).to eq(true)
+        expect(DummiesIndex.backend.create_index(alias: false, suffix: 'v2')['acknowledged']).to eq(true)
         client.cluster.health(wait_for_status: 'green')
         client.indices.close(index: "#{cluster.index_prefix}_dummies_v1,#{cluster.index_prefix}_dummies_v2", wait_for_active_shards: 1)
         expect(DummiesIndex.backend.open!(suffix: 'v2')['acknowledged']).to eq(true)
@@ -75,7 +75,7 @@ RSpec.describe Esse::Backend::Index do
 
     specify do
       es_client do |client, _conf, cluster|
-        expect(DummiesIndex.backend.create(alias: true, suffix: 'v1')['acknowledged']).to eq(true)
+        expect(DummiesIndex.backend.create_index(alias: true, suffix: 'v1')['acknowledged']).to eq(true)
         client.cluster.health(wait_for_status: 'green')
         client.indices.close(index: "#{cluster.index_prefix}_dummies_v1", wait_for_active_shards: 1)
         expect(DummiesIndex.backend.open['acknowledged']).to eq(true)
@@ -89,8 +89,8 @@ RSpec.describe Esse::Backend::Index do
 
     specify do
       es_client do |client, _conf, cluster|
-        expect(DummiesIndex.backend.create(alias: true, suffix: 'v1')['acknowledged']).to eq(true)
-        expect(DummiesIndex.backend.create(alias: false, suffix: 'v2')['acknowledged']).to eq(true)
+        expect(DummiesIndex.backend.create_index(alias: true, suffix: 'v1')['acknowledged']).to eq(true)
+        expect(DummiesIndex.backend.create_index(alias: false, suffix: 'v2')['acknowledged']).to eq(true)
         client.cluster.health(wait_for_status: 'green')
         client.indices.close(index: "#{cluster.index_prefix}_dummies_v1,#{cluster.index_prefix}_dummies_v2", wait_for_active_shards: 1)
         expect(DummiesIndex.backend.open(suffix: 'v2')['acknowledged']).to eq(true)

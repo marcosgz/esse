@@ -32,7 +32,7 @@ RSpec.describe Esse::Backend::Index do
 
     specify do
       es_client do |client, _conf, cluster|
-        expect(DummiesIndex.backend.create(alias: true, suffix: 'v1')['acknowledged']).to eq(true)
+        expect(DummiesIndex.backend.create_index(alias: true, suffix: 'v1')['acknowledged']).to eq(true)
         settings = client.indices.get_settings(index: "#{cluster.index_prefix}_dummies")
         expect(settings.dig("#{cluster.index_prefix}_dummies_v1", 'settings', 'index', 'number_of_replicas')).to eq('0')
         expect(settings.dig("#{cluster.index_prefix}_dummies_v1", 'settings', 'index', 'refresh_interval')).to eq('1s')
@@ -52,7 +52,7 @@ RSpec.describe Esse::Backend::Index do
 
     specify do
       es_client do |client, _conf, cluster|
-        expect(DummiesIndex.backend.create(alias: true, suffix: 'v1')['acknowledged']).to eq(true)
+        expect(DummiesIndex.backend.create_index(alias: true, suffix: 'v1')['acknowledged']).to eq(true)
         settings = client.indices.get_settings(index: "#{cluster.index_prefix}_dummies")
         expect(settings.dig("#{cluster.index_prefix}_dummies_v1", 'settings', 'index', 'number_of_replicas')).to eq('0')
         expect(settings.dig("#{cluster.index_prefix}_dummies_v1", 'settings', 'index', 'refresh_interval')).to eq('1s')
@@ -79,8 +79,8 @@ RSpec.describe Esse::Backend::Index do
 
     specify do
       es_client do |client, _conf, cluster|
-        expect(DummiesIndex.backend.create(alias: true, suffix: 'v1')['acknowledged']).to eq(true)
-        expect(DummiesIndex.backend.create(alias: false, suffix: 'v2')['acknowledged']).to eq(true)
+        expect(DummiesIndex.backend.create_index(alias: true, suffix: 'v1')['acknowledged']).to eq(true)
+        expect(DummiesIndex.backend.create_index(alias: false, suffix: 'v2')['acknowledged']).to eq(true)
         settings = client.indices.get_settings(index: "#{cluster.index_prefix}_dummies*")
         expect(settings.dig("#{cluster.index_prefix}_dummies_v1", 'settings', 'index', 'refresh_interval')).to eq('1s')
         expect(settings.dig("#{cluster.index_prefix}_dummies_v2", 'settings', 'index', 'refresh_interval')).to eq('1s')
@@ -121,7 +121,7 @@ RSpec.describe Esse::Backend::Index do
   
     specify do
       es_client do |client, _conf, cluster|
-        expect(DummiesIndex.backend.create(alias: true, suffix: 'v1')['acknowledged']).to eq(true)
+        expect(DummiesIndex.backend.create_index(alias: true, suffix: 'v1')['acknowledged']).to eq(true)
         settings = client.indices.get_settings(index: "#{cluster.index_prefix}_dummies")
         expect(settings.dig("#{cluster.index_prefix}_dummies_v1", 'settings', 'index', 'number_of_replicas')).to eq('0')
         expect(settings.dig("#{cluster.index_prefix}_dummies_v1", 'settings', 'index', 'refresh_interval')).to eq('1s')
@@ -139,7 +139,7 @@ RSpec.describe Esse::Backend::Index do
   
     specify do
       es_client do |client, _conf, cluster|
-        expect(DummiesIndex.backend.create(alias: true, suffix: 'v1')['acknowledged']).to eq(true)
+        expect(DummiesIndex.backend.create_index(alias: true, suffix: 'v1')['acknowledged']).to eq(true)
         settings = client.indices.get_settings(index: "#{cluster.index_prefix}_dummies")
         expect(settings.dig("#{cluster.index_prefix}_dummies_v1", 'settings', 'index', 'number_of_replicas')).to eq('0')
         expect(settings.dig("#{cluster.index_prefix}_dummies_v1", 'settings', 'index', 'refresh_interval')).to eq('1s')
@@ -166,8 +166,8 @@ RSpec.describe Esse::Backend::Index do
 
     specify do
       es_client do |client, _conf, cluster|
-        expect(DummiesIndex.backend.create(alias: true, suffix: 'v1')['acknowledged']).to eq(true)
-        expect(DummiesIndex.backend.create(alias: false, suffix: 'v2')['acknowledged']).to eq(true)
+        expect(DummiesIndex.backend.create_index(alias: true, suffix: 'v1')['acknowledged']).to eq(true)
+        expect(DummiesIndex.backend.create_index(alias: false, suffix: 'v2')['acknowledged']).to eq(true)
         settings = client.indices.get_settings(index: "#{cluster.index_prefix}_dummies*")
         expect(settings.dig("#{cluster.index_prefix}_dummies_v1", 'settings', 'index', 'refresh_interval')).to eq('1s')
         expect(settings.dig("#{cluster.index_prefix}_dummies_v2", 'settings', 'index', 'refresh_interval')).to eq('1s')

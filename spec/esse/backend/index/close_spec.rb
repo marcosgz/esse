@@ -13,7 +13,7 @@ RSpec.describe Esse::Backend::Index do
         expect{ DummiesIndex.backend.close! }.to raise_error(
           Elasticsearch::Transport::Transport::Errors::NotFound,
         ).with_message(/\[#{cluster.index_prefix}_dummies\] missing/)
-        expect(DummiesIndex.backend.create(alias: true, suffix: 'v1')['acknowledged']).to eq(true)
+        expect(DummiesIndex.backend.create_index(alias: true, suffix: 'v1')['acknowledged']).to eq(true)
         client.cluster.health(wait_for_status: 'green')
         expect(DummiesIndex.backend.close!['acknowledged']).to eq(true)
         expected_state = client.cluster.state(index: DummiesIndex.index_name, metric: 'metadata')
@@ -29,8 +29,8 @@ RSpec.describe Esse::Backend::Index do
         expect{ DummiesIndex.backend.close!(suffix: 'v2') }.to raise_error(
           Elasticsearch::Transport::Transport::Errors::NotFound,
         ).with_message(/\[#{cluster.index_prefix}_dummies_v2\] missing/)
-        expect(DummiesIndex.backend.create(alias: true, suffix: 'v1')['acknowledged']).to eq(true)
-        expect(DummiesIndex.backend.create(alias: false, suffix: 'v2')['acknowledged']).to eq(true)
+        expect(DummiesIndex.backend.create_index(alias: true, suffix: 'v1')['acknowledged']).to eq(true)
+        expect(DummiesIndex.backend.create_index(alias: false, suffix: 'v2')['acknowledged']).to eq(true)
         client.cluster.health(wait_for_status: 'green')
         expect(DummiesIndex.backend.close!(suffix: 'v2')['acknowledged']).to eq(true)
 
@@ -51,7 +51,7 @@ RSpec.describe Esse::Backend::Index do
     specify do
       es_client do |client, _conf, cluster|
         expect(DummiesIndex.backend.close).to eq(false)
-        expect(DummiesIndex.backend.create(alias: true, suffix: 'v1')['acknowledged']).to eq(true)
+        expect(DummiesIndex.backend.create_index(alias: true, suffix: 'v1')['acknowledged']).to eq(true)
         client.cluster.health(wait_for_status: 'green')
         expect(DummiesIndex.backend.close['acknowledged']).to eq(true)
         expected_state = client.cluster.state(index: DummiesIndex.index_name, metric: 'metadata')
@@ -65,8 +65,8 @@ RSpec.describe Esse::Backend::Index do
     specify do
       es_client do |client, _conf, cluster|
         expect(DummiesIndex.backend.close(suffix: 'v2')).to eq(false)
-        expect(DummiesIndex.backend.create(alias: true, suffix: 'v1')['acknowledged']).to eq(true)
-        expect(DummiesIndex.backend.create(alias: false, suffix: 'v2')['acknowledged']).to eq(true)
+        expect(DummiesIndex.backend.create_index(alias: true, suffix: 'v1')['acknowledged']).to eq(true)
+        expect(DummiesIndex.backend.create_index(alias: false, suffix: 'v2')['acknowledged']).to eq(true)
         client.cluster.health(wait_for_status: 'green')
         expect(DummiesIndex.backend.close(suffix: 'v2')['acknowledged']).to eq(true)
 

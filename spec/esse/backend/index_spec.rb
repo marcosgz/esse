@@ -17,7 +17,7 @@ RSpec.describe Esse::Backend::Index do
     context 'when index exists' do
       specify do
         es_client do
-          DummiesIndex.backend.create!
+          DummiesIndex.backend.create_index!
           expect(DummiesIndex.backend.exist?).to eq(true)
         end
       end
@@ -27,18 +27,18 @@ RSpec.describe Esse::Backend::Index do
   describe '.create!' do
     specify do
       es_client do
-        expect(DummiesIndex.backend.create['acknowledged']).to eq(true)
+        expect(DummiesIndex.backend.create_index['acknowledged']).to eq(true)
       end
     end
 
     it 'creates a suffixed index and its alias' do
       es_client do |client, _conf, cluster|
         allow(Esse).to receive(:timestamp).and_return('2020')
-        expect(DummiesIndex.backend.create!['acknowledged']).to eq(true)
-        expect(DummiesIndex.backend.create!(suffix: 'v1')['acknowledged']).to eq(true)
+        expect(DummiesIndex.backend.create_index!['acknowledged']).to eq(true)
+        expect(DummiesIndex.backend.create_index!(suffix: 'v1')['acknowledged']).to eq(true)
         expect(client.indices.exists(index: "#{cluster.index_prefix}_dummies")).to eq(true)
         expect(client.indices.exists(index: "#{cluster.index_prefix}_dummies_v1")).to eq(true)
-        expect { DummiesIndex.backend.create!(suffix: 'v1') }.to raise_error(
+        expect { DummiesIndex.backend.create_index!(suffix: 'v1') }.to raise_error(
           Elasticsearch::Transport::Transport::Errors::BadRequest,
         ).with_message(/\[#{cluster.index_prefix}_dummies_v1\] already exists/)
         expect(DummiesIndex.backend.indices).to match_array(
@@ -58,11 +58,11 @@ RSpec.describe Esse::Backend::Index do
     it 'creates a suffixed index without alias' do
       es_client do |client, _conf, cluster|
         allow(Esse).to receive(:timestamp).and_return('2020')
-        expect(DummiesIndex.backend.create!(alias: false)['acknowledged']).to eq(true)
-        expect(DummiesIndex.backend.create!(alias: false, suffix: 'v1')['acknowledged']).to eq(true)
+        expect(DummiesIndex.backend.create_index!(alias: false)['acknowledged']).to eq(true)
+        expect(DummiesIndex.backend.create_index!(alias: false, suffix: 'v1')['acknowledged']).to eq(true)
         expect(client.indices.exists(index: "#{cluster.index_prefix}_dummies")).to eq(false)
         expect(client.indices.exists(index: "#{cluster.index_prefix}_dummies_v1")).to eq(true)
-        expect { DummiesIndex.backend.create!(alias: false, suffix: 'v1') }.to raise_error(
+        expect { DummiesIndex.backend.create_index!(alias: false, suffix: 'v1') }.to raise_error(
           Elasticsearch::Transport::Transport::Errors::BadRequest,
         ).with_message(/\[#{cluster.index_prefix}_dummies_v1\] already exists/)
         expect(DummiesIndex.backend.indices).to match_array([])
@@ -74,19 +74,19 @@ RSpec.describe Esse::Backend::Index do
   describe '.create' do
     specify do
       es_client do
-        expect(DummiesIndex.backend.create['acknowledged']).to eq(true)
+        expect(DummiesIndex.backend.create_index['acknowledged']).to eq(true)
       end
     end
 
     it 'creates a suffixed index and its alias' do
       es_client do |client, _conf, cluster|
         allow(Esse).to receive(:timestamp).and_return('2020')
-        expect(DummiesIndex.backend.create['acknowledged']).to eq(true)
-        expect(DummiesIndex.backend.create(suffix: 'v1')['acknowledged']).to eq(true)
+        expect(DummiesIndex.backend.create_index['acknowledged']).to eq(true)
+        expect(DummiesIndex.backend.create_index(suffix: 'v1')['acknowledged']).to eq(true)
         expect(client.indices.exists(index: "#{cluster.index_prefix}_dummies")).to eq(true)
         expect(client.indices.exists(index: "#{cluster.index_prefix}_dummies_v1")).to eq(true)
-        expect(DummiesIndex.backend.create(suffix: 'v1')).to eq(false)
-        expect(DummiesIndex.backend.create(suffix: 'v2')['acknowledged']).to eq(true)
+        expect(DummiesIndex.backend.create_index(suffix: 'v1')).to eq(false)
+        expect(DummiesIndex.backend.create_index(suffix: 'v2')['acknowledged']).to eq(true)
         expect(DummiesIndex.backend.indices).to match_array(
           [
             "#{cluster.index_prefix}_dummies_2020",
@@ -105,12 +105,12 @@ RSpec.describe Esse::Backend::Index do
     it 'creates a suffixed index without alias' do
       es_client do |client, _conf, cluster|
         allow(Esse).to receive(:timestamp).and_return('2020')
-        expect(DummiesIndex.backend.create(alias: false)['acknowledged']).to eq(true)
-        expect(DummiesIndex.backend.create(alias: false, suffix: 'v1')['acknowledged']).to eq(true)
+        expect(DummiesIndex.backend.create_index(alias: false)['acknowledged']).to eq(true)
+        expect(DummiesIndex.backend.create_index(alias: false, suffix: 'v1')['acknowledged']).to eq(true)
         expect(client.indices.exists(index: "#{cluster.index_prefix}_dummies")).to eq(false)
         expect(client.indices.exists(index: "#{cluster.index_prefix}_dummies_v1")).to eq(true)
-        expect(DummiesIndex.backend.create(alias: false, suffix: 'v1')).to eq(false)
-        expect(DummiesIndex.backend.create(alias: false, suffix: 'v2')['acknowledged']).to eq(true)
+        expect(DummiesIndex.backend.create_index(alias: false, suffix: 'v1')).to eq(false)
+        expect(DummiesIndex.backend.create_index(alias: false, suffix: 'v2')['acknowledged']).to eq(true)
         expect(DummiesIndex.backend.indices).to match_array([])
         expect(DummiesIndex.backend.aliases).to eq([])
       end
@@ -132,15 +132,15 @@ RSpec.describe Esse::Backend::Index do
 
     specify do
       es_client do
-        expect(DummiesIndex.backend.create(suffix: 'v1')['acknowledged']).to eq(true)
+        expect(DummiesIndex.backend.create_index(suffix: 'v1')['acknowledged']).to eq(true)
         expect(DummiesIndex.backend.delete(suffix: 'v1')['acknowledged']).to eq(true)
       end
     end
 
     specify do
       es_client do |client, _conf, cluster|
-        expect(DummiesIndex.backend.create(suffix: 'v1')['acknowledged']).to eq(true)
-        expect(DummiesIndex.backend.create(alias: false, suffix: 'v2')['acknowledged']).to eq(true)
+        expect(DummiesIndex.backend.create_index(suffix: 'v1')['acknowledged']).to eq(true)
+        expect(DummiesIndex.backend.create_index(alias: false, suffix: 'v2')['acknowledged']).to eq(true)
         expect(DummiesIndex.backend.delete(suffix: nil)['acknowledged']).to eq(true)
         expect(client.indices.exists(index: "#{cluster.index_prefix}_dummies")).to eq(false)
         expect(client.indices.exists(index: "#{cluster.index_prefix}_dummies_v1")).to eq(false)
@@ -168,15 +168,15 @@ RSpec.describe Esse::Backend::Index do
 
     specify do
       es_client do
-        expect(DummiesIndex.backend.create(suffix: 'v1')['acknowledged']).to eq(true)
+        expect(DummiesIndex.backend.create_index(suffix: 'v1')['acknowledged']).to eq(true)
         expect(DummiesIndex.backend.delete!(suffix: 'v1')['acknowledged']).to eq(true)
       end
     end
 
     specify do
       es_client do |client, _conf, cluster|
-        expect(DummiesIndex.backend.create(suffix: 'v1')['acknowledged']).to eq(true)
-        expect(DummiesIndex.backend.create(alias: false, suffix: 'v2')['acknowledged']).to eq(true)
+        expect(DummiesIndex.backend.create_index(suffix: 'v1')['acknowledged']).to eq(true)
+        expect(DummiesIndex.backend.create_index(alias: false, suffix: 'v2')['acknowledged']).to eq(true)
         expect(DummiesIndex.backend.delete!(suffix: nil)['acknowledged']).to eq(true)
         expect(client.indices.exists(index: "#{cluster.index_prefix}_dummies")).to eq(false)
         expect(client.indices.exists(index: "#{cluster.index_prefix}_dummies_v1")).to eq(false)
@@ -189,7 +189,7 @@ RSpec.describe Esse::Backend::Index do
     specify do
       es_client do |client, _conf, cluster|
         expect(DummiesIndex.backend.update_aliases(suffix: 'v1')).to eq(false)
-        expect(DummiesIndex.backend.create(alias: false, suffix: 'v1')['acknowledged']).to eq(true)
+        expect(DummiesIndex.backend.create_index(alias: false, suffix: 'v1')['acknowledged']).to eq(true)
         expect(client.indices.exists(index: "#{cluster.index_prefix}_dummies")).to eq(false)
         expect(client.indices.exists(index: "#{cluster.index_prefix}_dummies_v1")).to eq(true)
         expect(DummiesIndex.backend.update_aliases(suffix: 'v1')['acknowledged']).to eq(true)
@@ -200,9 +200,9 @@ RSpec.describe Esse::Backend::Index do
 
     specify do
       es_client do |client, _conf, cluster|
-        expect(DummiesIndex.backend.create(alias: false, suffix: 'v1')['acknowledged']).to eq(true)
-        expect(DummiesIndex.backend.create(alias: true, suffix: 'v2')['acknowledged']).to eq(true)
-        expect(DummiesIndex.backend.create(alias: false, suffix: 'v3')['acknowledged']).to eq(true)
+        expect(DummiesIndex.backend.create_index(alias: false, suffix: 'v1')['acknowledged']).to eq(true)
+        expect(DummiesIndex.backend.create_index(alias: true, suffix: 'v2')['acknowledged']).to eq(true)
+        expect(DummiesIndex.backend.create_index(alias: false, suffix: 'v3')['acknowledged']).to eq(true)
         expect(client.indices.exists(index: "#{cluster.index_prefix}_dummies")).to eq(true)
         expect(client.indices.exists(index: "#{cluster.index_prefix}_dummies_v1")).to eq(true)
         expect(client.indices.exists(index: "#{cluster.index_prefix}_dummies_v2")).to eq(true)
@@ -232,7 +232,7 @@ RSpec.describe Esse::Backend::Index do
         expect { DummiesIndex.backend.update_aliases!(suffix: 'v1') }.to raise_error(
           Elasticsearch::Transport::Transport::Errors::NotFound,
         ).with_message(/\[#{cluster.index_prefix}_dummies_v1\] missing/)
-        expect(DummiesIndex.backend.create(alias: false, suffix: 'v1')['acknowledged']).to eq(true)
+        expect(DummiesIndex.backend.create_index(alias: false, suffix: 'v1')['acknowledged']).to eq(true)
         expect(client.indices.exists(index: "#{cluster.index_prefix}_dummies")).to eq(false)
         expect(client.indices.exists(index: "#{cluster.index_prefix}_dummies_v1")).to eq(true)
         expect(DummiesIndex.backend.update_aliases!(suffix: 'v1')['acknowledged']).to eq(true)
@@ -243,9 +243,9 @@ RSpec.describe Esse::Backend::Index do
 
     specify do
       es_client do |client, _conf, cluster|
-        expect(DummiesIndex.backend.create(alias: false, suffix: 'v1')['acknowledged']).to eq(true)
-        expect(DummiesIndex.backend.create(alias: true, suffix: 'v2')['acknowledged']).to eq(true)
-        expect(DummiesIndex.backend.create(alias: false, suffix: 'v3')['acknowledged']).to eq(true)
+        expect(DummiesIndex.backend.create_index(alias: false, suffix: 'v1')['acknowledged']).to eq(true)
+        expect(DummiesIndex.backend.create_index(alias: true, suffix: 'v2')['acknowledged']).to eq(true)
+        expect(DummiesIndex.backend.create_index(alias: false, suffix: 'v3')['acknowledged']).to eq(true)
         expect(client.indices.exists(index: "#{cluster.index_prefix}_dummies")).to eq(true)
         expect(client.indices.exists(index: "#{cluster.index_prefix}_dummies_v1")).to eq(true)
         expect(client.indices.exists(index: "#{cluster.index_prefix}_dummies_v2")).to eq(true)

@@ -32,7 +32,7 @@ RSpec.describe Esse::Backend::Index do
 
     specify do
       es_client do |client, _conf, cluster|
-        expect(DummiesIndex.backend.create(alias: true, suffix: 'v1')['acknowledged']).to eq(true)
+        expect(DummiesIndex.backend.create_index(alias: true, suffix: 'v1')['acknowledged']).to eq(true)
         mapping = client.indices.get_mapping(index: "#{cluster.index_prefix}_dummies")
         expect(mapping.dig("#{cluster.index_prefix}_dummies_v1", 'mappings', 'dummy')).to eq(
           'properties' => {
@@ -55,7 +55,7 @@ RSpec.describe Esse::Backend::Index do
 
     specify do
       es_client do |client, _conf, cluster|
-        expect(DummiesIndex.backend.create(alias: true, suffix: 'v1')['acknowledged']).to eq(true)
+        expect(DummiesIndex.backend.create_index(alias: true, suffix: 'v1')['acknowledged']).to eq(true)
         mapping = client.indices.get_mapping(index: "#{cluster.index_prefix}_dummies")
         expect(mapping.dig("#{cluster.index_prefix}_dummies_v1", 'mappings', 'dummy')).to eq(
           'properties' => {
@@ -85,8 +85,8 @@ RSpec.describe Esse::Backend::Index do
 
     specify do
       es_client do |client, _conf, cluster|
-        expect(DummiesIndex.backend.create(alias: false, suffix: 'v1')['acknowledged']).to eq(true)
-        expect(DummiesIndex.backend.create(alias: true, suffix: 'v2')['acknowledged']).to eq(true)
+        expect(DummiesIndex.backend.create_index(alias: false, suffix: 'v1')['acknowledged']).to eq(true)
+        expect(DummiesIndex.backend.create_index(alias: true, suffix: 'v2')['acknowledged']).to eq(true)
         mapping = client.indices.get_mapping(index: "#{cluster.index_prefix}_dummies*")
         expect(mapping.dig("#{cluster.index_prefix}_dummies_v1", 'mappings', 'dummy')).to eq(
           'properties' => {
@@ -140,7 +140,7 @@ RSpec.describe Esse::Backend::Index do
   
     specify do
       es_client do |client, _conf, cluster|
-        expect(DummiesIndex.backend.create(alias: true, suffix: 'v1')['acknowledged']).to eq(true)
+        expect(DummiesIndex.backend.create_index(alias: true, suffix: 'v1')['acknowledged']).to eq(true)
         mapping = client.indices.get_mapping(index: "#{cluster.index_prefix}_dummies")
         expect(mapping.dig("#{cluster.index_prefix}_dummies_v1", 'mappings', 'dummy')).to eq(
           'properties' => {
@@ -161,7 +161,7 @@ RSpec.describe Esse::Backend::Index do
   
     specify do
       es_client do |client, _conf, cluster|
-        expect(DummiesIndex.backend.create(alias: true, suffix: 'v1')['acknowledged']).to eq(true)
+        expect(DummiesIndex.backend.create_index(alias: true, suffix: 'v1')['acknowledged']).to eq(true)
         mapping = client.indices.get_mapping(index: "#{cluster.index_prefix}_dummies")
         expect(mapping.dig("#{cluster.index_prefix}_dummies_v1", 'mappings', 'dummy')).to eq(
           'properties' => {
@@ -191,8 +191,8 @@ RSpec.describe Esse::Backend::Index do
   
     specify do
       es_client do |client, _conf, cluster|
-        expect(DummiesIndex.backend.create(alias: false, suffix: 'v1')['acknowledged']).to eq(true)
-        expect(DummiesIndex.backend.create(alias: true, suffix: 'v2')['acknowledged']).to eq(true)
+        expect(DummiesIndex.backend.create_index(alias: false, suffix: 'v1')['acknowledged']).to eq(true)
+        expect(DummiesIndex.backend.create_index(alias: true, suffix: 'v2')['acknowledged']).to eq(true)
         mapping = client.indices.get_mapping(index: "#{cluster.index_prefix}_dummies*")
         expect(mapping.dig("#{cluster.index_prefix}_dummies_v1", 'mappings', 'dummy')).to eq(
           'properties' => {
