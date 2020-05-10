@@ -1,20 +1,7 @@
 # frozen_string_literal: true
 
 require 'spec_helper'
-
-class DummyGeosSerializer
-  def initialize(entry, _scope)
-    @entry = entry
-  end
-
-  def as_json
-    {
-      _id: @entry.uuid,
-      pk: @entry.id,
-      name: @entry.name,
-    }
-  end
-end
+require 'support/serializers'
 
 RSpec.describe Esse::Backend::Index do
   before do

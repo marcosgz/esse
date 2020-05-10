@@ -30,6 +30,6 @@ module ConfigHelpers
   end
 
   def with_cluster_config(id: :default, **opts)
-    with_config { |c| c.clusters(id).assign(**opts) }
+    with_config { |c| c.clusters(id).assign(opts) }
   end
 end
