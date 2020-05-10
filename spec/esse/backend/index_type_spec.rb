@@ -159,22 +159,4 @@ RSpec.describe Esse::Backend::Index do
       end
     end
   end
-
-  describe '.count' do
-    let(:data) { { 'name' => 'Illinois', 'pk' => 1 } }
-
-    specify do
-      es_client do
-        expect(GeosIndex::State.backend.count).to eq(0)
-      end
-    end
-
-    specify do
-      es_client do
-        expect(GeosIndex::State.backend.index(id: data['pk'], body: data, refresh: true)['created']).to eq(true)
-        expect(GeosIndex::State.backend.count).to eq(1)
-        expect(GeosIndex::County.backend.count).to eq(0)
-      end
-    end
-  end
 end
