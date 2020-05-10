@@ -1,5 +1,7 @@
 # esse
 
+**This project is under development and may suffer constant structural changes. I don't recommend using it right now**
+
 Simple and efficient way to organize queries/mapping/indices/tasks based on the official elasticsearch-ruby.
 
 ## Why to use it?
