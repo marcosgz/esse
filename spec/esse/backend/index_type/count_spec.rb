@@ -12,6 +12,7 @@ RSpec.describe Esse::Backend::Index do
     specify do
       es_client do
         expect(GeosIndex::State.backend.count).to eq(0)
+        expect(GeosIndex::State.backend.count(suffix: 'v2')).to eq(0)
       end
     end
 
@@ -20,6 +21,9 @@ RSpec.describe Esse::Backend::Index do
         expect(GeosIndex::State.backend.index(id: data['pk'], body: data, refresh: true)['created']).to eq(true)
         expect(GeosIndex::State.backend.count).to eq(1)
         expect(GeosIndex::County.backend.count).to eq(0)
+
+        expect(GeosIndex::State.backend.index(id: data['pk'], body: data, refresh: true, suffix: 'v2')['created']).to eq(true)
+        expect(GeosIndex::State.backend.count(suffix: 'v2')).to eq(1)
       end
     end
   end

@@ -13,7 +13,11 @@ RSpec.describe Esse::Backend::Index do
         expect { GeosIndex::State.backend.delete!(id: 1) }.to raise_error(
           Elasticsearch::Transport::Transport::Errors::NotFound,
         )
+        expect { GeosIndex::State.backend.delete!(id: 1, suffix: 'v2') }.to raise_error(
+          Elasticsearch::Transport::Transport::Errors::NotFound,
+        )
         expect(GeosIndex::State.backend.exist?(id: 1)).to eq(false)
+        expect(GeosIndex::State.backend.exist?(id: 1, suffix: 'v2')).to eq(false)
       end
     end
 
@@ -22,6 +26,10 @@ RSpec.describe Esse::Backend::Index do
         expect(GeosIndex::State.backend.index(id: data[:pk], body: data)['created']).to eq(true)
         expect(GeosIndex::State.backend.delete!(id: data[:pk])['found']).to eq(true)
         expect(GeosIndex::State.backend.exist?(id: data[:pk])).to eq(false)
+
+        expect(GeosIndex::State.backend.index(id: data[:pk], suffix: 'v2', body: data)['created']).to eq(true)
+        expect(GeosIndex::State.backend.delete!(id: data[:pk], suffix: 'v2')['found']).to eq(true)
+        expect(GeosIndex::State.backend.exist?(id: data[:pk], suffix: 'v2')).to eq(false)
       end
     end
   end
@@ -32,6 +40,9 @@ RSpec.describe Esse::Backend::Index do
       es_client do
         expect(GeosIndex::State.backend.delete(id: 1)).to eq(false)
         expect(GeosIndex::State.backend.exist?(id: 1)).to eq(false)
+
+        expect(GeosIndex::State.backend.delete(id: 1, suffix: 'v2')).to eq(false)
+        expect(GeosIndex::State.backend.exist?(id: 1, suffix: 'v2')).to eq(false)
       end
     end
 
@@ -40,6 +51,10 @@ RSpec.describe Esse::Backend::Index do
         expect(GeosIndex::State.backend.index(id: data[:pk], body: data)['created']).to eq(true)
         expect(GeosIndex::State.backend.delete(id: data[:pk])['found']).to eq(true)
         expect(GeosIndex::State.backend.exist?(id: data[:pk])).to eq(false)
+
+        expect(GeosIndex::State.backend.index(id: data[:pk], body: data, suffix: 'v2')['created']).to eq(true)
+        expect(GeosIndex::State.backend.delete(id: data[:pk], suffix: 'v2')['found']).to eq(true)
+        expect(GeosIndex::State.backend.exist?(id: data[:pk], suffix: 'v2')).to eq(false)
       end
     end
   end

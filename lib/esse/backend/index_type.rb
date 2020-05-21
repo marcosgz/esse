@@ -11,14 +11,19 @@ module Esse
 
       # Type delegators
       def_delegators :@index_type, :type_name, :each_serialized_batch, :serialize
-      # Index delegators
-      def_delegators :index_class, :index_name
 
       def initialize(type)
         @index_type = type
       end
 
       protected
+
+      def index_name(suffix: nil)
+        suffix = Hstring.new(suffix).underscore.presence
+        return index_class.index_name unless suffix
+
+        [index_class.index_name, suffix].join('_')
+      end
 
       def index_class
         @index_type.index

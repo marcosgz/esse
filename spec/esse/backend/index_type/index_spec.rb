@@ -19,6 +19,11 @@ RSpec.describe Esse::Backend::Index do
         expect(response['created']).to eq(false)
         expect(response['_version']).to eq(2)
         expect(response['_id']).to eq('1')
+
+        response = GeosIndex::State.backend.index(id: 1, suffix: 'v2', body: { name: 'IL', pk: 1 })
+        expect(response['created']).to eq(true)
+        expect(response['_version']).to eq(1)
+        expect(response['_id']).to eq('1')
       end
     end
   end

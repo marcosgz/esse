@@ -14,6 +14,9 @@ RSpec.describe Esse::Backend::Index do
         expect { GeosIndex::State.backend.find!(id: data['pk']) }.to raise_error(
           Elasticsearch::Transport::Transport::Errors::NotFound,
         )
+        expect { GeosIndex::State.backend.find!(id: data['pk'], suffix: 'v2') }.to raise_error(
+          Elasticsearch::Transport::Transport::Errors::NotFound,
+        )
       end
     end
 
@@ -33,13 +36,14 @@ RSpec.describe Esse::Backend::Index do
 
   describe '.find' do
     let(:data) { { 'name' => 'Illinois', 'pk' => 1 } }
-  
+
     specify do
       es_client do
         expect(GeosIndex::State.backend.find(id: data['pk'])).to eq(nil)
+        expect(GeosIndex::State.backend.find(id: data['pk'], suffix: 'v2')).to eq(nil)
       end
     end
-  
+
     specify do
       es_client do
         expect(GeosIndex::State.backend.index(id: data['pk'], body: data)['created']).to eq(true)
@@ -48,6 +52,16 @@ RSpec.describe Esse::Backend::Index do
         expect(response['_source']).to eq(data)
         expect(response['_type']).to eq('state')
         expect(GeosIndex::County.backend.find(id: data['pk'])).to eq(nil)
+      end
+    end
+
+    specify do
+      es_client do
+        expect(GeosIndex::State.backend.index(id: data['pk'], body: data, suffix: 'v2')['created']).to eq(true)
+        response = GeosIndex::State.backend.find(id: data['pk'], suffix: 'v2')
+        expect(response['_id']).to eq('1')
+        expect(response['_source']).to eq(data)
+        expect(response['_type']).to eq('state')
       end
     end
   end

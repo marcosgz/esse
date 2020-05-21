@@ -14,6 +14,9 @@ RSpec.describe Esse::Backend::Index do
         expect { GeosIndex::State.backend.update!(id: data['_id'], body: { doc: {} }) }.to raise_error(
           Elasticsearch::Transport::Transport::Errors::NotFound,
         )
+        expect { GeosIndex::State.backend.update!(id: data['_id'], body: { doc: {} }, suffix: 'v2') }.to raise_error(
+          Elasticsearch::Transport::Transport::Errors::NotFound,
+        )
       end
     end
 
@@ -21,6 +24,9 @@ RSpec.describe Esse::Backend::Index do
       es_client do
         expect(GeosIndex::State.backend.index(id: data['_id'], body: data)['created']).to eq(true)
         expect(GeosIndex::State.backend.update!(id: data['_id'], body: { doc: {} })['_version']).to eq(2)
+
+        expect(GeosIndex::State.backend.index(id: data['_id'], body: data, suffix: 'v2')['created']).to eq(true)
+        expect(GeosIndex::State.backend.update!(id: data['_id'], body: { doc: {} }, suffix: 'v2')['_version']).to eq(2)
       end
     end
   end
@@ -31,6 +37,7 @@ RSpec.describe Esse::Backend::Index do
     specify do
       es_client do
         expect(GeosIndex::State.backend.update(id: data['_id'], body: { doc: {} })).to eq(false)
+        expect(GeosIndex::State.backend.update(id: data['_id'], body: { doc: {} }, suffix: 'v2')).to eq(false)
       end
     end
 
@@ -38,6 +45,9 @@ RSpec.describe Esse::Backend::Index do
       es_client do
         expect(GeosIndex::State.backend.index(id: data['_id'], body: data)['created']).to eq(true)
         expect(GeosIndex::State.backend.update(id: data['_id'], body: { doc: {} })['_version']).to eq(2)
+
+        expect(GeosIndex::State.backend.index(id: data['_id'], body: data, suffix: 'v2')['created']).to eq(true)
+        expect(GeosIndex::State.backend.update(id: data['_id'], body: { doc: {} }, suffix: 'v2')['_version']).to eq(2)
       end
     end
   end

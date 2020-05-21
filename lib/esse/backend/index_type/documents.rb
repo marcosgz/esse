@@ -7,11 +7,12 @@ module Esse
         # Resolve collection and index data
         #
         # @param options [Hash] Hash of paramenters that will be passed along to elasticsearch request
+        # @option [String, nil] :suffix The index suffix. Defaults to the nil.
         # @option [Hash] :context The collection context. This value will be passed as argument to the collection
         #   May be SQL condition or any other filter you have defined on the collection.
-        def import(context: {}, **options)
+        def import(context: {}, suffix: nil, **options)
           each_serialized_batch(context || {}) do |batch|
-            bulk(index: batch, **options)
+            bulk(index: batch, suffix: suffix, **options)
           end
         end
         alias import! import
@@ -20,13 +21,14 @@ module Esse
         # This reduces overhead and can greatly increase indexing speed.
         #
         # @param options [Hash] Hash of paramenters that will be passed along to elasticsearch request
+        # @param options [String, nil] :suffix The index suffix. Defaults to the nil.
         # @param options [Array] :index list of serialized documents to be indexed(Optional)
         # @param options [Array] :delete list of serialized documents to be deleted(Optional)
         # @param options [Array] :create list of serialized documents to be created(Optional)
         # @return [Hash, nil] the elasticsearch response or nil if there is no data.
         #
         # @see https://www.elastic.co/guide/en/elasticsearch/reference/7.5/docs-bulk.html
-        def bulk(index: nil, delete: nil, create: nil, **options)
+        def bulk(index: nil, delete: nil, create: nil, suffix: nil, **options)
           body = []
           Array(index).each do |entry|
             id, data = Esse.doc_id!(entry)
@@ -44,7 +46,7 @@ module Esse
           return if body.empty?
 
           definition = {
-            index: index_name,
+            index: index_name(suffix: suffix),
             type: type_name,
             body: body,
           }.merge(options)
@@ -61,12 +63,13 @@ module Esse
         # @param options [Hash] Hash of paramenters that will be passed along to elasticsearch request
         # @param options [String, Integer] :id The `_id` of the elasticsearch document
         # @param options [Hash] :body The JSON document that will be indexed (Required)
+        # @param options [String, nil] :suffix The index suffix. Defaults to the nil.
         # @return [Hash] the elasticsearch response Hash
         #
         # @see https://www.elastic.co/guide/en/elasticsearch/reference/7.5/docs-index_.html
-        def index(id:, body:, **options)
+        def index(id:, body:, suffix: nil, **options)
           client.index(
-            options.merge(index: index_name, type: type_name, id: id, body: body),
+            options.merge(index: index_name(suffix: suffix), type: type_name, id: id, body: body),
           )
         end
         alias index! index
@@ -78,13 +81,14 @@ module Esse
         # @param options [Hash] Hash of paramenters that will be passed along to elasticsearch request
         # @param options [String, Integer] :id The `_id` of the elasticsearch document
         # @param options [Hash] :body the body of the request
+        # @param options [String, nil] :suffix The index suffix. Defaults to the nil.
         # @raise [Elasticsearch::Transport::Transport::Errors::NotFound] when the doc does not exist
         # @return [Hash] elasticsearch response hash
         #
         # @see https://www.elastic.co/guide/en/elasticsearch/reference/7.5/docs-update.html
-        def update!(id:, body:, **options)
+        def update!(id:, body:, suffix: nil, **options)
           client.update(
-            options.merge(index: index_name, type: type_name, id: id, body: body),
+            options.merge(index: index_name(suffix: suffix), type: type_name, id: id, body: body),
           )
         end
 
@@ -95,11 +99,12 @@ module Esse
         # @param options [Hash] Hash of paramenters that will be passed along to elasticsearch request
         # @param options [String, Integer] :id The `_id` of the elasticsearch document
         # @param options [Hash] :body the body of the request
+        # @param options [String, nil] :suffix The index suffix. Defaults to the nil.
         # @return [Hash, false] the elasticsearch response hash, or false in case of failure
         #
         # @see https://www.elastic.co/guide/en/elasticsearch/reference/7.5/docs-update.html
-        def update(id:, body:, **options)
-          update!(id: id, body: body, **options)
+        def update(id:, body:, suffix: nil, **options)
+          update!(id: id, body: body, suffix: suffix, **options)
         rescue Elasticsearch::Transport::Transport::Errors::NotFound
           false
         end
@@ -111,12 +116,13 @@ module Esse
         #
         # @param options [Hash] Hash of paramenters that will be passed along to elasticsearch request
         # @param options [String, Integer] :id The `_id` of the elasticsearch document
+        # @param options [String, nil] :suffix The index suffix. Defaults to the nil.
         # @raise [Elasticsearch::Transport::Transport::Errors::NotFound] when the doc does not exist
         # @return [Boolean] true when the operation is successfully completed
         #
         # @see https://www.elastic.co/guide/en/elasticsearch/reference/7.5/docs-delete.html
-        def delete!(id:, **options)
-          client.delete(options.merge(index: index_name, type: type_name, id: id))
+        def delete!(id:, suffix: nil, **options)
+          client.delete(options.merge(index: index_name(suffix: suffix), type: type_name, id: id))
         end
 
         # Removes a JSON document from the specified index.
@@ -126,12 +132,13 @@ module Esse
         #
         # @param options [Hash] Hash of paramenters that will be passed along to elasticsearch request
         # @param options [String, Integer] :id The `_id` of the elasticsearch document
+        # @param options [String, nil] :suffix The index suffix. Defaults to the nil.
         # @raise [Elasticsearch::Transport::Transport::Errors::NotFound] when the doc does not exist
         # @return [Boolean] true when the operation is successfully completed
         #
         # @see https://www.elastic.co/guide/en/elasticsearch/reference/7.5/docs-delete.html
-        def delete(id:, **options)
-          delete!(id: id, **options)
+        def delete(id:, suffix: nil, **options)
+          delete!(id: id, suffix: suffix, **options)
         rescue Elasticsearch::Transport::Transport::Errors::NotFound
           false
         end
@@ -143,11 +150,12 @@ module Esse
         #
         # @param options [Hash] Hash of paramenters that will be passed along to elasticsearch request
         # @param options [Hash] :body A query to restrict the results specified with the Query DSL (optional)
+        # @param options [String, nil] :suffix The index suffix. Defaults to the nil.
         # @return [Integer] amount of documents found
         #
         # @see https://www.elastic.co/guide/en/elasticsearch/reference/7.5/search-count.html
-        def count(**options)
-          response = client.count(options.merge(index: index_name, type: type_name))
+        def count(suffix: nil, **options)
+          response = client.count(options.merge(index: index_name(suffix: suffix), type: type_name))
           response['count']
         rescue Elasticsearch::Transport::Transport::Errors::NotFound
           0
@@ -160,9 +168,10 @@ module Esse
         #
         # @param options [Hash] Hash of paramenters that will be passed along to elasticsearch request
         # @param options [String, Integer] :id The `_id` of the elasticsearch document
+        # @param options [String, nil] :suffix The index suffix. Defaults to the nil.
         # @return [Boolean] true if the document exists
-        def exist?(id:, **options)
-          client.exists(options.merge(index: index_name, type: type_name, id: id))
+        def exist?(id:, suffix: nil, **options)
+          client.exists(options.merge(index: index_name(suffix: suffix), type: type_name, id: id))
         end
 
         # Retrieves the specified JSON document from an index.
@@ -172,12 +181,13 @@ module Esse
         #
         # @param options [Hash] Hash of paramenters that will be passed along to elasticsearch request
         # @param options [String, Integer] :id The `_id` of the elasticsearch document
+        # @param options [String, nil] :suffix The index suffix. Defaults to the nil.
         # @raise [Elasticsearch::Transport::Transport::Errors::NotFound] when the doc does not exist
         # @return [Hash] The elasticsearch document.
         #
         # @see https://www.elastic.co/guide/en/elasticsearch/reference/7.5/docs-get.html
-        def find!(id:, **options)
-          client.get(options.merge(index: index_name, type: type_name, id: id))
+        def find!(id:, suffix: nil, **options)
+          client.get(options.merge(index: index_name(suffix: suffix), type: type_name, id: id))
         end
 
         # Retrieves the specified JSON document from an index.
@@ -187,11 +197,12 @@ module Esse
         #
         # @param options [Hash] Hash of paramenters that will be passed along to elasticsearch request
         # @param options [String, Integer] :id The `_id` of the elasticsearch document
+        # @param options [String, nil] :suffix The index suffix. Defaults to the nil.
         # @return [Hash, nil] The elasticsearch document
         #
         # @see https://www.elastic.co/guide/en/elasticsearch/reference/7.5/docs-get.html
-        def find(id:, **options)
-          find!(id: id, **options)
+        def find(id:, suffix: nil, **options)
+          find!(id: id, suffix: suffix, **options)
         rescue Elasticsearch::Transport::Transport::Errors::NotFound
           nil
         end
