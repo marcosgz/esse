@@ -44,7 +44,7 @@ module Esse
               *indices.map do |index|
                 { remove: { index: index, alias: index_name } }
               end,
-              { add: {index: real_index_name(suffix), alias: index_name } }
+              { add: {index: build_real_index_name(suffix), alias: index_name } }
             ],
           }
           client.indices.update_aliases(options)

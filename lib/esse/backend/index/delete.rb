@@ -13,9 +13,7 @@ module Esse
         # @raise [Elasticsearch::Transport::Transport::Errors::NotFound] when index does not exists
         # @return [Hash] elasticsearch response
         def delete_index!(suffix:)
-          name = suffix ? real_index_name(suffix) : index_name
-
-          client.indices.delete(index: name)
+          client.indices.delete(index: index_name(suffix: suffix))
         end
 
         # Deletes ES index

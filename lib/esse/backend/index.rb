@@ -16,7 +16,7 @@ module Esse
 
       extend Forwardable
 
-      NAMING = %i[index_name index_version].freeze
+      NAMING = %i[index_version].freeze
       DEFINITION = %i[settings_hash mappings_hash].freeze
 
       def_delegators :@index, :type_hash, *(NAMING + DEFINITION)
@@ -27,9 +27,17 @@ module Esse
 
       protected
 
-      def real_index_name(suffix = nil)
+      def index_name(suffix: nil)
+        suffix = Hstring.new(suffix).underscore.presence
+        return @index.index_name unless suffix
+
+        [@index.index_name, suffix].join('_')
+      end
+
+      def build_real_index_name(suffix = nil)
         suffix = Hstring.new(suffix).underscore.presence || index_version || Esse.timestamp
-        [index_name, suffix].compact.join('_')
+
+        index_name(suffix: suffix)
       end
 
       def client

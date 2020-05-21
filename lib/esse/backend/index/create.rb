@@ -39,7 +39,7 @@ module Esse
         # @see http://www.elasticsearch.org/blog/changing-mapping-with-zero-downtime/
         def create_index!(suffix: nil, **options)
           options = DEFAULT_OPTIONS.merge(options)
-          name = real_index_name(suffix)
+          name = build_real_index_name(suffix)
           definition = [settings_hash, mappings_hash].reduce(&:merge)
 
           if options[:alias] && name != index_name

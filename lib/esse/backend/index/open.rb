@@ -21,9 +21,7 @@ module Esse
         #
         # @see https://www.elastic.co/guide/en/elasticsearch/reference/master/indices-open-open.html
         def open!(suffix: index_version, **options)
-          name = suffix ? real_index_name(suffix) : index_name
-
-          client.indices.open(options.merge(index: name))
+          client.indices.open(options.merge(index: index_name(suffix: suffix)))
         end
 
         # Open a previously closed index

@@ -27,9 +27,7 @@ module Esse
         #
         # @see http://www.elasticsearch.org/guide/reference/api/admin-indices-put-mapping/
         def update_mapping!(suffix: index_version, **options)
-          name = suffix ? real_index_name(suffix) : index_name
-
-          client.indices.put_mapping(options.merge(index: name, body: mappings_hash.fetch(Esse::MAPPING_ROOT_KEY)))
+          client.indices.put_mapping(options.merge(index: index_name(suffix: suffix), body: mappings_hash.fetch(Esse::MAPPING_ROOT_KEY)))
         end
 
         # Create or update a mapping
@@ -78,13 +76,12 @@ module Esse
         #
         # @see http://www.elasticsearch.org/guide/reference/api/admin-indices-update-settings/
         def update_settings!(suffix: index_version, **options)
-          name = suffix ? real_index_name(suffix) : index_name
           response = nil
 
           close!(suffix: suffix)
           begin
             body = settings_hash(cluster_settings: false).fetch(Esse::SETTING_ROOT_KEY)
-            response = client.indices.put_settings(options.merge(index: name, body: body))
+            response = client.indices.put_settings(options.merge(index: index_name(suffix: suffix), body: body))
           ensure
             open!(suffix: suffix)
           end
