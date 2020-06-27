@@ -10,6 +10,7 @@ module Esse
       require_relative 'index/delete'
       require_relative 'index/existance'
       require_relative 'index/update'
+      require_relative 'index/reset'
       require_relative 'index/documents'
       require_relative 'index/open'
       require_relative 'index/close'
