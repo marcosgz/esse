@@ -48,9 +48,9 @@ module Esse
 
   # Simple helper used to fetch Hash value using Symbol and String keys.
   #
-  # @param [Hash] the JSON document
-  # @option [Array] :delete Removes the hash key and return its value
-  # @option [Array] :keep Fetch the hash key and return its value
+  # @param hash [Hash] the JSON document
+  # @param delete [Array] Removes the hash key and return its value
+  # @param keep [Array] Fetch the hash key and return its value
   # @return [Array([Integer, String, nil], Hash)] return the key value and the modified hash
   def self.doc_id!(hash, delete: %w[_id], keep: %w[id])
     return unless hash.is_a?(Hash)

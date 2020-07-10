@@ -35,14 +35,14 @@ module Esse
     end
 
     # Define the elasticsearch client connectio
-    # @param client [Elasticsearch::Client, Hash] an instance of elasticsearch/api client or an hash
+    # @param es_client [Elasticsearch::Client, Hash] an instance of elasticsearch/api client or an hash
     #   with the settings that will be used to initialize Elasticsearch::Client
-    def client=(val)
-      @client = if val.is_a?(Hash)
-        settings = val.each_with_object({}) { |(k,v), r| r[k.to_sym] = v }
+    def client=(es_client)
+      @client = if es_client.is_a?(Hash)
+        settings = es_client.each_with_object({}) { |(k,v), r| r[k.to_sym] = v }
         Elasticsearch::Client.new(settings)
       else
-        val
+        es_client
       end
     end
 

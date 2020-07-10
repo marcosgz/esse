@@ -71,7 +71,7 @@ module Esse
 
       # Wrap collection data into serialized batches
       #
-      # @param [*Object] Any argument is allowed here. The collection will be called with same arguments.
+      # @param args [*Object] Any argument is allowed here. The collection will be called with same arguments.
       #   And the serializer will be initialized with those arguments too.
       # @yield [Array, *Object] serialized collection and method arguments
       def each_serialized_batch(*args, &block)

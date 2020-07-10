@@ -21,10 +21,10 @@ module Esse
         # This reduces overhead and can greatly increase indexing speed.
         #
         # @param options [Hash] Hash of paramenters that will be passed along to elasticsearch request
-        # @param options [String, nil] :suffix The index suffix. Defaults to the nil.
-        # @param options [Array] :index list of serialized documents to be indexed(Optional)
-        # @param options [Array] :delete list of serialized documents to be deleted(Optional)
-        # @param options [Array] :create list of serialized documents to be created(Optional)
+        # @option [String, nil] :suffix The index suffix. Defaults to the nil.
+        # @option [Array] :index list of serialized documents to be indexed(Optional)
+        # @option [Array] :delete list of serialized documents to be deleted(Optional)
+        # @option [Array] :create list of serialized documents to be created(Optional)
         # @return [Hash, nil] the elasticsearch response or nil if there is no data.
         #
         # @see https://www.elastic.co/guide/en/elasticsearch/reference/7.5/docs-bulk.html
@@ -61,9 +61,9 @@ module Esse
         #   UsersIndex::User.index(id: 1, body: { name: 'name' }) # { '_id' => 1, ...}
         #
         # @param options [Hash] Hash of paramenters that will be passed along to elasticsearch request
-        # @param options [String, Integer] :id The `_id` of the elasticsearch document
-        # @param options [Hash] :body The JSON document that will be indexed (Required)
-        # @param options [String, nil] :suffix The index suffix. Defaults to the nil.
+        # @option [String, Integer] :id The `_id` of the elasticsearch document
+        # @option [Hash] :body The JSON document that will be indexed (Required)
+        # @option [String, nil] :suffix The index suffix. Defaults to the nil.
         # @return [Hash] the elasticsearch response Hash
         #
         # @see https://www.elastic.co/guide/en/elasticsearch/reference/7.5/docs-index_.html
@@ -79,9 +79,9 @@ module Esse
         #   UsersIndex::User.update!(id: 1, body: { doc: { ... } }) # { '_id' => 1, ...}
         #
         # @param options [Hash] Hash of paramenters that will be passed along to elasticsearch request
-        # @param options [String, Integer] :id The `_id` of the elasticsearch document
-        # @param options [Hash] :body the body of the request
-        # @param options [String, nil] :suffix The index suffix. Defaults to the nil.
+        # @option [String, Integer] :id The `_id` of the elasticsearch document
+        # @option [Hash] :body the body of the request
+        # @option [String, nil] :suffix The index suffix. Defaults to the nil.
         # @raise [Elasticsearch::Transport::Transport::Errors::NotFound] when the doc does not exist
         # @return [Hash] elasticsearch response hash
         #
@@ -97,9 +97,9 @@ module Esse
         #   UsersIndex::User.update(id: 1, body: { doc: { ... } }) # { '_id' => 1, ...}
         #
         # @param options [Hash] Hash of paramenters that will be passed along to elasticsearch request
-        # @param options [String, Integer] :id The `_id` of the elasticsearch document
-        # @param options [Hash] :body the body of the request
-        # @param options [String, nil] :suffix The index suffix. Defaults to the nil.
+        # @option [String, Integer] :id The `_id` of the elasticsearch document
+        # @option [Hash] :body the body of the request
+        # @option [String, nil] :suffix The index suffix. Defaults to the nil.
         # @return [Hash, false] the elasticsearch response hash, or false in case of failure
         #
         # @see https://www.elastic.co/guide/en/elasticsearch/reference/7.5/docs-update.html
@@ -115,8 +115,8 @@ module Esse
         #   UsersIndex::User.delete!(id: 'missing') # raise Elasticsearch::Transport::Transport::Errors::NotFound
         #
         # @param options [Hash] Hash of paramenters that will be passed along to elasticsearch request
-        # @param options [String, Integer] :id The `_id` of the elasticsearch document
-        # @param options [String, nil] :suffix The index suffix. Defaults to the nil.
+        # @option [String, Integer] :id The `_id` of the elasticsearch document
+        # @option [String, nil] :suffix The index suffix. Defaults to the nil.
         # @raise [Elasticsearch::Transport::Transport::Errors::NotFound] when the doc does not exist
         # @return [Boolean] true when the operation is successfully completed
         #
@@ -131,8 +131,8 @@ module Esse
         #   UsersIndex::User.delete(id: 'missing') # false
         #
         # @param options [Hash] Hash of paramenters that will be passed along to elasticsearch request
-        # @param options [String, Integer] :id The `_id` of the elasticsearch document
-        # @param options [String, nil] :suffix The index suffix. Defaults to the nil.
+        # @option [String, Integer] :id The `_id` of the elasticsearch document
+        # @option [String, nil] :suffix The index suffix. Defaults to the nil.
         # @raise [Elasticsearch::Transport::Transport::Errors::NotFound] when the doc does not exist
         # @return [Boolean] true when the operation is successfully completed
         #
@@ -149,8 +149,8 @@ module Esse
         #   UsersIndex::User.count(body: { ... }) # 32
         #
         # @param options [Hash] Hash of paramenters that will be passed along to elasticsearch request
-        # @param options [Hash] :body A query to restrict the results specified with the Query DSL (optional)
-        # @param options [String, nil] :suffix The index suffix. Defaults to the nil.
+        # @option [Hash] :body A query to restrict the results specified with the Query DSL (optional)
+        # @option [String, nil] :suffix The index suffix. Defaults to the nil.
         # @return [Integer] amount of documents found
         #
         # @see https://www.elastic.co/guide/en/elasticsearch/reference/7.5/search-count.html
@@ -167,8 +167,8 @@ module Esse
         #   UsersIndex::User.exist?(id: 'missing') # false
         #
         # @param options [Hash] Hash of paramenters that will be passed along to elasticsearch request
-        # @param options [String, Integer] :id The `_id` of the elasticsearch document
-        # @param options [String, nil] :suffix The index suffix. Defaults to the nil.
+        # @option [String, Integer] :id The `_id` of the elasticsearch document
+        # @option [String, nil] :suffix The index suffix. Defaults to the nil.
         # @return [Boolean] true if the document exists
         def exist?(id:, suffix: nil, **options)
           client.exists(options.merge(index: index_name(suffix: suffix), type: type_name, id: id))
@@ -180,8 +180,8 @@ module Esse
         #   UsersIndex::User.find!(id: 'missing') # raise Elasticsearch::Transport::Transport::Errors::NotFound
         #
         # @param options [Hash] Hash of paramenters that will be passed along to elasticsearch request
-        # @param options [String, Integer] :id The `_id` of the elasticsearch document
-        # @param options [String, nil] :suffix The index suffix. Defaults to the nil.
+        # @option [String, Integer] :id The `_id` of the elasticsearch document
+        # @option [String, nil] :suffix The index suffix. Defaults to the nil.
         # @raise [Elasticsearch::Transport::Transport::Errors::NotFound] when the doc does not exist
         # @return [Hash] The elasticsearch document.
         #
@@ -196,8 +196,8 @@ module Esse
         #   UsersIndex::User.find(id: 'missing') # nil
         #
         # @param options [Hash] Hash of paramenters that will be passed along to elasticsearch request
-        # @param options [String, Integer] :id The `_id` of the elasticsearch document
-        # @param options [String, nil] :suffix The index suffix. Defaults to the nil.
+        # @option [String, Integer] :id The `_id` of the elasticsearch document
+        # @option [String, nil] :suffix The index suffix. Defaults to the nil.
         # @return [Hash, nil] The elasticsearch document
         #
         # @see https://www.elastic.co/guide/en/elasticsearch/reference/7.5/docs-get.html
