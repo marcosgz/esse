@@ -24,7 +24,12 @@ RSpec.describe Esse::CLI::Generate, type: :cli do
       expected_filename = Esse.config.indices_directory.join('users_index/serializers/user_serializer.rb')
 
       expect_generate(%w[index users user], expected_filename)
-      expect_contains(expected_filename, 'class UsersIndex::Serializers::UserSerializer')
+      expect_contains(expected_filename, <<~CODE
+        class UsersIndex < Esse::Index
+          module Serializers
+            class UserSerializer
+        CODE
+       )
     end
 
     it 'generates a new index class with namespace' do
@@ -44,7 +49,12 @@ RSpec.describe Esse::CLI::Generate, type: :cli do
       expected_filename = Esse.config.indices_directory.join('v1/users_index/serializers/user_serializer.rb')
 
       expect_generate(%w[index v1/users user], expected_filename)
-      expect_contains(expected_filename, 'class V1::UsersIndex::Serializers::UserSerializer')
+      expect_contains(expected_filename, <<~CODE
+        class V1::UsersIndex < Esse::Index
+          module Serializers
+            class UserSerializer
+        CODE
+       )
     end
   end
 end

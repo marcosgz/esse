@@ -3,8 +3,8 @@
 class <%= @index_name %> < <%= @base_class %>
   # plugin :active_record
   # plugin :sequel
-  <%- @types.each do |type| -%>
 
+  <%- @types.each do |type| -%>
   define_type :<%= type %> do
     # Collection
     # ==========
@@ -14,10 +14,10 @@ class <%= @index_name %> < <%= @base_class %>
     # Useful for eager loading data from database or any other repository. Below is an example of a rails like
     # application could load using activerecord.
     #
-    #   collection do |conditions|
+    #   collection do |conditions, &block|
     #     context = {}
     #     <%= type.camelize %>.where(conditions).find_in_batches(batch_size: 5000) do |batch|
-    #       yield batch, context, ...
+    #       block.call batch, context, ...
     #     end
     #   end
     #
@@ -41,11 +41,11 @@ class <%= @index_name %> < <%= @base_class %>
     #   end
     #
     # And here you specify your serializer classe.
-    #    serializer <%= @index_name %>::Serializers::<%= type.camelize %>Serializer
+    #    serializer Serializers::<%= type.camelize %>Serializer
     #
     # You can also serialize the collection entry using a block:
     #
-    #   serializer(<%= type %>, context = {}) do
+    #   serializer do |model, context = {}|
     #     hash = {
     #       name: <%= type %>.name,
     #     }

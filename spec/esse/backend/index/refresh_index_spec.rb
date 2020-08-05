@@ -1,0 +1,43 @@
+# frozen_string_literal: true
+
+require 'spec_helper'
+
+RSpec.describe Esse::Backend::Index do
+  before do
+    stub_index(:dummies)
+  end
+
+  describe '.refresh!' do
+    specify do
+      es_client do
+        expect { DummiesIndex.backend.refresh! }.to raise_error(
+          Elasticsearch::Transport::Transport::Errors::NotFound,
+        )
+      end
+    end
+
+    specify do
+      es_client do
+        DummiesIndex.backend.create_index!
+        expect(DummiesIndex.backend.refresh!['_shards']).to be_a_kind_of(Hash)
+      end
+    end
+  end
+
+  describe '.refresh' do
+    context 'when index does not exists' do
+      specify do
+        es_client { expect(DummiesIndex.backend.refresh).to eq(false) }
+      end
+    end
+
+    context 'when index exists' do
+      specify do
+        es_client do
+          DummiesIndex.backend.create_index!
+          expect(DummiesIndex.backend.refresh).to be_a_kind_of(Hash)
+        end
+      end
+    end
+  end
+end

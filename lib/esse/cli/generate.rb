@@ -17,11 +17,12 @@ module Esse
       def index(name, *types)
         ns_path = name.split(NAMESPACE_PATTERN_RE).tap(&:pop)
         @index_name = Hstring.new(name.to_s).modulize.sub(/Index$/, '') + 'Index'
+        @index_name = Hstring.new(@index_name)
         @types = types.map { |type| Hstring.new(type) }
         @base_class = base_index_class(*ns_path)
 
         base_dir = Esse.config.indices_directory.join(*ns_path)
-        index_name = Hstring.new(@index_name).demodulize.underscore.to_s
+        index_name = @index_name.demodulize.underscore.to_s
         template(
           'templates/index.rb.erb',
           base_dir.join("#{index_name}.rb"),
