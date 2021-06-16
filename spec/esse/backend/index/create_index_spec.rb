@@ -68,7 +68,7 @@ RSpec.describe Esse::Backend::Index do
         expect(DummiesIndex.elasticsearch.create_index(suffix: 'v1')['acknowledged']).to eq(true)
         expect(client.indices.exists(index: "#{cluster.index_prefix}_dummies")).to eq(true)
         expect(client.indices.exists(index: "#{cluster.index_prefix}_dummies_v1")).to eq(true)
-        expect(DummiesIndex.elasticsearch.create_index(suffix: 'v1')).to eq(false)
+        expect(DummiesIndex.elasticsearch.create_index(suffix: 'v1')).to eq('errors' => true)
         expect(DummiesIndex.elasticsearch.create_index(suffix: 'v2')['acknowledged']).to eq(true)
         expect(DummiesIndex.elasticsearch.indices).to match_array(
           [
@@ -92,7 +92,7 @@ RSpec.describe Esse::Backend::Index do
         expect(DummiesIndex.elasticsearch.create_index(alias: false, suffix: 'v1')['acknowledged']).to eq(true)
         expect(client.indices.exists(index: "#{cluster.index_prefix}_dummies")).to eq(false)
         expect(client.indices.exists(index: "#{cluster.index_prefix}_dummies_v1")).to eq(true)
-        expect(DummiesIndex.elasticsearch.create_index(alias: false, suffix: 'v1')).to eq(false)
+        expect(DummiesIndex.elasticsearch.create_index(alias: false, suffix: 'v1')).to eq('errors' => true)
         expect(DummiesIndex.elasticsearch.create_index(alias: false, suffix: 'v2')['acknowledged']).to eq(true)
         expect(DummiesIndex.elasticsearch.indices).to match_array([])
         expect(DummiesIndex.elasticsearch.aliases).to eq([])

@@ -55,11 +55,11 @@ module Esse
         # @param options [Hash] Hash of paramenters that will be passed along to elasticsearch request
         # @option [String] :suffix The suffix of the index used for versioning.
         # @raise [Elasticsearch::Transport::Transport::Errors::NotFound] in case of failure
-        # @return [Hash, false] the elasticsearch response, or false in case of failure
+        # @return [Hash] the elasticsearch response, or an hash with 'errors' as true in case of failure
         def update_aliases(suffix:, **options)
           update_aliases!(suffix: suffix, **options)
         rescue Elasticsearch::Transport::Transport::Errors::NotFound
-          false
+          { 'errors' => true }
         end
       end
 

@@ -11,13 +11,13 @@ RSpec.describe Esse::Backend::Index do
   describe '.delete_index' do
     specify do
       es_client do
-        expect(DummiesIndex.elasticsearch.delete_index(suffix: nil)).to eq(false)
+        expect(DummiesIndex.elasticsearch.delete_index(suffix: nil)).to eq('errors' => true)
       end
     end
 
     specify do
       es_client do
-        expect(DummiesIndex.elasticsearch.delete_index(suffix: 'v1')).to eq(false)
+        expect(DummiesIndex.elasticsearch.delete_index(suffix: 'v1')).to eq('errors' => true)
       end
     end
 

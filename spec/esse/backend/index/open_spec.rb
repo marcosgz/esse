@@ -63,13 +63,13 @@ RSpec.describe Esse::Backend::Index do
   describe '.open' do
     specify do
       es_client do |client, _conf, cluster|
-        expect(DummiesIndex.elasticsearch.open).to eq(false)
+        expect(DummiesIndex.elasticsearch.open).to eq('errors' => true)
       end
     end
 
     specify do
       es_client do |client, _conf, cluster|
-        expect(DummiesIndex.elasticsearch.open(suffix: 'v1')).to eq(false)
+        expect(DummiesIndex.elasticsearch.open(suffix: 'v1')).to eq('errors' => true)
       end
     end
 

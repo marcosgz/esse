@@ -27,7 +27,7 @@ RSpec.describe Esse::Backend::Index do
   describe '.refresh' do
     context 'when index does not exists' do
       specify do
-        es_client { expect(DummiesIndex.elasticsearch.refresh).to eq(false) }
+        es_client { expect(DummiesIndex.elasticsearch.refresh).to eq('errors' => true) }
       end
     end
 

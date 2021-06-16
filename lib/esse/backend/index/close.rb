@@ -35,13 +35,13 @@ module Esse
         # @option options [Boolean] :ignore_unavailable Whether specified concrete indices should be ignored when
         #   unavailable (missing, closed, etc)
         # @option options [Time] :timeout Explicit operation timeout
-        # @return [Hash, false] the elasticsearch response, or false in case of failure
+        # @return [Hash] the elasticsearch response, or an hash with 'errors' as true in case of failure
         #
         # @see https://www.elastic.co/guide/en/elasticsearch/reference/master/indices-open-close.html
         def close(suffix: index_version, **options)
           close!(suffix: suffix, **options)
         rescue Elasticsearch::Transport::Transport::ServerError
-          false
+          { 'errors' => true }
         end
       end
 

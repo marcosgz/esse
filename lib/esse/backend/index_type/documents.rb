@@ -100,13 +100,13 @@ module Esse
         # @option [String, Integer] :id The `_id` of the elasticsearch document
         # @option [Hash] :body the body of the request
         # @option [String, nil] :suffix The index suffix. Defaults to the nil.
-        # @return [Hash, false] the elasticsearch response hash, or false in case of failure
+        # @return [Hash] the elasticsearch response, or an hash with 'errors' as true in case of failure
         #
         # @see https://www.elastic.co/guide/en/elasticsearch/reference/7.5/docs-update.html
         def update(id:, body:, suffix: nil, **options)
           update!(id: id, body: body, suffix: suffix, **options)
         rescue Elasticsearch::Transport::Transport::Errors::NotFound
-          false
+          { 'errors' => true }
         end
 
         # Removes a JSON document from the specified index.

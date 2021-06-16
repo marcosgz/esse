@@ -50,7 +50,7 @@ RSpec.describe Esse::Backend::Index do
   describe '.close' do
     specify do
       es_client do |client, _conf, cluster|
-        expect(DummiesIndex.elasticsearch.close).to eq(false)
+        expect(DummiesIndex.elasticsearch.close).to eq('errors' => true)
         expect(DummiesIndex.elasticsearch.create_index(alias: true, suffix: 'v1')['acknowledged']).to eq(true)
         client.cluster.health(wait_for_status: 'green')
         expect(DummiesIndex.elasticsearch.close['acknowledged']).to eq(true)
@@ -64,7 +64,7 @@ RSpec.describe Esse::Backend::Index do
 
     specify do
       es_client do |client, _conf, cluster|
-        expect(DummiesIndex.elasticsearch.close(suffix: 'v2')).to eq(false)
+        expect(DummiesIndex.elasticsearch.close(suffix: 'v2')).to eq('errors' => true)
         expect(DummiesIndex.elasticsearch.create_index(alias: true, suffix: 'v1')['acknowledged']).to eq(true)
         expect(DummiesIndex.elasticsearch.create_index(alias: false, suffix: 'v2')['acknowledged']).to eq(true)
         client.cluster.health(wait_for_status: 'green')

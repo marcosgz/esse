@@ -47,13 +47,13 @@ module Esse
         #   with the same name across all types
         # @option options [Time] :timeout Explicit operation timeout
         # @option options [Boolean] :master_timeout Timeout for connection to master
-        # @return [Hash, false] the elasticsearch response, or false in case of failure
+        # @return [Hash] the elasticsearch response, or an hash with 'errors' as true in case of failure
         #
         # @see http://www.elasticsearch.org/guide/reference/api/admin-indices-put-mapping/
         def update_mapping(suffix: index_version, **options)
           update_mapping!(suffix: suffix, **options)
         rescue Elasticsearch::Transport::Transport::ServerError
-          false
+          { 'errors' => true }
         end
 
 
@@ -102,13 +102,13 @@ module Esse
         #   If set to `true` existing settings on an index remain unchanged, the default is `false`
         # @option options [Time] :master_timeout Specify timeout for connection to master
         # @option options [Boolean] :flat_settings Return settings in flat format (default: false)
-        # @return [Hash, false] the elasticsearch response, false in case of failure
+        # @return [Hash] the elasticsearch response, or an hash with 'errors' as true in case of failure
         #
         # @see http://www.elasticsearch.org/guide/reference/api/admin-indices-update-settings/
         def update_settings(suffix: index_version, **options)
           update_settings!(suffix: suffix, **options)
         rescue Elasticsearch::Transport::Transport::ServerError
-          false
+          { 'errors' => true }
         end
       end
 

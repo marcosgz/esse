@@ -109,13 +109,13 @@ RSpec.describe Esse::Backend::Index do
   describe '.update_settings' do
     specify do
       es_client do |client, _conf, cluster|
-        expect(DummiesIndex.elasticsearch.update_settings).to eq(false)
+        expect(DummiesIndex.elasticsearch.update_settings).to eq('errors' => true)
       end
     end
 
     specify do
       es_client do |client, _conf, cluster|
-        expect(DummiesIndex.elasticsearch.update_settings(suffix: 'v1')).to eq(false)
+        expect(DummiesIndex.elasticsearch.update_settings(suffix: 'v1')).to eq('errors' => true)
       end
     end
 
@@ -133,7 +133,7 @@ RSpec.describe Esse::Backend::Index do
           },
         )
         expect(DummiesIndex).to receive(:setting).and_return(new_setting)
-        expect(DummiesIndex.elasticsearch.update_settings).to eq(false)
+        expect(DummiesIndex.elasticsearch.update_settings).to eq('errors' => true)
       end
     end
 

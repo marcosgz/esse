@@ -36,8 +36,8 @@ RSpec.describe Esse::Backend::Index do
 
     specify do
       es_client do
-        expect(GeosIndex::State.elasticsearch.update(id: data['_id'], body: { doc: {} })).to eq(false)
-        expect(GeosIndex::State.elasticsearch.update(id: data['_id'], body: { doc: {} }, suffix: 'v2')).to eq(false)
+        expect(GeosIndex::State.elasticsearch.update(id: data['_id'], body: { doc: {} })).to eq('errors' => true)
+        expect(GeosIndex::State.elasticsearch.update(id: data['_id'], body: { doc: {} }, suffix: 'v2')).to eq('errors' => true)
       end
     end
 

@@ -20,11 +20,11 @@ module Esse
         #   UsersIndex.elasticsearch.delete_index # deletes `<prefix_>users<_suffix|_index_version|_timestamp>` index
         #
         # @param suffix [String, nil] The index suffix Use nil if you want to delete the current index.
-        # @return [Hash, false] elasticsearch response, of false in case of error.
+        # @return [Hash] the elasticsearch response, or an hash with 'errors' as true in case of failure
         def delete_index(suffix: index_version)
           delete_index!(suffix: suffix)
         rescue Elasticsearch::Transport::Transport::Errors::NotFound
-          false
+          { 'errors' => true }
         end
       end
 

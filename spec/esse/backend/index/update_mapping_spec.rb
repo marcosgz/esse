@@ -128,13 +128,13 @@ RSpec.describe Esse::Backend::Index do
   describe '.update_mapping' do
     specify do
       es_client do |client, _conf, cluster|
-        expect(DummiesIndex.elasticsearch.update_mapping(type: 'dummy')).to eq(false)
+        expect(DummiesIndex.elasticsearch.update_mapping(type: 'dummy')).to eq('errors' => true)
       end
     end
 
     specify do
       es_client do |client, _conf, cluster|
-        expect(DummiesIndex.elasticsearch.update_mapping(suffix: 'v1', type: 'dummy')).to eq(false)
+        expect(DummiesIndex.elasticsearch.update_mapping(suffix: 'v1', type: 'dummy')).to eq('errors' => true)
       end
     end
 
@@ -155,7 +155,7 @@ RSpec.describe Esse::Backend::Index do
           },
         )
         expect(DummiesIndex::Dummy).to receive(:mapping).and_return(new_mapping)
-        expect(DummiesIndex.elasticsearch.update_mapping(type: 'dummy')).to eq(false)
+        expect(DummiesIndex.elasticsearch.update_mapping(type: 'dummy')).to eq('errors' => true)
       end
     end
 
