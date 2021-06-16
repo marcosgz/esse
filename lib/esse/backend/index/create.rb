@@ -19,7 +19,7 @@ module Esse
         # @return [Hash, false] the elasticsearch response or false in case of unsuccessful creation.
         #
         # @see http://www.elasticsearch.org/blog/changing-mapping-with-zero-downtime/
-        def create_index(suffix: nil, **options)
+        def create_index(suffix: index_version, **options)
           create_index!(suffix: suffix, **options)
         rescue Elasticsearch::Transport::Transport::Errors::BadRequest
           false
@@ -37,7 +37,7 @@ module Esse
         # @return [Hash] the elasticsearch response
         #
         # @see http://www.elasticsearch.org/blog/changing-mapping-with-zero-downtime/
-        def create_index!(suffix: nil, **options)
+        def create_index!(suffix: index_version, **options)
           options = DEFAULT_OPTIONS.merge(options)
           name = build_real_index_name(suffix)
           definition = [settings_hash, mappings_hash].reduce(&:merge)

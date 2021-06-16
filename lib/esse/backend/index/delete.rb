@@ -11,7 +11,7 @@ module Esse
         # @param suffix [String, nil] The index suffix Use nil if you want to delete the current index.
         # @raise [Elasticsearch::Transport::Transport::Errors::NotFound] when index does not exists
         # @return [Hash] elasticsearch response
-        def delete_index!(suffix:)
+        def delete_index!(suffix: index_version)
           client.indices.delete(index: index_name(suffix: suffix))
         end
 
