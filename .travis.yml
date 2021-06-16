@@ -1,0 +1,20 @@
+# dist: trusty
+language: ruby
+before_install:
+  - gem --version
+  - gem update bundler
+  - gem --version
+  - bash ci/setup.sh
+
+jobs:
+  fast_finish: true
+  include:
+    - rvm: 2.5
+      env: STACK_VERSION=5.6.16
+      gemfile: ci/Gemfile.elasticsearch-5.x
+    - rvm: 2.5
+      env: STACK_VERSION=6.8.16
+      gemfile: ci/Gemfile.elasticsearch-6.x
+    - rvm: 2.5
+      env: STACK_VERSION=7.13.2
+      gemfile: ci/Gemfile.elasticsearch-7.x
