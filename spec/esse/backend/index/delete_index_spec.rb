@@ -7,7 +7,6 @@ RSpec.describe Esse::Backend::Index do
     stub_index(:dummies)
   end
 
-
   describe '.delete_index' do
     specify do
       es_client do

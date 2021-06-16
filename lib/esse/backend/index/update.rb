@@ -56,7 +56,6 @@ module Esse
           { 'errors' => true }
         end
 
-
         # Closes the index for read/write operations, updates the index settings, and open it again
         #
         # @option options [String] :expand_wildcards Whether to expand wildcard expression to concrete indices that

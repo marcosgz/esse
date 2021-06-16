@@ -6,7 +6,7 @@ require 'ostruct'
 RSpec.describe Esse::Index do
   describe '.serialize' do
     context 'without a serializer definition' do
-      before { stub_index(:dummies) {  } }
+      before { stub_index(:dummies) {} }
 
       specify do
         expect {

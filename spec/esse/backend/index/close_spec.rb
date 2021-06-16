@@ -10,7 +10,7 @@ RSpec.describe Esse::Backend::Index do
   describe '.close!' do
     specify do
       es_client do |client, _conf, cluster|
-        expect{ DummiesIndex.elasticsearch.close! }.to raise_error(
+        expect { DummiesIndex.elasticsearch.close! }.to raise_error(
           Elasticsearch::Transport::Transport::Errors::NotFound,
         ).with_message(/\[#{cluster.index_prefix}_dummies\] missing/)
         expect(DummiesIndex.elasticsearch.create_index(alias: true, suffix: 'v1')['acknowledged']).to eq(true)
@@ -26,7 +26,7 @@ RSpec.describe Esse::Backend::Index do
 
     specify do
       es_client do |client, _conf, cluster|
-        expect{ DummiesIndex.elasticsearch.close!(suffix: 'v2') }.to raise_error(
+        expect { DummiesIndex.elasticsearch.close!(suffix: 'v2') }.to raise_error(
           Elasticsearch::Transport::Transport::Errors::NotFound,
         ).with_message(/\[#{cluster.index_prefix}_dummies_v2\] missing/)
         expect(DummiesIndex.elasticsearch.create_index(alias: true, suffix: 'v1')['acknowledged']).to eq(true)

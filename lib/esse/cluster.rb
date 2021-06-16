@@ -39,7 +39,7 @@ module Esse
     #   with the settings that will be used to initialize Elasticsearch::Client
     def client=(es_client)
       @client = if es_client.is_a?(Hash)
-        settings = es_client.each_with_object({}) { |(k,v), r| r[k.to_sym] = v }
+        settings = es_client.each_with_object({}) { |(k, v), r| r[k.to_sym] = v }
         Elasticsearch::Client.new(settings)
       else
         es_client

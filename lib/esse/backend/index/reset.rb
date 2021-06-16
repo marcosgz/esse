@@ -17,14 +17,12 @@ module Esse
         def reset_index!(suffix: index_version, **options)
           existing = []
           suffix ||= Esse.timestamp
-          while exist?(suffix: suffix).tap { |exist| existing << suffix if exist }
-            suffix = Esse.timestamp
-          end
+          suffix = Esse.timestamp while exist?(suffix: suffix).tap { |exist| existing << suffix if exist }
 
           create_index!(suffix: suffix, **options)
           import!(suffix: suffix, **options)
           update_aliases!(suffix: suffix)
-          existing.each { |s| delete_index!(suffix: suffix, **options) }
+          existing.each { |_s| delete_index!(suffix: suffix, **options) }
           true
         end
       end

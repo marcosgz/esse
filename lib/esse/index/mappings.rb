@@ -7,7 +7,6 @@
 module Esse
   class Index
     module ClassMethods
-
       # This is the actually content that will be passed through the ES api
       def mappings_hash
         { Esse::MAPPING_ROOT_KEY => (index_mapping || type_mapping) }

@@ -9,16 +9,16 @@ RSpec.describe Esse::Backend::Index do
 
   describe '.open!' do
     specify do
-      es_client do |client, _conf, cluster|
-        expect{ DummiesIndex.elasticsearch.open! }.to raise_error(
+      es_client do |_client, _conf, cluster|
+        expect { DummiesIndex.elasticsearch.open! }.to raise_error(
           Elasticsearch::Transport::Transport::Errors::NotFound,
         ).with_message(/\[#{cluster.index_prefix}_dummies\] missing/)
       end
     end
 
     specify do
-      es_client do |client, _conf, cluster|
-        expect{ DummiesIndex.elasticsearch.open!(suffix: 'v1') }.to raise_error(
+      es_client do |_client, _conf, cluster|
+        expect { DummiesIndex.elasticsearch.open!(suffix: 'v1') }.to raise_error(
           Elasticsearch::Transport::Transport::Errors::NotFound,
         ).with_message(/\[#{cluster.index_prefix}_dummies_v1\] missing/)
       end
@@ -59,16 +59,15 @@ RSpec.describe Esse::Backend::Index do
     end
   end
 
-
   describe '.open' do
     specify do
-      es_client do |client, _conf, cluster|
+      es_client do |_client, _conf, _cluster|
         expect(DummiesIndex.elasticsearch.open).to eq('errors' => true)
       end
     end
 
     specify do
-      es_client do |client, _conf, cluster|
+      es_client do |_client, _conf, _cluster|
         expect(DummiesIndex.elasticsearch.open(suffix: 'v1')).to eq('errors' => true)
       end
     end

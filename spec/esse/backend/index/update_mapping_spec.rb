@@ -15,16 +15,16 @@ RSpec.describe Esse::Backend::Index do
 
   describe '.update_mapping!' do
     specify do
-      es_client do |client, _conf, cluster|
-        expect{ DummiesIndex.elasticsearch.update_mapping!(type: 'dummy') }.to raise_error(
+      es_client do |_client, _conf, cluster|
+        expect { DummiesIndex.elasticsearch.update_mapping!(type: 'dummy') }.to raise_error(
           Elasticsearch::Transport::Transport::Errors::NotFound,
         ).with_message(/\[#{cluster.index_prefix}_dummies\] missing/)
       end
     end
 
     specify do
-      es_client do |client, _conf, cluster|
-        expect{ DummiesIndex.elasticsearch.update_mapping!(suffix: 'v1', type: 'dummy') }.to raise_error(
+      es_client do |_client, _conf, cluster|
+        expect { DummiesIndex.elasticsearch.update_mapping!(suffix: 'v1', type: 'dummy') }.to raise_error(
           Elasticsearch::Transport::Transport::Errors::NotFound,
         ).with_message(/\[#{cluster.index_prefix}_dummies_v1\] missing/)
       end
@@ -37,7 +37,7 @@ RSpec.describe Esse::Backend::Index do
         expect(mapping.dig("#{cluster.index_prefix}_dummies_v1", 'mappings', 'dummy')).to eq(
           'properties' => {
             'title' => { 'type' => 'string', 'index' => 'not_analyzed' },
-          }
+          },
         )
 
         new_mapping = instance_double(
@@ -47,7 +47,7 @@ RSpec.describe Esse::Backend::Index do
           },
         )
         expect(DummiesIndex::Dummy).to receive(:mapping).and_return(new_mapping)
-        expect{ DummiesIndex.elasticsearch.update_mapping!(type: 'dummy') }.to raise_error(
+        expect { DummiesIndex.elasticsearch.update_mapping!(type: 'dummy') }.to raise_error(
           Elasticsearch::Transport::Transport::Errors::BadRequest,
         ).with_message(/mapper \[title\] has different index_analyzer/)
       end
@@ -60,7 +60,7 @@ RSpec.describe Esse::Backend::Index do
         expect(mapping.dig("#{cluster.index_prefix}_dummies_v1", 'mappings', 'dummy')).to eq(
           'properties' => {
             'title' => { 'type' => 'string', 'index' => 'not_analyzed' },
-          }
+          },
         )
 
         new_mapping = instance_double(
@@ -78,7 +78,7 @@ RSpec.describe Esse::Backend::Index do
           'properties' => {
             'title' => { 'type' => 'string', 'index' => 'not_analyzed' },
             'published' => { 'type' => 'boolean' },
-           },
+          },
         )
       end
     end
@@ -91,12 +91,12 @@ RSpec.describe Esse::Backend::Index do
         expect(mapping.dig("#{cluster.index_prefix}_dummies_v1", 'mappings', 'dummy')).to eq(
           'properties' => {
             'title' => { 'type' => 'string', 'index' => 'not_analyzed' },
-          }
+          },
         )
         expect(mapping.dig("#{cluster.index_prefix}_dummies_v2", 'mappings', 'dummy')).to eq(
           'properties' => {
             'title' => { 'type' => 'string', 'index' => 'not_analyzed' },
-          }
+          },
         )
 
         new_mapping = instance_double(
@@ -114,12 +114,12 @@ RSpec.describe Esse::Backend::Index do
           'properties' => {
             'title' => { 'type' => 'string', 'index' => 'not_analyzed' },
             'published' => { 'type' => 'boolean' },
-           },
+          },
         )
         expect(mapping.dig("#{cluster.index_prefix}_dummies_v2", 'mappings', 'dummy')).to eq(
           'properties' => {
             'title' => { 'type' => 'string', 'index' => 'not_analyzed' },
-           },
+          },
         )
       end
     end
@@ -127,13 +127,13 @@ RSpec.describe Esse::Backend::Index do
 
   describe '.update_mapping' do
     specify do
-      es_client do |client, _conf, cluster|
+      es_client do |_client, _conf, _cluster|
         expect(DummiesIndex.elasticsearch.update_mapping(type: 'dummy')).to eq('errors' => true)
       end
     end
 
     specify do
-      es_client do |client, _conf, cluster|
+      es_client do |_client, _conf, _cluster|
         expect(DummiesIndex.elasticsearch.update_mapping(suffix: 'v1', type: 'dummy')).to eq('errors' => true)
       end
     end
@@ -145,7 +145,7 @@ RSpec.describe Esse::Backend::Index do
         expect(mapping.dig("#{cluster.index_prefix}_dummies_v1", 'mappings', 'dummy')).to eq(
           'properties' => {
             'title' => { 'type' => 'string', 'index' => 'not_analyzed' },
-          }
+          },
         )
 
         new_mapping = instance_double(
@@ -166,7 +166,7 @@ RSpec.describe Esse::Backend::Index do
         expect(mapping.dig("#{cluster.index_prefix}_dummies_v1", 'mappings', 'dummy')).to eq(
           'properties' => {
             'title' => { 'type' => 'string', 'index' => 'not_analyzed' },
-          }
+          },
         )
 
         new_mapping = instance_double(
@@ -184,7 +184,7 @@ RSpec.describe Esse::Backend::Index do
           'properties' => {
             'title' => { 'type' => 'string', 'index' => 'not_analyzed' },
             'published' => { 'type' => 'boolean' },
-           },
+          },
         )
       end
     end
@@ -197,12 +197,12 @@ RSpec.describe Esse::Backend::Index do
         expect(mapping.dig("#{cluster.index_prefix}_dummies_v1", 'mappings', 'dummy')).to eq(
           'properties' => {
             'title' => { 'type' => 'string', 'index' => 'not_analyzed' },
-          }
+          },
         )
         expect(mapping.dig("#{cluster.index_prefix}_dummies_v2", 'mappings', 'dummy')).to eq(
           'properties' => {
             'title' => { 'type' => 'string', 'index' => 'not_analyzed' },
-          }
+          },
         )
 
         new_mapping = instance_double(
@@ -220,12 +220,12 @@ RSpec.describe Esse::Backend::Index do
           'properties' => {
             'title' => { 'type' => 'string', 'index' => 'not_analyzed' },
             'published' => { 'type' => 'boolean' },
-           },
+          },
         )
         expect(mapping.dig("#{cluster.index_prefix}_dummies_v2", 'mappings', 'dummy')).to eq(
           'properties' => {
             'title' => { 'type' => 'string', 'index' => 'not_analyzed' },
-           },
+          },
         )
       end
     end

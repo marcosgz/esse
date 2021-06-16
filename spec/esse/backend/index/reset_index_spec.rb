@@ -20,7 +20,7 @@ RSpec.describe Esse::Backend::Index do
         expect(DummiesIndex.elasticsearch.reset_index!(suffix: '2019', refresh: true)).to eq(true)
         expect(DummiesIndex.elasticsearch.indices).to match_array(
           [
-            "#{cluster.index_prefix}_dummies_2019",
+            "#{cluster.index_prefix}_dummies_2019"
           ],
         )
         expect(client.indices.get_alias(index: "#{cluster.index_prefix}_dummies")).to eq(
@@ -34,7 +34,7 @@ RSpec.describe Esse::Backend::Index do
         expect(DummiesIndex.elasticsearch.reset_index!(refresh: true)).to eq(true)
         expect(DummiesIndex.elasticsearch.indices).to match_array(
           [
-            "#{cluster.index_prefix}_dummies_2020",
+            "#{cluster.index_prefix}_dummies_2020"
           ],
         )
         expect(client.indices.get_alias(index: "#{cluster.index_prefix}_dummies")).to eq(

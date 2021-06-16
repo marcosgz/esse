@@ -7,7 +7,7 @@ RSpec.describe Esse::Index do
     specify do
       expect {
         stub_index(:geos) do
-          collection { }
+          collection {}
         end
       }.not_to raise_error
     end

@@ -4,7 +4,6 @@ module Esse
   # https://github.com/elastic/elasticsearch-ruby/blob/master/elasticsearch-api/lib/elasticsearch/api/actions/indices/put_settings.rb
   class Index
     module ClassMethods
-
       def settings_hash(cluster_settings: true)
         hash = cluster_settings ? cluster.index_settings.merge(setting.body) : setting.body
         { Esse::SETTING_ROOT_KEY => (hash.key?(Esse::SETTING_ROOT_KEY) ? hash[Esse::SETTING_ROOT_KEY] : hash) }
