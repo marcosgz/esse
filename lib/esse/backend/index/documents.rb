@@ -6,13 +6,13 @@ module Esse
       module InstanceMethods
         def import!(**options)
           type_hash.each_value do |type|
-            type.backend.import!(**options)
+            type.elasticsearch.import!(**options)
           end
         end
 
         def import(**options)
           type_hash.each_value do |type|
-            type.backend.import(**options)
+            type.elasticsearch.import(**options)
           end
         end
       end

@@ -13,21 +13,21 @@ RSpec.describe Esse::Backend::Index do
 
     specify do
       es_client do
-        expect(GeosIndex::State.backend.exist?(id: 1)).to eq(false)
-        expect(GeosIndex::State.backend.exist?(id: 2)).to eq(false)
-        expect(GeosIndex::State.backend.bulk(index: [il, md])['errors']).to eq(false)
-        expect(GeosIndex::State.backend.exist?(id: 1)).to eq(true)
-        expect(GeosIndex::State.backend.exist?(id: 2)).to eq(true)
+        expect(GeosIndex::State.elasticsearch.exist?(id: 1)).to eq(false)
+        expect(GeosIndex::State.elasticsearch.exist?(id: 2)).to eq(false)
+        expect(GeosIndex::State.elasticsearch.bulk(index: [il, md])['errors']).to eq(false)
+        expect(GeosIndex::State.elasticsearch.exist?(id: 1)).to eq(true)
+        expect(GeosIndex::State.elasticsearch.exist?(id: 2)).to eq(true)
 
         operations = {
           create: [ny],
           delete: [md],
           refresh: true,
         }
-        expect(GeosIndex::State.backend.bulk(**operations)['errors']).to eq(false)
-        expect(GeosIndex::State.backend.exist?(id: md['_id'])).to eq(false)
-        expect(GeosIndex::State.backend.find(id: 3)['_source']).to eq('name' => 'NY')
-        expect(GeosIndex::State.backend.bulk(suffix: 'v2', **operations)['errors']).to eq(false)
+        expect(GeosIndex::State.elasticsearch.bulk(**operations)['errors']).to eq(false)
+        expect(GeosIndex::State.elasticsearch.exist?(id: md['_id'])).to eq(false)
+        expect(GeosIndex::State.elasticsearch.find(id: 3)['_source']).to eq('name' => 'NY')
+        expect(GeosIndex::State.elasticsearch.bulk(suffix: 'v2', **operations)['errors']).to eq(false)
       end
     end
   end

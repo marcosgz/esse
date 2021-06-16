@@ -10,7 +10,7 @@ module Esse
 
         # Creates index and applies mappings and settings.
         #
-        #   UsersIndex.backend.create_index # creates index named `<prefix_>users_<suffix|index_version|timestamp>`
+        #   UsersIndex.elasticsearch.create_index # creates index named `<prefix_>users_<suffix|index_version|timestamp>`
         #
         # @param options [Hash] Options hash
         # @option options [Boolean] :alias Update `index_name` alias along with the new index
@@ -27,7 +27,7 @@ module Esse
 
         # Creates index and applies mappings and settings.
         #
-        #   UsersIndex.backend.create_index! # creates index named `<prefix_>users_<suffix|index_version|timestamp>`
+        #   UsersIndex.elasticsearch.create_index! # creates index named `<prefix_>users_<suffix|index_version|timestamp>`
         #
         # @param options [Hash] Options hash
         # @option options [Boolean] :alias Update `index_name` alias along with the new index

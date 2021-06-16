@@ -9,33 +9,33 @@ RSpec.describe Esse::Backend::Index do
   describe '.import' do
     specify do
       es_client do
-        GeosIndex.backend.create_index
-        expect { GeosIndex::State.backend.import(context: {}, refresh: true) }.not_to raise_error
-        expect(GeosIndex::State.backend.count).to eq(3)
-        expect(GeosIndex::County.backend.count).to eq(0)
+        GeosIndex.elasticsearch.create_index
+        expect { GeosIndex::State.elasticsearch.import(context: {}, refresh: true) }.not_to raise_error
+        expect(GeosIndex::State.elasticsearch.count).to eq(3)
+        expect(GeosIndex::County.elasticsearch.count).to eq(0)
       end
     end
 
     specify do
       es_client do
-        GeosIndex.backend.create_index
-        expect { GeosIndex::State.backend.import(context: {}, suffix: 'v2', refresh: true) }.not_to raise_error
-        expect(GeosIndex::State.backend.count).to eq(0)
-        expect(GeosIndex::County.backend.count).to eq(0)
-        expect(GeosIndex::State.backend.count(suffix: 'v2')).to eq(3)
-        expect(GeosIndex::County.backend.count(suffix: 'v2')).to eq(0)
+        GeosIndex.elasticsearch.create_index
+        expect { GeosIndex::State.elasticsearch.import(context: {}, suffix: 'v2', refresh: true) }.not_to raise_error
+        expect(GeosIndex::State.elasticsearch.count).to eq(0)
+        expect(GeosIndex::County.elasticsearch.count).to eq(0)
+        expect(GeosIndex::State.elasticsearch.count(suffix: 'v2')).to eq(3)
+        expect(GeosIndex::County.elasticsearch.count(suffix: 'v2')).to eq(0)
       end
     end
 
     specify do
       es_client do
-        GeosIndex.backend.create_index
+        GeosIndex.elasticsearch.create_index
         context = {
           conditions: ->(entry) { entry.id < 3 },
         }
-        expect { GeosIndex::State.backend.import(context: context, refresh: true) }.not_to raise_error
-        expect(GeosIndex::State.backend.count).to eq(2)
-        expect(GeosIndex::County.backend.count).to eq(0)
+        expect { GeosIndex::State.elasticsearch.import(context: context, refresh: true) }.not_to raise_error
+        expect(GeosIndex::State.elasticsearch.count).to eq(2)
+        expect(GeosIndex::County.elasticsearch.count).to eq(0)
       end
     end
   end

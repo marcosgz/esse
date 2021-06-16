@@ -219,4 +219,11 @@ RSpec.describe Esse::Index do
       expect(c.backend).to be_an_instance_of(Esse::Backend::Index)
     end
   end
+
+  describe '.elasticsearch' do
+    specify do
+      c = Class.new(Esse::Index)
+      expect(c.elasticsearch).to be_an_instance_of(Esse::Backend::Index)
+    end
+  end
 end

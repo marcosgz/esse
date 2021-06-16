@@ -6,7 +6,7 @@ module Esse
       module InstanceMethods
         # Checks the index existance. Returns true or false
         #
-        #   UsersIndex.backend.exist? #=> true
+        #   UsersIndex.elasticsearch.exist? #=> true
         #
         # @param options [Hash] Options hash
         # @option options [String, nil] :suffix The index suffix. Defaults to the index_version.

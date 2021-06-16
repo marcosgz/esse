@@ -3,9 +3,10 @@
 module Esse
   class Index
     module ClassMethods
-      def backend
+      def elasticsearch
         Esse::Backend::Index.new(self)
       end
+      alias backend elasticsearch
     end
 
     extend ClassMethods
