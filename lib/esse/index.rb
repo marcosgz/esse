@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative 'core'
+require_relative 'object_document_mapper'
 
 module Esse
   class Index
@@ -13,6 +14,7 @@ module Esse
     require_relative 'index/mappings'
     require_relative 'index/descendants'
     require_relative 'index/backend'
+    extend ObjectDocumentMapper
 
     @cluster_id = nil
 
