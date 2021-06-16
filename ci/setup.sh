@@ -21,6 +21,7 @@ PORT="${PORT:-9200}"
 NODES="${NODES:-1}"
 MAJOR_VERSION=`echo ${STACK_VERSION} | cut -c 1`
 DOCKER_NETWORK="esse"
+DOCKER_IMAGE="${DOCKER_IMAGE:-docker.elastic.co/elasticsearch/elasticsearch}"
 
 for (( node=1; node<=${NODES-1}; node++ ))
 do
@@ -81,7 +82,7 @@ do
     --detach \
     --network="$DOCKER_NETWORK" \
     --name="es${node}" \
-    docker.elastic.co/elasticsearch/elasticsearch:${STACK_VERSION}
+    ${DOCKER_IMAGE}:${STACK_VERSION}
 done
 
 docker run \
