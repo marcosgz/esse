@@ -28,7 +28,7 @@ RSpec.describe Esse::Backend::Index do
       es_client do |client, _conf, cluster|
         expect(DummiesIndex.elasticsearch.create_index(alias: true, suffix: 'v1')['acknowledged']).to eq(true)
         client.cluster.health(wait_for_status: 'green')
-        client.indices.close(index: "#{cluster.index_prefix}_dummies_v1", wait_for_active_shards: 1)
+        client.indices.close(index: "#{cluster.index_prefix}_dummies_v1")
         expect(DummiesIndex.elasticsearch.open!['acknowledged']).to eq(true)
 
         v1_state = client.cluster
@@ -43,7 +43,7 @@ RSpec.describe Esse::Backend::Index do
         expect(DummiesIndex.elasticsearch.create_index(alias: true, suffix: 'v1')['acknowledged']).to eq(true)
         expect(DummiesIndex.elasticsearch.create_index(alias: false, suffix: 'v2')['acknowledged']).to eq(true)
         client.cluster.health(wait_for_status: 'green')
-        client.indices.close(index: "#{cluster.index_prefix}_dummies_v1,#{cluster.index_prefix}_dummies_v2", wait_for_active_shards: 1)
+        client.indices.close(index: "#{cluster.index_prefix}_dummies_v1,#{cluster.index_prefix}_dummies_v2")
         expect(DummiesIndex.elasticsearch.open!(suffix: 'v2')['acknowledged']).to eq(true)
 
         v1_state = client.cluster
@@ -76,7 +76,7 @@ RSpec.describe Esse::Backend::Index do
       es_client do |client, _conf, cluster|
         expect(DummiesIndex.elasticsearch.create_index(alias: true, suffix: 'v1')['acknowledged']).to eq(true)
         client.cluster.health(wait_for_status: 'green')
-        client.indices.close(index: "#{cluster.index_prefix}_dummies_v1", wait_for_active_shards: 1)
+        client.indices.close(index: "#{cluster.index_prefix}_dummies_v1")
         expect(DummiesIndex.elasticsearch.open['acknowledged']).to eq(true)
 
         v1_state = client.cluster
@@ -91,7 +91,7 @@ RSpec.describe Esse::Backend::Index do
         expect(DummiesIndex.elasticsearch.create_index(alias: true, suffix: 'v1')['acknowledged']).to eq(true)
         expect(DummiesIndex.elasticsearch.create_index(alias: false, suffix: 'v2')['acknowledged']).to eq(true)
         client.cluster.health(wait_for_status: 'green')
-        client.indices.close(index: "#{cluster.index_prefix}_dummies_v1,#{cluster.index_prefix}_dummies_v2", wait_for_active_shards: 1)
+        client.indices.close(index: "#{cluster.index_prefix}_dummies_v1,#{cluster.index_prefix}_dummies_v2")
         expect(DummiesIndex.elasticsearch.open(suffix: 'v2')['acknowledged']).to eq(true)
 
         v1_state = client.cluster
