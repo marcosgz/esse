@@ -37,10 +37,18 @@ environment=($(cat <<-END
 END
 ))
 
+if [ "x${MAJOR_VERSION}" != 'x7' ] && [ "x${MAJOR_VERSION}" != 'x8' ]; then
+  environment+=($(cat <<-END
+    --env discovery.zen.ping.unicast.hosts=${UNICAST_HOSTS}
+END
+  ))
+fi
+
 if [ "x${MAJOR_VERSION}" == 'x6' ]; then
   environment+=($(cat <<-END
     --env xpack.license.self_generated.type=basic
     --env discovery.zen.minimum_master_nodes=${NODES}
+
 END
   ))
 elif [ "x${MAJOR_VERSION}" == 'x7' ] || [ "x${MAJOR_VERSION}" == 'x8' ]; then
@@ -61,16 +69,16 @@ function cleanup_network {
 }
 
 cleanup_network "$DOCKER_NETWORK"
-docker network create "$DOCKER_NETWORK"
+docker network create "$DOCKER_NETWORK" || true
 
 for (( node=1; node<=${NODES-1}; node++ ))
 do
   port=$((PORT + $node - 1))
   port_com=$((9300 + $node - 1))
+  docker rm -f "es$node" || true
   docker run \
     --rm \
     --env "node.name=es${node}" \
-    --env "discovery.zen.ping.unicast.hosts=${UNICAST_HOSTS}" \
     --env "discovery.zen.minimum_master_nodes=${NODES}" \
     --env "http.port=${port}" \
     --env "ES_JAVA_OPTS=-Xms1g -Xmx1g -da:org.elasticsearch.xpack.ccr.index.engine.FollowingEngineAssertions" \
