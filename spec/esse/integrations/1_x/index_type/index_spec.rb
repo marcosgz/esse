@@ -3,7 +3,7 @@
 require 'spec_helper'
 require 'support/shared_contexts/geos_index_definition'
 
-RSpec.describe Esse::Backend::Index do
+RSpec.describe "[ES #{ENV.fetch('STACK_VERSION', '1.x')}] index document", es_version: '1.x' do
   include_context 'geos index definition'
 
   describe '.index' do

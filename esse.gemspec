@@ -2,6 +2,7 @@
 
 require_relative 'lib/esse/version'
 
+# rubocop:disable Metrics/BlockLength
 Gem::Specification.new do |spec|
   spec.name          = 'esse'
   spec.version       = Esse::VERSION
@@ -36,5 +37,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'pry'
   spec.add_development_dependency 'rake', '~> 12.3'
   spec.add_development_dependency 'rspec', '~> 3.0'
+  spec.add_development_dependency 'webmock', '~> 3.14'
   spec.add_development_dependency 'yard', '~> 0.9.20'
 end
+# rubocop:enable Metrics/BlockLength

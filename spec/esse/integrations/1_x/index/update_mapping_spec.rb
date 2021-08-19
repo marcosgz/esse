@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe Esse::Backend::Index do
+RSpec.describe "[ES #{ENV.fetch('STACK_VERSION', '1.x')}] update mapping", es_version: '1.x' do
   before do
     stub_index(:dummies) do
       define_type :dummy do
