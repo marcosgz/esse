@@ -37,6 +37,10 @@ module Esse
             'templates/serializer.rb.erb',
             base_dir.join(index_name, 'serializers', "#{@type}_serializer.rb"),
           )
+          template(
+            'templates/collection.rb.erb',
+            base_dir.join(index_name, 'collections', "#{@type}_collection.rb"),
+          )
         end
       end
 

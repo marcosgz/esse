@@ -1,0 +1,42 @@
+# frozen_string_literal: true
+
+class <%= @index_name %> < <%= @base_class %>
+  module Collections
+    class <%= @type.camelize %>Serializer
+      include Enumerable
+
+      # @param params [Hash] List of filters
+      # @option params [Number] :batch_size To control the number of rows
+      def initialize(params, _context)
+        @params = params
+      end
+
+      # Find all <%= @type %> in batches
+      #
+      # @yield [Array<<%= @type.camelize %>>]
+      # @see <%= @index_name %>::<%= @type.camelize %>#collection
+      def each
+        offset = 0
+        while (rows = find_all(offset))
+          break if rows.none?
+
+          # You may preload associations before serialize them
+          # associations = preload_associations!(rows)
+          # yield(row, associations)
+          offset += 1
+
+          yield(rows)
+        end
+
+        protected
+
+        attr_reader :params
+
+        # @param offset [Number] Offset to start from
+        def find_all(offset)
+          # @TODO load data from persistent store
+        end
+      end
+    end
+  end
+end
