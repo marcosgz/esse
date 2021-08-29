@@ -24,7 +24,6 @@ module Esse
 
       from_template || @settings
     end
-    alias_method :as_json, :to_h # backwards compatibility
 
     def body
       @globals.merge(to_h)

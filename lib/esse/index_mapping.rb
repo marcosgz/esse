@@ -17,7 +17,6 @@ module Esse
 
       from_template || @mappings
     end
-    alias_method :as_json, :to_h # backwards compatibility
 
     def body
       to_h
