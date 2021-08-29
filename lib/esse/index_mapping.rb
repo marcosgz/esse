@@ -12,14 +12,15 @@ module Esse
 
     # This method will be overwrited when passing a block during the
     # mapping defination
-    def as_json
+    def to_h
       return @mappings unless @mappings.empty?
 
       from_template || @mappings
     end
+    alias_method :as_json, :to_h # backwards compatibility
 
     def body
-      as_json
+      to_h
     end
 
     def empty?

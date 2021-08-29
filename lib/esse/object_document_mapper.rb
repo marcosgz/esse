@@ -3,7 +3,7 @@
 module Esse
   module ObjectDocumentMapper
     # Convert ruby object to json. Arguments will be same of passed through the
-    # collection. It's allowed a block or a class with the `as_json` instance method.
+    # collection. It's allowed a block or a class with the `to_h` instance method.
     # Example with block
     #   serializer do |model, context = {}|
     #     {
@@ -16,13 +16,15 @@ module Esse
     def serializer(klass = nil, &block)
       if block_given?
         @serializer_proc = block
-      elsif klass.is_a?(Class) && klass.instance_methods.include?(:as_json)
+      elsif klass.is_a?(Class) && klass.instance_methods.include?(:to_h)
+        @serializer_proc = proc { |*args| klass.new(*args).to_h }
+      elsif klass.is_a?(Class) && klass.instance_methods.include?(:as_json) # backward compatibility
         @serializer_proc = proc { |*args| klass.new(*args).as_json }
       elsif klass.is_a?(Class) && klass.instance_methods.include?(:call)
         @serializer_proc = proc { |*args| klass.new(*args).call }
       else
         msg = format('%<arg>p is not a valid serializer. The serializer should ' \
-                      'respond with `as_json` instance method.', arg: klass,)
+                      'respond with `to_h` instance method.', arg: klass,)
         raise ArgumentError, msg
       end
     end

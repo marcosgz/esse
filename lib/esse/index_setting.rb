@@ -19,14 +19,15 @@ module Esse
     #     end
     #   end
     #
-    def as_json
+    def to_h
       return @settings unless @settings.empty?
 
       from_template || @settings
     end
+    alias_method :as_json, :to_h # backwards compatibility
 
     def body
-      @globals.merge(as_json)
+      @globals.merge(to_h)
     end
 
     protected

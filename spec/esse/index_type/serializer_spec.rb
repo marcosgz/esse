@@ -128,7 +128,7 @@ RSpec.describe Esse::IndexType do
         Class.new(Esse::IndexType) do
           serializer
         end
-      }.to raise_error(ArgumentError, 'nil is not a valid serializer. The serializer should respond with `as_json` instance method.')
+      }.to raise_error(ArgumentError, 'nil is not a valid serializer. The serializer should respond with `to_h` instance method.')
     end
 
     specify do
@@ -136,7 +136,7 @@ RSpec.describe Esse::IndexType do
         Class.new(Esse::IndexType) do
           serializer :invalid
         end
-      }.to raise_error(ArgumentError, ':invalid is not a valid serializer. The serializer should respond with `as_json` instance method.')
+      }.to raise_error(ArgumentError, ':invalid is not a valid serializer. The serializer should respond with `to_h` instance method.')
     end
 
     specify do
@@ -144,6 +144,16 @@ RSpec.describe Esse::IndexType do
       expect {
         klass = Class.new(Esse::IndexType) do
           serializer(Class.new { def as_json; end; })
+        end
+      }.not_to raise_error
+      expect(klass.instance_variable_get(:@serializer_proc)).to be_a_kind_of(Proc)
+    end
+
+    specify do
+      klass = nil
+      expect {
+        klass = Class.new(Esse::IndexType) do
+          serializer(Class.new { def to_h; end; })
         end
       }.not_to raise_error
       expect(klass.instance_variable_get(:@serializer_proc)).to be_a_kind_of(Proc)

@@ -9,7 +9,7 @@ module Esse
         @mapping = Esse::IndexMapping.new(body: hash, paths: template_dirs, filenames: mapping_filenames)
         return unless block_given?
 
-        @mapping.define_singleton_method(:as_json, &block)
+        @mapping.define_singleton_method(:to_h, &block)
       end
 
       # This is the actually content that will be passed through the ES api

@@ -17,7 +17,7 @@ module Esse
         @mapping = Esse::IndexMapping.new(body: hash, paths: template_dirs)
         return unless block_given?
 
-        @mapping.define_singleton_method(:as_json, &block)
+        @mapping.define_singleton_method(:to_h, &block)
       end
 
       private

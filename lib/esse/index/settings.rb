@@ -12,7 +12,7 @@ module Esse
       # Define /_settings definition by each index.
       #
       # +hash+: The body of the request includes the updated settings.
-      # +block+: Overwrite default :as_json from IndexSetting instance
+      # +block+: Overwrite default :to_h from IndexSetting instance
       #
       # Example:
       #
@@ -31,7 +31,7 @@ module Esse
         @setting = Esse::IndexSetting.new(body: hash, paths: template_dirs, globals: cluster.index_settings)
         return unless block_given?
 
-        @setting.define_singleton_method(:as_json, &block)
+        @setting.define_singleton_method(:to_h, &block)
       end
 
       private

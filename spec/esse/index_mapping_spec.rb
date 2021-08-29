@@ -17,14 +17,14 @@ RSpec.describe Esse::IndexMapping do
     end
   end
 
-  describe '.as_json' do
+  describe '.to_h' do
     let(:paths) { [Esse.config.indices_directory.join('events_index')] }
     let(:filenames) { ['{mapping,mappings}'] }
 
     it 'returns the instance variable when it is not empty' do
       mapping = described_class.new(body: { 'pk' => { 'type' => 'long' } })
 
-      expect(mapping.as_json).to eq('pk' => { 'type' => 'long' })
+      expect(mapping.to_h).to eq('pk' => { 'type' => 'long' })
     end
 
     it 'reads json from template as fallback' do
@@ -34,7 +34,7 @@ RSpec.describe Esse::IndexMapping do
       expect(Esse::TemplateLoader).to receive(:new).with(paths).and_return(loader)
 
       mapping = described_class.new(paths: paths, filenames: filenames)
-      expect(mapping.as_json).to eq('pk' => { 'type' => 'long' })
+      expect(mapping.to_h).to eq('pk' => { 'type' => 'long' })
     end
   end
 end

@@ -7,7 +7,7 @@ class <%= @index_name %> < <%= @base_class %>
         @entity = <%= @type %>
       end
 
-      def as_json
+      def to_h
         {
           id: @entity.id, # This field is required
           name: @entity.name,

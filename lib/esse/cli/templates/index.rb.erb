@@ -25,8 +25,8 @@ class <%= @index_name %> < <%= @base_class %>
     # Serializer
     # ==========
     #
-    # The serializer can be any class that respond with the `as_json` class method.
-    # And the result of its as_json is a Hash.
+    # The serializer can be any class that respond with the `to_h` class method.
+    # And the result of its to_h is a Hash.
     #
     # Here is an example of a simple serializer:
     # app/serializers/<%= type %>_serializer.rb
@@ -35,7 +35,7 @@ class <%= @index_name %> < <%= @base_class %>
     #       @<%= type %> = <%= type %>
     #     end
     #
-    #     def as_json
+    #     def to_h
     #       { '_id' => @<%= type %>.id, 'name' => @<%= type %>.name }
     #     end
     #   end

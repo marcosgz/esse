@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 RSpec.describe Esse::IndexSetting do
-  describe '.as_json' do
+  describe '.to_h' do
     context 'with :paths parameter' do
       let(:paths) { [Esse.config.indices_directory.join('events_index/templates')] }
 
@@ -14,12 +14,12 @@ RSpec.describe Esse::IndexSetting do
         expect(Esse::TemplateLoader).to receive(:new).with(paths).and_return(loader)
 
         model = described_class.new(paths: paths)
-        expect(model.as_json).to eq('analyzer' => { 'myanalyzer' => {} })
+        expect(model.to_h).to eq('analyzer' => { 'myanalyzer' => {} })
       end
     end
 
     context 'with :body parameter' do
-      subject { described_class.new(body: { 'analyzer' => { 'myanalyzer': {} } }).as_json }
+      subject { described_class.new(body: { 'analyzer' => { 'myanalyzer': {} } }).to_h }
 
       specify do
         expect(Esse::TemplateLoader).not_to receive(:new)

@@ -3,7 +3,7 @@ class DummyGeosSerializer
     @entry = entry
   end
 
-  def as_json
+  def to_h
     {
       _id: @entry.uuid,
       pk: @entry.id,
