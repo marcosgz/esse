@@ -4,6 +4,19 @@ require 'multi_json'
 require 'elasticsearch'
 
 module Esse
+  require_relative 'config'
+  require_relative 'cluster'
+  require_relative 'primitives'
+  require_relative 'index_type'
+  require_relative 'index_setting'
+  require_relative 'index_mapping'
+  require_relative 'template_loader'
+  require_relative 'backend/index'
+  require_relative 'backend/index_type'
+  require_relative 'version'
+  require_relative 'logging'
+  include Logging
+
   @single_threaded = false
   # Mutex used to protect mutable data structures
   @data_mutex = Mutex.new
@@ -75,15 +88,4 @@ module Esse
     end
     [id, modified]
   end
-
-  require_relative 'config'
-  require_relative 'cluster'
-  require_relative 'primitives'
-  require_relative 'index_type'
-  require_relative 'index_setting'
-  require_relative 'index_mapping'
-  require_relative 'template_loader'
-  require_relative 'backend/index'
-  require_relative 'backend/index_type'
-  require_relative 'version'
 end
