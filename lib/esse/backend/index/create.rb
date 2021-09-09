@@ -46,7 +46,9 @@ module Esse
             definition[:aliases] = { index_name => {} }
           end
 
-          client.indices.create(index: name, body: definition)
+          client.indices.create(index: name, body: definition).tap do |result|
+            cluster.wait_for_status! if result
+          end
         end
       end
 

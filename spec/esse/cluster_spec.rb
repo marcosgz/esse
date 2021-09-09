@@ -45,6 +45,45 @@ RSpec.describe Esse::Cluster do
       expect { model.assign('index_settings' => { 'refresh_interval' => '1s' }, 'other' => 1) }.not_to raise_error
       expect(model.index_settings).to eq('refresh_interval' => '1s')
     end
+
+    specify do
+      expect(model.wait_for_status).to eq(nil)
+      expect { model.assign(wait_for_status: 'yellow') }.not_to raise_error
+      expect(model.wait_for_status).to eq('yellow')
+    end
+  end
+
+  describe '.wait_for_status' do
+    it { expect(model.wait_for_status).to eq(nil) }
+
+    it 'sets the value for wait_for_status' do
+      model.wait_for_status = 'green'
+      expect(model.wait_for_status).to eq('green')
+    end
+  end
+
+  describe '.wait_for_status!' do
+    let(:client) { instance_double(Elasticsearch::Transport::Client) }
+
+    before { model.client = client }
+
+    it 'checks for the cluster health using the given status' do
+      expect(client).to receive(:cluster).and_return(cluster_api = double)
+      expect(cluster_api).to receive(:health).with(wait_for_status: 'green').and_return(:ok)
+      expect(model.wait_for_status!(status: 'green')).to eq(:ok)
+    end
+
+    it 'checks for the cluster health using the status from config' do
+      expect(client).to receive(:cluster).and_return(cluster_api = double)
+      expect(cluster_api).to receive(:health).with(wait_for_status: 'yellow').and_return(:ok)
+      model.wait_for_status = :yellow
+      expect(model.wait_for_status!).to eq(:ok)
+    end
+
+    it 'does not sends any request to elasticsearch when wait for status is not defined' do
+      expect(client).not_to receive(:cluster)
+      expect(model.wait_for_status!).to eq(nil)
+    end
   end
 
   describe '.index_settings' do

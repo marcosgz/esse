@@ -2,7 +2,8 @@
 
 module Esse
   class Cluster
-    ATTRIBUTES = %i[index_prefix index_settings client].freeze
+    ATTRIBUTES = %i[index_prefix index_settings client wait_for_status].freeze
+    WAIT_FOR_STATUSES = %w[green yellow red].freeze
 
     # The index prefix. For example an index named UsersIndex.
     # With `index_prefix = 'app1'`. Final index/alias is: 'app1_users'
@@ -10,6 +11,16 @@ module Esse
 
     # This settings will be passed through all indices during the mapping
     attr_accessor :index_settings
+
+
+    # if this option set, actions such as creating or deleting index,
+    # importing data will wait for the status specified. Extremely useful
+    # for tests under heavy indexes manipulations.
+    # Value can be set to `red`, `yellow` or `green`.
+    #
+    # Example:
+    #   wait_for_status: green
+    attr_accessor :wait_for_status
 
     attr_reader :id
 
@@ -53,6 +64,12 @@ module Esse
       end.compact
       attrs << format('client=%p', @client)
       format('#<Esse::Cluster %<attrs>s>', attrs: attrs.join(' '))
+    end
+
+    def wait_for_status!(status: wait_for_status)
+      return unless WAIT_FOR_STATUSES.include?(status.to_s)
+
+      client.cluster.health(wait_for_status: status.to_s)
     end
   end
 end

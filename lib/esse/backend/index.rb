@@ -43,7 +43,11 @@ module Esse
       end
 
       def client
-        @index.cluster.client
+        cluster.client
+      end
+
+      def cluster
+        @index.cluster
       end
     end
   end

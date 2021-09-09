@@ -12,7 +12,9 @@ module Esse
         # @raise [Elasticsearch::Transport::Transport::Errors::NotFound] when index does not exists
         # @return [Hash] elasticsearch response
         def delete_index!(suffix: index_version)
-          client.indices.delete(index: index_name(suffix: suffix))
+          client.indices.delete(index: index_name(suffix: suffix)).tap do |result|
+            cluster.wait_for_status! if result
+          end
         end
 
         # Deletes ES index
