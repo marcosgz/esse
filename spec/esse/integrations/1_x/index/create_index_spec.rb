@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe "[ES #{ENV.fetch('STACK_VERSION', '1.x')}] create index", es_version: '1.x' do
+RSpec.describe "[ES #{ENV.fetch("STACK_VERSION", "1.x")}] create index", es_version: '1.x' do
   before do
     stub_index(:dummies)
   end

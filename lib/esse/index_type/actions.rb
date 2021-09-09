@@ -3,7 +3,8 @@
 module Esse
   class IndexType
     module ClassMethods
-      def action(name, options = {}, &block); end
+      def action(name, options = {}, &block)
+      end
     end
 
     extend ClassMethods

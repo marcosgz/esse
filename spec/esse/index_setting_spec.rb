@@ -19,11 +19,11 @@ RSpec.describe Esse::IndexSetting do
     end
 
     context 'with :body parameter' do
-      subject { described_class.new(body: { 'analyzer' => { 'myanalyzer': {} } }).to_h }
+      subject { described_class.new(body: { 'analyzer' => { myanalyzer: {} } }).to_h }
 
       specify do
         expect(Esse::TemplateLoader).not_to receive(:new)
-        is_expected.to eq('analyzer' => { 'myanalyzer': {} })
+        is_expected.to eq('analyzer' => { myanalyzer: {} })
       end
     end
   end

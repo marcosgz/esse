@@ -29,7 +29,7 @@ module Esse
       #   end
       def settings(hash = {}, &block)
         @setting = Esse::IndexSetting.new(body: hash, paths: template_dirs, globals: cluster.index_settings)
-        return unless block_given?
+        return unless block
 
         @setting.define_singleton_method(:to_h, &block)
       end

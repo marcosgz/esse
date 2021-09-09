@@ -4,16 +4,16 @@ require_relative 'lib/esse/version'
 
 # rubocop:disable Metrics/BlockLength
 Gem::Specification.new do |spec|
-  spec.name          = 'esse'
-  spec.version       = Esse::VERSION
-  spec.authors       = ['Marcos G. Zimmermann']
-  spec.email         = ['mgzmaster@gmail.com']
+  spec.name = 'esse'
+  spec.version = Esse::VERSION
+  spec.authors = ['Marcos G. Zimmermann']
+  spec.email = ['mgzmaster@gmail.com']
 
-  spec.summary       = %[Pure Ruby toolkit based on official elasticsearch-ruby library. (No! It isn't a new DSL)]
-  spec.description   = 'All the elegance of ruby with the elasticsearch flexibility. This gem is a pretty simple ' \
+  spec.summary = %[Pure Ruby toolkit based on official elasticsearch-ruby library. (No! It isn't a new DSL)]
+  spec.description = 'All the elegance of ruby with the elasticsearch flexibility. This gem is a pretty simple ' \
                        'but excential helpers to deal with mapping, indexing, serialization and search.'
-  spec.homepage      = 'https://github.com/marcosgz/esse'
-  spec.license       = 'MIT'
+  spec.homepage = 'https://github.com/marcosgz/esse'
+  spec.license = 'MIT'
   spec.required_ruby_version = Gem::Requirement.new('>= 2.3.0')
 
   spec.metadata['homepage_uri'] = spec.homepage
@@ -25,8 +25,8 @@ Gem::Specification.new do |spec|
   spec.files = Dir.chdir(File.expand_path(__dir__)) do
     `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
   end
-  spec.bindir        = 'exec'
-  spec.executables   = spec.files.grep(%r{^exec/}) { |f| File.basename(f) }
+  spec.bindir = 'exec'
+  spec.executables = spec.files.grep(%r{^exec/}) { |f| File.basename(f) }
   spec.require_paths = ['lib']
 
   spec.add_dependency 'elasticsearch'

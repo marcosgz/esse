@@ -13,5 +13,5 @@ module ElasticsearchHelpers
       yield cluster.client, config, cluster if block_given?
     end
   end
-  alias es_client delete_all_indices!
+  alias_method :es_client, :delete_all_indices!
 end

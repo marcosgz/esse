@@ -54,14 +54,14 @@ module Esse
     def_conventional :demodulize!
 
     def modulize!
-      @value = @value.split(%r{\:\:|\\|/}).map { |part| self.class.new(part).camelize.to_s }.join('::')
+      @value = @value.split(%r{::|\\|/}).map { |part| self.class.new(part).camelize.to_s }.join('::')
       self
     end
     def_conventional :modulize!
 
     def underscore!
       @value = @value
-        .sub(/^\:\:/, '')
+        .sub(/^::/, '')
         .gsub('::', '/')
         .gsub(/([A-Z]+)([A-Z][a-z])/, '\1_\2')
         .gsub(/([a-z\d])([A-Z])/, '\1_\2')

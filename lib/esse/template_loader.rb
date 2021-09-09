@@ -24,7 +24,7 @@ module Esse
       path = nil
       @directories.each do |dir|
         patterns.find do |pattern|
-          path = Dir[dir.join("#{pattern}.{#{@extensions.join(',')}}")].first
+          path = Dir[dir.join("#{pattern}.{#{@extensions.join(",")}}")].first
           break if path
         end
         break if path

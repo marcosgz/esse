@@ -139,7 +139,10 @@ RSpec.describe Esse::Index do
       klass = nil
       expect {
         klass = Class.new(Esse::Index) do
-          serializer(Class.new { def as_json; end; })
+          serializer(Class.new {
+                       def as_json
+                       end
+                     })
         end
       }.not_to raise_error
       expect(klass.instance_variable_get(:@serializer_proc)).to be_a_kind_of(Proc)
@@ -149,7 +152,10 @@ RSpec.describe Esse::Index do
       klass = nil
       expect {
         klass = Class.new(Esse::Index) do
-          serializer(Class.new { def to_h; end; })
+          serializer(Class.new {
+                       def to_h
+                       end
+                     })
         end
       }.not_to raise_error
       expect(klass.instance_variable_get(:@serializer_proc)).to be_a_kind_of(Proc)
@@ -159,7 +165,10 @@ RSpec.describe Esse::Index do
       klass = nil
       expect {
         klass = Class.new(Esse::Index) do
-          serializer(Class.new { def call; end; })
+          serializer(Class.new {
+                       def call
+                       end
+                     })
         end
       }.not_to raise_error
       expect(klass.instance_variable_get(:@serializer_proc)).to be_a_kind_of(Proc)
