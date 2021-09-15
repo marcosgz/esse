@@ -3,8 +3,8 @@
 module ElasticsearchHelpers
   CONFIG_KEY = Esse::Config::DEFAULT_CLUSTER_ID
 
-  # Deletes all corresponding indexes with current prefix from ElasticSearch.
-  # Be careful, if current prefix is blank, this will destroy all the indexes.
+  # Deletes all corresponding indices with current prefix from ElasticSearch.
+  # Be careful, if current prefix is blank, this will destroy all the indices.
   def delete_all_indices!(key: CONFIG_KEY, pattern: '*')
     with_config do |config|
       cluster = config.clusters(key)

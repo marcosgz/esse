@@ -22,9 +22,17 @@ Gem::Specification.new do |spec|
 
   # Specify which files should be added to the gem when it is released.
   # The `git ls-files -z` loads the files in the RubyGem that have been added into git.
-  spec.files = Dir.chdir(File.expand_path(__dir__)) do
-    `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
+  # spec.files = Dir.chdir(File.expand_path(__dir__)) do
+  #   `git ls-files -z`.split("\x0").reject do |f|
+  #     f.match(%r{^(test|spec|features|ci|bin)/})
+  #   end
+  # end
+  # >> @TODO Remove this.. I'm just using while developing the CLI with uncommited changes
+  gitignore = File.read('.gitignore').split("\n").map { |f| File.expand_path(f, __FILE__) }
+  spec.files = Dir.glob('{lib,exec}/**/*', File::FNM_DOTMATCH).reject do |f|
+    File.directory?(f) || gitignore.include?(f)
   end
+  # <<<<
   spec.bindir = 'exec'
   spec.executables = spec.files.grep(%r{^exec/}) { |f| File.basename(f) }
   spec.require_paths = ['lib']

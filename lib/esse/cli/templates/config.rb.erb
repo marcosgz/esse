@@ -1,0 +1,8 @@
+# frozen_string_literal: true
+
+Esse.config do |conf|
+  conf.indices_directory = File.expand_path('../../app/indices', __FILE__)
+  conf.clusters(:default) do |cluster|
+    cluster.index_prefix = "esse_<%= @app_name %>_#{ENV.fetch('RACK_ENV', 'development')}"
+  end
+end

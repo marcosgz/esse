@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require_relative 'core'
 require_relative 'object_document_mapper'
 
 module Esse

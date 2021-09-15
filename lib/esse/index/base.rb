@@ -8,7 +8,7 @@ module Esse
       # Define a Index method on the given module that calls the Index
       # method on the receiver. This is how the Esse::Index() method is
       # defined, and allows you to define Index() methods on other modules,
-      # making it easier to have custom index settings for all indexes under
+      # making it easier to have custom index settings for all indices under
       # a namespace.  Example:
       #
       #   module V1
