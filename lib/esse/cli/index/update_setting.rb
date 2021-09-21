@@ -4,12 +4,12 @@ require_relative 'base_operation'
 
 module Esse
   module CLI
-    class Index::Create < Index::BaseOperation
+    class Index::UpdateSetting < Index::BaseOperation
       def run
         validate_options!
         indices.each do |index|
-          index.elasticsearch.create_index!(**options)
-          print_success 'Index %<name>s successfuly created',
+          index.elasticsearch.update_settings!(**options)
+          print_success 'Index %<name>s settings successfuly updated',
             name: index.elasticsearch.send(:index_name, suffix: options[:suffix]) # @todo use pub/sub api to get real index name
         end
       end

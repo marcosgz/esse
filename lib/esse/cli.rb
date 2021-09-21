@@ -64,7 +64,7 @@ module Esse
         @app_dir = path.basename
         template(
           'templates/config.rb.erb',
-          path.join("config/esse.rb"),
+          path.join('config/esse.rb'),
         )
       end
 
