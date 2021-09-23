@@ -24,14 +24,9 @@ module Esse
     class Root < Thor
       include Thor::Actions
 
-      CONFIG_PATHS = %w[
-        Essefile
-        config/esse.rb
-        config/initializers/esse.rb
-      ].freeze
-
       class_option :require, type: :string, aliases: '-r', required: false,
         default: nil, desc: 'Require config file where the application is defined'
+      class_option :silent, type: :boolean, aliases: '-s', required: false, default: false, desc: 'Silent mode'
 
       def initialize(*)
         super
@@ -72,7 +67,7 @@ module Esse
 
       def load_app_config(path)
         if path.nil?
-          CONFIG_PATHS.each do |config_path|
+          CLI_CONFIG_PATHS.each do |config_path|
             next unless File.exist?(config_path)
             path = config_path
             break

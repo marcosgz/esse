@@ -27,7 +27,7 @@ module Esse
       private
 
       def options
-        @options.slice(*@options.keys - %i[require])
+        @options.slice(*@options.keys - CLI_IGNORE_OPTS)
       end
 
       def validate_options!
