@@ -14,4 +14,20 @@ module ElasticsearchHelpers
     end
   end
   alias_method :es_client, :delete_all_indices!
+
+  def stub_es_request(verb, path, params: {}, req: {}, res: {})
+    res[:status] ||= 200
+    res[:body] ||= { acknowledged: true }
+    res[:body] = MultiJson.dump(res[:body]) unless res[:body].is_a?(String)
+
+    uri = es_cluster_uri
+    uri.path = path
+    uri.query = URI.encode_www_form(params) if params.any?
+    stub_request(verb, uri.to_s).to_return(res)
+  end
+
+  def es_cluster_uri(cluster_id = CONFIG_KEY)
+    conn = Esse.config.clusters(cluster_id).client.transport.connections.first
+    URI.parse(conn.full_url(''))
+  end
 end

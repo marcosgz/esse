@@ -21,7 +21,10 @@ module Esse
         #
         # @see https://www.elastic.co/guide/en/elasticsearch/reference/master/indices-open-close.html
         def close!(suffix: index_version, **options)
-          client.indices.close(options.merge(index: index_name(suffix: suffix)))
+          Esse::Events.instrument('elasticsearch.close') do |payload|
+            payload[:request] = attributes = options.merge(index: index_name(suffix: suffix))
+            payload[:response] = client.indices.close(**attributes)
+          end
         end
 
         # Close an index (keep the data on disk, but deny operations with the index).

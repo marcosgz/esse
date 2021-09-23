@@ -9,7 +9,7 @@ module Esse
   class Hstring
     extend Forwardable
 
-    def_delegators :@value, :==, :eq, :to_s, :inspect, :sub, :capitalize
+    def_delegators :@value, :==, :eq, :to_s, :to_sym, :inspect, :sub, :capitalize
     attr_reader :value
 
     def self.def_conventional(bang_method, conv_method = nil)
@@ -66,6 +66,7 @@ module Esse
         .gsub(/([A-Z]+)([A-Z][a-z])/, '\1_\2')
         .gsub(/([a-z\d])([A-Z])/, '\1_\2')
         .tr('-', '_')
+        .tr('.', '_')
         .gsub(/\s/, '_')
         .gsub(/__+/, '_')
         .downcase

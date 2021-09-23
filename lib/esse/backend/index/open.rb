@@ -21,7 +21,10 @@ module Esse
         #
         # @see https://www.elastic.co/guide/en/elasticsearch/reference/master/indices-open-open.html
         def open!(suffix: index_version, **options)
-          client.indices.open(options.merge(index: index_name(suffix: suffix)))
+          Esse::Events.instrument('elasticsearch.open') do |payload|
+            payload[:request] = attributes = options.merge(index: index_name(suffix: suffix))
+            payload[:response] = client.indices.open(**attributes)
+          end
         end
 
         # Open a previously closed index

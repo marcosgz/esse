@@ -8,6 +8,7 @@ require 'support/config_helpers'
 require 'support/elasticsearch_helpers'
 require 'support/webmock'
 require 'support/hooks/es_version'
+require 'support/hooks/pub_sub'
 require 'pry'
 
 RSpec.configure do |config|
@@ -20,4 +21,5 @@ RSpec.configure do |config|
   config.include ConfigHelpers
   config.include ElasticsearchHelpers
   config.include Hooks::EsVersion
+  config.include Hooks::PubSub
 end
