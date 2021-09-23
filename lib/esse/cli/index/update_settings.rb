@@ -4,7 +4,7 @@ require_relative 'base_operation'
 
 module Esse
   module CLI
-    class Index::UpdateSetting < Index::BaseOperation
+    class Index::UpdateSettings < Index::BaseOperation
       def run
         validate_options!
         indices.each do |index|

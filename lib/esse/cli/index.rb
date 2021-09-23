@@ -41,12 +41,12 @@ module Esse
         Delete.new(indices: index_classes, **options.transform_keys(&:to_sym)).run
       end
 
-      desc 'update_setting *INDEX_CLASS', 'Closes the index for read/write operations, updates the index settings, and open it again'
+      desc 'update_settings *INDEX_CLASS', 'Closes the index for read/write operations, updates the index settings, and open it again'
       option :suffix, type: :string, default: nil, aliases: '-s', desc: 'Suffix to append to index name'
       option :type, type: :string, default: nil, aliases: '-t', desc: 'Document Type to update mapping for'
-      def update_setting(*index_classes)
-        require_relative 'index/update_setting'
-        UpdateSetting.new(indices: index_classes, **options.transform_keys(&:to_sym)).run
+      def update_settings(*index_classes)
+        require_relative 'index/update_settings'
+        UpdateSettings.new(indices: index_classes, **options.transform_keys(&:to_sym)).run
       end
 
       desc 'update_mapping *INDEX_CLASS', 'Create or update a mapping'
