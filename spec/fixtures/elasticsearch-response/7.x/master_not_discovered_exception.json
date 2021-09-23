@@ -1,0 +1,13 @@
+{
+  "error": {
+    "root_cause": [
+      {
+        "type": "master_not_discovered_exception",
+        "reason": null
+      }
+    ],
+    "type": "master_not_discovered_exception",
+    "reason": null
+  },
+  "status": 503
+}

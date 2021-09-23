@@ -56,6 +56,7 @@ elif [ "x${MAJOR_VERSION}" == 'x7' ] || [ "x${MAJOR_VERSION}" == 'x8' ]; then
     --env xpack.license.self_generated.type=basic
     --env action.destructive_requires_name=false
     --env discovery.seed_hosts=es1
+    --env discovery.type=single-node
 END
   ))
 fi

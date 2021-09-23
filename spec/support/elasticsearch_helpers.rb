@@ -15,6 +15,25 @@ module ElasticsearchHelpers
   end
   alias_method :es_client, :delete_all_indices!
 
+  def elasticsearch_response_fixture(file:, version:, assigns: {}, **)
+    dirname = File.expand_path("../../fixtures/elasticsearch-response/#{version}", __FILE__)
+    path = nil
+    [file, "#{file}.json", "#{file}.json.erb"].each do |filename|
+      path = File.join(dirname, filename)
+      break if File.exist?(path)
+    end
+
+    raise "No elasticsearch response fixture found for #{file} in #{dirname}" unless path
+
+    case File.extname(path)
+    when '.erb'
+      template = File.read(path)
+      ERB.new(template).result_with_hash(assigns: assigns)
+    else
+      File.read(path)
+    end
+  end
+
   def stub_es_request(verb, path, params: {}, req: {}, res: {})
     res[:status] ||= 200
     res[:body] ||= { acknowledged: true }

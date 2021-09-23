@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe "[ES #{ENV.fetch("STACK_VERSION", "1.x")}] elasticsearch#index", es_version: '1.x', es_webmock: true do
+RSpec.describe "[ES #{ENV.fetch("STACK_VERSION", "2.x")}] elasticsearch#index", es_version: '2.x', es_webmock: true do
   before do
     stub_index(:geos) do
       define_type :city
@@ -12,7 +12,7 @@ RSpec.describe "[ES #{ENV.fetch("STACK_VERSION", "1.x")}] elasticsearch#index", 
 
   describe '.close!', events: %w[elasticsearch.close] do
     it 'raises an exception if the elasticsearch-api throws an error' do
-      body = elasticsearch_response_fixture(file: 'index_not_found', version: '1.x', assigns: { index_name: 'geos' })
+      body = elasticsearch_response_fixture(file: 'index_not_found', version: '2.x', assigns: { index_name: 'geos' })
       stub_es_request(:post, '/geos/_close', res: { status: 404, body: body })
       expect {
         GeosIndex.elasticsearch.close!
@@ -44,7 +44,7 @@ RSpec.describe "[ES #{ENV.fetch("STACK_VERSION", "1.x")}] elasticsearch#index", 
 
   describe '.close', events: %w[elasticsearch.close] do
     it 'does NOT raises an exception if the elasticsearch-api throws an error' do
-      body = elasticsearch_response_fixture(file: 'index_not_found', version: '1.x', assigns: { index_name: 'geos' })
+      body = elasticsearch_response_fixture(file: 'index_not_found', version: '2.x', assigns: { index_name: 'geos' })
       stub_es_request(:post, '/geos/_close', res: { status: 404, body: body })
       expect(GeosIndex.elasticsearch.close).to eq('errors' => true)
       refute_event 'elasticsearch.close'
