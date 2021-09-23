@@ -3,8 +3,6 @@
 module Esse
   class Index
     module ClassMethods
-      attr_reader :cluster_id
-
       # Define a Index method on the given module that calls the Index
       # method on the receiver. This is how the Esse::Index() method is
       # defined, and allows you to define Index() methods on other modules,

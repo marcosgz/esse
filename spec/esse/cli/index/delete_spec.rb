@@ -43,7 +43,6 @@ RSpec.describe Esse::CLI::Index, type: :cli do
         cli_exec(%w[index delete CountiesIndex --suffix=foo])
       end
 
-
       it 'allows multiple indices' do
         expect(CountiesIndex).to receive(:elasticsearch).twice.and_return(api1 = double)
         expect(CitiesIndex).to receive(:elasticsearch).twice.and_return(api2 = double)
