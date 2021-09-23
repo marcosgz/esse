@@ -9,8 +9,6 @@ module Esse
         validate_options!
         indices.each do |index|
           index.elasticsearch.close!(**options)
-          print_success 'Index %<name>s successfuly closed',
-            name: index.elasticsearch.send(:index_name, suffix: options[:suffix]) # @todo use pub/sub api to get real index name
         end
       end
 

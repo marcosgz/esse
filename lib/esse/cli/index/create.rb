@@ -9,8 +9,6 @@ module Esse
         validate_options!
         indices.each do |index|
           index.elasticsearch.create_index!(**options)
-          print_success 'Index %<name>s successfuly created',
-            name: index.elasticsearch.send(:index_name, suffix: options[:suffix]) # @todo use pub/sub api to get real index name
         end
       end
 

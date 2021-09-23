@@ -33,6 +33,12 @@ module Esse
         # @option options [Boolean] :alias Update `index_name` alias along with the new index
         # @option options [String] :suffix The index suffix. Defaults to the `IndexClass#index_version` or
         #   `Esse.timestamp`. Suffixed index names might be used for zero-downtime mapping change.
+        # @option arguments [String] :wait_for_active_shards Set the number of active shards
+        #    to wait for before the operation returns.
+        # @option arguments [Time] :timeout Explicit operation timeout
+        # @option arguments [Time] :master_timeout Specify timeout for connection to master
+        # @option arguments [Hash] :headers Custom HTTP headers
+        # @option arguments [Hash] :body The configuration for the index (`settings` and `mappings`)
         # @raise [Elasticsearch::Transport::Transport::Errors::NotFound] when index already exists
         # @return [Hash] the elasticsearch response
         #
@@ -42,12 +48,15 @@ module Esse
           name = build_real_index_name(suffix)
           definition = [settings_hash, mappings_hash].reduce(&:merge)
 
-          if options[:alias] && name != index_name
+          if options.delete(:alias) && name != index_name
             definition[:aliases] = { index_name => {} }
           end
 
-          client.indices.create(index: name, body: definition).tap do |result|
-            cluster.wait_for_status! if result
+          Esse::Events.instrument('elasticsearch.create_index') do |payload|
+            payload[:request] = opts = options.merge(index: name, body: definition)
+            payload[:response] = response = client.indices.create(**opts)
+            cluster.wait_for_status! if response
+            response
           end
         end
       end

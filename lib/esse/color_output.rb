@@ -22,7 +22,7 @@ module Esse
       },
       success: {
         symbol: '✔',
-        attributes: [:green, :bold, :bright],
+        attributes: [:lightgreen, :bold, :bright],
       },
       warn: {
         symbol: '⚠',

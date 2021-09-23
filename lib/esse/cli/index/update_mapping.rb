@@ -12,14 +12,9 @@ module Esse
             index.type_hash.each_value do |type|
               # @idea Add update_mapping! to IndexType and use it here
               index.elasticsearch.update_mapping!(type: type.type_name, **options)
-              print_success 'Index %<name>s#%<type>s mappings successfuly updated',
-                type: type.type_name,
-                name: index.elasticsearch.send(:index_name, suffix: options[:suffix]) # @todo use pub/sub api to get real index name
             end
           else
             index.elasticsearch.update_mapping!(**options)
-            print_success 'Index %<name>s mappings successfuly updated',
-              name: index.elasticsearch.send(:index_name, suffix: options[:suffix]) # @todo use pub/sub api to get real index name
           end
         end
       end

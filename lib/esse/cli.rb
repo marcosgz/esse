@@ -5,6 +5,7 @@ require 'thor'
 require_relative 'color_output'
 require_relative 'cli/index'
 require_relative 'cli/generate'
+require_relative 'cli/event_listener'
 
 module Esse
   module CLI
@@ -32,6 +33,7 @@ module Esse
         super
 
         load_app_config(options[:require])
+        setup_listeners unless options[:silent]
       end
 
       def self.source_root
@@ -64,6 +66,14 @@ module Esse
       end
 
       private
+
+      def setup_listeners
+        Esse::Events.__bus__.events.keys.grep(/^elasticsearch/).each do |event_name|
+          Esse::Events.subscribe(event_name) do |event|
+            EventListener[event_name]&.call(event)
+          end
+        end
+      end
 
       def load_app_config(path)
         if path.nil?
