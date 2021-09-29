@@ -13,7 +13,7 @@ module Hooks
             end
             example.run
           else
-            skip "Elasticsearch version #{version} required"
+            skip "requires ElasticSearch version #{version} to run (current version is #{Elasticsearch::Transport::VERSION})"
           end
         else
           example.run
