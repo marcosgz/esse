@@ -90,7 +90,7 @@ module Esse
                 index: index_name(suffix: suffix),
                 body: settings_hash(cluster_settings: false).fetch(Esse::SETTING_ROOT_KEY),
               )
-              payload[:response] = client.indices.put_settings(**opts)
+              payload[:response] = response = client.indices.put_settings(**opts)
             end
           ensure
             open!(suffix: suffix)
