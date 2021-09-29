@@ -33,7 +33,7 @@ module Esse
         super
 
         load_app_config(options[:require])
-        setup_listeners unless options[:silent]
+        setup_listeners if !options[:silent] || Esse.config.cli_event_listeners?
       end
 
       def self.source_root
