@@ -4,6 +4,64 @@ class <%= @index_name %> < <%= @base_class %>
   # plugin :active_record
   # plugin :sequel
 
+  <%- if @types.empty? -%>
+  # Collection
+  # ==========
+  #
+  # Collection is the source of data for the index. We hightly recommend using a
+  # another class that implements the Enumerable interface to better split the
+  # responsabilities and easy to test.
+  #
+  #   collection Collections::DocumentCollection
+  #
+  # but you can also use block definition style:
+  #   collection do |_context, &block|
+  #     block.call [{ title: 'foo' }, { title: 'bar' }], context
+  #   end
+  #
+  # Serializer block or class yielder should be called with an array of objects.
+  # Each these objects should be serialized using the serializer in described in the next section.
+  # The number of objects will be indexed to elasticsearch using the bulk api. So adjust the
+  # number of objects to be indexed accordingly.
+  #
+  # Here is a good place to eager loading data from database or any other repository.
+  # The bellow example is a rails like application that could preload using activerecord
+  #
+  #   collection do |context, &block|
+  #     context = {}
+  #     query = <%= @index_name.camelize %>.all
+  #     query = query.where(**context[:conditions]) if context[:conditions]
+  #     query = query.includes(:user) if context[:include_user]
+  #     query.find_in_batches(batch_size: 5000) do |batch|
+  #       block.call batch
+  #     end
+  #   end
+
+
+  # Serializer
+  # ==========
+  #
+  # Serializer is the class responsible for serializing indexing documents.
+  # Each object yielded by the collection will be serialized on this step.
+  # We recommend using a another class to handle the serialization. The only requirement is
+  # that the class implements the `#to_h` method.
+  # The serializer class may also be initialized with context if collection block is called with that extra parameter.
+  # Ability to call serializer with context is useful for preloading data from database or any other repository.
+  #
+  #    serializer Serializers::DocumentSerializer
+  #
+  # You can also serialize the collection entry using a block:
+  #
+  #   serializer do |model, context|
+  #     hash = {
+  #       name: <%= @index_name.underscore %>.name,
+  #     }
+  #     # Context is just an example here. But it's useful for eager loading data.
+  #     # I'll think a better example when implement this idea.
+  #     hash[:some_attribute] = <%= @index_name.underscore %>.some_attribute if context[:include_some_attribute]
+  #     hash
+  #   end
+  <%- end -%>
   <%- @types.each do |type| -%>
   define_type :<%= type %> do
     # Collection
@@ -14,9 +72,8 @@ class <%= @index_name %> < <%= @base_class %>
     # Useful for eager loading data from database or any other repository. Below is an example of a rails like
     # application could load using activerecord.
     #
-    #   collection do |conditions, &block|
-    #     context = {}
-    #     <%= type.camelize %>.where(conditions).find_in_batches(batch_size: 5000) do |batch|
+    #   collection do |context, &block|
+    #     <%= type.camelize %>.where(context[:conditions]).find_in_batches(batch_size: 5000) do |batch|
     #       block.call batch, context, ...
     #     end
     #   end

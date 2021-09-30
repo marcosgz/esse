@@ -14,7 +14,7 @@ module Esse
     # Example with serializer class
     #   serializer UserSerializer
     def serializer(klass = nil, &block)
-      if block_given?
+      if block
         @serializer_proc = block
       elsif klass.is_a?(Class) && klass.instance_methods.include?(:to_h)
         @serializer_proc = proc { |*args| klass.new(*args).to_h }
@@ -48,7 +48,7 @@ module Esse
     #     end
     #   end
     def collection(&block)
-      raise(SyntaxError, 'No block given') unless block_given?
+      raise(SyntaxError, 'No block given') unless block
 
       @collection_proc = block
     end

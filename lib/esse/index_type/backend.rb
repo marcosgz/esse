@@ -6,7 +6,7 @@ module Esse
       def elasticsearch
         Esse::Backend::IndexType.new(self)
       end
-      alias backend elasticsearch
+      alias_method :backend, :elasticsearch
     end
 
     extend ClassMethods

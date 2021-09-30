@@ -12,10 +12,9 @@ module Esse
     # This settings will be passed through all indices during the mapping
     attr_accessor :index_settings
 
-
     # if this option set, actions such as creating or deleting index,
     # importing data will wait for the status specified. Extremely useful
-    # for tests under heavy indexes manipulations.
+    # for tests under heavy indices manipulations.
     # Value can be set to `red`, `yellow` or `green`.
     #
     # Example:

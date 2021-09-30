@@ -11,9 +11,12 @@ module Esse
         # @param suffix [String, nil] The index suffix Use nil if you want to delete the current index.
         # @raise [Elasticsearch::Transport::Transport::Errors::NotFound] when index does not exists
         # @return [Hash] elasticsearch response
-        def delete_index!(suffix: index_version)
-          client.indices.delete(index: index_name(suffix: suffix)).tap do |result|
-            cluster.wait_for_status! if result
+        def delete_index!(suffix: index_version, **options)
+          Esse::Events.instrument('elasticsearch.delete_index') do |payload|
+            payload[:request] = opts = options.merge(index: index_name(suffix: suffix))
+            payload[:response] = response = client.indices.delete(**opts)
+            cluster.wait_for_status! if response
+            response
           end
         end
 
@@ -23,8 +26,8 @@ module Esse
         #
         # @param suffix [String, nil] The index suffix Use nil if you want to delete the current index.
         # @return [Hash] the elasticsearch response, or an hash with 'errors' as true in case of failure
-        def delete_index(suffix: index_version)
-          delete_index!(suffix: suffix)
+        def delete_index(suffix: index_version, **options)
+          delete_index!(suffix: suffix, **options)
         rescue Elasticsearch::Transport::Transport::Errors::NotFound
           { 'errors' => true }
         end

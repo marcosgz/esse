@@ -7,7 +7,7 @@ require_relative 'base'
 module Esse
   module CLI
     class Generate < Base
-      NAMESPACE_PATTERN_RE = %r{\:|/|\\}i.freeze
+      NAMESPACE_PATTERN_RE = %r{:|/|\\}i.freeze
 
       def self.source_root
         File.dirname(__FILE__)

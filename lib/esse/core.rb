@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+
 require 'multi_json'
 require 'elasticsearch'
 
@@ -15,6 +16,7 @@ module Esse
   require_relative 'backend/index_type'
   require_relative 'version'
   require_relative 'logging'
+  require_relative 'events'
   include Logging
 
   @single_threaded = false

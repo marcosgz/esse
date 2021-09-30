@@ -15,7 +15,7 @@ module Esse
       # This method is only used to define mapping
       def mappings(hash = {}, &block)
         @mapping = Esse::IndexMapping.new(body: hash, paths: template_dirs)
-        return unless block_given?
+        return unless block
 
         @mapping.define_singleton_method(:to_h, &block)
       end

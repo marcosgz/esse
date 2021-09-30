@@ -6,4 +6,6 @@ $LOAD_PATH.unshift File.expand_path('../lib', __dir__)
 require 'esse'
 require 'esse/cli'
 
-Esse::CLI.start(ARGV)
+Esse::CLI.with_friendly_errors do
+  Esse::CLI.start(ARGV)
+end

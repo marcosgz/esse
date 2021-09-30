@@ -6,10 +6,14 @@ module Hooks
         if (version = example.metadata[:es_version])
           re = Regexp.new(Regexp.escape(version).gsub('x', '\d+'))
           if re.match(Elasticsearch::Transport::VERSION)
-            EsVersion.disable_webmock_for_es! if [nil, false].include?(example.metadata[:webmock])
+            if example.metadata[:es_webmock]
+              WebMock.disable_net_connect!(allow_localhost: false)
+            else
+              EsVersion.webmock_disable_all_except_elasticsearch_hosts!
+            end
             example.run
           else
-            skip "Elasticsearch version #{version} required"
+            skip "requires ElasticSearch version #{version} to run (current version is #{Elasticsearch::Transport::VERSION})"
           end
         else
           example.run
@@ -17,7 +21,7 @@ module Hooks
       end
     end
 
-    def self.disable_webmock_for_es!
+    def self.webmock_disable_all_except_elasticsearch_hosts!
       WebMock.allow_net_connect!
       WebMock.disable_net_connect!(allow: hosts)
     end

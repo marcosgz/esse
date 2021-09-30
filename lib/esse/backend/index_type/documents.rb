@@ -15,7 +15,7 @@ module Esse
             bulk(index: batch, suffix: suffix, **options)
           end
         end
-        alias import! import
+        alias_method :import!, :import
 
         # Performs multiple indexing or delete operations in a single API call.
         # This reduces overhead and can greatly increase indexing speed.
@@ -53,7 +53,7 @@ module Esse
 
           client.bulk(definition)
         end
-        alias bulk! bulk
+        alias_method :bulk!, :bulk
 
         # Adds a JSON document to the specified index and makes it searchable. If the document
         # already exists, updates the document and increments its version.
@@ -72,7 +72,7 @@ module Esse
             options.merge(index: index_name(suffix: suffix), type: type_name, id: id, body: body),
           )
         end
-        alias index! index
+        alias_method :index!, :index
 
         # Updates a document using the specified script.
         #

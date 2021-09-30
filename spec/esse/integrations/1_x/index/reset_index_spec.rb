@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe "[ES #{ENV.fetch('STACK_VERSION', '1.x')}] reset index", es_version: '1.x' do
+RSpec.describe "[ES #{ENV.fetch("STACK_VERSION", "1.x")}] reset index", es_version: '1.x' do
   before do
     stub_index(:dummies)
   end
@@ -17,7 +17,7 @@ RSpec.describe "[ES #{ENV.fetch('STACK_VERSION', '1.x')}] reset index", es_versi
     it 'creates, import data, updates data and delete old indices' do
       es_client do |client, _conf, cluster|
         allow(Esse).to receive(:timestamp).and_return('2020')
-        expect(DummiesIndex.elasticsearch.reset_index!(suffix: '2019', refresh: true)).to eq(true)
+        expect(DummiesIndex.elasticsearch.reset_index!(suffix: '2019')).to eq(true)
         expect(DummiesIndex.elasticsearch.indices).to match_array(
           [
             "#{cluster.index_prefix}_dummies_2019"
@@ -31,7 +31,7 @@ RSpec.describe "[ES #{ENV.fetch('STACK_VERSION', '1.x')}] reset index", es_versi
           },
         )
 
-        expect(DummiesIndex.elasticsearch.reset_index!(refresh: true)).to eq(true)
+        expect(DummiesIndex.elasticsearch.reset_index!).to eq(true)
         expect(DummiesIndex.elasticsearch.indices).to match_array(
           [
             "#{cluster.index_prefix}_dummies_2020"

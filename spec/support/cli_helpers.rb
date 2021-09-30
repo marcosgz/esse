@@ -7,6 +7,7 @@ require 'esse/cli'
 module CliHelpers
   def self.included(base)
     base.before(:each) do
+      allow(Esse.config).to receive(:cli_event_listeners?).and_return(false)
       Esse.config.indices_directory = 'tmp/indices'
       FileUtils.rm_rf(Esse.config.indices_directory)
     end

@@ -28,8 +28,8 @@ RSpec.describe Esse::CLI::Generate, type: :cli do
         class UsersIndex < Esse::Index
           module Serializers
             class UserSerializer
-        CODE
-       )
+      CODE
+      )
     end
 
     it 'generates a new index class with namespace' do
@@ -53,8 +53,8 @@ RSpec.describe Esse::CLI::Generate, type: :cli do
         class V1::UsersIndex < Esse::Index
           module Serializers
             class UserSerializer
-        CODE
-       )
+      CODE
+      )
     end
   end
 end

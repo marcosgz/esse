@@ -53,6 +53,12 @@ module Esse
       end
     end
 
+    # :nodoc:
+    # This is only used by rspec to disable the CLI print out.
+    def cli_event_listeners?
+      true
+    end
+
     private
 
     def assign(hash)

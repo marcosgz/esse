@@ -3,7 +3,7 @@
 require 'spec_helper'
 require 'support/shared_contexts/geos_index_definition'
 
-RSpec.describe "[ES #{ENV.fetch('STACK_VERSION', '1.x')}] document exist", es_version: '1.x' do
+RSpec.describe "[ES #{ENV.fetch("STACK_VERSION", "1.x")}] document exist", es_version: '1.x' do
   include_context 'geos index definition'
 
   describe '.exist?' do
