@@ -44,70 +44,112 @@ RSpec.describe Esse::IndexType do
   end
 
   describe '.each_serialized_batch' do
-    before do
-      stub_index(:states) do
-        define_type(:state) do
-          collection do |context = {}, &block|
-            data = [
-              OpenStruct.new(id: 1, name: 'Il'),
-              OpenStruct.new(id: 2, name: 'Md'),
-              OpenStruct.new(id: 3, name: 'Ny')
-            ]
-            data.delete_if(&context[:filter]) if context[:filter]
-            data.each do |datum|
-              block.call([datum], context)
+    context 'without collection arguments' do
+      before do
+        stub_index(:states) do
+          define_type(:state) do
+            collection do |&block|
+              data = [
+                OpenStruct.new(id: 1, name: 'Il'),
+                OpenStruct.new(id: 2, name: 'Md'),
+                OpenStruct.new(id: 3, name: 'Ny')
+              ]
+              data.each do |datum|
+                block.call([datum])
+              end
             end
-          end
 
-          serializer do |entry, context = {}|
-            {
-              _id: entry.id,
-              name: (context[:uppercase] ? entry.name.upcase : entry.name),
-            }
+            serializer do |entry|
+              {
+                _id: entry.id,
+                name: entry.name,
+              }
+            end
           end
         end
       end
+
+      it 'yields serialized objects without arguments' do
+        expected_data = []
+        expect {
+          StatesIndex::State.each_serialized_batch { |hash| expected_data << hash }
+        }.not_to raise_error
+        expect(expected_data).to match_array(
+          [
+            [{ _id: 1, name: 'Il' }],
+            [{ _id: 2, name: 'Md' }],
+            [{ _id: 3, name: 'Ny' }]
+          ],
+        )
+      end
     end
 
-    it 'yields serialized objects without arguments' do
-      expected_data = []
-      expect {
-        StatesIndex::State.each_serialized_batch { |hash| expected_data << hash }
-      }.not_to raise_error
-      expect(expected_data).to match_array(
-        [
-          [{ _id: 1, name: 'Il' }],
-          [{ _id: 2, name: 'Md' }],
-          [{ _id: 3, name: 'Ny' }]
-        ],
-      )
-    end
+    context 'with extra collection arguments' do
+      before do
+        stub_index(:states) do
+          define_type(:state) do
+            collection do |context = {}, &block|
+              data = [
+                OpenStruct.new(id: 1, name: 'Il'),
+                OpenStruct.new(id: 2, name: 'Md'),
+                OpenStruct.new(id: 3, name: 'Ny')
+              ]
+              data.delete_if(&context[:filter]) if context[:filter]
+              data.each do |datum|
+                block.call([datum], context)
+              end
+            end
 
-    it 'yields serialized objects with a collection filter' do
-      expected_data = []
-      expect {
-        StatesIndex::State.each_serialized_batch(filter: ->(state) { state.id > 2 }) { |hash| expected_data << hash }
-      }.not_to raise_error
-      expect(expected_data).to match_array(
-        [
-          [{ _id: 1, name: 'Il' }],
-          [{ _id: 2, name: 'Md' }]
-        ],
-      )
-    end
+            serializer do |entry, context = {}|
+              {
+                _id: entry.id,
+                name: (context[:uppercase] ? entry.name.upcase : entry.name),
+              }
+            end
+          end
+        end
+      end
 
-    it 'yields serialized objects with serializer scope' do
-      expected_data = []
-      expect {
-        StatesIndex::State.each_serialized_batch(uppercase: true) { |hash| expected_data << hash }
-      }.not_to raise_error
-      expect(expected_data).to match_array(
-        [
-          [{ _id: 1, name: 'IL' }],
-          [{ _id: 2, name: 'MD' }],
-          [{ _id: 3, name: 'NY' }]
-        ],
-      )
+      it 'yields serialized objects without arguments' do
+        expected_data = []
+        expect {
+          StatesIndex::State.each_serialized_batch { |hash| expected_data << hash }
+        }.not_to raise_error
+        expect(expected_data).to match_array(
+          [
+            [{ _id: 1, name: 'Il' }],
+            [{ _id: 2, name: 'Md' }],
+            [{ _id: 3, name: 'Ny' }]
+          ],
+        )
+      end
+
+      it 'yields serialized objects with a collection filter' do
+        expected_data = []
+        expect {
+          StatesIndex::State.each_serialized_batch(filter: ->(state) { state.id > 2 }) { |hash| expected_data << hash }
+        }.not_to raise_error
+        expect(expected_data).to match_array(
+          [
+            [{ _id: 1, name: 'Il' }],
+            [{ _id: 2, name: 'Md' }]
+          ],
+        )
+      end
+
+      it 'yields serialized objects with serializer scope' do
+        expected_data = []
+        expect {
+          StatesIndex::State.each_serialized_batch(uppercase: true) { |hash| expected_data << hash }
+        }.not_to raise_error
+        expect(expected_data).to match_array(
+          [
+            [{ _id: 1, name: 'IL' }],
+            [{ _id: 2, name: 'MD' }],
+            [{ _id: 3, name: 'NY' }]
+          ],
+        )
+      end
     end
   end
 
