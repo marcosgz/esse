@@ -40,6 +40,10 @@ module Esse
         File.expand_path('../cli', __FILE__)
       end
 
+      def self.exit_on_failure?
+        true
+      end
+
       map %w[--version -v] => :version
 
       desc 'index SUBCOMMAND ...ARGS', 'Manage indices'
