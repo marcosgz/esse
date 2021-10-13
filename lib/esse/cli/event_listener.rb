@@ -20,7 +20,7 @@ module Esse
         print_message '[%<runtime>s] Index %<name>s successfuly created',
           name: colorize(event[:request][:index], :bold),
           runtime: formatted_runtime(event[:runtime])
-        if (aliases = event.dig(:request, :body, :aliases)).is_a?(Hash)
+        if (aliases = event.to_h.dig(:request, :body, :aliases)).is_a?(Hash)
           print_message ' --> Aliases: %<aliases>s', aliases: aliases.keys.join(', ')
         end
       end
