@@ -44,5 +44,6 @@ module Esse
     register_event 'elasticsearch.delete_index'
     register_event 'elasticsearch.update_mapping'
     register_event 'elasticsearch.update_settings'
+    register_event 'elasticsearch.update_aliases'
   end
 end
