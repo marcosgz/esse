@@ -119,7 +119,7 @@ class <%= @index_name %> < <%= @base_class %>
     #     hash[:some_attribute] = <%= type %>.some_attribute if context[:include_some_attribute]
     #     hash
     #   end
-    collection Serializers::<%= type.camelize %>Serializer
+    serializer Serializers::<%= type.camelize %>Serializer
   end
   <%- end -%>
 end
