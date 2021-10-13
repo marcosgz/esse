@@ -17,7 +17,7 @@ module Esse
       option :suffix, type: :string, default: nil, aliases: '-s', desc: 'Suffix to append to index name'
       def reset(*index_classes)
         require_relative 'index/reset'
-        Reset.new(indices: index_classes, **options.transform_keys(&:to_sym)).run
+        Reset.new(indices: index_classes, **options.to_h.transform_keys(&:to_sym)).run
       end
 
       desc 'create *INDEX_CLASSES', 'Creates indices for the given classes'
@@ -31,14 +31,14 @@ module Esse
       option :alias, type: :boolean, default: false, aliases: '-a', desc: 'Update alias after create index'
       def create(*index_classes)
         require_relative 'index/create'
-        Create.new(indices: index_classes, **options.transform_keys(&:to_sym)).run
+        Create.new(indices: index_classes, **options.to_h.transform_keys(&:to_sym)).run
       end
 
       desc 'delete *INDEX_CLASSES', 'Deletes indices for the given classes'
       option :suffix, type: :string, default: nil, aliases: '-s', desc: 'Suffix to append to index name'
       def delete(*index_classes)
         require_relative 'index/delete'
-        Delete.new(indices: index_classes, **options.transform_keys(&:to_sym)).run
+        Delete.new(indices: index_classes, **options.to_h.transform_keys(&:to_sym)).run
       end
 
       desc 'update_settings *INDEX_CLASS', 'Closes the index for read/write operations, updates the index settings, and open it again'
@@ -46,7 +46,7 @@ module Esse
       option :type, type: :string, default: nil, aliases: '-t', desc: 'Document Type to update mapping for'
       def update_settings(*index_classes)
         require_relative 'index/update_settings'
-        UpdateSettings.new(indices: index_classes, **options.transform_keys(&:to_sym)).run
+        UpdateSettings.new(indices: index_classes, **options.to_h.transform_keys(&:to_sym)).run
       end
 
       desc 'update_mapping *INDEX_CLASS', 'Create or update a mapping'
@@ -54,21 +54,21 @@ module Esse
       option :type, type: :string, default: nil, aliases: '-t', desc: 'Document Type to update mapping for'
       def update_mapping(*index_classes)
         require_relative 'index/update_mapping'
-        UpdateMapping.new(indices: index_classes, **options.transform_keys(&:to_sym)).run
+        UpdateMapping.new(indices: index_classes, **options.to_h.transform_keys(&:to_sym)).run
       end
 
       desc 'close *INDEX_CLASS', 'Close an index (keep the data on disk, but deny operations with the index).'
       option :suffix, type: :string, default: nil, aliases: '-s', desc: 'Suffix to append to index name'
       def close(*index_classes)
         require_relative 'index/close'
-        Close.new(indices: index_classes, **options.transform_keys(&:to_sym)).run
+        Close.new(indices: index_classes, **options.to_h.transform_keys(&:to_sym)).run
       end
 
       desc 'open *INDEX_CLASS', 'Open a previously closed index.'
       option :suffix, type: :string, default: nil, aliases: '-s', desc: 'Suffix to append to index name'
       def open(*index_classes)
         require_relative 'index/open'
-        Open.new(indices: index_classes, **options.transform_keys(&:to_sym)).run
+        Open.new(indices: index_classes, **options.to_h.transform_keys(&:to_sym)).run
       end
     end
   end
