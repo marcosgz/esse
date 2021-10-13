@@ -1,5 +1,12 @@
 # frozen_string_literal: true
 
+<%- @types.each do |type| -%>
+require_relative '<%= @index_name.demodulize.underscore.to_s %>/collections/<%= type.underscore %>_collection'
+<%- end -%>
+<%- @types.each do |type| -%>
+require_relative '<%= @index_name.demodulize.underscore.to_s %>/serializers/<%= type.underscore %>_serializer'
+<%- end -%>
+
 class <%= @index_name %> < <%= @base_class %>
   # plugin :active_record
   # plugin :sequel
@@ -33,7 +40,7 @@ class <%= @index_name %> < <%= @base_class %>
   #     query = query.where(**context[:conditions]) if context[:conditions]
   #     query = query.includes(:user) if context[:include_user]
   #     query.find_in_batches(batch_size: 5000) do |batch|
-  #       block.call batch
+  #       block.call batch, context
   #     end
   #   end
 
@@ -63,7 +70,7 @@ class <%= @index_name %> < <%= @base_class %>
   #   end
   <%- end -%>
   <%- @types.each do |type| -%>
-  define_type :<%= type %> do
+  define_type :<%= type.underscore %> do
     # Collection
     # ==========
     #
@@ -74,9 +81,10 @@ class <%= @index_name %> < <%= @base_class %>
     #
     #   collection do |context, &block|
     #     <%= type.camelize %>.where(context[:conditions]).find_in_batches(batch_size: 5000) do |batch|
-    #       block.call batch, context, ...
+    #       block.call batch, context
     #     end
     #   end
+    collection Collections::<%= type.camelize %>Collection
     #
     #
     # Serializer
@@ -102,7 +110,7 @@ class <%= @index_name %> < <%= @base_class %>
     #
     # You can also serialize the collection entry using a block:
     #
-    #   serializer do |model, context = {}|
+    #   serializer do |model, **context|
     #     hash = {
     #       name: <%= type %>.name,
     #     }
@@ -111,6 +119,7 @@ class <%= @index_name %> < <%= @base_class %>
     #     hash[:some_attribute] = <%= type %>.some_attribute if context[:include_some_attribute]
     #     hash
     #   end
+    collection Serializers::<%= type.camelize %>Serializer
   end
   <%- end -%>
 end

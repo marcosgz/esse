@@ -24,7 +24,7 @@ class <%= @index_name %> < <%= @base_class %>
           # yield(row, associations)
           offset += 1
 
-          yield(rows)
+          yield(rows, **params)
         end
 
         protected

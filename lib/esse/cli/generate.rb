@@ -30,15 +30,15 @@ module Esse
         @types.each do |type|
           @type = Hstring.new(type).underscore
           copy_file(
-            'templates/mappings.json',
+            'templates/type_mappings.json',
             base_dir.join(index_name, 'templates', "#{@type}_mapping.json"),
           )
           template(
-            'templates/serializer.rb.erb',
+            'templates/type_serializer.rb.erb',
             base_dir.join(index_name, 'serializers', "#{@type}_serializer.rb"),
           )
           template(
-            'templates/collection.rb.erb',
+            'templates/type_collection.rb.erb',
             base_dir.join(index_name, 'collections', "#{@type}_collection.rb"),
           )
         end
