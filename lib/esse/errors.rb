@@ -42,4 +42,6 @@ module Esse
     class InvalidOption < Error
     end
   end
+
+  # Elasticsearch::Transport::Transport::Errors::NotFound
 end

@@ -47,10 +47,16 @@ module Esse
     #       block.call(batch, conditions)
     #     end
     #   end
-    def collection(&block)
-      raise(SyntaxError, 'No block given') unless block
+    def collection(collection_class = nil, &block)
+      raise ArgumentError, 'a collection class or a block is required' if block.nil? && collection_class.nil?
 
-      @collection_proc = block
+      if block.nil? && collection_class.is_a?(Class) && !collection_class.include?(Enumerable)
+        msg = '%<arg>p is not a valid collection class.' \
+              ' Collections should implement the Enumerable interface'
+        raise ArgumentError, format(msg, arg: collection_class)
+      end
+
+      @collection_proc = collection_class || block
     end
 
     # Used to fetch all batch of data defined on the collection model.
@@ -65,7 +71,12 @@ module Esse
         raise NotImplementedError, format('there is no collection defined for the %<k>p index', k: to_s)
       end
 
-      @collection_proc.call(*args, &block)
+      case @collection_proc
+      when Class
+        @collection_proc.new(*args).each(&block)
+      else
+        @collection_proc.call(*args, &block)
+      end
     rescue LocalJumpError
       raise(SyntaxError, 'block must be explicitly declared in the collection definition')
     end

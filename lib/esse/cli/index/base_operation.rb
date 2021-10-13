@@ -3,7 +3,7 @@
 module Esse
   module CLI
     class Index::BaseOperation
-      include ColorOutput
+      include Output
 
       def initialize(indices:, **options)
         @indices = Array(indices)

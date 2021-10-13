@@ -29,7 +29,25 @@ RSpec.describe Esse::IndexType do
         Class.new(Esse::IndexType) do
           collection
         end
-      }.to raise_error(SyntaxError)
+      }.to raise_error(ArgumentError)
+    end
+
+    specify do
+      klass = Class.new(Esse::IndexType) do
+        collection DummyGeosCollection
+      end
+
+      proc = klass.instance_variable_get(:@collection_proc)
+      expect(proc).to eq(DummyGeosCollection)
+    end
+
+    it 'raises an error if the collection does not implement Enumerable interface' do
+      collection_klass = Class.new
+      expect {
+        Class.new(Esse::IndexType) do
+          collection collection_klass
+        end
+      }.to raise_error(ArgumentError)
     end
   end
 
@@ -79,6 +97,22 @@ RSpec.describe Esse::IndexType do
       it 'yields each block with arguments' do
         o = { active: true }
         expect { |b| UsersIndex::User.each_batch(o, &b) }.to yield_successive_args([[1], o], [[2], o], [[3], o])
+      end
+    end
+
+    context 'with a collection class' do
+      before do
+        stub_index(:geos) do
+          define_type :city do
+            collection DummyGeosCollection
+          end
+        end
+      end
+
+      it 'yields each block with arguments' do
+        f = { active: true }
+        o = { repo: (1..6), batch_size: 2 }.merge(f)
+        expect { |b| GeosIndex::City.each_batch(o, &b) }.to yield_successive_args([[1, 2], f], [[3, 4], f], [[5, 6], f])
       end
     end
   end

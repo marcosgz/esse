@@ -2,7 +2,7 @@
 
 require 'thor'
 
-require_relative 'color_output'
+require_relative 'primitives/output'
 require_relative 'cli/index'
 require_relative 'cli/generate'
 require_relative 'cli/event_listener'
@@ -17,7 +17,7 @@ module Esse
       def with_friendly_errors
         yield
       rescue CLI::Error => e
-        ColorOutput.print_error(e)
+        Output.print_error(e)
         exit(1)
       end
     end
@@ -54,7 +54,7 @@ module Esse
 
       desc '--version, -v', 'Show package version'
       def version
-        ColorOutput.print_success('Esse version: %<version>s', version: Esse::VERSION)
+        Output.print_message('Esse version: %<version>s', version: Esse::VERSION)
       end
 
       desc 'install', 'Generate boilerplate configuration files'
@@ -90,7 +90,7 @@ module Esse
         return unless path
 
         begin
-          ColorOutput.print_info('Loading configuration file: %<path>s', path: path)
+          Output.print_message('Loading configuration file: %<path>s', path: path)
           load path
         rescue LoadError => e
           raise InvalidOption, e.message

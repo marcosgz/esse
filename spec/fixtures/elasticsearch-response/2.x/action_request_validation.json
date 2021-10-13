@@ -1,0 +1,13 @@
+{
+  "error": {
+    "root_cause": [
+      {
+        "type": "action_request_validation_exception",
+        "reason": "Validation Failed: 1: mapping type is missing;2: mapping source is empty;"
+      }
+    ],
+    "type": "action_request_validation_exception",
+    "reason": "Validation Failed: 1: mapping type is missing;2: mapping source is empty;"
+  },
+  "status": 400
+}

@@ -1,0 +1,18 @@
+<%# create_index!(include_type_name: false)  %>
+{
+  "error": {
+    "root_cause": [
+      {
+        "type": "mapper_parsing_exception",
+        "reason": "Root mapping definition has unsupported parameters:  [<%= assigns.fetch(:type_name, 'type_name') %> : {properties={}}]"
+      }
+    ],
+    "type": "mapper_parsing_exception",
+    "reason": "Failed to parse mapping [_doc]: Root mapping definition has unsupported parameters:  [<%= assigns.fetch(:type_name, 'type_name') %> : {properties={}}]",
+    "caused_by": {
+      "type": "mapper_parsing_exception",
+      "reason": "Root mapping definition has unsupported parameters:  [<%= assigns.fetch(:type_name, 'type_name') %> : {properties={}}]"
+    }
+  },
+  "status": 400
+}
