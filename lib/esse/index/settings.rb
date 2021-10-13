@@ -4,8 +4,8 @@ module Esse
   # https://github.com/elastic/elasticsearch-ruby/blob/master/elasticsearch-api/lib/elasticsearch/api/actions/indices/put_settings.rb
   class Index
     module ClassMethods
-      def settings_hash(cluster_settings: true)
-        hash = cluster_settings ? cluster.index_settings.merge(setting.body) : setting.body
+      def settings_hash
+        hash = setting.body
         { Esse::SETTING_ROOT_KEY => (hash.key?(Esse::SETTING_ROOT_KEY) ? hash[Esse::SETTING_ROOT_KEY] : hash) }
       end
 
@@ -28,7 +28,7 @@ module Esse
       #     end
       #   end
       def settings(hash = {}, &block)
-        @setting = Esse::IndexSetting.new(body: hash, paths: template_dirs, globals: cluster.index_settings)
+        @setting = Esse::IndexSetting.new(body: hash, paths: template_dirs, globals: -> { cluster.index_settings })
         return unless block
 
         @setting.define_singleton_method(:to_h, &block)
@@ -37,7 +37,7 @@ module Esse
       private
 
       def setting
-        @setting ||= Esse::IndexSetting.new(paths: template_dirs, globals: cluster.index_settings)
+        @setting ||= Esse::IndexSetting.new(paths: template_dirs, globals: -> { cluster.index_settings })
       end
     end
 

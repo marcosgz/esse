@@ -83,19 +83,31 @@ module Esse
         def update_settings!(suffix: index_version, **options)
           response = nil
 
-          close!(suffix: suffix)
-          begin
+          settings = settings_hash.fetch(Esse::SETTING_ROOT_KEY).transform_keys(&:to_s)
+          settings.delete('number_of_shards') # Can't change number of shards for an index
+          analysis = settings.delete('analysis')
+
+          if settings.any?
+            # When changing the number of replicas the index needs to be open. Changing the number of replicas on a
+            # closed index might prevent the index to be opened correctly again.
             Esse::Events.instrument('elasticsearch.update_settings') do |payload|
-              payload[:request] = opts = options.merge(
-                index: index_name(suffix: suffix),
-                body: {
-                  index: settings_hash(cluster_settings: false).fetch(Esse::SETTING_ROOT_KEY),
-                },
-              )
+              payload[:request] = opts = options.merge(index: index_name(suffix: suffix), body: { index: settings })
               payload[:response] = response = client.indices.put_settings(**opts)
             end
-          ensure
-            open!(suffix: suffix)
+          end
+
+          if analysis
+            # It is also possible to define new analyzers for the index. But it is required to close the
+            # index first and open it after the changes are made.
+            close!(suffix: suffix)
+            begin
+              Esse::Events.instrument('elasticsearch.update_settings') do |payload|
+                payload[:request] = opts = options.merge(index: index_name(suffix: suffix), body: { analysis: analysis })
+                payload[:response] = response = client.indices.put_settings(**opts)
+              end
+            ensure
+              open!(suffix: suffix)
+            end
           end
 
           response

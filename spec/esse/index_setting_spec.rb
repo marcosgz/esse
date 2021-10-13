@@ -44,6 +44,55 @@ RSpec.describe Esse::IndexSetting do
           expect(model.body).to eq(refresh_interval: '1s')
         end
       end
+
+      it 'overrides global settings' do
+        with_cluster_config(index_settings: { refresh_interval: '1s' }) do
+          model = described_class.new(refresh_interval: '5s')
+          expect(model.body).to eq(refresh_interval: '5s')
+        end
+      end
+
+      it 'recursive merges all configs global' do
+        with_cluster_config(
+          index_settings: {
+            analysis: {
+              analyzer: {
+                default: {
+                  tokenizer: :standard,
+                  filter: %i[standard lowercase],
+                },
+              },
+            },
+          },
+         ) do
+          model = described_class.new(
+            body: {
+              analysis: {
+                analyzer: {
+                  remove_html: {
+                    type: :custom,
+                    char_filter: :html_strip,
+                  }
+                }
+              }
+            }
+          )
+          expect(model.body).to eq(
+            analysis: {
+              analyzer: {
+                default: {
+                  tokenizer: :standard,
+                  filter: %i[standard lowercase],
+                },
+                remove_html: {
+                  type: :custom,
+                  char_filter: :html_strip,
+                },
+              },
+            },
+          )
+        end
+      end
     end
   end
 end

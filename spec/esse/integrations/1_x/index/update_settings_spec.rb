@@ -40,13 +40,13 @@ RSpec.describe "[ES #{ENV.fetch("STACK_VERSION", "1.x")}] update setting", es_ve
         new_setting = instance_double(
           Esse::IndexSetting,
           body: {
-            'number_of_shards' => 2,
+            'some_invalid_setting' => 2,
           },
         )
         expect(DummiesIndex).to receive(:setting).and_return(new_setting)
         expect { DummiesIndex.elasticsearch.update_settings! }.to raise_error(
           Elasticsearch::Transport::Transport::Errors::BadRequest,
-        ).with_message(/can't change the number of shards for an index/)
+        ).with_message(/index.some_invalid_setting/)
       end
     end
 
@@ -104,6 +104,36 @@ RSpec.describe "[ES #{ENV.fetch("STACK_VERSION", "1.x")}] update setting", es_ve
         expect(v2_state).to eq('open')
       end
     end
+
+    it 'closes index, update analysis and opens index again' do
+      es_client do |client, _conf, cluster|
+        expect(DummiesIndex.elasticsearch.create_index(alias: true, suffix: 'v1')).to eq('acknowledged' => true)
+        response = client.indices.get_settings(index: "#{cluster.index_prefix}_dummies*")
+        expect(response.dig("#{cluster.index_prefix}_dummies_v1", 'settings', 'index', 'analysis')).to eq(nil)
+
+        DummiesIndex.instance_variable_set(:@setting, nil)
+        DummiesIndex.settings do
+          {
+            analysis: {
+              analyzer: {
+                remove_html: {
+                  type: :custom,
+                  char_filter: :html_strip,
+                }
+              }
+            }
+          }
+        end
+        expect(DummiesIndex.settings_hash.dig('settings', :analysis, :analyzer, :remove_html)).not_to eq(nil)
+        expect(DummiesIndex.elasticsearch.update_settings!(suffix: 'v1')).to eq('acknowledged' => true)
+
+        response = client.indices.get_settings(index: "#{cluster.index_prefix}_dummies*")
+        expect(response.dig("#{cluster.index_prefix}_dummies_v1", 'settings', 'index', 'analysis', 'analyzer').keys).to include('remove_html')
+
+        response = client.cluster.state(index: "#{cluster.index_prefix}_dummies_v1", metric: 'metadata')
+        expect(response.dig('metadata', 'indices', "#{cluster.index_prefix}_dummies_v1", 'state')).to eq('open')
+      end
+    end
   end
 
   describe '.update_settings' do
@@ -129,7 +159,7 @@ RSpec.describe "[ES #{ENV.fetch("STACK_VERSION", "1.x")}] update setting", es_ve
         new_setting = instance_double(
           Esse::IndexSetting,
           body: {
-            'number_of_shards' => 2,
+            'some_invalid_setting' => -1,
           },
         )
         expect(DummiesIndex).to receive(:setting).and_return(new_setting)

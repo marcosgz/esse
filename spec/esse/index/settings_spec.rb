@@ -82,16 +82,6 @@ RSpec.describe Esse::Index do
           )
         end
       end
-
-      specify do
-        with_cluster_config(index_settings: { refresh_interval: '1s' }) do
-          expect(GeosIndex.settings_hash(cluster_settings: false)).to eq(
-            'settings' => {
-              'number_of_replicas' => 4,
-            },
-          )
-        end
-      end
     end
 
     context 'with the settings node' do
