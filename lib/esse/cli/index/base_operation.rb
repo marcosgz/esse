@@ -65,7 +65,7 @@ module Esse
         return false unless Esse.config.indices_directory.exist?
 
         Esse.config.indices_directory.each_child do |path|
-          require path
+          require(path.to_s)
         end
         true
       end
