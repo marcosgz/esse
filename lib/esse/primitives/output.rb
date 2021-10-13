@@ -13,6 +13,10 @@ module Esse
       colorize(sprintf('%.3f ms', number), :lightgray)
     end
 
+    def runtime_padding(number, extra = 2)
+      ' ' * (extra + sprintf('%.3f ms', number).size)
+    end
+
     def colorize(text, *attributes)
       if defined? Rainbow
         attributes.reduce(Rainbow(text)) { |p, a| p.public_send(a) }
@@ -47,7 +51,7 @@ module Esse
           $stdout
         when :stderr, 'stderr'
           $stderr
-        when IO
+        when IO, StringIO
           output
         else
           raise ArgumentError, "Invalid output #{output.inspect}"

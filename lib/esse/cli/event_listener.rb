@@ -61,6 +61,27 @@ module Esse
           name: colorize(event[:request][:index], :bold),
           runtime: formatted_runtime(event[:runtime])
       end
+
+      def elasticsearch_update_aliases(event)
+        actions = event[:request][:body][:actions]
+        removed = actions.select { |a| a.key?(:remove) }
+        added = actions.select { |a| a.key?(:add) }
+        print_message '[%<runtime>s] Successfuly updated aliases:',
+          runtime: formatted_runtime(event[:runtime])
+
+        removed.each do |action|
+          print_message '%<padding>s-> Index %<name>s removed from alias %<alias>s',
+            name: colorize(action[:remove][:index], :bold),
+            alias: colorize(action[:remove][:alias], :bold),
+            padding: runtime_padding(event[:runtime])
+        end
+        added.each do |action|
+          print_message '%<padding>s-> Index %<name>s added to alias %<alias>s',
+            name: colorize(action[:add][:index], :bold),
+            alias: colorize(action[:add][:alias], :bold),
+            padding: runtime_padding(event[:runtime])
+        end
+      end
     end
   end
 end

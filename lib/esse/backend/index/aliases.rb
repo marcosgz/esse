@@ -47,7 +47,11 @@ module Esse
               { add: {index: build_real_index_name(suffix), alias: index_name } }
             ],
           }
-          client.indices.update_aliases(options)
+
+          Esse::Events.instrument('elasticsearch.update_aliases') do |payload|
+            payload[:request] = options
+            payload[:response] = client.indices.update_aliases(options)
+          end
         end
 
         # Replaces all existing aliases by the respective suffixed index from argument.

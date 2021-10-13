@@ -41,6 +41,13 @@ module Esse
         Delete.new(indices: index_classes, **options.to_h.transform_keys(&:to_sym)).run
       end
 
+      desc 'update_aliases *INDEX_CLASS', 'Replaces all existing aliases by the given suffix'
+      option :suffix, type: :string, aliases: '-s', desc: 'Suffix to append to index name'
+      def update_aliases(*index_classes)
+        require_relative 'index/update_aliases'
+        UpdateAliases.new(indices: index_classes, **options.to_h.transform_keys(&:to_sym)).run
+      end
+
       desc 'update_settings *INDEX_CLASS', 'Closes the index for read/write operations, updates the index settings, and open it again'
       option :suffix, type: :string, default: nil, aliases: '-s', desc: 'Suffix to append to index name'
       option :type, type: :string, default: nil, aliases: '-t', desc: 'Document Type to update mapping for'
