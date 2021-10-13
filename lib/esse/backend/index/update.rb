@@ -88,7 +88,9 @@ module Esse
             Esse::Events.instrument('elasticsearch.update_settings') do |payload|
               payload[:request] = opts = options.merge(
                 index: index_name(suffix: suffix),
-                body: settings_hash(cluster_settings: false).fetch(Esse::SETTING_ROOT_KEY),
+                body: {
+                  index: settings_hash(cluster_settings: false).fetch(Esse::SETTING_ROOT_KEY),
+                },
               )
               payload[:response] = response = client.indices.put_settings(**opts)
             end
