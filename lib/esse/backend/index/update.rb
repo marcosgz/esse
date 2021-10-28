@@ -28,10 +28,11 @@ module Esse
         # @see http://www.elasticsearch.org/guide/reference/api/admin-indices-put-mapping/
         def update_mapping!(suffix: index_version, **options)
           Esse::Events.instrument('elasticsearch.update_mapping') do |payload|
-            payload[:request] = opts = options.merge(
-              index: index_name(suffix: suffix),
-              body: mappings_hash.fetch(Esse::MAPPING_ROOT_KEY)
-            )
+            body = mappings_hash.fetch(Esse::MAPPING_ROOT_KEY)
+            if (type = options[:type])
+              body = body[type.to_s] || body[type.to_sym]
+            end
+            payload[:request] = opts = options.merge(index: index_name(suffix: suffix), body: body)
             payload[:response] = client.indices.put_mapping(**opts)
           end
         end

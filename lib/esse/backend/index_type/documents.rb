@@ -69,7 +69,7 @@ module Esse
         # @see https://www.elastic.co/guide/en/elasticsearch/reference/7.5/docs-index_.html
         def index(id:, body:, suffix: nil, **options)
           client.index(
-            options.merge(index: index_name(suffix: suffix), type: type_name, id: id, body: body),
+            index: index_name(suffix: suffix), type: type_name, id: id, body: body, **options
           )
         end
         alias_method :index!, :index
@@ -88,7 +88,7 @@ module Esse
         # @see https://www.elastic.co/guide/en/elasticsearch/reference/7.5/docs-update.html
         def update!(id:, body:, suffix: nil, **options)
           client.update(
-            options.merge(index: index_name(suffix: suffix), type: type_name, id: id, body: body),
+            index: index_name(suffix: suffix), type: type_name, id: id, body: body, **options
           )
         end
 
