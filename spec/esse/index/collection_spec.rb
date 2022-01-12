@@ -91,7 +91,7 @@ RSpec.describe Esse::Index do
 
       it 'yields each block with arguments' do
         o = { active: true }
-        expect { |b| UsersIndex.each_batch(o, &b) }.to yield_successive_args([[1], o], [[2], o], [[3], o])
+        expect { |b| UsersIndex.each_batch(**o, &b) }.to yield_successive_args([[1], o], [[2], o], [[3], o])
       end
     end
 
@@ -105,7 +105,7 @@ RSpec.describe Esse::Index do
       it 'yields each block with arguments' do
         f = { active: true }
         o = { repo: (1..6), batch_size: 2 }.merge(f)
-        expect { |b| GeosIndex.each_batch(o, &b) }.to yield_successive_args([[1, 2], f], [[3, 4], f], [[5, 6], f])
+        expect { |b| GeosIndex.each_batch(**o, &b) }.to yield_successive_args([[1, 2], f], [[3, 4], f], [[5, 6], f])
       end
     end
   end
