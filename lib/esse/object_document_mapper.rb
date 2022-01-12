@@ -17,11 +17,11 @@ module Esse
       if block
         @serializer_proc = block
       elsif klass.is_a?(Class) && klass.instance_methods.include?(:to_h)
-        @serializer_proc = proc { |*args| klass.new(*args).to_h }
+        @serializer_proc = proc { |*args, **params| klass.new(*args, **params).to_h }
       elsif klass.is_a?(Class) && klass.instance_methods.include?(:as_json) # backward compatibility
-        @serializer_proc = proc { |*args| klass.new(*args).as_json }
+        @serializer_proc = proc { |*args, **params| klass.new(*args, **params).as_json }
       elsif klass.is_a?(Class) && klass.instance_methods.include?(:call)
-        @serializer_proc = proc { |*args| klass.new(*args).call }
+        @serializer_proc = proc { |*args, **params| klass.new(*args, **params).call }
       else
         msg = format('%<arg>p is not a valid serializer. The serializer should ' \
                       'respond with `to_h` instance method.', arg: klass,)
@@ -29,12 +29,12 @@ module Esse
       end
     end
 
-    def serialize(model, *args)
+    def serialize(model, *args, **params)
       unless @serializer_proc
         raise NotImplementedError, format('there is no serializer defined for the %<k>p index', k: to_s)
       end
 
-      @serializer_proc.call(model, *args)
+      @serializer_proc.call(model, *args, **params)
     end
 
     # Used to define the source of data. A block is required. And its
@@ -66,16 +66,16 @@ module Esse
     #   each_batch(active: true) do |data, _opts|
     #     puts data.size
     #   end
-    def each_batch(*args, &block)
+    def each_batch(**params, &block)
       unless @collection_proc
         raise NotImplementedError, format('there is no collection defined for the %<k>p index', k: to_s)
       end
 
       case @collection_proc
       when Class
-        @collection_proc.new(*args).each(&block)
+        @collection_proc.new(**params).each(&block)
       else
-        @collection_proc.call(*args, &block)
+        @collection_proc.call(**params, &block)
       end
     rescue LocalJumpError
       raise(SyntaxError, 'block must be explicitly declared in the collection definition')
@@ -86,10 +86,10 @@ module Esse
     # @param args [*Object] Any argument is allowed here. The collection will be called with same arguments.
     #   And the serializer will be initialized with those arguments too.
     # @yield [Array, *Object] serialized collection and method arguments
-    def each_serialized_batch(*args, &block)
-      each_batch(*args) do |batch|
-        entries = batch.map { |entry| serialize(entry, *args) }.compact
-        block.call(entries, *args)
+    def each_serialized_batch(**params, &block)
+      each_batch(**params) do |batch|
+        entries = batch.map { |entry| serialize(entry, **params) }.compact
+        block.call(entries, **params)
       end
     end
   end
