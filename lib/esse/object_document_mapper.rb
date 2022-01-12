@@ -17,11 +17,11 @@ module Esse
       if block
         @serializer_proc = block
       elsif klass.is_a?(Class) && klass.instance_methods.include?(:to_h)
-        @serializer_proc = proc { |*args, **params| klass.new(*args, **params).to_h }
+        @serializer_proc = proc { |*args, **kwargs| klass.new(*args, **kwargs).to_h }
       elsif klass.is_a?(Class) && klass.instance_methods.include?(:as_json) # backward compatibility
-        @serializer_proc = proc { |*args, **params| klass.new(*args, **params).as_json }
+        @serializer_proc = proc { |*args, **kwargs| klass.new(*args, **kwargs).as_json }
       elsif klass.is_a?(Class) && klass.instance_methods.include?(:call)
-        @serializer_proc = proc { |*args, **params| klass.new(*args, **params).call }
+        @serializer_proc = proc { |*args, **kwargs| klass.new(*args, **kwargs).call }
       else
         msg = format('%<arg>p is not a valid serializer. The serializer should ' \
                       'respond with `to_h` instance method.', arg: klass,)
@@ -29,12 +29,12 @@ module Esse
       end
     end
 
-    def serialize(model, *args, **params)
+    def serialize(model, *args, **kwargs)
       unless @serializer_proc
         raise NotImplementedError, format('there is no serializer defined for the %<k>p index', k: to_s)
       end
 
-      @serializer_proc.call(model, *args, **params)
+      @serializer_proc.call(model, *args, **kwargs)
     end
 
     # Used to define the source of data. A block is required. And its
