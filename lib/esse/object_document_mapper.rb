@@ -66,16 +66,16 @@ module Esse
     #   each_batch(active: true) do |data, _opts|
     #     puts data.size
     #   end
-    def each_batch(**params, &block)
+    def each_batch(*args, **kwargs, &block)
       unless @collection_proc
         raise NotImplementedError, format('there is no collection defined for the %<k>p index', k: to_s)
       end
 
       case @collection_proc
       when Class
-        @collection_proc.new(**params).each(&block)
+        @collection_proc.new(*args, **kwargs).each(&block)
       else
-        @collection_proc.call(**params, &block)
+        @collection_proc.call(*args, **kwargs, &block)
       end
     rescue LocalJumpError
       raise(SyntaxError, 'block must be explicitly declared in the collection definition')
@@ -86,10 +86,10 @@ module Esse
     # @param args [*Object] Any argument is allowed here. The collection will be called with same arguments.
     #   And the serializer will be initialized with those arguments too.
     # @yield [Array, *Object] serialized collection and method arguments
-    def each_serialized_batch(**params, &block)
-      each_batch(**params) do |batch|
-        entries = batch.map { |entry| serialize(entry, **params) }.compact
-        block.call(entries, **params)
+    def each_serialized_batch(*args, **kwargs, &block)
+      each_batch(*args, **kwargs) do |batch|
+        entries = batch.map { |entry| serialize(entry, *args, **kwargs) }.compact
+        block.call(entries, *args, **kwargs)
       end
     end
   end
