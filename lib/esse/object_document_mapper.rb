@@ -5,7 +5,7 @@ module Esse
     # Convert ruby object to json. Arguments will be same of passed through the
     # collection. It's allowed a block or a class with the `to_h` instance method.
     # Example with block
-    #   serializer do |model, context = {}|
+    #   serializer do |model, **context|
     #     {
     #       id: model.id,
     #       admin: context[:is_admin],

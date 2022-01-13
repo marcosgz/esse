@@ -44,7 +44,7 @@ RSpec.describe Esse::Index do
   describe '.each_serialized_batch' do
     before do
       stub_index(:states) do
-        collection do |context = {}, &block|
+        collection do |**context, &block|
           data = [
             OpenStruct.new(id: 1, name: 'Il'),
             OpenStruct.new(id: 2, name: 'Md'),
@@ -56,7 +56,7 @@ RSpec.describe Esse::Index do
           end
         end
 
-        serializer do |entry, context = {}|
+        serializer do |entry, **context|
           {
             _id: entry.id,
             name: (context[:uppercase] ? entry.name.upcase : entry.name),

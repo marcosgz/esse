@@ -34,8 +34,7 @@ class <%= @index_name %> < <%= @base_class %>
   # Here is a good place to eager loading data from database or any other repository.
   # The bellow example is a rails like application that could preload using activerecord
   #
-  #   collection do |context, &block|
-  #     context = {}
+  #   collection do |**context, &block|
   #     query = <%= @index_name.camelize %>.all
   #     query = query.where(**context[:conditions]) if context[:conditions]
   #     query = query.includes(:user) if context[:include_user]

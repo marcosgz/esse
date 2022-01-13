@@ -88,7 +88,7 @@ RSpec.describe Esse::IndexType do
       before do
         stub_index(:states) do
           define_type(:state) do
-            collection do |context = {}, &block|
+            collection do |**context, &block|
               data = [
                 OpenStruct.new(id: 1, name: 'Il'),
                 OpenStruct.new(id: 2, name: 'Md'),
@@ -100,7 +100,7 @@ RSpec.describe Esse::IndexType do
               end
             end
 
-            serializer do |entry, context = {}|
+            serializer do |entry, **context|
               {
                 _id: entry.id,
                 name: (context[:uppercase] ? entry.name.upcase : entry.name),
