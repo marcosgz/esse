@@ -7,7 +7,7 @@ module ElasticsearchHelpers
   # Be careful, if current prefix is blank, this will destroy all the indices.
   def delete_all_indices!(key: CONFIG_KEY, pattern: '*')
     with_config do |config|
-      cluster = config.clusters(key)
+      cluster = config.cluster(key)
       cluster.client.indices.delete(index: [cluster.index_prefix, pattern].compact.join('_'))
       cluster.wait_for_status!(status: :green)
       yield cluster.client, config, cluster if block_given?
@@ -46,7 +46,7 @@ module ElasticsearchHelpers
   end
 
   def es_cluster_uri(cluster_id = CONFIG_KEY)
-    conn = Esse.config.clusters(cluster_id).client.transport.connections.first
+    conn = Esse.config.cluster(cluster_id).client.transport.connections.first
     URI.parse(conn.full_url(''))
   end
 end

@@ -1,0 +1,13 @@
+indices_directory: "tmp/app/indices"
+
+clusters:
+  v1:
+    index_prefix: esse_test_v1
+    index_settings:
+      number_of_shards: 1
+      number_of_replicas: 1
+  v2:
+    index_prefix: esse_test_v2
+    index_settings:
+      number_of_shards: 2
+      number_of_replicas: 2

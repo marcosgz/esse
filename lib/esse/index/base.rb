@@ -33,7 +33,7 @@ module Esse
       #
       # Example:
       #   # Using a custom cluster
-      #   Esse.config.clusters(:v1).client = Elasticsearch::Client.new
+      #   Esse.config.cluster(:v1).client = Elasticsearch::Client.new
       #   class UsersIndex < Esse::Index(:v1)
       #   end
       #
@@ -90,12 +90,12 @@ module Esse
       def cluster
         unless Esse.config.cluster_ids.include?(cluster_id)
           raise NotImplementedError, <<~MSG
-            There is no cluster configured for this index. Use `Esse.config.clusters(cluster_id) { ... }' define the elasticsearch
+            There is no cluster configured for this index. Use `Esse.config.cluster(cluster_id) { ... }' define the elasticsearch
             client connection.
           MSG
         end
 
-        Esse.synchronize { Esse.config.clusters(cluster_id) }
+        Esse.synchronize { Esse.config.cluster(cluster_id) }
       end
 
       def inspect

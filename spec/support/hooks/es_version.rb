@@ -28,7 +28,7 @@ module Hooks
 
     private_class_method def self.hosts
       Esse.config.cluster_ids.flat_map do |cluster_id|
-        Esse.config.clusters(cluster_id).client.transport.connections.map do |conn|
+        Esse.config.cluster(cluster_id).client.transport.connections.map do |conn|
           uri = URI.parse(conn.full_url(''))
           [uri.hostname, uri.port].join(':')
         end

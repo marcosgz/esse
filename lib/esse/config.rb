@@ -6,7 +6,7 @@ module Esse
   # Block configurations
   #   Esse.configure do |conf|
   #     conf.indices_directory = 'app/indices/directory'
-  #     conf.clusters(:v1) do |cluster|
+  #     conf.cluster(:v1) do |cluster|
   #       cluster.index_prefix = 'backend'
   #       cluster.client = Elasticsearch::Client.new
   #       cluster.index_settings = {
@@ -18,7 +18,7 @@ module Esse
   #
   # Inline configurations
   #   Esse.config.indices_directory = 'app/indices/directory'
-  #   Esse.config.clusters(:v1).client = Elasticsearch::Client.new
+  #   Esse.config.cluster(:v1).client = Elasticsearch::Client.new
   class << self
     def config
       @config ||= Config.new
@@ -44,14 +44,14 @@ module Esse
     def initialize
       self.indices_directory = 'app/indices'
       @clusters = {}
-      clusters(DEFAULT_CLUSTER_ID) # initialize the :default client
+      cluster(DEFAULT_CLUSTER_ID) # initialize the :default client
     end
 
     def cluster_ids
       @clusters.keys
     end
 
-    def clusters(key = DEFAULT_CLUSTER_ID, **options)
+    def cluster(key = DEFAULT_CLUSTER_ID, **options)
       return unless key
 
       id = key.to_sym
@@ -60,6 +60,7 @@ module Esse
         yield c if block_given?
       end
     end
+    alias_method :clusters, :cluster
 
     def indices_directory=(value)
       @indices_directory = value.is_a?(Pathname) ? value : Pathname.new(value)
@@ -70,9 +71,11 @@ module Esse
       when Hash
         assign(arg)
       when File, Pathname
-        # @TODO Load JSON or YAML
+        assign(YAML.load_file(arg))
       when String
-        # @TODO Load JSON or YAML if File.exist?(arg)
+        return load(Pathname.new(arg)) if File.exist?(arg)
+
+        assign(YAML.safe_load(arg))
       else
         raise ArgumentError, printf('could not load configuration using: %p', val)
       end
@@ -95,7 +98,7 @@ module Esse
       end
       if (connections = hash['clusters'] || hash[:clusters]).is_a?(Hash)
         connections.each do |key, value|
-          clusters(key).assign(value) if value.is_a?(Hash)
+          cluster(key).assign(value) if value.is_a?(Hash)
         end
       end
       true

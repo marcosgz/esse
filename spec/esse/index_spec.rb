@@ -9,10 +9,10 @@ RSpec.describe Esse::Index do
   before(:each) do
     reset_config!
     Esse.configure do |conf|
-      conf.clusters do |cluster|
+      conf.cluster do |cluster|
         cluster.client = client1
       end
-      conf.clusters(:v2) do |cluster|
+      conf.cluster(:v2) do |cluster|
         cluster.client = client2
       end
     end

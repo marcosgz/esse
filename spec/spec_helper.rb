@@ -5,6 +5,7 @@ require 'dotenv/load'
 require 'esse'
 require 'support/class_helpers'
 require 'support/config_helpers'
+require 'support/fixtures'
 require 'support/elasticsearch_helpers'
 require 'support/webmock'
 require 'support/hooks/es_version'
@@ -19,6 +20,7 @@ RSpec.configure do |config|
   end
   config.include ClassHelpers
   config.include ConfigHelpers
+  config.include Fixtures
   config.include ElasticsearchHelpers
   config.include Hooks::EsVersion
   config.include Hooks::PubSub
