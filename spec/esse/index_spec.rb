@@ -8,7 +8,7 @@ RSpec.describe Esse::Index do
 
   before(:each) do
     reset_config!
-    Esse.config do |conf|
+    Esse.configure do |conf|
       conf.clusters do |cluster|
         cluster.client = client1
       end

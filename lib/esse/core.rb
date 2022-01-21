@@ -23,28 +23,6 @@ module Esse
   # Mutex used to protect mutable data structures
   @data_mutex = Mutex.new
 
-  # Block configurations
-  #   Esse.config do |conf|
-  #     conf.indices_directory = 'app/indices/directory'
-  #     conf.clusters(:v1) do |cluster|
-  #       cluster.index_prefix = 'backend'
-  #       cluster.client = Elasticsearch::Client.new
-  #       cluster.index_settings = {
-  #         number_of_shards: 2,
-  #         number_of_replicas: 0
-  #       }
-  #     end
-  #   end
-  #
-  # Inline configurations
-  #   Esse.config.indices_directory = 'app/indices/directory'
-  #   Esse.config.clusters(:v1).client = Elasticsearch::Client.new
-  def self.config
-    @config ||= Config.new
-    yield(@config) if block_given?
-    @config
-  end
-
   # Unless in single threaded mode, protects access to any mutable
   # global data structure in Esse.
   # Uses a non-reentrant mutex, so calling code should be careful.
