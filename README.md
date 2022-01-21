@@ -34,7 +34,101 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+### Configuration
+
+Example of gem configuration using the `configure` method:
+```ruby
+Esse.configure do |config|
+  config.indices_directory = 'app/indices'
+  config.cluster do |cluster|
+    cluster.index_prefix = 'illinois'
+    cluster.index_settings = {
+      number_of_shards: 4,
+      number_of_replicas: 1,
+    }
+    cluster.client = Elasticsearch::Client.new(host: 'http://localhost:9200')
+  end
+end
+```
+
+Note that that if the cluster is configured without any identifier, it will be used as the `:default` cluster.
+
+```ruby
+Esse.config.cluster.index_settings
+# => {number_of_shards: 4, number_of_replicas: 1}
+
+# or
+Esse.config.cluster(:default).index_settings
+# => {number_of_shards: 4, number_of_replicas: 1}
+```
+
+You may also configure multiple cluster connections by specifying the identifier like the example below:
+```ruby
+Esse.configure do |config|
+  config.indices_directory = 'app/indices'
+  config.cluster(:il) do |cluster|
+    cluster.index_prefix = 'illinois'
+    cluster.index_settings = {
+      number_of_shards: 4,
+      number_of_replicas: 1,
+    }
+    cluster.client = Elasticsearch::Client.new(host: 'https://illinois:9200')
+  end
+  config.cluster(:fl) do |cluster|
+    cluster.index_prefix = 'florida'
+    cluster.index_settings = {
+      number_of_shards: 2,
+      number_of_replicas: 2,
+    }
+    cluster.client = Elasticsearch::Client.new(host: 'https://florida:9200')
+  end
+end
+```
+
+And on the index you can use the `:il` or `:fl` identifier to specify which cluster you want to use.
+
+```ruby
+class Florida::Accounts < Esse::Index(:fl)
+  ...
+end
+
+class Chicago::Accounts < Esse::Index(:il)
+  ...
+end
+
+```
+
+You can also configure it through the `config/esse.yml` file.
+```ruby
+Esse.config.load('./config/esse.yml')
+
+# or
+Esse.configure do |config|
+  config.load('./config/esse.yml')
+  config.indices_directory = 'overwrite/what/is/specified/in/the/yaml/file'
+end
+```
+
+And the `config/esse.yml` file should look like:
+
+```yaml
+indices_directory: "app/indices"
+clusters:
+  il:
+    index_prefix: "illinois"
+    index_settings:
+      number_of_shards: 4
+      number_of_replicas: 1
+    client:
+      host: "https://illinois:9200"
+  fl:
+    index_prefix: "florida"
+    index_settings:
+      number_of_shards: 2
+      number_of_replicas: 2
+    client:
+      host: "https://florida:9200"
+```
 
 ## Development
 
