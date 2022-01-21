@@ -88,24 +88,22 @@ end
 And on the index you can use the `:il` or `:fl` identifier to specify which cluster you want to use.
 
 ```ruby
-class Florida::Accounts < Esse::Index(:fl)
+class Illinois::AccountsIndex < Esse::Index(:il)
   ...
 end
-
-class Chicago::Accounts < Esse::Index(:il)
+class Florida::AccountsIndex < Esse::Index(:fl)
   ...
 end
-
 ```
 
-You can also configure it through the `config/esse.yml` file.
+You can also configure it through the YAML file.
 ```ruby
 Esse.config.load('./config/esse.yml')
 
 # or
 Esse.configure do |config|
   config.load('./config/esse.yml')
-  config.indices_directory = 'overwrite/what/is/specified/in/the/yaml/file'
+  config.indices_directory = 'override/indices/directory/from/yml'
 end
 ```
 
