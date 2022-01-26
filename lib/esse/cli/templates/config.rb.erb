@@ -1,8 +1,20 @@
 # frozen_string_literal: true
 
-Esse.configure do |conf|
-  conf.indices_directory = File.expand_path('../../app/indices', __FILE__)
-  conf.cluster(:default) do |cluster|
-    cluster.index_prefix = "esse_<%= @app_name %>_#{ENV.fetch('RACK_ENV', 'development')}"
+Esse.configure do |config|
+  config.indices_directory = File.expand_path('../../app/indices', __FILE__)
+  config.cluster(:default) do |cluster|
+    # Default index prefix
+    cluster.index_prefix = "esse"
+    # you also can add environment to the index prefix if available:
+    #   cluster.index_prefix = "esse_#{ENV['RACK_ENV']}"
+    #
+    # Initialize the ElastiSearch client to be used by the default cluster
+    cluster.client = Elasticsearch::Client.new
+
+    # Global index settings
+    #   cluster.index_settings = {
+    #     number_of_shards: 5,
+    #     number_of_replicas: 0,
+    #   }
   end
 end
