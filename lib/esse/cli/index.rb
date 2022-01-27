@@ -6,7 +6,7 @@ require_relative 'base'
 module Esse
   module CLI
     class Index < Base
-      desc 'create *INDEX_CLASSES', 'Performs zero-downtime index resetting.'
+      desc 'reset *INDEX_CLASSES', 'Performs zero-downtime index resetting.'
       long_desc <<-DESC
         This task is used to rebuild index with zero-downtime. The task will:
         * Creates a new index using the suffix defined on index class or from CLI.
