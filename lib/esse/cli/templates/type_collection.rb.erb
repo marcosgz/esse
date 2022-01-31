@@ -26,15 +26,15 @@ class <%= @index_name %> < <%= @base_class %>
 
           yield(rows, **params)
         end
+      end
 
-        protected
+      protected
 
-        attr_reader :params
+      attr_reader :params
 
-        # @param offset [Number] Offset to start from
-        def find_all(offset)
-          # @TODO load data from persistent store
-        end
+      # @param offset [Number] Offset to start from
+      def find_all(offset)
+        # @TODO load data from persistent store
       end
     end
   end

@@ -77,6 +77,14 @@ module Esse
         require_relative 'index/open'
         Open.new(indices: index_classes, **options.to_h.transform_keys(&:to_sym)).run
       end
+
+      desc 'import *INDEX_CLASSES', 'Import documents from the given classes'
+      option :suffix, type: :string, default: nil, aliases: '-s', desc: 'Suffix to append to index name'
+      option :context, type: :hash, default: {}, required: true, desc: 'List of options to pass to the index class'
+      def import(*index_classes)
+        require_relative 'index/import'
+        Import.new(indices: index_classes, **HashUtils.deep_transform_keys(options.to_h, &:to_sym)).run
+      end
     end
   end
 end
