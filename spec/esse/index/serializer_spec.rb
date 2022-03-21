@@ -107,6 +107,45 @@ RSpec.describe Esse::Index do
     end
   end
 
+  describe '.documents' do
+    before do
+      stub_index(:states) do
+        collection do |**context, &block|
+          data = [
+            OpenStruct.new(id: 1, name: 'Il'),
+            OpenStruct.new(id: 2, name: 'Md'),
+            OpenStruct.new(id: 3, name: 'Ny')
+          ]
+          data.delete_if(&context[:filter]) if context[:filter]
+          data.each do |datum|
+            block.call([datum], context)
+          end
+        end
+
+        serializer do |entry, **context|
+          {
+            _id: entry.id,
+            name: (context[:uppercase] ? entry.name.upcase : entry.name),
+          }
+        end
+      end
+    end
+
+    it 'returns an Enumerator without arguments' do
+      expect(StatesIndex.documents).to be_a_kind_of(Enumerator)
+      expect(StatesIndex.documents.count).to eq(3)
+    end
+
+    it 'forward filters to the collection' do
+      expect(StatesIndex.documents(filter: ->(state) { state.id > 2 }).take(3)).to match_array(
+        [
+          { _id: 1, name: 'Il' },
+          { _id: 2, name: 'Md' },
+        ],
+      )
+    end
+  end
+
   describe '.serializer' do
     specify do
       klass = nil

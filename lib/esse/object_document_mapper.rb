@@ -92,5 +92,19 @@ module Esse
         block.call(entries, *args, **kwargs)
       end
     end
+
+    # Wrap collection data into serialized documents
+    #
+    # Example:
+    #    GeosIndex.documents(id: 1).first
+    #
+    # @return [Enumerator] All serialized entries
+    def documents(*args, **kargs)
+      Enumerator.new do |yielder|
+        each_serialized_batch(*args, **kargs) do |documents, *_inner_args, **_inner_kargs|
+          documents.each { |document| yielder.yield(document) }
+        end
+      end
+    end
   end
 end

@@ -153,6 +153,93 @@ RSpec.describe Esse::IndexType do
     end
   end
 
+  describe '.documents' do
+    context 'without collection arguments' do
+      before do
+        stub_index(:states) do
+          define_type(:state) do
+            collection do |&block|
+              data = [
+                OpenStruct.new(id: 1, name: 'Il'),
+                OpenStruct.new(id: 2, name: 'Md'),
+                OpenStruct.new(id: 3, name: 'Ny')
+              ]
+              data.each do |datum|
+                block.call([datum])
+              end
+            end
+
+            serializer do |entry|
+              {
+                _id: entry.id,
+                name: entry.name,
+              }
+            end
+          end
+        end
+      end
+
+      it 'returns Enumerator with serialized objects without arguments' do
+        expect(StatesIndex::State.documents).to be_a(Enumerator)
+        expect(StatesIndex::State.documents.to_a).to match_array(
+          [
+            { _id: 1, name: 'Il' },
+            { _id: 2, name: 'Md' },
+            { _id: 3, name: 'Ny' },
+          ]
+        )
+      end
+    end
+
+    context 'with extra collection arguments' do
+      before do
+        stub_index(:states) do
+          define_type(:state) do
+            collection do |**context, &block|
+              data = [
+                OpenStruct.new(id: 1, name: 'Il'),
+                OpenStruct.new(id: 2, name: 'Md'),
+                OpenStruct.new(id: 3, name: 'Ny')
+              ]
+              data.delete_if(&context[:filter]) if context[:filter]
+              data.each do |datum|
+                block.call([datum], context)
+              end
+            end
+
+            serializer do |entry, **context|
+              {
+                _id: entry.id,
+                name: (context[:uppercase] ? entry.name.upcase : entry.name),
+              }
+            end
+          end
+        end
+      end
+
+      it 'returns Enumerator with serialized objects without arguments' do
+        expect(StatesIndex::State.documents).to be_a(Enumerator)
+        expect(StatesIndex::State.documents.to_a).to match_array(
+          [
+            { _id: 1, name: 'Il' },
+            { _id: 2, name: 'Md' },
+            { _id: 3, name: 'Ny' },
+          ]
+        )
+      end
+
+
+      it 'returns enumerator with all serialized objects with a collection filter' do
+        expect(StatesIndex::State.documents(filter: ->(state) { state.id > 2 }).take(3)).to match_array(
+          [
+            { _id: 1, name: 'Il' },
+            { _id: 2, name: 'Md' },
+          ],
+        )
+      end
+    end
+  end
+
   describe '.serializer' do
     specify do
       klass = nil
