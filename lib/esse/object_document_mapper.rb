@@ -87,8 +87,8 @@ module Esse
     #   And the serializer will be initialized with those arguments too.
     # @yield [Array, *Object] serialized collection and method arguments
     def each_serialized_batch(*args, **kwargs, &block)
-      each_batch(*args, **kwargs) do |batch, *inner_args, **inner_kwargs|
-        entries = batch.map { |entry| serialize(entry, *args, *inner_args, **kwargs, **inner_kwargs) }.compact
+      each_batch(*args, **kwargs) do |batch, **inner_kwargs|
+        entries = batch.map { |entry| serialize(entry, **kwargs, **inner_kwargs) }.compact
         block.call(entries, *args, **kwargs)
       end
     end
