@@ -29,12 +29,12 @@ module Esse
       end
     end
 
-    def serialize(model, *args, **kwargs)
+    def serialize(model, **kwargs)
       unless @serializer_proc
         raise NotImplementedError, format('there is no serializer defined for the %<k>p index', k: to_s)
       end
 
-      @serializer_proc.call(model, *args, **kwargs)
+      @serializer_proc.call(model, **kwargs)
     end
 
     # Used to define the source of data. A block is required. And its
@@ -63,9 +63,10 @@ module Esse
     # Arguments can be anything. They will just be passed through the block.
     # Useful when the collection depends on scope or any other conditions
     # Example
-    #   each_batch(active: true) do |data, _opts|
+    #   each_batch(active: true) do |data, **_collection_opts|
     #     puts data.size
     #   end
+
     def each_batch(*args, **kwargs, &block)
       unless @collection_proc
         raise NotImplementedError, format('there is no collection defined for the %<k>p index', k: to_s)
@@ -87,8 +88,10 @@ module Esse
     #   And the serializer will be initialized with those arguments too.
     # @yield [Array, *Object] serialized collection and method arguments
     def each_serialized_batch(**kwargs, &block)
-      each_batch(**kwargs) do |*batch, **collection_kwargs|
-        entries = batch.flatten.map { |entry| serialize(entry, **collection_kwargs) }.compact
+      each_batch(**kwargs) do |*args|
+        batch, collection_context = args
+        collection_context ||= {}
+        entries = [*batch].map { |entry| serialize(entry, **collection_context) }.compact
         block.call(entries, **kwargs)
       end
     end

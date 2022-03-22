@@ -81,7 +81,7 @@ RSpec.describe Esse::Index do
     context 'with the collection definition' do
       before do
         stub_index(:users) do
-          collection do |opts, &block|
+          collection do |**opts, &block|
             [[1], [2], [3]].each do |batch|
               block.call batch, opts
             end
