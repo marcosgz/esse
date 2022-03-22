@@ -2,6 +2,7 @@
 
 require 'spec_helper'
 require 'ostruct'
+require 'support/collections'
 
 RSpec.describe Esse::Index do
   describe '.serialize' do
@@ -24,7 +25,7 @@ RSpec.describe Esse::Index do
 
       before do
         stub_index(:dummies) do
-          serializer do |entry, context|
+          serializer do |entry, **context|
             {
               _id: entry.id,
             }.merge(context)
@@ -33,7 +34,7 @@ RSpec.describe Esse::Index do
       end
 
       specify do
-        expect(DummiesIndex.serialize(dummy, optionals)).to eq(
+        expect(DummiesIndex.serialize(dummy, **optionals)).to eq(
           _id: 1,
           name: 'dummy',
         )
@@ -52,7 +53,7 @@ RSpec.describe Esse::Index do
           ]
           data.delete_if(&context[:filter]) if context[:filter]
           data.each do |datum|
-            block.call([datum], context)
+            block.call([datum], **context)
           end
         end
 
@@ -159,7 +160,7 @@ RSpec.describe Esse::Index do
           ]
           data.delete_if(&context[:filter]) if context[:filter]
           data.each do |datum|
-            block.call([datum], context)
+            block.call([datum], **context)
           end
         end
 

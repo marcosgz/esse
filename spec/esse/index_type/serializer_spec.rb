@@ -25,7 +25,7 @@ RSpec.describe Esse::IndexType do
       before do
         stub_index(:dummies) do
           define_type(:dummy) do
-            serializer do |entry, context|
+            serializer do |entry, **context|
               {
                 _id: entry.id,
               }.merge(context)
@@ -35,7 +35,7 @@ RSpec.describe Esse::IndexType do
       end
 
       specify do
-        expect(DummiesIndex::Dummy.serialize(dummy, optionals)).to eq(
+        expect(DummiesIndex::Dummy.serialize(dummy, **optionals)).to eq(
           _id: 1,
           name: 'dummy',
         )
@@ -96,7 +96,7 @@ RSpec.describe Esse::IndexType do
               ]
               data.delete_if(&context[:filter]) if context[:filter]
               data.each do |datum|
-                block.call([datum], context)
+                block.call([datum], **context)
               end
             end
 
@@ -203,7 +203,7 @@ RSpec.describe Esse::IndexType do
               ]
               data.delete_if(&context[:filter]) if context[:filter]
               data.each do |datum|
-                block.call([datum], context)
+                block.call([datum], **context)
               end
             end
 

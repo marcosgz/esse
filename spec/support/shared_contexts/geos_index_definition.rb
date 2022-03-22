@@ -18,7 +18,7 @@ RSpec.shared_context 'geos index definition' do
             ]
           ].each do |batch|
             states = context[:conditions] ? batch.select(&context[:conditions]) : batch
-            block.call(states, context) unless states.empty?
+            block.call(states, **context) unless states.empty?
           end
         end
         serializer DummyGeosSerializer
@@ -36,7 +36,7 @@ RSpec.shared_context 'geos index definition' do
             ]
           ].each do |batch|
             counties = context[:conditions] ? batch.select(&context[:conditions]) : batch
-            block.call(counties, context) unless counties.empty?
+            block.call(counties, **context) unless counties.empty?
           end
         end
         serializer DummyGeosSerializer

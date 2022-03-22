@@ -58,7 +58,7 @@ class <%= @index_name %> < <%= @base_class %>
   #
   # You can also serialize the collection entry using a block:
   #
-  #   serializer do |model, context|
+  #   serializer do |model, **context|
   #     hash = {
   #       name: <%= @index_name.underscore %>.name,
   #     }
