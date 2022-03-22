@@ -22,8 +22,8 @@ class <%= @index_name %> < <%= @base_class %>
   #   collection Collections::DocumentCollection
   #
   # but you can also use block definition style:
-  #   collection do |_context, &block|
-  #     block.call [{ title: 'foo' }, { title: 'bar' }], context
+  #   collection do |**context, &block|
+  #     block.call [{ title: 'foo' }, { title: 'bar' }], extra: 'info'
   #   end
   #
   # Serializer block or class yielder should be called with an array of objects.
@@ -78,7 +78,7 @@ class <%= @index_name %> < <%= @base_class %>
     # Useful for eager loading data from database or any other repository. Below is an example of a rails like
     # application could load using activerecord.
     #
-    #   collection do |context, &block|
+    #   collection do |**context, &block|
     #     <%= type.camelize %>.where(context[:conditions]).find_in_batches(batch_size: 5000) do |batch|
     #       block.call batch, context
     #     end

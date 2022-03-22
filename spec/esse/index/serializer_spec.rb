@@ -109,7 +109,7 @@ RSpec.describe Esse::Index do
     context "when collection yields data with additional context" do
       before do
         stub_index(:geos) do
-          collection do |*_args, **_kwargs, &block|
+          collection do |**_kwargs, &block|
             data = [
               OpenStruct.new(id: 1, name: 'Il'),
               OpenStruct.new(id: 2, name: 'Md'),

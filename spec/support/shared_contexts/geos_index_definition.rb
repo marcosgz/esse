@@ -7,7 +7,7 @@ RSpec.shared_context 'geos index definition' do
     stub_index(:geos) do
       define_type :state do
         mappings('name' => { 'type' => 'string' }, 'pk' => { 'type' => 'long'})
-        collection do |context, &block|
+        collection do |**context, &block|
           [
             [
               OpenStruct.new(id: 1, uuid: '11-11', name: 'Il'),
@@ -25,7 +25,7 @@ RSpec.shared_context 'geos index definition' do
       end
       define_type :county do
         mappings('name' => { 'type' => 'string' }, 'pk' => { 'type' => 'long'})
-        collection do |context, &block|
+        collection do |**context, &block|
           [
             [
               OpenStruct.new(id: 999, uuid: '99-99', name: 'Cook County', state: 'il'),

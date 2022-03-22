@@ -11,7 +11,7 @@ module Esse
         # @option [Hash] :context The collection context. This value will be passed as argument to the collection
         #   May be SQL condition or any other filter you have defined on the collection.
         def import(context: {}, suffix: nil, **options)
-          each_serialized_batch(context || {}) do |batch|
+          each_serialized_batch(**(context || {})) do |batch|
             bulk(index: batch, suffix: suffix, **options)
           end
         end

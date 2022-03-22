@@ -86,10 +86,10 @@ module Esse
     # @param args [*Object] Any argument is allowed here. The collection will be called with same arguments.
     #   And the serializer will be initialized with those arguments too.
     # @yield [Array, *Object] serialized collection and method arguments
-    def each_serialized_batch(*args, **kwargs, &block)
-      each_batch(*args, **kwargs) do |batch, **inner_kwargs|
-        entries = batch.map { |entry| serialize(entry, **kwargs, **inner_kwargs) }.compact
-        block.call(entries, *args, **kwargs)
+    def each_serialized_batch(**kwargs, &block)
+      each_batch(**kwargs) do |*batch, **collection_kwargs|
+        entries = batch.flatten.map { |entry| serialize(entry, **collection_kwargs) }.compact
+        block.call(entries, **kwargs)
       end
     end
 
@@ -99,9 +99,9 @@ module Esse
     #    GeosIndex.documents(id: 1).first
     #
     # @return [Enumerator] All serialized entries
-    def documents(*args, **kargs)
+    def documents(**kwargs)
       Enumerator.new do |yielder|
-        each_serialized_batch(*args, **kargs) do |documents, *_inner_args, **_inner_kargs|
+        each_serialized_batch(**kwargs) do |documents, **_collection_kargs|
           documents.each { |document| yielder.yield(document) }
         end
       end

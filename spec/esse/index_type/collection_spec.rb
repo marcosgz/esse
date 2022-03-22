@@ -85,7 +85,7 @@ RSpec.describe Esse::IndexType do
       before do
         stub_index(:users) do
           define_type :user do
-            collection do |opts, &block|
+            collection do |**opts, &block|
               [[1], [2], [3]].each do |batch|
                 block.call batch, opts
               end
