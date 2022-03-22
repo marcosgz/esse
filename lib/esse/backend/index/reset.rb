@@ -19,10 +19,10 @@ module Esse
           suffix ||= Esse.timestamp
           suffix = Esse.timestamp while exist?(suffix: suffix).tap { |exist| existing << suffix if exist }
 
-          create_index!(suffix: suffix, **options)
-          import!(suffix: suffix, **options)
+          create_index!(**options, suffix: suffix, alias: false)
+          import!(**options, suffix: suffix)
           update_aliases!(suffix: suffix)
-          existing.each { |_s| delete_index!(suffix: suffix, **options) }
+          existing.each { |_s| delete_index!(**options, suffix: suffix) }
           true
         end
       end
