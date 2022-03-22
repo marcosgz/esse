@@ -105,6 +105,47 @@ RSpec.describe Esse::Index do
         ],
       )
     end
+
+    context "when collection yields data with additional context" do
+      before do
+        stub_index(:geos) do
+          collection do |*_args, **_kwargs, &block|
+            data = [
+              OpenStruct.new(id: 1, name: 'Il'),
+              OpenStruct.new(id: 2, name: 'Md'),
+              OpenStruct.new(id: 3, name: 'Ny')
+            ]
+            labels = {
+              1 => 'Illinois',
+              2 => 'Maryland',
+              3 => 'New York',
+            }
+            block.call(data, labels: labels)
+          end
+
+          serializer do |struct, labels:, **_|
+            {
+              _id: struct.id,
+              name: labels[struct.id],
+            }
+          end
+        end
+      end
+
+      specify do
+        expected_data = []
+        expect {
+          GeosIndex.each_serialized_batch { |batch| expected_data.push(*batch) }
+        }.not_to raise_error
+        expect(expected_data).to match_array(
+          [
+            { _id: 1, name: 'Illinois' },
+            { _id: 2, name: 'Maryland' },
+            { _id: 3, name: 'New York' }
+          ],
+        )
+      end
+    end
   end
 
   describe '.documents' do
