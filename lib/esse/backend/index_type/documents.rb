@@ -30,17 +30,27 @@ module Esse
         # @see https://www.elastic.co/guide/en/elasticsearch/reference/7.5/docs-bulk.html
         def bulk(index: nil, delete: nil, create: nil, suffix: nil, **options)
           body = []
+          stats = { index: 0, delete: 0, create: 0 }
           Array(index).each do |entry|
             id, data = Esse.doc_id!(entry)
-            body << { index: { _id: id, data: data } } if id
+            if id
+              stats[:index] += 1
+              body << { index: { _id: id, data: data } }
+            end
           end
           Array(create).each do |entry|
             id, data = Esse.doc_id!(entry)
-            body << { create: { _id: id, data: data } } if id
+            if id
+              stats[:create] += 1
+              body << { create: { _id: id, data: data } }
+            end
           end
           Array(delete).each do |entry|
             id, _data = Esse.doc_id!(entry, delete: [], keep: %w[_id id])
-            body << { delete: { _id: id } } if id
+            if id
+              stats[:delete] += 1
+              body << { delete: { _id: id } }
+            end
           end
 
           return if body.empty?
@@ -48,11 +58,18 @@ module Esse
           definition = {
             index: index_name(suffix: suffix),
             type: type_name,
-            body: body,
           }.merge(options)
 
-          client.bulk(definition).tap do
-            sleep(bulk_wait_interval) if bulk_wait_interval > 0
+          Esse::Events.instrument('elasticsearch.bulk') do |payload|
+            payload[:request] = definition.merge(body_stats: stats)
+            payload[:response] = client.bulk(definition.merge(body: body))
+            if bulk_wait_interval > 0
+              payload[:wait_interval] = bulk_wait_interval
+              sleep(bulk_wait_interval)
+            else
+              payload[:wait_interval] = 0.0
+            end
+            payload[:response]
           end
         end
         alias_method :bulk!, :bulk

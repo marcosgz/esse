@@ -82,6 +82,19 @@ module Esse
             padding: runtime_padding(event[:runtime])
         end
       end
+
+      def elasticsearch_bulk(event)
+        print_message("[%<runtime>s] Bulk index %<name>s%<wait_interval>s: ",
+          runtime: formatted_runtime(event[:runtime]),
+          name: colorize(event[:request][:index], :bold),
+          wait_interval: (event[:wait_interval].nonzero? ? " (wait interval #{event[:wait_interval]}s)" : ''),
+          newline: false,
+        )
+        stats = event[:request][:body_stats].select {|_, v| v.nonzero? }.map do |type, count|
+          "#{colorize(type, :bold)}: #{count} docs"
+        end
+        print_message(stats.join(", ") + ".")
+      end
     end
   end
 end

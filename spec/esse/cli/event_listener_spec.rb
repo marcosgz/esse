@@ -95,6 +95,115 @@ RSpec.describe Esse::CLI::EventListener do
     end
   end
 
+  describe '.elasticsearch_bulk' do
+    subject do
+      described_class['elasticsearch.bulk'].call(event)
+    end
+
+    let(:event_id) { 'elasticsearch.bulk' }
+    let(:event) do
+      Esse::Events::Event.new(event_id, payload)
+    end
+
+    let(:payload) do
+      {
+        runtime: 1.32,
+        wait_interval: wait_interval,
+        request: {
+          index: "index_name",
+          body_stats: body_stats
+        }
+      }
+    end
+
+    let(:wait_interval) { 0.0 }
+    let(:body_stats) do
+      {
+        create: 0,
+        delete: 0,
+        index: 0,
+      }
+    end
+
+    context 'without actions' do
+      it 'prints message' do
+        expect { subject }.to output(/Bulk index/).to_stdout
+      end
+    end
+
+    context "with wait_interval > 0.0" do
+      let(:wait_interval) { 1.0 }
+
+      it 'prints message' do
+        expect { subject }.to output(/(wait interval 1.0s)/).to_stdout
+      end
+    end
+
+    context 'with delete stats' do
+      let(:body_stats) do
+        {
+          create: 0,
+          delete: 10,
+          index: 0,
+        }
+      end
+
+      it 'prints message' do
+        expect { subject }.to output(<<~MSG).to_stdout
+          [#{formatted_runtime(1.32)}] Bulk index #{colorize("index_name", :bold)}: #{colorize("delete", :bold)}: 10 docs.
+        MSG
+      end
+    end
+
+    context 'with index stats' do
+      let(:body_stats) do
+        {
+          create: 0,
+          delete: 0,
+          index: 20,
+        }
+      end
+
+      it 'prints message' do
+        expect { subject }.to output(<<~MSG).to_stdout
+          [#{formatted_runtime(1.32)}] Bulk index #{colorize("index_name", :bold)}: #{colorize("index", :bold)}: 20 docs.
+        MSG
+      end
+    end
+
+    context 'with create stats' do
+      let(:body_stats) do
+        {
+          create: 5,
+          delete: 0,
+          index: 0,
+        }
+      end
+
+      it 'prints message' do
+        expect { subject }.to output(<<~MSG).to_stdout
+          [#{formatted_runtime(1.32)}] Bulk index #{colorize("index_name", :bold)}: #{colorize("create", :bold)}: 5 docs.
+        MSG
+      end
+    end
+
+    context 'with multiple stats' do
+      let(:body_stats) do
+        {
+          create: 10,
+          delete: 15,
+          index: 20,
+        }
+      end
+
+      it 'prints message' do
+        expect { subject }.to output(<<~MSG).to_stdout
+          [#{formatted_runtime(1.32)}] Bulk index #{colorize("index_name", :bold)}: #{colorize("create", :bold)}: 10 docs, #{colorize("delete", :bold)}: 15 docs, #{colorize("index", :bold)}: 20 docs.
+        MSG
+      end
+    end
+  end
+
   def colorize(*args)
     Esse::Output.colorize(*args)
   end
