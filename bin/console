@@ -9,14 +9,14 @@ require 'awesome_print'
 Esse.config.clusters.client = { url: ENV.fetch('ELASTICSEARCH_URL', 'http://localhost:9200') }
 Esse.config.clusters.index_prefix = 'esse_console'
 
-# class ApplicationIndex < Esse::Index
-#   self.abstract_class = true
-# end
-# class GeosIndex < ApplicationIndex
-#   self.index_version = 'v1'
+class ApplicationIndex < Esse::Index
+  self.abstract_class = true
+end
+class GeosIndex < ApplicationIndex
+  self.index_version = 'v1'
 
-#   define_type :county
-#   define_type :city
-# end
+  define_type :county
+  define_type :city
+end
 
 Pry.start

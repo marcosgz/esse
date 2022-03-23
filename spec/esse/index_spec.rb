@@ -98,6 +98,24 @@ RSpec.describe Esse::Index do
     end
   end
 
+  describe "#bulk_wait_interval" do
+    before { stub_index(:events) }
+    after { Esse.config.bulk_wait_interval = 0.1 }
+
+    it 'returns the global bulk wait interval' do
+      expect(EventsIndex.bulk_wait_interval).to eq(0.1)
+      Esse.config.bulk_wait_interval = 0.2
+      expect(EventsIndex.bulk_wait_interval).to eq(0.2)
+    end
+
+    it "overwrites the global bulk wait interval" do
+      expect(Esse.config.bulk_wait_interval).to eq(0.1)
+      EventsIndex.bulk_wait_interval = 1.5
+      expect(EventsIndex.bulk_wait_interval).to eq(1.5)
+      expect(Esse.config.bulk_wait_interval).to eq(0.1)
+    end
+  end
+
   describe '.index_version' do
     before { stub_index(:users) }
 

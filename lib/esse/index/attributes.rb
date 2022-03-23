@@ -45,6 +45,14 @@ module Esse
         TEMPLATE_DIRS.map { |term| format(term, dirname: index_directory) }
       end
 
+      def bulk_wait_interval
+        @bulk_wait_interval || Esse.config.bulk_wait_interval
+      end
+
+      def bulk_wait_interval=(value)
+        @bulk_wait_interval = value.to_f
+      end
+
       protected
 
       def index_prefixed_name(value)

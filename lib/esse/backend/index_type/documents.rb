@@ -51,7 +51,9 @@ module Esse
             body: body,
           }.merge(options)
 
-          client.bulk(definition)
+          client.bulk(definition).tap do
+            sleep(bulk_wait_interval) if bulk_wait_interval > 0
+          end
         end
         alias_method :bulk!, :bulk
 

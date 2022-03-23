@@ -32,6 +32,10 @@ module Esse
       def client
         index_class.cluster.client
       end
+
+      def bulk_wait_interval
+        index_class.bulk_wait_interval
+      end
     end
   end
 end

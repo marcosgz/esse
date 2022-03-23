@@ -102,7 +102,7 @@ RSpec.describe Esse::Config do
     end
   end
 
-  describe '.indices_directory' do
+  describe '#indices_directory' do
     it 'defaults to the app/indices' do
       expect(model.indices_directory).to eq(Pathname.new('app/indices'))
     end
@@ -110,6 +110,17 @@ RSpec.describe Esse::Config do
     it 'wraps the string path to an instance of Pathname' do
       model.indices_directory = 'lib/indices'
       expect(model.indices_directory).to eq(Pathname.new('lib/indices'))
+    end
+  end
+
+  describe '#bulk_wait_interval' do
+    it 'defaults to 0.1' do
+      expect(model.bulk_wait_interval).to eq(0.1)
+    end
+
+    it 'wraps the string value to an instance of Float' do
+      model.bulk_wait_interval = '0.5'
+      expect(model.bulk_wait_interval).to eq(0.5)
     end
   end
 end
