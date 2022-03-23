@@ -139,6 +139,24 @@ RSpec.describe Esse::CLI::EventListener do
       end
     end
 
+    context "with document type" do
+      let(:payload) do
+        {
+          runtime: 1.32,
+          wait_interval: 0.0,
+          request: {
+            index: "index_name",
+            type: "document_type",
+            body_stats: [],
+          }
+        }
+      end
+
+      it 'prints message' do
+        expect { subject }.to output(/for type document_type:/).to_stdout
+      end
+    end
+
     context 'with delete stats' do
       let(:body_stats) do
         {
