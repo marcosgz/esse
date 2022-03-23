@@ -153,7 +153,7 @@ RSpec.describe Esse::CLI::EventListener do
       end
 
       it 'prints message' do
-        expect { subject }.to output(/for type document_type:/).to_stdout
+        expect { subject }.to output(/for type #{Regexp.escape(colorize('document_type', :bold))}:/).to_stdout
       end
     end
 
