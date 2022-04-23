@@ -249,7 +249,7 @@ RSpec.describe Esse::IndexType do
           end
         end
       }.not_to raise_error
-      expect(klass.instance_variable_get(:@serializer_proc)).to be_a_kind_of(Proc)
+      expect(klass.instance_variable_get(:@serializer_proc)[:default]).to be_a_kind_of(Proc)
     end
 
     specify do
@@ -263,7 +263,7 @@ RSpec.describe Esse::IndexType do
     specify do
       expect {
         Class.new(Esse::IndexType) do
-          serializer :invalid
+          serializer :default, :invalid
         end
       }.to raise_error(ArgumentError, ':invalid is not a valid serializer. The serializer should respond with `to_h` instance method.')
     end
@@ -278,7 +278,7 @@ RSpec.describe Esse::IndexType do
                      })
         end
       }.not_to raise_error
-      expect(klass.instance_variable_get(:@serializer_proc)).to be_a_kind_of(Proc)
+      expect(klass.instance_variable_get(:@serializer_proc)[:default]).to be_a_kind_of(Proc)
     end
 
     specify do
@@ -291,7 +291,7 @@ RSpec.describe Esse::IndexType do
                      })
         end
       }.not_to raise_error
-      expect(klass.instance_variable_get(:@serializer_proc)).to be_a_kind_of(Proc)
+      expect(klass.instance_variable_get(:@serializer_proc)[:default]).to be_a_kind_of(Proc)
     end
 
     specify do
@@ -304,7 +304,7 @@ RSpec.describe Esse::IndexType do
                      })
         end
       }.not_to raise_error
-      expect(klass.instance_variable_get(:@serializer_proc)).to be_a_kind_of(Proc)
+      expect(klass.instance_variable_get(:@serializer_proc)[:default]).to be_a_kind_of(Proc)
     end
   end
 end
