@@ -129,6 +129,46 @@ RSpec.describe Esse::Index do
     end
   end
 
+  describe ".index_prefix" do
+    before { stub_index(:users) }
+
+    it 'default to index_prefix when its value is nil' do
+      with_cluster_config(index_prefix: nil) do
+        expect(UsersIndex.index_prefix).to eq(nil)
+      end
+    end
+
+    it 'default to index_prefix when its value is not nil' do
+      with_cluster_config(index_prefix: 'esse') do
+        expect(UsersIndex.index_prefix).to eq('app_indices')
+      end
+    end
+
+    it 'allows to modify the index_prefix value' do
+      with_cluster_config(index_prefix: 'esse') do
+        UsersIndex.index_prefix = 'test'
+        expect(UsersIndex.index_prefix).to eq('test')
+      end
+    end
+
+    it 'normalizes the index_prefix value' do
+      UsersIndex.index_prefix = 'esse test'
+      expect(UsersIndex.index_prefix).to eq('esse_test')
+    end
+
+    it 'allows to disable the index_prefix value' do
+      UsersIndex.index_prefix = false
+      expect(UsersIndex.index_prefix).to eq(nil)
+    end
+
+    it 'allows to disable the index_prefix value' do
+      with_cluster_config(index_prefix: 'esse') do
+        UsersIndex.index_prefix = nil
+        expect(UsersIndex.index_prefix).to eq(nil)
+      end
+    end
+  end
+
   describe '.index_name' do
     before { stub_index(:users) }
 

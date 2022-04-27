@@ -20,6 +20,18 @@ module Esse
         !index_name.nil?
       end
 
+      def index_prefix
+        return @index_prefix if defined? @index_prefix
+
+        cluster.index_prefix
+      end
+
+      def index_prefix=(value)
+        return @index_prefix = nil if value == false
+
+        @index_prefix = Hstring.new(value.to_s).underscore.presence
+      end
+
       def index_version=(value)
         @index_version = Hstring.new(value.to_s).underscore.presence
       end
@@ -57,9 +69,9 @@ module Esse
 
       def index_prefixed_name(value)
         return if value == '' || value.nil?
-        return value.to_s unless cluster.index_prefix
+        return value.to_s unless index_prefix
 
-        [cluster.index_prefix, value].join('_')
+        [index_prefix, value].join('_')
       end
 
       def normalized_name
