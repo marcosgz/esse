@@ -167,6 +167,15 @@ RSpec.describe Esse::Index do
         expect(UsersIndex.index_prefix).to eq(nil)
       end
     end
+
+    it 'updates the index name with the new prefix' do
+      UsersIndex.index_prefix = 'aaa'
+      expect(UsersIndex.index_name).to eq('aaa_users')
+      UsersIndex.index_prefix = 'bbb'
+      expect(UsersIndex.index_name).to eq('bbb_users')
+      UsersIndex.index_name = 'accounts'
+      expect(UsersIndex.index_name).to eq('bbb_accounts')
+    end
   end
 
   describe '.index_name' do

@@ -9,11 +9,11 @@ module Esse
       ].freeze
 
       def index_name=(value)
-        @index_name = index_prefixed_name(value)
+        @index_name = Hstring.new(value.to_s).underscore.presence
       end
 
       def index_name
-        @index_name || index_prefixed_name(normalized_name)
+        index_prefixed_name(@index_name || normalized_name)
       end
 
       def index_name?
