@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe "[ES #{ENV.fetch("STACK_VERSION", "1.x")}] update setting", es_version: '1.x' do
+stack_describe '1.x', 'elasticsearch update settings' do
   before do
     stub_index(:dummies) do
       settings do

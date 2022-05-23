@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe "[ES #{ENV.fetch("STACK_VERSION", "1.x")}] update mapping", es_version: '1.x' do
+stack_describe '1.x', 'elasticsearch update mappings' do
   before do
     stub_index(:dummies) do
       define_type :dummy do

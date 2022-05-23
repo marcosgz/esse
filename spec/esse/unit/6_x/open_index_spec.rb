@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe "[ES #{ENV.fetch("STACK_VERSION", "6.x")}] elasticsearch#index", es_version: '6.x', es_webmock: true do
+stack_describe '6.x', 'elasticsearch#open', es_webmock: true do
   before do
     stub_index(:geos) do
       define_type :city

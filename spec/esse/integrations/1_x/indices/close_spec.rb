@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe "[ES #{ENV.fetch("STACK_VERSION", "1.x")}] close index", es_version: '1.x' do
+stack_describe '1.x', 'elasticsearch close index' do
   before do
     stub_index(:dummies)
   end

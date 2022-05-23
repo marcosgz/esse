@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe "[ES #{ENV.fetch("STACK_VERSION", "1.x")}] refresh index", es_version: '1.x' do
+stack_describe '1.x', 'elasticsearch refresh index' do
   before do
     stub_index(:dummies)
   end

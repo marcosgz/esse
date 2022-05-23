@@ -1,8 +1,7 @@
 # frozen_string_literal: true
 
 require 'spec_helper'
-
-RSpec.describe "[ES #{ENV.fetch("STACK_VERSION", "7.x")}] elasticsearch#index", es_version: '7.x', es_webmock: true do
+stack_describe '7.x', 'elasticsearch#close', es_webmock: true do
   before do
     stub_index(:geos) do
       define_type :city
