@@ -37,12 +37,10 @@ RSpec.describe Esse::IndexType do
   describe '.mappings class definition' do
     specify do
       expect {
-        Class.new(Esse::IndexType) do
-          def self.type_name
-            'test'
-          end
-
-          mappings do
+        Class.new(Esse::Index) do
+          define_type :test do
+            mappings do
+            end
           end
         end
       }.not_to raise_error
@@ -50,12 +48,10 @@ RSpec.describe Esse::IndexType do
 
     specify do
       expect {
-        Class.new(Esse::IndexType) do
-          def self.type_name
-            'test'
+        Class.new(Esse::Index) do
+          define_type :test do
+            mappings({})
           end
-
-          mappings({})
         end
       }.not_to raise_error
     end

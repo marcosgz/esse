@@ -87,21 +87,21 @@ module Esse
       doc_type, collection_klass = args
       # >> Backward compatibility for the old collection syntax without explicit doc_type
       if doc_type && !doc_type.is_a?(Symbol) && !doc_type.is_a?(String) && collection_klass.nil? && @collection_proc.nil?
-        collection_class = doc_type
+        collection_klass = doc_type
         doc_type = DEFAULT_DOC_TYPE
       end
       doc_type = doc_type&.to_sym || DEFAULT_DOC_TYPE
       # <<
 
       if collection_klass.nil? && block.nil?
-        raise ArgumentError, 'a document type, followed by a store class or block that stream the data ' \
+        raise ArgumentError, 'a document type, followed by a collection class or block that stream the data ' \
                              'is required to define the collection'
       end
 
-      if block.nil? && collection_class.is_a?(Class) && !collection_class.include?(Enumerable)
+      if block.nil? && collection_klass.is_a?(Class) && !collection_klass.include?(Enumerable)
         msg = '%<arg>p is not a valid collection class.' \
               ' Collections should implement the Enumerable interface.'
-        raise ArgumentError, format(msg, arg: collection_class)
+        raise ArgumentError, format(msg, arg: collection_klass)
       end
 
       @collection_proc ||= {}

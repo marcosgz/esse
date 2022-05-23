@@ -14,7 +14,7 @@ RSpec.describe Esse::Index do
           DummiesIndex.serialize(double)
         }.to raise_error(
           NotImplementedError,
-          'there is no serializer defined for the "DummiesIndex" index',
+          'there is no :__default__ serializer defined for the "DummiesIndex" index',
         )
       end
     end
@@ -226,7 +226,7 @@ RSpec.describe Esse::Index do
           end
         end
       }.not_to raise_error
-      expect(klass.instance_variable_get(:@serializer_proc)).to be_a_kind_of(Proc)
+      expect(klass.instance_variable_get(:@serializer_proc)[:__default__]).to be_a_kind_of(Proc)
     end
 
     specify do
@@ -240,7 +240,7 @@ RSpec.describe Esse::Index do
     specify do
       expect {
         Class.new(Esse::Index) do
-          serializer :invalid
+          serializer :__default__, :invalid
         end
       }.to raise_error(ArgumentError, ':invalid is not a valid serializer. The serializer should respond with `to_h` instance method.')
     end
@@ -255,7 +255,7 @@ RSpec.describe Esse::Index do
                      })
         end
       }.not_to raise_error
-      expect(klass.instance_variable_get(:@serializer_proc)).to be_a_kind_of(Proc)
+      expect(klass.instance_variable_get(:@serializer_proc)[:__default__]).to be_a_kind_of(Proc)
     end
 
     specify do
@@ -268,7 +268,7 @@ RSpec.describe Esse::Index do
                      })
         end
       }.not_to raise_error
-      expect(klass.instance_variable_get(:@serializer_proc)).to be_a_kind_of(Proc)
+      expect(klass.instance_variable_get(:@serializer_proc)[:__default__]).to be_a_kind_of(Proc)
     end
 
     specify do
@@ -281,7 +281,7 @@ RSpec.describe Esse::Index do
                      })
         end
       }.not_to raise_error
-      expect(klass.instance_variable_get(:@serializer_proc)).to be_a_kind_of(Proc)
+      expect(klass.instance_variable_get(:@serializer_proc)[:__default__]).to be_a_kind_of(Proc)
     end
   end
 end

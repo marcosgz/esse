@@ -7,17 +7,21 @@ RSpec.describe Esse::IndexType do
   describe '.collection' do
     specify do
       expect {
-        Class.new(Esse::IndexType) do
-          collection do
+        Class.new(Esse::Index) do
+          define_type :foo do
+            collection do
+            end
           end
         end
       }.not_to raise_error
     end
 
     specify do
-      klass = Class.new(Esse::IndexType) do
-        collection do |&b|
-          b.call([])
+      klass = Class.new(Esse::Index) do
+        define_type :foo do
+          collection do |&b|
+            b.call([])
+          end
         end
       end
 
@@ -27,26 +31,32 @@ RSpec.describe Esse::IndexType do
 
     specify do
       expect {
-        Class.new(Esse::IndexType) do
-          collection
+        Class.new(Esse::Index) do
+          define_type :foo do
+            collection
+          end
         end
       }.to raise_error(ArgumentError)
     end
 
     specify do
-      klass = Class.new(Esse::IndexType) do
-        collection DummyGeosCollection
+      klass = Class.new(Esse::Index) do
+        define_type :foo do
+          collection DummyGeosCollection
+        end
       end
 
-      proc = klass.instance_variable_get(:@collection_proc)
-      expect(proc).to eq(DummyGeosCollection)
+      col_proc = klass.instance_variable_get(:@collection_proc)
+      expect(col_proc).to eq(foo: DummyGeosCollection)
     end
 
     it 'raises an error if the collection does not implement Enumerable interface' do
       collection_klass = Class.new
       expect {
-        Class.new(Esse::IndexType) do
-          collection collection_klass
+        Class.new(Esse::Index) do
+          define_type :foo do
+            collection collection_klass
+          end
         end
       }.to raise_error(ArgumentError)
     end
@@ -63,7 +73,7 @@ RSpec.describe Esse::IndexType do
       specify do
         expect {
           UsersIndex::User.each_batch { |batch| puts batch }
-        }.to raise_error(NotImplementedError, 'there is no collection defined for the "UsersIndex::User" index')
+        }.to raise_error(NotImplementedError, 'there is no :user collection defined for the "UsersIndex" index')
       end
     end
 

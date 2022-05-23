@@ -13,7 +13,7 @@ RSpec.describe Esse::IndexType do
           DummiesIndex::Dummy.serialize(double)
         }.to raise_error(
           NotImplementedError,
-          'there is no serializer defined for the "DummiesIndex::Dummy" index',
+          'there is no :dummy serializer defined for the "DummiesIndex" index',
         )
       end
     end
@@ -244,26 +244,32 @@ RSpec.describe Esse::IndexType do
     specify do
       klass = nil
       expect {
-        klass = Class.new(Esse::IndexType) do
-          serializer do
+        klass = Class.new(Esse::Index) do
+          define_type :foo do
+            serializer do
+            end
           end
         end
       }.not_to raise_error
-      expect(klass.instance_variable_get(:@serializer_proc)[:default]).to be_a_kind_of(Proc)
+      expect(klass.instance_variable_get(:@serializer_proc)[:foo]).to be_a_kind_of(Proc)
     end
 
     specify do
       expect {
-        Class.new(Esse::IndexType) do
-          serializer
+        Class.new(Esse::Index) do
+          define_type :foo do
+            serializer
+          end
         end
       }.to raise_error(ArgumentError, 'nil is not a valid serializer. The serializer should respond with `to_h` instance method.')
     end
 
     specify do
       expect {
-        Class.new(Esse::IndexType) do
-          serializer :default, :invalid
+        Class.new(Esse::Index) do
+          define_type :foo do
+            serializer :invalid
+          end
         end
       }.to raise_error(ArgumentError, ':invalid is not a valid serializer. The serializer should respond with `to_h` instance method.')
     end
@@ -271,40 +277,46 @@ RSpec.describe Esse::IndexType do
     specify do
       klass = nil
       expect {
-        klass = Class.new(Esse::IndexType) do
-          serializer(Class.new {
-                       def as_json
-                       end
-                     })
+        klass = Class.new(Esse::Index) do
+          define_type :foo do
+            serializer(Class.new {
+              def as_json
+              end
+            })
+          end
         end
       }.not_to raise_error
-      expect(klass.instance_variable_get(:@serializer_proc)[:default]).to be_a_kind_of(Proc)
+      expect(klass.instance_variable_get(:@serializer_proc)[:foo]).to be_a_kind_of(Proc)
     end
 
     specify do
       klass = nil
       expect {
-        klass = Class.new(Esse::IndexType) do
-          serializer(Class.new {
-                       def to_h
-                       end
-                     })
+        klass = Class.new(Esse::Index) do
+          define_type :foo do
+            serializer(Class.new {
+              def to_h
+              end
+            })
+          end
         end
       }.not_to raise_error
-      expect(klass.instance_variable_get(:@serializer_proc)[:default]).to be_a_kind_of(Proc)
+      expect(klass.instance_variable_get(:@serializer_proc)[:foo]).to be_a_kind_of(Proc)
     end
 
     specify do
       klass = nil
       expect {
-        klass = Class.new(Esse::IndexType) do
-          serializer(Class.new {
-                       def call
-                       end
-                     })
+        klass = Class.new(Esse::Index) do
+          define_type :foo do
+            serializer(Class.new {
+              def call
+              end
+            })
+          end
         end
       }.not_to raise_error
-      expect(klass.instance_variable_get(:@serializer_proc)[:default]).to be_a_kind_of(Proc)
+      expect(klass.instance_variable_get(:@serializer_proc)[:foo]).to be_a_kind_of(Proc)
     end
   end
 end
