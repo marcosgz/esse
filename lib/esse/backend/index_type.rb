@@ -5,50 +5,79 @@ require 'forwardable'
 module Esse
   module Backend
     class IndexType
-      require_relative 'index_type/documents'
-
       extend Forwardable
 
       # Type delegators
-      def_delegators :@index_type, :type_name, :each_serialized_batch, :serialize
+      def_delegators :@index_type, :type_name, :index, :serialize
 
       def initialize(type)
         @index_type = type
       end
 
+      def import(**kwargs)
+        elasticsearch.import(doc_type, **kwargs)
+      end
+
+      def import!(**kwargs)
+        elasticsearch.import!(doc_type, **kwargs)
+      end
+
+      def bulk!(**kwargs)
+        elasticsearch.bulk!(**kwargs, type: doc_type)
+      end
+
+      def bulk(**kwargs)
+        elasticsearch.bulk(**kwargs, type: doc_type)
+      end
+
+      def index!(**kwargs)
+        elasticsearch.index!(**kwargs, type: doc_type)
+      end
+
+      def index(**kwargs)
+        elasticsearch.index(**kwargs, type: doc_type)
+      end
+
+      def update!(**kwargs)
+        elasticsearch.update!(**kwargs, type: doc_type)
+      end
+
+      def update(**kwargs)
+        elasticsearch.update(**kwargs, type: doc_type)
+      end
+
+      def delete!(**kwargs)
+        elasticsearch.delete!(**kwargs, type: doc_type)
+      end
+
+      def delete(**kwargs)
+        elasticsearch.delete(**kwargs, type: doc_type)
+      end
+
+      def exist?(**kwargs)
+        elasticsearch.exist?(**kwargs, type: doc_type)
+      end
+
+      def count(**kwargs)
+        elasticsearch.count(**kwargs, type: doc_type)
+      end
+
+      def find!(**kwargs)
+        elasticsearch.find!(**kwargs, type: doc_type)
+      end
+
+      def find(**kwargs)
+        elasticsearch.find(**kwargs, type: doc_type)
+      end
+
       protected
 
-      def index_name(suffix: nil)
-        suffix = Hstring.new(suffix).underscore.presence
-        return index_class.index_name unless suffix
-
-        [index_class.index_name, suffix].join('_')
+      def elasticsearch
+        @index_type.index.elasticsearch
       end
 
-      def index_class
-        @index_type.index
-      end
-
-      def client
-        index_class.cluster.client
-      end
-
-      def bulk_wait_interval
-        index_class.bulk_wait_interval
-      end
-
-      # Elasticsearch::Transport was renamed to Elastic::Transport in 8.0
-      # This lib should support both versions that's why we are wrapping up the transport
-      # errors to local errors.
-      def coerce_exception
-        yield
-      rescue => exception
-        name = Hstring.new(exception.class.name)
-        if /^Elastic(search)?::Transport::Transport::Errors/.match?(name.value) && (exception_class = ERRORS[name.demodulize.value])
-          raise exception_class.new(exception.message)
-        else
-          raise exception
-        end
+      def doc_type
+        type_name.to_sym
       end
     end
   end

@@ -17,7 +17,7 @@ module Esse
         def reset_index!(suffix: index_version, **options)
           existing = []
           suffix ||= Esse.timestamp
-          suffix = Esse.timestamp while exist?(suffix: suffix).tap { |exist| existing << suffix if exist }
+          suffix = Esse.timestamp while index_exist?(suffix: suffix).tap { |exist| existing << suffix if exist }
 
           create_index!(**options, suffix: suffix, alias: false)
           import!(**options, suffix: suffix)

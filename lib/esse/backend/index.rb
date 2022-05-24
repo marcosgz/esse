@@ -20,8 +20,9 @@ module Esse
 
       NAMING = %i[index_version].freeze
       DEFINITION = %i[settings_hash mappings_hash].freeze
+      DOCUMENTS = %i[each_serialized_batch].freeze
 
-      def_delegators :@index, :type_hash, :bulk_wait_interval, *(NAMING + DEFINITION)
+      def_delegators :@index, :type_hash, :bulk_wait_interval, *(NAMING + DEFINITION + DOCUMENTS)
 
       def initialize(index)
         @index = index
@@ -48,6 +49,10 @@ module Esse
 
       def cluster
         @index.cluster
+      end
+
+      def document_type?
+        Elasticsearch::VERSION < '7'
       end
 
       # Elasticsearch::Transport was renamed to Elastic::Transport in 8.0
