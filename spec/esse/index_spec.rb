@@ -3,8 +3,8 @@
 require 'spec_helper'
 
 RSpec.describe Esse::Index do
-  let(:client1) { instance_double(Elasticsearch::Transport::Client) }
-  let(:client2) { instance_double(Elasticsearch::Transport::Client) }
+  let(:client1) { double }
+  let(:client2) { double }
 
   before(:each) do
     reset_config!

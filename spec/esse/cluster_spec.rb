@@ -63,7 +63,7 @@ RSpec.describe Esse::Cluster do
   end
 
   describe '.wait_for_status!' do
-    let(:client) { instance_double(Elasticsearch::Transport::Client) }
+    let(:client) { double }
 
     before { model.client = client }
 
@@ -125,13 +125,49 @@ RSpec.describe Esse::Cluster do
     end
   end
 
-  describe '.client' do
+  describe '.client', es_version: '6.x' do
     it { expect(model).to respond_to(:client) }
 
     it 'retuns an instance of elasticsearch as default' do
       expect(model.instance_variable_get(:@client)).to eq(nil)
       expect(model.client).to be_an_instance_of(Elasticsearch::Transport::Client)
       expect(model.instance_variable_get(:@client)).to be_an_instance_of(Elasticsearch::Transport::Client)
+    end
+
+    it 'store connection using default key' do
+      expect(model.instance_variable_get(:@client)).to eq(nil)
+      client = Elasticsearch::Client.new
+      model.client = client
+      expect(model.client).to eq(client)
+      expect(model.instance_variable_get(:@client)).to eq(client)
+    end
+  end
+
+  describe '.client', es_version: '7.x' do
+    it { expect(model).to respond_to(:client) }
+
+    it 'retuns an instance of elasticsearch as default' do
+      expect(model.instance_variable_get(:@client)).to eq(nil)
+      expect(model.client).to be_an_instance_of(Elasticsearch::Transport::Client)
+      expect(model.instance_variable_get(:@client)).to be_an_instance_of(Elasticsearch::Transport::Client)
+    end
+
+    it 'store connection using default key' do
+      expect(model.instance_variable_get(:@client)).to eq(nil)
+      client = Elasticsearch::Client.new
+      model.client = client
+      expect(model.client).to eq(client)
+      expect(model.instance_variable_get(:@client)).to eq(client)
+    end
+  end
+
+  describe '.client', es_version: '8.x' do
+    it { expect(model).to respond_to(:client) }
+
+    it 'retuns an instance of elasticsearch as default' do
+      expect(model.instance_variable_get(:@client)).to eq(nil)
+      expect(model.client).to be_an_instance_of(Elasticsearch::Client)
+      expect(model.instance_variable_get(:@client)).to be_an_instance_of(Elasticsearch::Client)
     end
 
     it 'store connection using default key' do

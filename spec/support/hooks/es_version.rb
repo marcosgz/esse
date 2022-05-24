@@ -4,7 +4,7 @@ module Hooks
     def self.included(base)
       base.around(:example) do |example|
         if (version = example.metadata[:es_version])
-          re = Regexp.new(Regexp.escape(version).gsub('x', '\d+'))
+          re = Regexp.new('^' + Regexp.escape(version).gsub('x', '\d+'))
           if re.match(Elasticsearch::VERSION)
             if example.metadata[:es_webmock]
               WebMock.disable_net_connect!(allow_localhost: false)
