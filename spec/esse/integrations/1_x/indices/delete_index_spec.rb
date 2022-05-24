@@ -43,7 +43,7 @@ stack_describe '1.x', 'elasticsearch delete index' do
     specify do
       es_client do
         expect { DummiesIndex.elasticsearch.delete_index!(suffix: nil) }.to raise_error(
-          Elasticsearch::Transport::Transport::Errors::NotFound,
+          Esse::Backend::NotFoundError,
         )
       end
     end
@@ -51,7 +51,7 @@ stack_describe '1.x', 'elasticsearch delete index' do
     specify do
       es_client do
         expect { DummiesIndex.elasticsearch.delete_index!(suffix: 'v1') }.to raise_error(
-          Elasticsearch::Transport::Transport::Errors::NotFound,
+          Esse::Backend::NotFoundError,
         )
       end
     end

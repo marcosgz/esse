@@ -9,7 +9,7 @@ module Esse
         # @option options [String, nil] :suffix The index suffix. Defaults to the index_version.
         #   A uniq index name will be generated if one index already exist with the given alias.
         # @option options [Time] :timeout Explicit operation timeout
-        # @raise [Elasticsearch::Transport::Transport::Errors::BadRequest, Elasticsearch::Transport::Transport::Errors::NotFound]
+        # @raise [Esse::Backend::ServerError]
         #   in case of failure
         # @return [Hash] the elasticsearch response
         #

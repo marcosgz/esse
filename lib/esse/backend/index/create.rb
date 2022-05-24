@@ -21,7 +21,7 @@ module Esse
         # @see http://www.elasticsearch.org/blog/changing-mapping-with-zero-downtime/
         def create_index(suffix: index_version, **options)
           create_index!(suffix: suffix, **options)
-        rescue Elasticsearch::Transport::Transport::Errors::BadRequest
+        rescue ServerError
           { 'errors' => true }
         end
 
@@ -39,7 +39,7 @@ module Esse
         # @option arguments [Time] :master_timeout Specify timeout for connection to master
         # @option arguments [Hash] :headers Custom HTTP headers
         # @option arguments [Hash] :body The configuration for the index (`settings` and `mappings`)
-        # @raise [Elasticsearch::Transport::Transport::Errors::NotFound] when index already exists
+        # @raise [Esse::Backend::NotFoundError] when index already exists
         # @return [Hash] the elasticsearch response
         #
         # @see http://www.elasticsearch.org/blog/changing-mapping-with-zero-downtime/
@@ -54,8 +54,8 @@ module Esse
 
           Esse::Events.instrument('elasticsearch.create_index') do |payload|
             payload[:request] = opts = options.merge(index: name, body: definition)
-            payload[:response] = response = client.indices.create(**opts)
-            cluster.wait_for_status! if response
+            payload[:response] = response = coerce_exception { client.indices.create(**opts) }
+            coerce_exception { cluster.wait_for_status! } if response
             response
           end
         end

@@ -11,12 +11,12 @@ module Esse
         #
         # @see https://www.elastic.co/guide/en/elasticsearch/reference/7.5/indices-aliases.html
         def aliases(**options)
-          response = client.indices.get_alias({ index: index_name, name: '*' }.merge(options))
+          response = coerce_exception { client.indices.get_alias({ index: index_name, name: '*' }.merge(options)) }
           idx_name = response.keys.find { |idx| idx.start_with?(index_name) }
           return [] unless idx_name
 
           response.dig(idx_name, 'aliases')&.keys || []
-        rescue Elasticsearch::Transport::Transport::Errors::NotFound
+        rescue NotFoundError
           []
         end
 
@@ -25,8 +25,8 @@ module Esse
         # @param options [Hash] Hash of paramenters that will be passed along to elasticsearch request
         # @return [Array] list of indices that match with `index_name`.
         def indices(**options)
-          client.indices.get_alias({ name: index_name }.merge(options)).keys
-        rescue Elasticsearch::Transport::Transport::Errors::NotFound
+          coerce_exception { client.indices.get_alias({ name: index_name }.merge(options)).keys }
+        rescue NotFoundError
           []
         end
 
@@ -34,7 +34,7 @@ module Esse
         #
         # @param options [Hash] Hash of paramenters that will be passed along to elasticsearch request
         # @option [String] :suffix The suffix of the index used for versioning.
-        # @raise [Elasticsearch::Transport::Transport::Errors::NotFound] in case of failure
+        # @raise [Esse::Backend::NotFoundError] in case of failure
         # @return [Hash] the elasticsearch response
         def update_aliases!(suffix:, **options)
           raise(ArgumentError, 'index suffix cannot be nil') if suffix.nil?
@@ -50,7 +50,7 @@ module Esse
 
           Esse::Events.instrument('elasticsearch.update_aliases') do |payload|
             payload[:request] = options
-            payload[:response] = client.indices.update_aliases(options)
+            payload[:response] = coerce_exception { client.indices.update_aliases(options)}
           end
         end
 
@@ -58,11 +58,11 @@ module Esse
         #
         # @param options [Hash] Hash of paramenters that will be passed along to elasticsearch request
         # @option [String] :suffix The suffix of the index used for versioning.
-        # @raise [Elasticsearch::Transport::Transport::Errors::NotFound] in case of failure
+        # @raise [Esse::Backend::NotFoundError] in case of failure
         # @return [Hash] the elasticsearch response, or an hash with 'errors' as true in case of failure
         def update_aliases(suffix:, **options)
           update_aliases!(suffix: suffix, **options)
-        rescue Elasticsearch::Transport::Transport::Errors::NotFound
+        rescue NotFoundError
           { 'errors' => true }
         end
       end

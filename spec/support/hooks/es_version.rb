@@ -5,7 +5,7 @@ module Hooks
       base.around(:example) do |example|
         if (version = example.metadata[:es_version])
           re = Regexp.new(Regexp.escape(version).gsub('x', '\d+'))
-          if re.match(Elasticsearch::Transport::VERSION)
+          if re.match(Elasticsearch::VERSION)
             if example.metadata[:es_webmock]
               WebMock.disable_net_connect!(allow_localhost: false)
             else
@@ -13,7 +13,7 @@ module Hooks
             end
             example.run
           else
-            example.metadata[:skip] = "requires ElasticSearch version #{version} to run (current version is #{Elasticsearch::Transport::VERSION})"
+            example.metadata[:skip] = "requires ElasticSearch version #{version} to run (current version is #{Elasticsearch::VERSION})"
           end
         else
           example.run

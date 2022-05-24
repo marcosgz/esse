@@ -11,7 +11,7 @@ stack_describe '1.x', 'elasticsearch close index' do
     specify do
       es_client do |client, _conf, cluster|
         expect { DummiesIndex.elasticsearch.close! }.to raise_error(
-          Elasticsearch::Transport::Transport::Errors::NotFound,
+          Esse::Backend::NotFoundError,
         ).with_message(/\[#{cluster.index_prefix}_dummies\] missing/)
         expect(DummiesIndex.elasticsearch.create_index(alias: true, suffix: 'v1')['acknowledged']).to eq(true)
         client.cluster.health(wait_for_status: 'green')
@@ -27,7 +27,7 @@ stack_describe '1.x', 'elasticsearch close index' do
     specify do
       es_client do |client, _conf, cluster|
         expect { DummiesIndex.elasticsearch.close!(suffix: 'v2') }.to raise_error(
-          Elasticsearch::Transport::Transport::Errors::NotFound,
+          Esse::Backend::NotFoundError,
         ).with_message(/\[#{cluster.index_prefix}_dummies_v2\] missing/)
         expect(DummiesIndex.elasticsearch.create_index(alias: true, suffix: 'v1')['acknowledged']).to eq(true)
         expect(DummiesIndex.elasticsearch.create_index(alias: false, suffix: 'v2')['acknowledged']).to eq(true)

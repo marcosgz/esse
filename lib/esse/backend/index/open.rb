@@ -15,7 +15,7 @@ module Esse
         # @option options [Boolean] :ignore_unavailable Whether specified concrete indices should be ignored when
         #   unavailable (missing, closed, etc)
         # @option options [Time] :timeout Explicit operation timeout
-        # @raise [Elasticsearch::Transport::Transport::Errors::BadRequest, Elasticsearch::Transport::Transport::Errors::NotFound]
+        # @raise [Esse::Backend::ServerError]
         #   in case of failure
         # @return [Hash] the elasticsearch response
         #
@@ -23,7 +23,7 @@ module Esse
         def open!(suffix: index_version, **options)
           Esse::Events.instrument('elasticsearch.open') do |payload|
             payload[:request] = attributes = options.merge(index: index_name(suffix: suffix))
-            payload[:response] = client.indices.open(**attributes)
+            payload[:response] = coerce_exception { client.indices.open(**attributes) }
           end
         end
 
@@ -43,7 +43,7 @@ module Esse
         # @see https://www.elastic.co/guide/en/elasticsearch/reference/master/indices-open-open.html
         def open(suffix: index_version, **options)
           open!(suffix: suffix, **options)
-        rescue Elasticsearch::Transport::Transport::ServerError
+        rescue ServerError
           { 'errors' => true }
         end
       end

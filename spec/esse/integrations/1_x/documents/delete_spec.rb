@@ -11,10 +11,10 @@ stack_describe '1.x', 'elasticsearch delete documents' do
     specify do
       es_client do
         expect { GeosIndex::State.elasticsearch.delete!(id: 1) }.to raise_error(
-          Elasticsearch::Transport::Transport::Errors::NotFound,
+          Esse::Backend::NotFoundError,
         )
         expect { GeosIndex::State.elasticsearch.delete!(id: 1, suffix: 'v2') }.to raise_error(
-          Elasticsearch::Transport::Transport::Errors::NotFound,
+          Esse::Backend::NotFoundError,
         )
         expect(GeosIndex::State.elasticsearch.exist?(id: 1)).to eq(false)
         expect(GeosIndex::State.elasticsearch.exist?(id: 1, suffix: 'v2')).to eq(false)

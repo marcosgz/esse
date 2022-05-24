@@ -62,7 +62,7 @@ module Esse
 
           Esse::Events.instrument('elasticsearch.bulk') do |payload|
             payload[:request] = definition.merge(body_stats: stats)
-            payload[:response] = client.bulk(definition.merge(body: body))
+            payload[:response] = coerce_exception { client.bulk(definition.merge(body: body)) }
             if bulk_wait_interval > 0
               payload[:wait_interval] = bulk_wait_interval
               sleep(bulk_wait_interval)
@@ -87,9 +87,11 @@ module Esse
         #
         # @see https://www.elastic.co/guide/en/elasticsearch/reference/7.5/docs-index_.html
         def index(id:, body:, suffix: nil, **options)
-          client.index(
-            index: index_name(suffix: suffix), type: type_name, id: id, body: body, **options
-          )
+          coerce_exception do
+            client.index(
+              index: index_name(suffix: suffix), type: type_name, id: id, body: body, **options
+            )
+          end
         end
         alias_method :index!, :index
 
@@ -101,14 +103,16 @@ module Esse
         # @option [String, Integer] :id The `_id` of the elasticsearch document
         # @option [Hash] :body the body of the request
         # @option [String, nil] :suffix The index suffix. Defaults to the nil.
-        # @raise [Elasticsearch::Transport::Transport::Errors::NotFound] when the doc does not exist
+        # @raise [Esse::Backend::NotFoundError] when the doc does not exist
         # @return [Hash] elasticsearch response hash
         #
         # @see https://www.elastic.co/guide/en/elasticsearch/reference/7.5/docs-update.html
         def update!(id:, body:, suffix: nil, **options)
-          client.update(
-            index: index_name(suffix: suffix), type: type_name, id: id, body: body, **options
-          )
+          coerce_exception do
+            client.update(
+              index: index_name(suffix: suffix), type: type_name, id: id, body: body, **options
+            )
+          end
         end
 
         # Updates a document using the specified script.
@@ -124,24 +128,26 @@ module Esse
         # @see https://www.elastic.co/guide/en/elasticsearch/reference/7.5/docs-update.html
         def update(id:, body:, suffix: nil, **options)
           update!(id: id, body: body, suffix: suffix, **options)
-        rescue Elasticsearch::Transport::Transport::Errors::NotFound
+        rescue NotFoundError
           { 'errors' => true }
         end
 
         # Removes a JSON document from the specified index.
         #
         #   UsersIndex::User.delete!(id: 1) # true
-        #   UsersIndex::User.delete!(id: 'missing') # raise Elasticsearch::Transport::Transport::Errors::NotFound
+        #   UsersIndex::User.delete!(id: 'missing') # raise Esse::Backend::NotFoundError
         #
         # @param options [Hash] Hash of paramenters that will be passed along to elasticsearch request
         # @option [String, Integer] :id The `_id` of the elasticsearch document
         # @option [String, nil] :suffix The index suffix. Defaults to the nil.
-        # @raise [Elasticsearch::Transport::Transport::Errors::NotFound] when the doc does not exist
+        # @raise [Esse::Backend::NotFoundError] when the doc does not exist
         # @return [Boolean] true when the operation is successfully completed
         #
         # @see https://www.elastic.co/guide/en/elasticsearch/reference/7.5/docs-delete.html
         def delete!(id:, suffix: nil, **options)
-          client.delete(options.merge(index: index_name(suffix: suffix), type: type_name, id: id))
+          coerce_exception do
+            client.delete(options.merge(index: index_name(suffix: suffix), type: type_name, id: id))
+          end
         end
 
         # Removes a JSON document from the specified index.
@@ -152,13 +158,13 @@ module Esse
         # @param options [Hash] Hash of paramenters that will be passed along to elasticsearch request
         # @option [String, Integer] :id The `_id` of the elasticsearch document
         # @option [String, nil] :suffix The index suffix. Defaults to the nil.
-        # @raise [Elasticsearch::Transport::Transport::Errors::NotFound] when the doc does not exist
+        # @raise [Esse::Backend::NotFoundError] when the doc does not exist
         # @return [Boolean] true when the operation is successfully completed
         #
         # @see https://www.elastic.co/guide/en/elasticsearch/reference/7.5/docs-delete.html
         def delete(id:, suffix: nil, **options)
           delete!(id: id, suffix: suffix, **options)
-        rescue Elasticsearch::Transport::Transport::Errors::NotFound
+        rescue NotFoundError
           false
         end
 
@@ -174,9 +180,11 @@ module Esse
         #
         # @see https://www.elastic.co/guide/en/elasticsearch/reference/7.5/search-count.html
         def count(suffix: nil, **options)
-          response = client.count(options.merge(index: index_name(suffix: suffix), type: type_name))
+          response = coerce_exception do
+            client.count(options.merge(index: index_name(suffix: suffix), type: type_name))
+          end
           response['count']
-        rescue Elasticsearch::Transport::Transport::Errors::NotFound
+        rescue NotFoundError
           0
         end
 
@@ -190,23 +198,27 @@ module Esse
         # @option [String, nil] :suffix The index suffix. Defaults to the nil.
         # @return [Boolean] true if the document exists
         def exist?(id:, suffix: nil, **options)
-          client.exists(options.merge(index: index_name(suffix: suffix), type: type_name, id: id))
+          coerce_exception do
+            client.exists(options.merge(index: index_name(suffix: suffix), type: type_name, id: id))
+          end
         end
 
         # Retrieves the specified JSON document from an index.
         #
         #   UsersIndex::User.find!(id: 1) # { '_id' => 1, ... }
-        #   UsersIndex::User.find!(id: 'missing') # raise Elasticsearch::Transport::Transport::Errors::NotFound
+        #   UsersIndex::User.find!(id: 'missing') # raise Esse::Backend::NotFoundError
         #
         # @param options [Hash] Hash of paramenters that will be passed along to elasticsearch request
         # @option [String, Integer] :id The `_id` of the elasticsearch document
         # @option [String, nil] :suffix The index suffix. Defaults to the nil.
-        # @raise [Elasticsearch::Transport::Transport::Errors::NotFound] when the doc does not exist
+        # @raise [Esse::Backend::NotFoundError] when the doc does not exist
         # @return [Hash] The elasticsearch document.
         #
         # @see https://www.elastic.co/guide/en/elasticsearch/reference/7.5/docs-get.html
         def find!(id:, suffix: nil, **options)
-          client.get(options.merge(index: index_name(suffix: suffix), type: type_name, id: id))
+          coerce_exception do
+            client.get(options.merge(index: index_name(suffix: suffix), type: type_name, id: id))
+          end
         end
 
         # Retrieves the specified JSON document from an index.
@@ -222,7 +234,7 @@ module Esse
         # @see https://www.elastic.co/guide/en/elasticsearch/reference/7.5/docs-get.html
         def find(id:, suffix: nil, **options)
           find!(id: id, suffix: suffix, **options)
-        rescue Elasticsearch::Transport::Transport::Errors::NotFound
+        rescue NotFoundError
           nil
         end
       end

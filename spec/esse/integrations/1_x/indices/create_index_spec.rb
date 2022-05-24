@@ -22,7 +22,7 @@ stack_describe '1.x', 'elasticsearch create index' do
         expect(client.indices.exists(index: "#{cluster.index_prefix}_dummies")).to eq(true)
         expect(client.indices.exists(index: "#{cluster.index_prefix}_dummies_v1")).to eq(true)
         expect { DummiesIndex.elasticsearch.create_index!(suffix: 'v1') }.to raise_error(
-          Elasticsearch::Transport::Transport::Errors::BadRequest,
+          Esse::Backend::BadRequestError,
         ).with_message(/\[#{cluster.index_prefix}_dummies_v1\] already exists/)
         expect(DummiesIndex.elasticsearch.indices).to match_array(
           [
@@ -46,7 +46,7 @@ stack_describe '1.x', 'elasticsearch create index' do
         expect(client.indices.exists(index: "#{cluster.index_prefix}_dummies")).to eq(false)
         expect(client.indices.exists(index: "#{cluster.index_prefix}_dummies_v1")).to eq(true)
         expect { DummiesIndex.elasticsearch.create_index!(alias: false, suffix: 'v1') }.to raise_error(
-          Elasticsearch::Transport::Transport::Errors::BadRequest,
+          Esse::Backend::BadRequestError,
         ).with_message(/\[#{cluster.index_prefix}_dummies_v1\] already exists/)
         expect(DummiesIndex.elasticsearch.indices).to match_array([])
         expect(DummiesIndex.elasticsearch.aliases).to eq([])

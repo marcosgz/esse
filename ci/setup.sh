@@ -80,7 +80,6 @@ do
   docker run \
     --rm \
     --env "node.name=es${node}" \
-    --env "discovery.zen.minimum_master_nodes=${NODES}" \
     --env "http.port=${port}" \
     --env "ES_JAVA_OPTS=-Xms1g -Xmx1g -da:org.elasticsearch.xpack.ccr.index.engine.FollowingEngineAssertions" \
     "${environment[@]}" \

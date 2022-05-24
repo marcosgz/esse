@@ -30,6 +30,9 @@ jobs:
     - rvm: 2.7
       env: STACK_VERSION=7.13.2
       gemfile: ci/Gemfile.elasticsearch-7.x
+    - rvm: 2.7
+      env: STACK_VERSION=8.2.1
+      gemfile: ci/Gemfile.elasticsearch-8.x
     - rvm: 3.0
       env: STACK_VERSION=6.8.16
       gemfile: ci/Gemfile.elasticsearch-6.x

@@ -16,7 +16,7 @@ stack_describe '2.x', 'elasticsearch#close', es_webmock: true do
       stub_es_request(:post, '/geos/_close', res: { status: 404, body: body })
       expect {
         GeosIndex.elasticsearch.close!
-      }.to raise_error(Elasticsearch::Transport::Transport::Errors::NotFound)
+      }.to raise_error(Esse::Backend::NotFoundError)
       refute_event 'elasticsearch.close'
     end
 
