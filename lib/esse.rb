@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require_relative 'esse/plugins'
 require_relative 'esse/core'
 require_relative 'esse/errors'
 require_relative 'esse/index'
