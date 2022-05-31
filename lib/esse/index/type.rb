@@ -9,7 +9,7 @@ module Esse
         @type_hash ||= {}
       end
 
-      def define_type(type_name, &block)
+      def define_type(type_name, *_args, &block)
         type_class = Class.new(Esse::IndexType)
 
         const_set(Hstring.new(type_name).camelize.demodulize.to_s, type_class)
