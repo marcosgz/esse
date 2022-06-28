@@ -11,13 +11,17 @@ module Esse
         # @option [String, nil] :suffix The index suffix. Defaults to the nil.
         # @option [Hash] :context The collection context. This value will be passed as argument to the collection
         #   May be SQL condition or any other filter you have defined on the collection.
+        # @return [Numeric] The number of documents imported
         def import(*types, context: {}, suffix: nil, **options)
           types = type_hash.keys if types.empty?
+          count = 0
           types.each do |type|
             each_serialized_batch(type, **(context || {})) do |batch|
               bulk(type: type, index: batch, suffix: suffix, **options)
+              count += batch.size
             end
           end
+          count
         end
         alias_method :import!, :import
 
@@ -33,28 +37,30 @@ module Esse
         # @return [Hash, nil] the elasticsearch response or nil if there is no data.
         #
         # @see https://www.elastic.co/guide/en/elasticsearch/reference/7.5/docs-bulk.html
+        # @see https://github.com/elastic/elasticsearch-ruby/blob/main/elasticsearch-api/lib/elasticsearch/api/utils.rb
+        # @see https://github.com/elastic/elasticsearch-ruby/blob/main/elasticsearch-api/lib/elasticsearch/api/actions/bulk.rb
         def bulk(index: nil, delete: nil, create: nil, type: nil, suffix: nil, **options)
           body = []
           stats = { index: 0, delete: 0, create: 0 }
           Array(index).each do |entry|
-            id, data = Esse.doc_id!(entry)
-            if id
+            meta, source = doc_meta_and_source!(entry, type: type)
+            unless meta.empty?
               stats[:index] += 1
-              body << { index: { _id: id, data: data } }
+              body << { index: meta.merge(data: source) }
             end
           end
           Array(create).each do |entry|
-            id, data = Esse.doc_id!(entry)
-            if id
+            meta, source = doc_meta_and_source!(entry, type: type)
+            unless meta.empty?
               stats[:create] += 1
-              body << { create: { _id: id, data: data } }
+              body << { create: meta.merge(data: source) }
             end
           end
           Array(delete).each do |entry|
-            id, _data = Esse.doc_id!(entry, delete: [], keep: %w[_id id])
-            if id
+            meta, _source = doc_meta_and_source!(entry, type: type)
+            if meta[:_id]
               stats[:delete] += 1
-              body << { delete: { _id: id } }
+              body << { delete: meta }
             end
           end
 
@@ -67,14 +73,22 @@ module Esse
 
           Esse::Events.instrument('elasticsearch.bulk') do |payload|
             payload[:request] = definition.merge(body_stats: stats)
-            payload[:response] = coerce_exception { client.bulk(definition.merge(body: body)) }
+            payload[:response] = resp = coerce_exception { client.bulk(definition.merge(body: body)) }
+
+            # @todo move it to a BulkRequest class
+            if resp&.[]('errors')
+              payload[:error] = resp['errors']
+              raise resp&.fetch('items', [])&.select { |item| item.values.first['error'] }.join("\n")
+            end
+
+
             if bulk_wait_interval > 0
               payload[:wait_interval] = bulk_wait_interval
               sleep(bulk_wait_interval)
             else
               payload[:wait_interval] = 0.0
             end
-            payload[:response]
+            resp
           end
         end
         alias_method :bulk!, :bulk
