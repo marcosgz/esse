@@ -9,14 +9,101 @@ require 'awesome_print'
 Esse.config.clusters.client = { url: ENV.fetch('ELASTICSEARCH_URL', 'http://localhost:9200') }
 Esse.config.clusters.index_prefix = 'esse_console'
 
+US_STATES = {
+  'AL' => 'Alabama',
+  'AK' => 'Alaska',
+  'AZ' => 'Arizona',
+  'AR' => 'Arkansas',
+  'CA' => 'California',
+  'CO' => 'Colorado',
+  'CT' => 'Connecticut',
+  'DE' => 'Delaware',
+  'DC' => 'District of Columbia',
+  'FL' => 'Florida',
+  'GA' => 'Georgia',
+  'HI' => 'Hawaii',
+  'ID' => 'Idaho',
+  'IL' => 'Illinois',
+  'IN' => 'Indiana',
+  'IA' => 'Iowa',
+}
+
+IL_CITIES = [
+  'Chicago',
+  'Aurora',
+  'Rockford',
+  'Naperville',
+  'Springfield',
+  'Joliet',
+  'Peoria',
+  'Rock Island',
+  'Naperville',
+  'Champaign',
+  'Springfield',
+  'Rockford',
+  'Joliet',
+  'Peoria',
+  'Rock Island',
+]
+
 class ApplicationIndex < Esse::Index
   self.abstract_class = true
 end
+
 class GeosIndex < ApplicationIndex
   self.index_version = 'v1'
 
-  define_type :county
-  define_type :city
+  settings do
+    {
+      number_of_shards: 1,
+      number_of_replicas: 0,
+      analysis: {
+        analyzer: {
+          autocomplete: {
+            type: 'custom',
+            tokenizer: 'standard',
+            filter: %w[lowercase asciifolding]
+          },
+        },
+      }
+    }
+  end
+
+  mappings do
+    {
+      numeric_detection: true,
+      _routing: {
+        required: true
+      }
+    }
+  end
+
+  collection :state do |**, &block|
+    US_STATES.each_slice(3) do |chunk|
+      block.call chunk
+    end
+  end
+
+  collection :city do |**, &block|
+    IL_CITIES.each_slice(3) do |chunk|
+      block.call chunk.map { |city| ['IL', city] }
+    end
+  end
+
+  serializer :state do |(abbr, name), **|
+    {
+      id: abbr,
+      name: name,
+      routing: abbr,
+    }
+  end
+
+  serializer :city do |(state, name), **|
+    {
+      name: name,
+      routing: state,
+    }
+  end
 end
 
 Pry.start
