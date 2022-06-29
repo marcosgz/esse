@@ -10,7 +10,9 @@
 # @see https://container-library.elastic.co/r/elasticsearch/elasticsearch
 # @source https://github.com/elastic/elastic-github-actions (With a few modifications)
 
-set -euxo pipefail
+set -o errexit
+set -o nounset
+set -o pipefail
 
 if [[ -z $STACK_VERSION ]]; then
   echo -e "\033[31;1mERROR:\033[0m Required environment variable [STACK_VERSION] not set\033[0m"
@@ -19,48 +21,66 @@ fi
 
 PORT="${PORT:-9200}"
 NODES="${NODES:-1}"
+SERVICE_TYPE="${SERVICE_TYPE:-elasticsearch}" # elasticsearch or opensearch
+SERVICE_HEAP_SIZE="${SERVICE_HEAP_SIZE:-512m}"
 MAJOR_VERSION=`echo ${STACK_VERSION} | cut -c 1`
 DOCKER_NETWORK="esse"
 DOCKER_IMAGE="${DOCKER_IMAGE:-docker.elastic.co/elasticsearch/elasticsearch}"
+WAIT_FOR_URL="https://github.com/eficode/wait-for/releases/download/v2.2.3/wait-for"
+ROOT_PATH=$( cd "$(dirname "${BASH_SOURCE[0]}")"; cd ../ ; pwd -P )
+WAIT_FOR_PATH="${ROOT_PATH}/tmp/wait-for"
 
-for (( node=1; node<=${NODES-1}; node++ ))
-do
+for (( node=1; node<=${NODES-1}; node++ )) do
   port_com=$((9300 + $node - 1))
-  UNICAST_HOSTS+="es$node:${port_com},"
+  UNICAST_HOSTS+="${SERVICE_TYPE}${node}:${port_com},"
+  HOSTS+="${SERVICE_TYPE}${node},"
 done
+UNICAST_HOSTS=${UNICAST_HOSTS::-1}
+HOSTS=${HOSTS::-1}
 
-environment=($(cat <<-END
-  --env cluster.name=docker-elasticsearch
-  --env cluster.routing.allocation.disk.threshold_enabled=false
-  --env bootstrap.memory_lock=true
-  --env xpack.security.enabled=false
-END
-))
+trace() {
+	(
+		set -x
+		"$@"
+	)
+}
 
-if [ "x${MAJOR_VERSION}" != 'x7' ] && [ "x${MAJOR_VERSION}" != 'x8' ]; then
-  environment+=($(cat <<-END
-    --env discovery.zen.ping.unicast.hosts=${UNICAST_HOSTS}
-END
-  ))
-fi
+install_wait_for() {
+	curl -fsSL -o "${WAIT_FOR_PATH}" "$WAIT_FOR_URL"
+	chmod +x "${WAIT_FOR_PATH}"
+	"${WAIT_FOR_PATH}" --version
+}
 
-if [ "x${MAJOR_VERSION}" == 'x6' ]; then
-  environment+=($(cat <<-END
-    --env xpack.license.self_generated.type=basic
-    --env discovery.zen.minimum_master_nodes=${NODES}
+start_docker_services() {
+  local servicesHosts=()
+  for (( node=1; node<=${NODES-1}; node++ )) do
+    port=$((PORT + $node - 1))
+    port_com=$((9300 + $node - 1))
+    servicesHosts+=("0.0.0.0:${port}")
 
-END
-  ))
-elif [ "x${MAJOR_VERSION}" == 'x7' ] || [ "x${MAJOR_VERSION}" == 'x8' ]; then
-  environment+=($(cat <<-END
-    --env xpack.license.self_generated.type=basic
-    --env action.destructive_requires_name=false
-    --env discovery.seed_hosts=es1
-    --env discovery.type=single-node
-END
-  ))
-fi
+    docker rm -f "${SERVICE_TYPE}${node}" || true
+    echo -e "\033[34;1mINFO:\033[0m Starting ${SERVICE_TYPE}${node} on port ${port} and ${port_com}"
+    docker run \
+      --rm \
+      --env "node.name=${SERVICE_TYPE}${node}" \
+      --env "http.port=${port}" \
+      "${environment[@]}" \
+      --ulimit nofile=65536:65536 \
+      --ulimit memlock=-1:-1 \
+      --publish "${port}:${port}" \
+      --publish "${port_com}:${port_com}" \
+      --detach \
+      --network="$DOCKER_NETWORK" \
+      --name="${SERVICE_TYPE}${node}" \
+      ${DOCKER_IMAGE}:${STACK_VERSION}
+  done
 
+  local serviceHost
+	for serviceHost in "${servicesHosts[@]}"; do
+    echo -e "\033[34;1mINFO:\033[0m Waiting for ${serviceHost} to be available"
+    "${WAIT_FOR_PATH}" -t 10 "$serviceHost" -- echo "Service ${serviceHost} is up"
+  done
+}
 
 function cleanup_network {
   if [[ "$(docker network ls -q -f name=$1)" ]]; then
@@ -69,42 +89,75 @@ function cleanup_network {
   fi
 }
 
-cleanup_network "$DOCKER_NETWORK"
-docker network create "$DOCKER_NETWORK" || true
+function create_network {
+  cleanup_network "$1"
+  echo -e "\033[34;1mINFO:\033[0m Creating network $1\033[0m"
+  docker network create "$1" || true
+}
 
-for (( node=1; node<=${NODES-1}; node++ ))
-do
-  port=$((PORT + $node - 1))
-  port_com=$((9300 + $node - 1))
-  docker rm -f "es$node" || true
-  docker run \
-    --rm \
-    --env "node.name=es${node}" \
-    --env "http.port=${port}" \
-    --env "ES_JAVA_OPTS=-Xms1g -Xmx1g -da:org.elasticsearch.xpack.ccr.index.engine.FollowingEngineAssertions" \
-    "${environment[@]}" \
-    --ulimit nofile=65536:65536 \
-    --ulimit memlock=-1:-1 \
-    --publish "${port}:${port}" \
-    --publish "${port_com}:${port_com}" \
-    --detach \
-    --network="$DOCKER_NETWORK" \
-    --name="es${node}" \
-    ${DOCKER_IMAGE}:${STACK_VERSION}
-done
 
-docker run \
-  --network="$DOCKER_NETWORK" \
-  --rm \
-  appropriate/curl \
-  --max-time 120 \
-  --retry 120 \
-  --retry-delay 1 \
-  --retry-connrefused \
-  --show-error \
-  --silent \
-  http://es1:$PORT
+environment=($(cat <<-END
+  --env cluster.name=docker-${SERVICE_TYPE}
+  --env cluster.routing.allocation.disk.threshold_enabled=false
+  --env bootstrap.memory_lock=true
+END
+))
 
-sleep 10
+case "${SERVICE_TYPE}-${MAJOR_VERSION}" in
+  elasticsearch-1|elasticsearch-2|elasticsearch-5)
+    environment+=($(cat <<-END
+        --env xpack.security.enabled=false
+        --env discovery.zen.ping.unicast.hosts=${UNICAST_HOSTS}
+        --env "ES_JAVA_OPTS=-Xms${SERVICE_HEAP_SIZE} -Xmx${SERVICE_HEAP_SIZE}"
+END
+    ))
+    environment+=(--env "ES_JAVA_OPTS=-Xms${SERVICE_HEAP_SIZE} -Xmx${SERVICE_HEAP_SIZE}")
+    ;;
+  elasticsearch-6)
+    environment+=($(cat <<-END
+        --env xpack.security.enabled=false
+        --env xpack.license.self_generated.type=basic
+        --env discovery.zen.ping.unicast.hosts=${UNICAST_HOSTS}
+        --env discovery.zen.minimum_master_nodes=${NODES}
+END
+    ))
+    environment+=(--env "ES_JAVA_OPTS=-Xms${SERVICE_HEAP_SIZE} -Xmx${SERVICE_HEAP_SIZE}")
+    ;;
+  elasticsearch-7|elasticsearch-8)
+    environment+=($(cat <<-END
+      --env xpack.security.enabled=false
+      --env xpack.license.self_generated.type=basic
+      --env action.destructive_requires_name=false
+      --env discovery.seed_hosts=${HOSTS}
+END
+    ))
+    environment+=(--env "ES_JAVA_OPTS=-Xms${SERVICE_HEAP_SIZE} -Xmx${SERVICE_HEAP_SIZE}")
+    if [ "x${NODES}" == "x1" ]; then
+      environment+=(--env discovery.type=single-node)
+    else
+      environment+=(--env cluster.initial_master_nodes=${HOSTS})
+    fi
+    ;;
+  opensearch-1|opensearch-2)
+    environment+=($(cat <<-END
+      --env bootstrap.memory_lock=true
+      --env plugins.security.disabled=true
+      --env discovery.seed_hosts=${HOSTS}
+END
+    ))
+    environment+=(--env "OPENSEARCH_JAVA_OPTS=-Xms${SERVICE_HEAP_SIZE} -Xmx${SERVICE_HEAP_SIZE}")
+    if [ "x${NODES}" == "x1" ]; then
+      environment+=(--env discovery.type=single-node)
+    else
+      environment+=(--env cluster.initial_master_nodes=${HOSTS})
+    fi
+    ;;
+  *)
+    echo -e "\033[31;1mERROR:\033[0m Unknown service type [${SERVICE_TYPE}] and/or version [${STACK_VERSION}]"
+    exit 1
+    ;;
+esac
 
-echo "Elasticsearch up and running"
+trace create_network "$DOCKER_NETWORK"
+trace install_wait_for
+trace start_docker_services
