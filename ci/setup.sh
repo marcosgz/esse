@@ -20,10 +20,12 @@ if [[ -z $STACK_VERSION ]]; then
 fi
 
 PORT="${PORT:-9200}"
+COM_PORT="${COM_PORT:-9300}"
 NODES="${NODES:-1}"
 SERVICE_TYPE="${SERVICE_TYPE:-elasticsearch}" # elasticsearch or opensearch
 SERVICE_HEAP_SIZE="${SERVICE_HEAP_SIZE:-512m}"
 MAJOR_VERSION=`echo ${STACK_VERSION} | cut -c 1`
+DOCKER_NAME_PREFIX="esse-${SERVICE_TYPE}-v${MAJOR_VERSION}-"
 DOCKER_NETWORK="esse"
 DOCKER_IMAGE="${DOCKER_IMAGE:-docker.elastic.co/elasticsearch/elasticsearch}"
 WAIT_FOR_URL="https://github.com/eficode/wait-for/releases/download/v2.2.3/wait-for"
@@ -31,9 +33,9 @@ ROOT_PATH=$( cd "$(dirname "${BASH_SOURCE[0]}")"; cd ../ ; pwd -P )
 WAIT_FOR_PATH="${ROOT_PATH}/tmp/wait-for"
 
 for (( node=1; node<=${NODES-1}; node++ )) do
-  port_com=$((9300 + $node - 1))
-  UNICAST_HOSTS+="${SERVICE_TYPE}${node}:${port_com},"
-  HOSTS+="${SERVICE_TYPE}${node},"
+  port_com=$((COM_PORT + $node - 1))
+  UNICAST_HOSTS+="${DOCKER_NAME_PREFIX}${node}:${port_com},"
+  HOSTS+="${DOCKER_NAME_PREFIX}${node},"
 done
 UNICAST_HOSTS=${UNICAST_HOSTS::-1}
 HOSTS=${HOSTS::-1}
@@ -55,14 +57,15 @@ start_docker_services() {
   local servicesHosts=()
   for (( node=1; node<=${NODES-1}; node++ )) do
     port=$((PORT + $node - 1))
-    port_com=$((9300 + $node - 1))
+    port_com=$((COM_PORT + $node - 1))
     servicesHosts+=("0.0.0.0:${port}")
 
-    docker rm -f "${SERVICE_TYPE}${node}" || true
-    echo -e "\033[34;1mINFO:\033[0m Starting ${SERVICE_TYPE}${node} on port ${port} and ${port_com}"
+    docker ps -a -q --filter ancestor="${DOCKER_IMAGE}:${STACK_VERSION}" | xargs -r docker rm -f || true
+
+    echo -e "\033[34;1mINFO:\033[0m Starting ${DOCKER_NAME_PREFIX}${node} on port ${port} and ${port_com}"
     docker run \
       --rm \
-      --env "node.name=${SERVICE_TYPE}${node}" \
+      --env "node.name=${DOCKER_NAME_PREFIX}${node}" \
       --env "http.port=${port}" \
       "${environment[@]}" \
       --ulimit nofile=65536:65536 \
@@ -71,7 +74,7 @@ start_docker_services() {
       --publish "${port_com}:${port_com}" \
       --detach \
       --network="$DOCKER_NETWORK" \
-      --name="${SERVICE_TYPE}${node}" \
+      --name="${DOCKER_NAME_PREFIX}${node}" \
       ${DOCKER_IMAGE}:${STACK_VERSION}
   done
 
@@ -108,7 +111,6 @@ case "${SERVICE_TYPE}-${MAJOR_VERSION}" in
     environment+=($(cat <<-END
         --env xpack.security.enabled=false
         --env discovery.zen.ping.unicast.hosts=${UNICAST_HOSTS}
-        --env "ES_JAVA_OPTS=-Xms${SERVICE_HEAP_SIZE} -Xmx${SERVICE_HEAP_SIZE}"
 END
     ))
     environment+=(--env "ES_JAVA_OPTS=-Xms${SERVICE_HEAP_SIZE} -Xmx${SERVICE_HEAP_SIZE}")
