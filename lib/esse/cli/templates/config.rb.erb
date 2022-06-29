@@ -8,8 +8,8 @@ Esse.configure do |config|
     # you also can add environment to the index prefix if available:
     #   cluster.index_prefix = "esse_#{ENV['RACK_ENV']}"
     #
-    # Initialize the ElastiSearch client to be used by the default cluster
-    cluster.client = Elasticsearch::Client.new
+    # Initialize the ElastiSearch/OpenSearch client to be used by the default cluster
+    # cluster.client = Elasticsearch::Client.new or OpenSearch::Client.new
 
     # Global index settings
     #   cluster.index_settings = {

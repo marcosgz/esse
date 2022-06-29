@@ -41,16 +41,28 @@ module Esse
     end
 
     def client
-      @client ||= Elasticsearch::Client.new
+      @client ||= if defined? Elasticsearch::Client
+        Elasticsearch::Client.new
+      elsif defined? OpenSearch::Client
+        OpenSearch::Client.new
+      else
+        raise Esse::Error, <<~ERROR
+          Elasticsearch::Client or OpenSearch::Client is not defined.
+          Please install elasticsearch or opensearch-ruby gem.
+        ERROR
+      end
     end
 
-    # Define the elasticsearch client connectio
-    # @param es_client [Elasticsearch::Client, Hash] an instance of elasticsearch/api client or an hash
-    #   with the settings that will be used to initialize Elasticsearch::Client
+    # Define the elasticsearch client connection
+    # @param es_client [Elasticsearch::Client, OpenSearch::Client, Hash] an instance of elasticsearch/api client or an hash
+    #   with the settings that will be used to initialize the Client
     def client=(es_client)
-      @client = if es_client.is_a?(Hash)
+      @client = if es_client.is_a?(Hash) && defined?(Elasticsearch::Client)
         settings = es_client.each_with_object({}) { |(k, v), r| r[k.to_sym] = v }
         Elasticsearch::Client.new(settings)
+      elsif es_client.is_a?(Hash) && defined?(OpenSearch::Client)
+        settings = es_client.each_with_object({}) { |(k, v), r| r[k.to_sym] = v }
+        OpenSearch::Client.new(settings)
       else
         es_client
       end
@@ -69,6 +81,12 @@ module Esse
       return unless WAIT_FOR_STATUSES.include?(status.to_s)
 
       client.cluster.health(wait_for_status: status.to_s)
+    end
+
+    # @idea Change this to use the response from `GET /`
+    def document_type?
+      defined?(OpenSearch::VERSION) || \
+        (defined?(Elasticsearch::VERSION) && Elasticsearch::VERSION < '7')
     end
   end
 end

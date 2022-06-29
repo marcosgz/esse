@@ -1,5 +1,17 @@
 # frozen_string_literal: true
 
+require 'multi_json'
+
+begin
+  require 'elasticsearch'
+rescue LoadError
+end
+
+begin
+  require 'opensearch'
+rescue LoadError
+end
+
 require_relative 'esse/plugins'
 require_relative 'esse/core'
 require_relative 'esse/errors'

@@ -22,7 +22,8 @@ module Esse
       DEFINITION = %i[settings_hash mappings_hash].freeze
       DOCUMENTS = %i[each_serialized_batch].freeze
 
-      def_delegators :@index, :type_hash, :bulk_wait_interval, *(NAMING + DEFINITION + DOCUMENTS)
+      def_delegators :@index, :cluster, :type_hash, :bulk_wait_interval, *(NAMING + DEFINITION + DOCUMENTS)
+      def_delegators :cluster, :document_type?, :client
 
       def initialize(index)
         @index = index
@@ -41,18 +42,6 @@ module Esse
         suffix = Hstring.new(suffix).underscore.presence || index_version || Esse.timestamp
 
         index_name(suffix: suffix)
-      end
-
-      def client
-        cluster.client
-      end
-
-      def cluster
-        @index.cluster
-      end
-
-      def document_type?
-        Elasticsearch::VERSION < '7'
       end
 
       def doc_meta_and_source!(hash, type: nil, keys: %i[_id _type version version_type routing])
@@ -75,7 +64,8 @@ module Esse
         yield
       rescue => exception
         name = Hstring.new(exception.class.name)
-        if /^Elastic(search)?::Transport::Transport::Errors/.match?(name.value) && (exception_class = ERRORS[name.demodulize.value])
+        if /^(Elasticsearch|Elastic|OpenSearch)?::Transport::Transport::Errors/.match?(name.value) && \
+            (exception_class = ERRORS[name.demodulize.value])
           raise exception_class.new(exception.message)
         else
           raise exception

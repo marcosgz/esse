@@ -46,7 +46,12 @@ module ElasticsearchHelpers
   end
 
   def es_cluster_uri(cluster_id = CONFIG_KEY)
-    conn = Esse.config.cluster(cluster_id).client.transport.connections.first
+    client = Esse.config.cluster(cluster_id).client
+    # OpenSearch have an initial request to verify the client compatibility
+    client.instance_variable_set(:@verified, true)
+    transport = client.transport
+    transport = transport.transport if transport.respond_to?(:transport)
+    conn = transport.connections.first
     URI.parse(conn.full_url(''))
   end
 end

@@ -8,9 +8,12 @@ require 'support/config_helpers'
 require 'support/fixtures'
 require 'support/elasticsearch_helpers'
 require 'support/webmock'
-require 'support/hooks/es_version'
+require 'support/hooks/service_type'
+require 'support/hooks/service_version'
 require 'support/hooks/pub_sub'
 require 'pry'
+
+Hooks::ServiceVersion.banner!
 
 RSpec.configure do |config|
   config.example_status_persistence_file_path = '.rspec_status'
@@ -22,7 +25,8 @@ RSpec.configure do |config|
   config.include ConfigHelpers
   config.include Fixtures
   config.include ElasticsearchHelpers
-  config.include Hooks::EsVersion
+  config.include Hooks::ServiceType
+  config.include Hooks::ServiceVersion
   config.include Hooks::PubSub
 end
 

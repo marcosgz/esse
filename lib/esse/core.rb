@@ -1,9 +1,5 @@
 # frozen_string_literal: true
 
-
-require 'multi_json'
-require 'elasticsearch'
-
 module Esse
   require_relative 'config'
   require_relative 'cluster'
