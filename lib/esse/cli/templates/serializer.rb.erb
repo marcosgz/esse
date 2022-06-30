@@ -3,13 +3,21 @@
 class <%= @index_name %> < <%= @base_class %>
   module Serializers
     class <%= @type.camelize if @type %>Serializer < Esse::Serializer
+      <%- if @cli_options[:active_record] -%>
+      delegate :id, :created_at, :updated_at, to: :object
+      <%- else -%>
       def id
         object.id
       end
+      <%- end -%>
 
       def source
         {
           name: object.name,
+          <%- if @cli_options[:active_record] -%>
+          created_at: object.created_at,
+          updated_at: object.updated_at,
+          <%- end -%>
         }
       end
       <%- if @type && defined?(Elasticsearch::VERSION) && Elasticsearch::VERSION <= '5' -%>
