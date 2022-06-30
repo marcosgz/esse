@@ -7,13 +7,13 @@ RSpec.describe Esse::Serializer do
   let(:object) { double }
   let(:options) { {} }
 
-  describe "#object" do
+  describe '#object' do
     subject { serializer.object }
 
     it { is_expected.to eq object }
   end
 
-  describe "#options" do
+  describe '#options' do
     subject { serializer.options }
 
     let(:options) { { foo: :bar } }
@@ -21,7 +21,7 @@ RSpec.describe Esse::Serializer do
     it { is_expected.to eq options }
   end
 
-  describe "#id" do
+  describe '#id' do
     it { expect(serializer).to respond_to :id }
 
     it 'should raise NotImplementedError' do
@@ -29,7 +29,7 @@ RSpec.describe Esse::Serializer do
     end
   end
 
-  describe "#type" do
+  describe '#type' do
     it { expect(serializer).to respond_to :type }
 
     it 'should return nil' do
@@ -37,7 +37,7 @@ RSpec.describe Esse::Serializer do
     end
   end
 
-  describe "#routing" do
+  describe '#routing' do
     it { expect(serializer).to respond_to :routing }
 
     it 'should return nil' do
@@ -45,7 +45,7 @@ RSpec.describe Esse::Serializer do
     end
   end
 
-  describe "#meta" do
+  describe '#meta' do
     it { expect(serializer).to respond_to :meta }
 
     it 'should return an empty hash' do
@@ -53,7 +53,7 @@ RSpec.describe Esse::Serializer do
     end
   end
 
-  describe "#source" do
+  describe '#source' do
     it { expect(serializer).to respond_to :source }
 
     it 'should return an empty hash' do
