@@ -213,7 +213,7 @@ RSpec.describe Esse::Cluster do
     end
 
     specify do
-      body = elasticsearch_response_fixture(file: 'info', version: '5.x', assigns: { version__number: version = '6.0.0' })
+      body = elasticsearch_response_fixture(file: 'info', version: '6.x', assigns: { version__number: version = '6.0.0' })
       stub_es_request(:get, '/', res: { body: body })
       is_expected.to eq(
         distribution: 'elasticsearch',
@@ -222,7 +222,7 @@ RSpec.describe Esse::Cluster do
     end
 
     specify do
-      body = elasticsearch_response_fixture(file: 'info', version: '5.x', assigns: { version__number: version = '7.0.0' })
+      body = elasticsearch_response_fixture(file: 'info', version: '7.x', assigns: { version__number: version = '7.0.0' })
       stub_es_request(:get, '/', res: { body: body })
       is_expected.to eq(
         distribution: 'elasticsearch',
@@ -231,7 +231,7 @@ RSpec.describe Esse::Cluster do
     end
 
     specify do
-      body = elasticsearch_response_fixture(file: 'info', version: '5.x', assigns: { version__number: version = '8.0.0' })
+      body = elasticsearch_response_fixture(file: 'info', version: '8.x', assigns: { version__number: version = '8.0.0' })
       stub_es_request(:get, '/', res: { body: body })
       is_expected.to eq(
         distribution: 'elasticsearch',

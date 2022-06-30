@@ -128,6 +128,19 @@ clusters:
       host: "https://florida:9200"
 ```
 
+## Indices
+
+
+## Single type per index
+
+The mapping of elasticsearch 1.x, 2.x and 5.x allow multiple types. The single-type-per-index behaviour was introduction on es 5.x disabled as default. After es 6.x de single type per index is enabled by default but the explicit mapping is still required by using the `_doc` type. Es 7.x and above the `_doc` was totally removed and the mapping type is no longer required. The `esse` framework will automatically detect the version of elasticsearch and use the correct mapping type definition. But you can enforce the mapping type by using the `mapping_single_type` option in the `index`(Just make sure the server support it and it's configured accordingly). See [this article](https://www.elastic.co/guide/en/elasticsearch/reference/7.17/removal-of-types.html) for more details.
+
+```ruby
+class MyIndex < Esse::Index
+  self.mapping_single_type = true # This only control the mapping format. Add the setting `index.mapping.single_type: true` to the index settings in elasticsearch as well if needed.
+end
+```
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. You can also run `bin/console` for an interactive prompt that will allow you to experiment.

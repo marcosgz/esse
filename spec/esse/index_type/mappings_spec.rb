@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 RSpec.describe Esse::IndexType do
-  describe '.mappings_hash' do
+  describe '.mapping_properties' do
     before do
       stub_index(:geos) do
         define_type :county do
@@ -16,20 +16,13 @@ RSpec.describe Esse::IndexType do
       end
     end
 
-    specify do
-      expect(GeosIndex::County.mappings_hash).to eq(
-        'county' => {
-          'properties' => {
-            'name' => { 'type' => 'string' },
-          },
-        },
+    it 'does not adds the properties key' do
+      expect(GeosIndex::County.mapping_properties).to eq(
+        'name' => { 'type' => 'string' },
       )
-      expect(GeosIndex::City.mappings_hash).to eq(
-        'city' => {
-          'properties' => {
-            'name' => { 'type' => 'string' },
-          },
-        },
+
+      expect(GeosIndex::City.mapping_properties).to eq(
+        'name' => { 'type' => 'string' },
       )
     end
   end

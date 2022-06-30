@@ -65,6 +65,16 @@ module Esse
         @bulk_wait_interval = value.to_f
       end
 
+      def mapping_single_type=(value)
+        @mapping_single_type = !!value
+      end
+
+      def mapping_single_type?
+        return @mapping_single_type if defined? @mapping_single_type
+
+        @mapping_single_type = cluster.engine.mapping_single_type?
+      end
+
       protected
 
       def index_prefixed_name(value)

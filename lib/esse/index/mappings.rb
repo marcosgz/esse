@@ -7,11 +7,6 @@
 module Esse
   class Index
     module ClassMethods
-      # This is the actually content that will be passed through the ES api
-      def mappings_hash
-        { Esse::MAPPING_ROOT_KEY => (index_mapping || type_mapping) }
-      end
-
       # This method is only used to define mapping
       def mappings(hash = {}, &block)
         @mapping = Esse::IndexMapping.new(body: hash, paths: template_dirs)
@@ -20,23 +15,36 @@ module Esse
         @mapping.define_singleton_method(:to_h, &block)
       end
 
+      # This is the actually content that will be passed through the ES api
+      def mappings_hash
+        props = mapping.body.dup
+        props = props[Esse::MAPPING_ROOT_KEY] if props.key?(Esse::MAPPING_ROOT_KEY)
+        props = props['properties'] if props.key?('properties')
+        if mapping_single_type? || cluster.engine.mapping_default_type
+          type_hash.values.each do |type|
+            props = HashUtils.deep_merge(props, type.mapping_properties)
+          end
+        else
+          props = type_hash.values.each_with_object({}) do |type, memo|
+            memo[type.type_name.to_s] = {
+              'properties' => HashUtils.deep_merge(props, type.mapping_properties)
+            }
+          end
+        end
+        values = if (type_name = cluster.engine.mapping_default_type)
+          { type_name => { 'properties' => props } }
+        elsif mapping_single_type?
+          { 'properties' => props }
+        else
+          props
+        end
+        { Esse::MAPPING_ROOT_KEY => values }
+      end
+
       private
 
       def mapping
         @mapping ||= Esse::IndexMapping.new(paths: template_dirs)
-      end
-
-      def index_mapping
-        return if mapping.empty?
-
-        hash = mapping.body
-        hash.key?(Esse::MAPPING_ROOT_KEY) ? hash[Esse::MAPPING_ROOT_KEY] : hash
-      end
-
-      def type_mapping
-        return {} if type_hash.empty?
-
-        type_hash.values.map(&:mappings_hash).reduce(&:merge)
       end
     end
 

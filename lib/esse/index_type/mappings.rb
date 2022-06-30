@@ -13,11 +13,12 @@ module Esse
       end
 
       # This is the actually content that will be passed through the ES api
-      def mappings_hash
+      # @return [Hash] the mapping hash
+      def mapping_properties
         hash = mapping.body
-        {
-          type_name => (hash.key?('properties') ? hash : { 'properties' => hash }),
-        }
+        hash.key?('properties') ? hash['properties'] : hash
+        # properties = (hash.key?('properties') ? hash : { 'properties' => hash })
+        # index.mapping_single_type? ? properties : { type_name => properties }
       end
 
       private

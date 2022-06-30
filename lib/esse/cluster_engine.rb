@@ -29,5 +29,14 @@ module Esse
     def mapping_single_type?
       engine_version >= '6'
     end
+
+    # @see https://www.elastic.co/guide/en/elasticsearch/reference/6.3/mapping.html
+    # @see https://www.elastic.co/guide/en/elasticsearch/reference/6.4/mapping.html
+    # @see https://www.elastic.co/guide/en/elasticsearch/reference/7.1/mapping.html
+    def mapping_default_type
+      return unless engine_version.to_i == 6
+
+      engine_version >= '6.4' ? '_doc' : 'doc'
+    end
   end
 end
