@@ -67,6 +67,7 @@ start_docker_services() {
       --rm \
       --env "node.name=${DOCKER_NAME_PREFIX}${node}" \
       --env "http.port=${port}" \
+      --env "transport.tcp.port=${port_com}" \
       "${environment[@]}" \
       --ulimit nofile=65536:65536 \
       --ulimit memlock=-1:-1 \

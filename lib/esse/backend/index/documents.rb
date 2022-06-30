@@ -43,21 +43,21 @@ module Esse
           body = []
           stats = { index: 0, delete: 0, create: 0 }
           Array(index).each do |entry|
-            meta, source = doc_meta_and_source!(entry, type: type)
+            meta, source = doc_meta_and_source!(entry.dup, type: type)
             unless meta.empty?
               stats[:index] += 1
               body << { index: meta.merge(data: source) }
             end
           end
           Array(create).each do |entry|
-            meta, source = doc_meta_and_source!(entry, type: type)
+            meta, source = doc_meta_and_source!(entry.dup, type: type)
             unless meta.empty?
               stats[:create] += 1
               body << { create: meta.merge(data: source) }
             end
           end
           Array(delete).each do |entry|
-            meta, _source = doc_meta_and_source!(entry, type: type)
+            meta, _source = doc_meta_and_source!(entry.dup, type: type)
             if meta[:_id]
               stats[:delete] += 1
               body << { delete: meta }
@@ -80,7 +80,6 @@ module Esse
               payload[:error] = resp['errors']
               raise resp&.fetch('items', [])&.select { |item| item.values.first['error'] }.join("\n")
             end
-
 
             if bulk_wait_interval > 0
               payload[:wait_interval] = bulk_wait_interval
