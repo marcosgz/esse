@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-stack_describe '5.x', 'elasticsearch#close', es_webmock: true do
+stack_describe 'elasticsearch', '5.x', 'elasticsearch#close', es_webmock: true do
   before do
     reset_config!
     stub_index(:geos) do

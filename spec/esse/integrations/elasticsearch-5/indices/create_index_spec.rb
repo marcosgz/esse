@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-stack_describe '5.x', 'elasticsearch create index' do
+stack_describe 'elasticsearch', '5.x', 'elasticsearch create index' do
   describe '.create!' do
     context 'without settings and mappings' do
       before do

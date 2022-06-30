@@ -30,6 +30,6 @@ RSpec.configure do |config|
   config.include Hooks::PubSub
 end
 
-def stack_describe(version, desc, *args, **kwargs, &block)
-  RSpec.describe ["[ES #{version}]", desc].join(' '), *args, **kwargs, es_version: version, &block
+def stack_describe(distribution, version, desc, *args, **kwargs, &block)
+  RSpec.describe ["[#{distribution} #{version}]", desc].join(' '), *args, **kwargs, es_version: version, &block
 end

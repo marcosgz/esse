@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-stack_describe '1.x', 'elasticsearch update settings' do
+stack_describe 'elasticsearch', '1.x', 'elasticsearch update settings' do
   before do
     stub_index(:dummies) do
       settings do

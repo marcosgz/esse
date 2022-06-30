@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-stack_describe '1.x', 'elasticsearch open index' do
+stack_describe 'elasticsearch', '1.x', 'elasticsearch open index' do
   before do
     stub_index(:dummies)
   end

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'spec_helper'
-stack_describe '7.x', 'elasticsearch#close', es_webmock: true do
+stack_describe 'elasticsearch', '7.x', 'elasticsearch#close', es_webmock: true do
   before do
     reset_config!
     stub_index(:geos) do
