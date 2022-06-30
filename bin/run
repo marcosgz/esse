@@ -38,8 +38,8 @@ case "${service_name}-${service_version}" in
     ;;
   elasticsearch-v6)
     export STACK_VERSION=6.8.16
-    export PORT=9205
-    export COM_PORT=9305
+    export PORT=9206
+    export COM_PORT=9306
     export ESSE_URL=http://localhost:9205
     ;;
   elasticsearch-v7)

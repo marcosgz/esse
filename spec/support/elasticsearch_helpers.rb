@@ -8,6 +8,7 @@ module ElasticsearchHelpers
   def delete_all_indices!(key: CONFIG_KEY, pattern: '*')
     with_config do |config|
       cluster = config.cluster(key)
+      Hooks::ServiceVersion.webmock_disable_all_except_elasticsearch_hosts!(cluster)
       cluster.client.indices.delete(index: [cluster.index_prefix, pattern].compact.join('_'))
       cluster.wait_for_status!(status: :green)
       yield cluster.client, config, cluster if block_given?

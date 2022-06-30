@@ -6,15 +6,11 @@ module Hooks
         if (version = example.metadata[:es_version])
           version_number = ServiceVersion.stats.version_number
           if ServiceVersion.stats.version_distribution == 'opensearch'
-            version_number = ServiceVersion.stats.version_minimum_wire_compatibility_version
+            version_number = Esse::ClusterEngine::OPENSEARCH_FORK_VERSION
           end
           re = Regexp.new('^' + Regexp.escape(version).gsub('x', '\d+'))
           if re.match(version_number)
-            if example.metadata[:es_webmock]
-              WebMock.disable_net_connect!(allow_localhost: false)
-            else
-              ServiceVersion.webmock_disable_all_except_elasticsearch_hosts!
-            end
+            WebMock.disable_net_connect!(allow_localhost: false)
             example.run
           else
             example.metadata[:skip] = "requires elasticsearch version #{version} to run (current version is #{version_number})"
@@ -56,14 +52,15 @@ module Hooks
       exit(1)
     end
 
-    def self.webmock_disable_all_except_elasticsearch_hosts!
+    def self.webmock_disable_all_except_elasticsearch_hosts!(*clusters)
       WebMock.allow_net_connect!
-      WebMock.disable_net_connect!(allow: hosts)
+      clusters = Esse.config.cluster_ids.map { |id| Esse.config.cluster(id) } if clusters.empty?
+      WebMock.disable_net_connect!(allow: cluster_hosts(clusters))
     end
 
-    private_class_method def self.hosts
-      Esse.config.cluster_ids.flat_map do |cluster_id|
-        transport = Esse.config.cluster(cluster_id).client.transport
+    private_class_method def self.cluster_hosts(clusters)
+      clusters.flat_map do |cluster|
+        transport = cluster.client.transport
         transport = transport.transport if transport.respond_to?(:transport)
         transport.connections.map do |conn|
           uri = URI.parse(conn.full_url(''))

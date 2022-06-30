@@ -9,6 +9,7 @@
 #
 # @see https://container-library.elastic.co/r/elasticsearch/elasticsearch
 # @source https://github.com/elastic/elastic-github-actions (With a few modifications)
+# @idea Switch to docker-compose
 
 set -o errexit
 set -o nounset
@@ -108,13 +109,22 @@ END
 ))
 
 case "${SERVICE_TYPE}-${MAJOR_VERSION}" in
-  elasticsearch-1|elasticsearch-2|elasticsearch-5)
+  elasticsearch-1|elasticsearch-2)
     environment+=($(cat <<-END
         --env xpack.security.enabled=false
         --env discovery.zen.ping.unicast.hosts=${UNICAST_HOSTS}
 END
     ))
     environment+=(--env "ES_JAVA_OPTS=-Xms${SERVICE_HEAP_SIZE} -Xmx${SERVICE_HEAP_SIZE}")
+    ;;
+  elasticsearch-5)
+    environment+=($(cat <<-END
+        --env xpack.security.enabled=false
+        --env xpack.monitoring.collection.interval=-1
+        --env discovery.zen.ping.unicast.hosts=${UNICAST_HOSTS}
+END
+    ))
+    environment+=(--env "ES_JAVA_OPTS=-Xms${SERVICE_HEAP_SIZE} -Xmx${SERVICE_HEAP_SIZE} -da:org.elasticsearch.xpack.ccr.index.engine.FollowingEngineAssertions")
     ;;
   elasticsearch-6)
     environment+=($(cat <<-END
