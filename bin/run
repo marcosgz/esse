@@ -13,37 +13,62 @@ shift; shift;
 
 unset DOCKER_IMAGE
 unset SERVICE_TYPE
+unset ESSE_URL
 
 case "${service_name}-${service_version}" in
   elasticsearch-v1)
     export STACK_VERSION=1.7.6
     export DOCKER_IMAGE=elasticsearch
+    export PORT=9201
+    export COM_PORT=9301
+    export ESSE_URL=http://localhost:9201
     ;;
   elasticsearch-v2)
     export STACK_VERSION=2.3.1
     export DOCKER_IMAGE=elasticsearch
+    export PORT=9202
+    export COM_PORT=9302
+    export ESSE_URL=http://localhost:9202
     ;;
   elasticsearch-v5)
     export STACK_VERSION=5.6.16
+    export PORT=9205
+    export COM_PORT=9305
+    export ESSE_URL=http://localhost:9205
     ;;
   elasticsearch-v6)
     export STACK_VERSION=6.8.16
+    export PORT=9205
+    export COM_PORT=9305
+    export ESSE_URL=http://localhost:9205
     ;;
   elasticsearch-v7)
     export STACK_VERSION=7.13.2
+    export PORT=9207
+    export COM_PORT=9307
+    export ESSE_URL="http://localhost:9207"
     ;;
   elasticsearch-v8)
     export STACK_VERSION=8.2.1
+    export PORT=9208
+    export COM_PORT=9308
+    export ESSE_URL=http://localhost:9208
     ;;
   opensearch-v1)
     export STACK_VERSION=1.3.3
     export DOCKER_IMAGE=opensearchproject/opensearch
     export SERVICE_TYPE=opensearch
+    export PORT=19201
+    export COM_PORT=19301
+    export ESSE_URL=http://localhost:19201
     ;;
   opensearch-v2)
     export STACK_VERSION=2.0.1
     export DOCKER_IMAGE=opensearchproject/opensearch
     export SERVICE_TYPE=opensearch
+    export PORT=19202
+    export COM_PORT=19302
+    export ESSE_URL=http://localhost:19202
     ;;
   *)
     echo -e "\033[31;1mERROR:\033[0m Unknown service type [${service_name}] and/or version [${service_version}]"

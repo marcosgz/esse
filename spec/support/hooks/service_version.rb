@@ -27,7 +27,7 @@ module Hooks
 
     def self.stats
       @stats ||= begin
-        url = ENV['ELASTICSEARCH_URL'] || ENV['OPENSEARCH_URL'] || 'http://localhost:9200'
+        url = ENV['ESSE_URL'] || ENV['ELASTICSEARCH_URL'] || ENV['OPENSEARCH_URL'] || 'http://localhost:9200'
         conn = Faraday.new(url: url, ssl: { verify: false }, request: { timeout: 5 }, headers: { 'Content-Type' => 'application/json' })
         resp = conn.get('/')
         raise "Elasticsearch is not running on #{url}" unless resp.success?

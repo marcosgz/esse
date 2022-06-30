@@ -6,7 +6,7 @@ require 'esse'
 require 'pry'
 require 'awesome_print'
 
-Esse.config.clusters.client = { url: ENV.fetch('ELASTICSEARCH_URL', 'http://localhost:9200') }
+Esse.config.clusters.client = { url: ENV.fetch('ESSE_URL', ENV.fetch('ELASTICSEARCH_URL', 'http://localhost:9200')) }
 Esse.config.clusters.index_prefix = 'esse_console'
 
 US_STATES = {

@@ -5,7 +5,7 @@ module ConfigHelpers
     indices_directory: 'tmp/indices',
     clusters: {
       default: {
-        client: { url: ENV.fetch('ELASTICSEARCH_URL', 'http://localhost:9200') },
+        client: { url: ENV.fetch('ESSE_URL', ENV.fetch('ELASTICSEARCH_URL', 'http://localhost:9200')) },
         index_prefix: 'esse_test',
         index_settings: {
           number_of_shards: 1,
