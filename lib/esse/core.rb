@@ -4,6 +4,8 @@ module Esse
   require_relative 'config'
   require_relative 'cluster'
   require_relative 'primitives'
+  require_relative 'collection'
+  require_relative 'serializer'
   require_relative 'index_type'
   require_relative 'index_setting'
   require_relative 'index_mapping'

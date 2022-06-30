@@ -1,0 +1,23 @@
+# frozen_string_literal: true
+
+class <%= @index_name %> < <%= @base_class %>
+  module Serializers
+    class <%= @type.camelize if @type %>Serializer < Esse::Serializer
+      def id
+        object.id
+      end
+
+      def source
+        {
+          name: object.name,
+        }
+      end
+      <%- if @type && defined?(Elasticsearch::VERSION) && Elasticsearch::VERSION <= '5' -%>
+
+      def type
+        '<%= @type %>'
+      end
+      <%- end -%>
+    end
+  end
+end

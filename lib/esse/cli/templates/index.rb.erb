@@ -2,123 +2,67 @@
 
 <%- @types.each do |type| -%>
 require_relative '<%= @index_name.demodulize.underscore.to_s %>/collections/<%= type.underscore %>_collection'
-<%- end -%>
+<%- end if @cli_options[:collections] && !@cli_options[:active_record] -%>
 <%- @types.each do |type| -%>
 require_relative '<%= @index_name.demodulize.underscore.to_s %>/serializers/<%= type.underscore %>_serializer'
-<%- end -%>
-
+<%- end if @cli_options[:serializers] -%>
 class <%= @index_name %> < <%= @base_class %>
-  # plugin :active_record
-  # plugin :sequel
+  <%- if @cli_options[:active_record] -%>
+  plugin :active_record
 
-  <%- if @types.empty? -%>
-  # Collection
-  # ==========
-  #
-  # Collection is the source of data for the index. We hightly recommend using a
-  # another class that implements the Enumerable interface to better split the
-  # responsabilities and easy to test.
-  #
-  #   collection Collections::DocumentCollection
-  #
-  # but you can also use block definition style:
-  #   collection do |**context, &block|
-  #     block.call [{ title: 'foo' }, { title: 'bar' }], extra: 'info'
-  #   end
-  #
-  # Serializer block or class yielder should be called with an array of objects.
-  # Each these objects should be serialized using the serializer in described in the next section.
-  # The number of objects will be indexed to elasticsearch using the bulk api. So adjust the
-  # number of objects to be indexed accordingly.
-  #
-  # Here is a good place to eager loading data from database or any other repository.
-  # The bellow example is a rails like application that could preload using activerecord
-  #
-  #   collection do |**context, &block|
-  #     query = <%= @index_name.camelize %>.all
-  #     query = query.where(**context[:conditions]) if context[:conditions]
-  #     query = query.includes(:user) if context[:include_user]
-  #     query.find_in_batches(batch_size: 5000) do |batch|
-  #       block.call batch, context
-  #     end
-  #   end
-
-
-  # Serializer
-  # ==========
-  #
-  # Serializer is the class responsible for serializing indexing documents.
-  # Each object yielded by the collection will be serialized on this step.
-  # We recommend using a another class to handle the serialization. The only requirement is
-  # that the class implements the `#to_h` method.
-  # The serializer class may also be initialized with context if collection block is called with that extra parameter.
-  # Ability to call serializer with context is useful for preloading data from database or any other repository.
-  #
-  #    serializer Serializers::DocumentSerializer
-  #
-  # You can also serialize the collection entry using a block:
-  #
-  #   serializer do |model, **context|
-  #     hash = {
-  #       name: <%= @index_name.underscore %>.name,
-  #     }
-  #     # Context is just an example here. But it's useful for eager loading data.
-  #     # I'll think a better example when implement this idea.
-  #     hash[:some_attribute] = <%= @index_name.underscore %>.some_attribute if context[:include_some_attribute]
-  #     hash
-  #   end
   <%- end -%>
-  <%- @types.each do |type| -%>
-  define_type :<%= type.underscore %> do
-    # Collection
-    # ==========
-    #
-    # Collection wraps the data into an array of items that should be serialized. The first argument that is
-    # yielded must extends Enumerable.
-    # Useful for eager loading data from database or any other repository. Below is an example of a rails like
-    # application could load using activerecord.
-    #
-    #   collection do |**context, &block|
-    #     <%= type.camelize %>.where(context[:conditions]).find_in_batches(batch_size: 5000) do |batch|
-    #       block.call batch, context
-    #     end
-    #   end
-    collection Collections::<%= type.camelize %>Collection
-    #
-    #
-    # Serializer
-    # ==========
-    #
-    # The serializer can be any class that respond with the `to_h` class method.
-    # And the result of its to_h is a Hash.
-    #
-    # Here is an example of a simple serializer:
-    # app/serializers/<%= type %>_serializer.rb
-    #   class <%= type.camelize %>Serializer
-    #     def initialize(<%= type %>, _context)
-    #       @<%= type %> = <%= type %>
-    #     end
-    #
-    #     def to_h
-    #       { '_id' => @<%= type %>.id, 'name' => @<%= type %>.name }
-    #     end
-    #   end
-    #
-    # And here you specify your serializer classe.
-    #    serializer Serializers::<%= type.camelize %>Serializer
-    #
-    # You can also serialize the collection entry using a block:
-    #
-    #   serializer do |model, **context|
-    #     hash = {
-    #       name: <%= type %>.name,
-    #     }
-    #     # Context is just an example here. But it's useful for eager loading data.
-    #     # I'll think a better example when implement this idea.
-    #     hash[:some_attribute] = <%= type %>.some_attribute if context[:include_some_attribute]
-    #     hash
-    #   end
-    serializer Serializers::<%= type.camelize %>Serializer
+  <%- if @types.empty? -%>
+  <%- if @cli_options[:active_record] -%>
+  collection ::<%= @index_name.camelize %>.all
+  <%- elsif @cli_options[:collections] -%>
+  collection Collections::Collection
+  <%- else -%>
+  collection do |**context, &block|
+    query = <%= @index_name.camelize.sub(/Index$/, '') %>.all
+    query = query.where(id: context[:id]) if context[:id]
+    query.find_in_batches(batch_size: 1_000) do |batch|
+      block.call(batch)
+    end
   end
   <%- end -%>
+  <%- if @cli_options[:serializers] -%>
+  serializer Serializers::Serializer
+  <%- else -%>
+  serializer do |object, **_context|
+    {
+      id: object.id,
+      name: object.name,
+    }
+  end
+  <%- end # if @cli_options[:serializers] -%>
+  <%- end # /@types.empty?-%>
+
+  <%- @types.each do |type| -%>
+  define_type :<%= type.underscore %> do
+    <%- if @cli_options[:active_record] -%>
+    collection ::<%= type.camelize %>.all
+    <%- elsif @cli_options[:collections] -%>
+    collection Collections::<%= type.camelize %>Collection
+    <%- else -%>
+    collection do |**context, &block|
+      query = <%= type.camelize %>.all
+      query = query.where(id: context[:id]) if context[:id]
+      query.find_in_batches(batch_size: 1_000) do |batch|
+        block.call(batch)
+      end
+    end
+    <%- end -%>
+    <%- if @cli_options[:serializers] -%>
+    serializer Serializers::<%= type.camelize %>Serializer
+    <%- else -%>
+    serializer do |<%= type.underscore %>, **_context|
+      {
+        id: <%= type.underscore %>.id,
+        name: <%= @index_name.underscore %>.name,
+      }
+    end
+    <%- end -%>
+  end
+
+  <%- end #@types.each do |type| -%>
 end
