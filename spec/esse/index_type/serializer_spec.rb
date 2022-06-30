@@ -13,7 +13,7 @@ RSpec.describe Esse::IndexType do
           DummiesIndex::Dummy.serialize(double)
         }.to raise_error(
           NotImplementedError,
-          'there is no :dummy serializer defined for the "DummiesIndex" index',
+          'there is no "dummy" serializer defined for the "DummiesIndex" index',
         )
       end
     end
@@ -228,7 +228,6 @@ RSpec.describe Esse::IndexType do
         )
       end
 
-
       it 'returns enumerator with all serialized objects with a collection filter' do
         expect(StatesIndex::State.documents(filter: ->(state) { state.id > 2 }).take(3)).to match_array(
           [
@@ -251,7 +250,7 @@ RSpec.describe Esse::IndexType do
           end
         end
       }.not_to raise_error
-      expect(klass.instance_variable_get(:@serializer_proc)[:foo]).to be_a_kind_of(Proc)
+      expect(klass.instance_variable_get(:@serializer_proc)['foo']).to be_a_kind_of(Proc)
     end
 
     specify do
@@ -286,7 +285,7 @@ RSpec.describe Esse::IndexType do
           end
         end
       }.not_to raise_error
-      expect(klass.instance_variable_get(:@serializer_proc)[:foo]).to be_a_kind_of(Proc)
+      expect(klass.instance_variable_get(:@serializer_proc)['foo']).to be_a_kind_of(Proc)
     end
 
     specify do
@@ -301,7 +300,7 @@ RSpec.describe Esse::IndexType do
           end
         end
       }.not_to raise_error
-      expect(klass.instance_variable_get(:@serializer_proc)[:foo]).to be_a_kind_of(Proc)
+      expect(klass.instance_variable_get(:@serializer_proc)['foo']).to be_a_kind_of(Proc)
     end
 
     specify do
@@ -316,7 +315,7 @@ RSpec.describe Esse::IndexType do
           end
         end
       }.not_to raise_error
-      expect(klass.instance_variable_get(:@serializer_proc)[:foo]).to be_a_kind_of(Proc)
+      expect(klass.instance_variable_get(:@serializer_proc)['foo']).to be_a_kind_of(Proc)
     end
   end
 end

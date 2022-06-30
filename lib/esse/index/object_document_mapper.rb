@@ -3,7 +3,7 @@
 module Esse
   class Index
     module ObjectDocumentMapper
-      DEFAULT_DOC_TYPE = :__default__
+      DEFAULT_DOC_TYPE = '__default__'
 
       # Convert ruby object to json. Arguments will be same of passed through the
       # collection. It's allowed a block or a class with the `to_h` instance method.
@@ -19,11 +19,11 @@ module Esse
       def serializer(*args, &block)
         doc_type, klass = args
         # >> Backward compatibility for the old collection syntax without explicit doc_type
-        if doc_type && !doc_type.is_a?(Symbol)
+        if doc_type && klass.nil? && !doc_type.is_a?(String) && !doc_type.is_a?(Symbol)
           klass = doc_type
           doc_type = DEFAULT_DOC_TYPE
         end
-        doc_type = doc_type&.to_sym || DEFAULT_DOC_TYPE
+        doc_type = doc_type&.to_s || DEFAULT_DOC_TYPE
         # <<
 
         @serializer_proc ||= {}
@@ -47,18 +47,18 @@ module Esse
       end
 
       # Convert ruby object to json by using the serializer of the given document type.
-      # @param [Symbol] doc_type The document type
+      # @param [String] doc_type The document type
       # @param [Object] model The ruby object
       # @param [Hash] kwargs The context
       # @return [Hash] The json object
       def serialize(*args, **kwargs)
         doc_type, model = args
         # >> Backward compatibility for the old collection syntax without explicit doc_type
-        if doc_type && !doc_type.is_a?(Symbol)
+        if doc_type && model.nil? && !doc_type.is_a?(String) && !doc_type.is_a?(Symbol)
           model = doc_type
           doc_type = DEFAULT_DOC_TYPE
         end
-        doc_type = doc_type&.to_sym || DEFAULT_DOC_TYPE
+        doc_type = doc_type&.to_s || DEFAULT_DOC_TYPE
         # <<
 
         if @serializer_proc.nil? || @serializer_proc[doc_type].nil?
@@ -80,7 +80,7 @@ module Esse
       #     end
       #   end
       #
-      # @param [Symbol] name The name of the collection.
+      # @param [String] name The identification of the collection.
       # @param [Class] klass The class of the collection. (Optional when block is passed)
       # @param [Proc] block The block that will be used to iterate over the collection. (Optional when using a class)
       # @return [void]
@@ -91,7 +91,7 @@ module Esse
           collection_klass = doc_type
           doc_type = DEFAULT_DOC_TYPE
         end
-        doc_type = doc_type&.to_sym || DEFAULT_DOC_TYPE
+        doc_type = doc_type&.to_s || DEFAULT_DOC_TYPE
         # <<
 
         if collection_klass.nil? && block.nil?
@@ -120,12 +120,12 @@ module Esse
       #
       # @todo Remove *args. It should only support keyword arguments
       #
-      # @param [Symbol] doc_type The document type
+      # @param [String] doc_type The document type
       # @param [Hash] kwargs The context
       # @param [Proc] block The block that will be used to iterate over the collection.
       # @return [void]
       def each_batch(doc_type = DEFAULT_DOC_TYPE, *args, **kwargs, &block)
-        doc_type = doc_type&.to_sym || DEFAULT_DOC_TYPE
+        doc_type = doc_type&.to_s || DEFAULT_DOC_TYPE
 
         if @collection_proc.nil? || @collection_proc[doc_type].nil?
           raise NotImplementedError, format('there is no %<t>p collection defined for the %<k>p index', t: doc_type, k: to_s)
@@ -144,7 +144,7 @@ module Esse
 
       # Wrap collection data into serialized batches
       #
-      # @param [Symbol] doc_type The document type
+      # @param [String] doc_type The document type
       # @param [Hash] kwargs The context
       # @return [Enumerator] The enumerator
       # @yield [Array, **context] serialized collection and the optional context from the collection

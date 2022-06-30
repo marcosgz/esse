@@ -47,7 +47,7 @@ RSpec.describe Esse::IndexType do
       end
 
       col_proc = klass.instance_variable_get(:@collection_proc)
-      expect(col_proc).to eq(foo: DummyGeosCollection)
+      expect(col_proc).to eq('foo' => DummyGeosCollection)
     end
 
     it 'raises an error if the collection does not implement Enumerable interface' do
@@ -73,7 +73,7 @@ RSpec.describe Esse::IndexType do
       specify do
         expect {
           UsersIndex::User.each_batch { |batch| puts batch }
-        }.to raise_error(NotImplementedError, 'there is no :user collection defined for the "UsersIndex" index')
+        }.to raise_error(NotImplementedError, 'there is no "user" collection defined for the "UsersIndex" index')
       end
     end
 

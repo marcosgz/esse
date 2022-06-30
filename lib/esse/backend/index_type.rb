@@ -15,69 +15,65 @@ module Esse
       end
 
       def import(**kwargs)
-        elasticsearch.import(doc_type, **kwargs)
+        elasticsearch.import(type_name, **kwargs)
       end
 
       def import!(**kwargs)
-        elasticsearch.import!(doc_type, **kwargs)
+        elasticsearch.import!(type_name, **kwargs)
       end
 
       def bulk!(**kwargs)
-        elasticsearch.bulk!(**kwargs, type: doc_type)
+        elasticsearch.bulk!(**kwargs, type: type_name)
       end
 
       def bulk(**kwargs)
-        elasticsearch.bulk(**kwargs, type: doc_type)
+        elasticsearch.bulk(**kwargs, type: type_name)
       end
 
       def index!(**kwargs)
-        elasticsearch.index!(**kwargs, type: doc_type)
+        elasticsearch.index!(**kwargs, type: type_name)
       end
 
       def index(**kwargs)
-        elasticsearch.index(**kwargs, type: doc_type)
+        elasticsearch.index(**kwargs, type: type_name)
       end
 
       def update!(**kwargs)
-        elasticsearch.update!(**kwargs, type: doc_type)
+        elasticsearch.update!(**kwargs, type: type_name)
       end
 
       def update(**kwargs)
-        elasticsearch.update(**kwargs, type: doc_type)
+        elasticsearch.update(**kwargs, type: type_name)
       end
 
       def delete!(**kwargs)
-        elasticsearch.delete!(**kwargs, type: doc_type)
+        elasticsearch.delete!(**kwargs, type: type_name)
       end
 
       def delete(**kwargs)
-        elasticsearch.delete(**kwargs, type: doc_type)
+        elasticsearch.delete(**kwargs, type: type_name)
       end
 
       def exist?(**kwargs)
-        elasticsearch.exist?(**kwargs, type: doc_type)
+        elasticsearch.exist?(**kwargs, type: type_name)
       end
 
       def count(**kwargs)
-        elasticsearch.count(**kwargs, type: doc_type)
+        elasticsearch.count(**kwargs, type: type_name)
       end
 
       def find!(**kwargs)
-        elasticsearch.find!(**kwargs, type: doc_type)
+        elasticsearch.find!(**kwargs, type: type_name)
       end
 
       def find(**kwargs)
-        elasticsearch.find(**kwargs, type: doc_type)
+        elasticsearch.find(**kwargs, type: type_name)
       end
 
       protected
 
       def elasticsearch
         @index_type.index.elasticsearch
-      end
-
-      def doc_type
-        type_name.to_sym
       end
     end
   end

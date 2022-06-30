@@ -38,7 +38,7 @@ RSpec.describe Esse::Index do
       end
 
       col_procs = klass.instance_variable_get(:@collection_proc)
-      expect(col_procs).to eq(__default__: DummyGeosCollection)
+      expect(col_procs).to eq('__default__' => DummyGeosCollection)
     end
 
     it 'raises an error if the collection does not implement Enumerable interface' do
@@ -61,7 +61,7 @@ RSpec.describe Esse::Index do
       specify do
         expect {
           UsersIndex.each_batch { |batch| puts batch }
-        }.to raise_error(NotImplementedError, 'there is no :__default__ collection defined for the "UsersIndex" index')
+        }.to raise_error(NotImplementedError, 'there is no "__default__" collection defined for the "UsersIndex" index')
       end
     end
 
