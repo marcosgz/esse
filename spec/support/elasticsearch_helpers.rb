@@ -15,8 +15,9 @@ module ElasticsearchHelpers
   end
   alias_method :es_client, :delete_all_indices!
 
-  def elasticsearch_response_fixture(file:, version:, assigns: {}, **)
-    dirname = File.expand_path("../../fixtures/elasticsearch-response/#{version}", __FILE__)
+  # @option [String] :distribution ('elasticsearch') The name of the service to connect to. Valid values are 'elasticsearch' and 'opensearch'.
+  def elasticsearch_response_fixture(file:, version:, assigns: {}, distribution: 'elasticsearch', **)
+    dirname = File.expand_path("../../fixtures/#{distribution}-response/#{version}", __FILE__)
     path = nil
     [file, "#{file}.json", "#{file}.json.erb"].each do |filename|
       path = File.join(dirname, filename)
@@ -38,6 +39,9 @@ module ElasticsearchHelpers
     res[:status] ||= 200
     res[:body] ||= { acknowledged: true }
     res[:body] = MultiJson.dump(res[:body]) unless res[:body].is_a?(String)
+    res[:headers] ||= {
+      'Content-Type' => 'application/json',
+    }
 
     uri = es_cluster_uri
     uri.path = path

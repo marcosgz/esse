@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative 'cluster_engine'
+
 module Esse
   class Cluster
     ATTRIBUTES = %i[index_prefix index_settings client wait_for_status].freeze
@@ -87,6 +89,20 @@ module Esse
     def document_type?
       defined?(OpenSearch::VERSION) || \
         (defined?(Elasticsearch::VERSION) && Elasticsearch::VERSION < '7')
+    end
+
+    def info
+      @info ||= begin
+        resp = client.info
+        {
+          distribution: (resp.dig('version', 'distribution') || 'elasticsearch'),
+          version: resp.dig('version', 'number'),
+        }
+      end
+    end
+
+    def engine
+      ClusterEngine.new(**info)
     end
   end
 end
