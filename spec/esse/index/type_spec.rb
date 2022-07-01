@@ -107,4 +107,22 @@ RSpec.describe Esse::Index do
       expect(EventsIndex.repo('event')).to eq(EventsIndex::Event)
     end
   end
+
+  describe '.repo?' do
+    it 'returns false when no type is defined' do
+      stub_index(:events)
+      expect(EventsIndex.repo?).to eq(false)
+    end
+
+    context 'with a repo defined' do
+      before do
+        stub_index(:events) { define_type :event, constant: true }
+      end
+
+      it { expect(EventsIndex.repo?).to eq(true) }
+      it { expect(EventsIndex.repo?('event')).to eq(true) }
+      it { expect(EventsIndex.repo?(:event)).to eq(true) }
+      it { expect(EventsIndex.repo?(Esse::DEFAULT_REPO_NAME)).to eq(false) }
+    end
+  end
 end

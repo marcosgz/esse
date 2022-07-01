@@ -3,8 +3,6 @@
 module Esse
   class Index
     module ObjectDocumentMapper
-      DEFAULT_DOC_TYPE = DEFAULT_REPO_NAME
-
       # Convert ruby object to json. Arguments will be same of passed through the
       # collection. It's allowed a block or a class with the `to_h` instance method.
       # Example with block
@@ -17,28 +15,28 @@ module Esse
       # Example with serializer class
       #   serializer UserSerializer
       def serializer(*args, &block)
-        doc_type, klass = args
-        # >> Backward compatibility for the old collection syntax without explicit doc_type
-        if doc_type && klass.nil? && !doc_type.is_a?(String) && !doc_type.is_a?(Symbol)
-          klass = doc_type
-          doc_type = DEFAULT_DOC_TYPE
+        repo_name, klass = args
+        # >> Backward compatibility for the old collection syntax without explicit repo_name
+        if repo_name && klass.nil? && !repo_name.is_a?(String) && !repo_name.is_a?(Symbol)
+          klass = repo_name
+          repo_name = DEFAULT_REPO_NAME
         end
-        doc_type = doc_type&.to_s || DEFAULT_DOC_TYPE
+        repo_name = repo_name&.to_s || DEFAULT_REPO_NAME
         # <<
 
         @serializer_proc ||= {}
-        if @serializer_proc.key?(doc_type)
-          raise ArgumentError, format('Serializer for %p already defined', doc_type)
+        if @serializer_proc.key?(repo_name)
+          raise ArgumentError, format('Serializer for %p already defined', repo_name)
         end
 
         if block
-          @serializer_proc[doc_type] = block
+          @serializer_proc[repo_name] = block
         elsif klass.is_a?(Class) && klass.instance_methods.include?(:to_h)
-          @serializer_proc[doc_type] = proc { |*args, **kwargs| klass.new(*args, **kwargs).to_h }
+          @serializer_proc[repo_name] = proc { |*args, **kwargs| klass.new(*args, **kwargs).to_h }
         elsif klass.is_a?(Class) && klass.instance_methods.include?(:as_json) # backward compatibility
-          @serializer_proc[doc_type] = proc { |*args, **kwargs| klass.new(*args, **kwargs).as_json }
+          @serializer_proc[repo_name] = proc { |*args, **kwargs| klass.new(*args, **kwargs).as_json }
         elsif klass.is_a?(Class) && klass.instance_methods.include?(:call)
-          @serializer_proc[doc_type] = proc { |*args, **kwargs| klass.new(*args, **kwargs).call }
+          @serializer_proc[repo_name] = proc { |*args, **kwargs| klass.new(*args, **kwargs).call }
         else
           msg = format('%<arg>p is not a valid serializer. The serializer should ' \
                         'respond with `to_h` instance method.', arg: klass,)
@@ -47,25 +45,25 @@ module Esse
       end
 
       # Convert ruby object to json by using the serializer of the given document type.
-      # @param [String] doc_type The document type
+      # @param [String] repo_name The document type
       # @param [Object] model The ruby object
       # @param [Hash] kwargs The context
       # @return [Hash] The json object
       def serialize(*args, **kwargs)
-        doc_type, model = args
-        # >> Backward compatibility for the old collection syntax without explicit doc_type
-        if doc_type && model.nil? && !doc_type.is_a?(String) && !doc_type.is_a?(Symbol)
-          model = doc_type
-          doc_type = DEFAULT_DOC_TYPE
+        repo_name, model = args
+        # >> Backward compatibility for the old collection syntax without explicit repo_name
+        if repo_name && model.nil? && !repo_name.is_a?(String) && !repo_name.is_a?(Symbol)
+          model = repo_name
+          repo_name = DEFAULT_REPO_NAME
         end
-        doc_type = doc_type&.to_s || DEFAULT_DOC_TYPE
+        repo_name = repo_name&.to_s || DEFAULT_REPO_NAME
         # <<
 
-        if @serializer_proc.nil? || @serializer_proc[doc_type].nil?
-          raise NotImplementedError, format('there is no %<t>p serializer defined for the %<k>p index', t: doc_type, k: to_s)
+        if @serializer_proc.nil? || @serializer_proc[repo_name].nil?
+          raise NotImplementedError, format('there is no %<t>p serializer defined for the %<k>p index', t: repo_name, k: to_s)
         end
 
-        @serializer_proc.fetch(doc_type).call(model, **kwargs)
+        @serializer_proc.fetch(repo_name).call(model, **kwargs)
       end
 
       # Used to define the source of data. A block is required. And its
@@ -85,13 +83,13 @@ module Esse
       # @param [Proc] block The block that will be used to iterate over the collection. (Optional when using a class)
       # @return [void]
       def collection(*args, &block)
-        doc_type, collection_klass = args
-        # >> Backward compatibility for the old collection syntax without explicit doc_type
-        if doc_type && !doc_type.is_a?(Symbol) && !doc_type.is_a?(String) && collection_klass.nil? && @collection_proc.nil?
-          collection_klass = doc_type
-          doc_type = DEFAULT_DOC_TYPE
+        repo_name, collection_klass = args
+        # >> Backward compatibility for the old collection syntax without explicit repo_name
+        if repo_name && !repo_name.is_a?(Symbol) && !repo_name.is_a?(String) && collection_klass.nil? && @collection_proc.nil?
+          collection_klass = repo_name
+          repo_name = DEFAULT_REPO_NAME
         end
-        doc_type = doc_type&.to_s || DEFAULT_DOC_TYPE
+        repo_name = repo_name&.to_s || DEFAULT_REPO_NAME
         # <<
 
         if collection_klass.nil? && block.nil?
@@ -106,7 +104,7 @@ module Esse
         end
 
         @collection_proc ||= {}
-        @collection_proc[doc_type] = collection_klass || block
+        @collection_proc[repo_name] = collection_klass || block
       end
 
       # Used to fetch all batch of data defined on the collection model.
@@ -120,18 +118,18 @@ module Esse
       #
       # @todo Remove *args. It should only support keyword arguments
       #
-      # @param [String] doc_type The document type
+      # @param [String] repo_name The document type
       # @param [Hash] kwargs The context
       # @param [Proc] block The block that will be used to iterate over the collection.
       # @return [void]
-      def each_batch(doc_type = DEFAULT_DOC_TYPE, *args, **kwargs, &block)
-        doc_type = doc_type&.to_s || DEFAULT_DOC_TYPE
+      def each_batch(repo_name = DEFAULT_REPO_NAME, *args, **kwargs, &block)
+        repo_name = repo_name&.to_s || DEFAULT_REPO_NAME
 
-        if @collection_proc.nil? || @collection_proc[doc_type].nil?
-          raise NotImplementedError, format('there is no %<t>p collection defined for the %<k>p index', t: doc_type, k: to_s)
+        if @collection_proc.nil? || @collection_proc[repo_name].nil?
+          raise NotImplementedError, format('there is no %<t>p collection defined for the %<k>p index', t: repo_name, k: to_s)
         end
 
-        collection_proc = @collection_proc.fetch(doc_type)
+        collection_proc = @collection_proc.fetch(repo_name)
         case collection_proc
         when Class
           collection_proc.new(*args, **kwargs).each(&block)
@@ -144,15 +142,15 @@ module Esse
 
       # Wrap collection data into serialized batches
       #
-      # @param [String] doc_type The document type
+      # @param [String] repo_name The document type
       # @param [Hash] kwargs The context
       # @return [Enumerator] The enumerator
       # @yield [Array, **context] serialized collection and the optional context from the collection
-      def each_serialized_batch(doc_type = DEFAULT_DOC_TYPE, **kwargs, &block)
-        each_batch(doc_type, **kwargs) do |*args|
+      def each_serialized_batch(repo_name = DEFAULT_REPO_NAME, **kwargs, &block)
+        each_batch(repo_name, **kwargs) do |*args|
           batch, collection_context = args
           collection_context ||= {}
-          entries = [*batch].map { |entry| serialize(doc_type, entry, **collection_context) }.compact
+          entries = [*batch].map { |entry| serialize(repo_name, entry, **collection_context) }.compact
           block.call(entries, **kwargs)
         end
       end
@@ -163,9 +161,9 @@ module Esse
       #    GeosIndex.documents(id: 1).first
       #
       # @return [Enumerator] All serialized entries
-      def documents(doc_type = DEFAULT_DOC_TYPE, **kwargs)
+      def documents(repo_name = DEFAULT_REPO_NAME, **kwargs)
         Enumerator.new do |yielder|
-          each_serialized_batch(doc_type, **kwargs) do |documents, **_collection_kargs|
+          each_serialized_batch(repo_name, **kwargs) do |documents, **_collection_kargs|
             documents.each { |document| yielder.yield(document) }
           end
         end

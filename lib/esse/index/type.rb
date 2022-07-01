@@ -30,6 +30,12 @@ module Esse
         MSG
       end
 
+      def repo?(name = nil)
+        return type_hash.size > 0 if name.nil?
+
+        type_hash.key?(name.to_s)
+      end
+
       def repository(type_name, *_args, **kwargs, &block)
         type_class = Class.new(Esse::IndexType)
         kwargs[:constant] ||= true
