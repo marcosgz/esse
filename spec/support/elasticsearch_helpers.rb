@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 module ElasticsearchHelpers
+  extend self
+
   CONFIG_KEY = Esse::Config::DEFAULT_CLUSTER_ID
 
   # Deletes all corresponding indices with current prefix from ElasticSearch.

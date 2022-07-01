@@ -219,13 +219,24 @@ After checking out the repo, run `bin/setup` to install dependencies. The comman
 
 ```bash
 ./bin/run elasticsearch v7 ./ci/setup.sh # Start elasticsearch 7.x
-./bin/run elasticsearch v7 bundle exec --gemfile ci/Gemfile.elasticsearch-7.x rspec # Run rspec tests for elasticsearch 7.x
 ```
 
-You can also run console for an interactive prompt that will allow you to experiment.
+Run console for an interactive prompt that will allow you to experiment.
 
 ```bash
 ./bin/run elasticsearch v7 ./bin/console
+```
+
+You can use the `./bin/run` script to run specs for some specific elasticsearch version. Tests are using the `ESSE_URL` environment variable and the run script will automatically set the correct elasticsearch version.
+
+```bash
+./bin/run elasticsearch v7 bundle exec --gemfile ci/Gemfile.elasticsearch-7.x rspec # Run rspec tests for elasticsearch 7.x
+```
+
+If you don't have elasticsearch running and want to ignore integratino tests, you can use the `STUB_STACK=<distribution>-<version>` environment variable to stup the test suite for a specific elasticsearch version. Note that all examples with `:es_version` meta data will be skipped.
+
+```bash
+STUB_STACK=elasticsearch-7.0.3 bundle exec --gemfile ci/Gemfile.elasticsearch-7.x rspec
 ```
 
 ## Contributing
