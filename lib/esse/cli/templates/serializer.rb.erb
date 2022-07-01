@@ -4,7 +4,7 @@ class <%= @index_name %> < <%= @base_class %>
   module Serializers
     class <%= @type.camelize if @type %>Serializer < Esse::Serializer
       <%- if @cli_options[:active_record] -%>
-      delegate :id, :created_at, :updated_at, to: :object
+      delegate :id, to: :object
       <%- else -%>
       def id
         object.id
