@@ -38,9 +38,9 @@ module Esse
 
       def repository(type_name, *_args, **kwargs, &block)
         type_class = Class.new(Esse::IndexType)
-        kwargs[:constant] ||= true
+        kwargs[:const] ||= true
 
-        if kwargs[:constant]
+        if kwargs[:const]
           const_set(Hstring.new(type_name).camelize.demodulize.to_s, type_class)
         end
 
