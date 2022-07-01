@@ -11,9 +11,9 @@ RSpec.describe Esse::Index, '.plugin' do
     }.to raise_error(LoadError)
   end
 
-  it 'extends the index with ClassMethods of the plugin' do
+  it 'extends the index with IndexClassMethods of the plugin' do
     plug = Module.new do
-      self::ClassMethods = Module.new do
+      self::IndexClassMethods = Module.new do
         def foo
           :foo
         end
@@ -24,6 +24,56 @@ RSpec.describe Esse::Index, '.plugin' do
     klass.plugin(plug)
     expect(klass.plugins).to include(plug)
     expect(klass.foo).to eq(:foo)
+  end
+
+  it 'extends the index repository with RepositoryClassMethods of the plugin' do
+    plug = Module.new do
+      self::RepositoryClassMethods = Module.new do
+        def bar
+          :bar
+        end
+      end
+    end
+    klass = Class.new(Esse::Index)
+    klass.repository(:foo)
+    expect(klass.repo(:foo)).not_to respond_to(:bar)
+    klass.plugin(plug)
+    expect(klass.repo(:foo)).to respond_to(:bar)
+    expect(klass.repo(:foo).bar).to eq(:bar)
+  end
+
+  it 'extends new repositories with RepositoryClassMethods even plugin previously loaded' do
+    plug = Module.new do
+      self::RepositoryClassMethods = Module.new do
+        def bar
+          :bar
+        end
+      end
+    end
+    klass = Class.new(Esse::Index) do
+      plugin(plug)
+    end
+    klass.repository(:foo)
+    expect(klass.repo(:foo)).to respond_to(:bar)
+    expect(klass.repo(:foo).bar).to eq(:bar)
+  end
+
+  it 'does not extend repositories multiple types with the same plugin' do
+    plug = Module.new do
+      self::RepositoryClassMethods = Module.new do
+        def bar
+          :bar
+        end
+      end
+    end
+    klass = Class.new(Esse::Index) do
+      repository(:one)
+      plugin(plug)
+    end
+    expect(klass.repo(:one)).to respond_to(:bar)
+    expect(klass.repo(:one)).not_to receive(:extend).with(plug::RepositoryClassMethods)
+    klass.repository(:two)
+    expect(klass.repo(:two)).to respond_to(:bar)
   end
 
   it 'calls apply and configure on the plugin' do
@@ -70,12 +120,12 @@ RSpec.describe Esse::Index, '.plugin' do
 
   it 'should have inherited_instance_variables add instance variables to copy into the subclass' do
     plug = Module.new do
-      def self.apply(model)
-        model.instance_variable_set(:@plugin_domain, 'foo')
+      def self.apply(index_class)
+        index_class.instance_variable_set(:@plugin_domain, 'foo')
       end
 
       # rubocop:disable Lint/ConstantDefinitionInBlock
-      module self::ClassMethods
+      module self::IndexClassMethods
         attr_reader :plugin_domain
 
         Esse::Plugins.inherited_instance_variables(self, :@plugin_domain => :dup)
