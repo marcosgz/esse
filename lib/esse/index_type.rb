@@ -13,6 +13,6 @@ module Esse
     require_relative 'index_type/actions'
     require_relative 'index_type/mappings'
     require_relative 'index_type/backend'
-    require_relative 'index_type/odm'
+    require_relative 'index_type/object_document_mapper'
   end
 end

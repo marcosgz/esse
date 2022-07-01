@@ -48,7 +48,7 @@ module Esse
 
         type_class.send(:define_singleton_method, :index) { index }
         type_class.send(:define_singleton_method, :type_name) { type_name.to_s }
-        # type_class.send(:define_singleton_method, :repo_name) { type_name.to_s }
+        type_class.send(:define_singleton_method, :repo_name) { type_name.to_s }
 
         type_class.class_eval(&block) if block
 

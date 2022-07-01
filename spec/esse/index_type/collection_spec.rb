@@ -46,8 +46,8 @@ RSpec.describe Esse::IndexType do
         end
       end
 
-      col_proc = klass.instance_variable_get(:@collection_proc)
-      expect(col_proc).to eq('foo' => DummyGeosCollection)
+      col_proc = klass.repo(:foo).instance_variable_get(:@collection_proc)
+      expect(col_proc).to eq(DummyGeosCollection)
     end
 
     it 'raises an error if the collection does not implement Enumerable interface' do

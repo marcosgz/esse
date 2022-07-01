@@ -5,43 +5,6 @@ require 'ostruct'
 require 'support/collections'
 
 RSpec.describe Esse::Index do
-  describe '.serialize' do
-    context 'without a serializer definition' do
-      before { stub_index(:dummies) {} }
-
-      specify do
-        expect {
-          DummiesIndex.serialize(double)
-        }.to raise_error(
-          NotImplementedError,
-          'there is no "__default__" serializer defined for the "DummiesIndex" index',
-        )
-      end
-    end
-
-    context 'with a serializer definition' do
-      let(:dummy) { double(id: 1) }
-      let(:optionals) { { name: 'dummy' } }
-
-      before do
-        stub_index(:dummies) do
-          serializer do |entry, **context|
-            {
-              _id: entry.id,
-            }.merge(context)
-          end
-        end
-      end
-
-      specify do
-        expect(DummiesIndex.serialize(dummy, **optionals)).to eq(
-          _id: 1,
-          name: 'dummy',
-        )
-      end
-    end
-  end
-
   describe '.each_serialized_batch' do
     before do
       stub_index(:states) do
@@ -226,7 +189,7 @@ RSpec.describe Esse::Index do
           end
         end
       }.not_to raise_error
-      expect(klass.instance_variable_get(:@serializer_proc)['__default__']).to be_a_kind_of(Proc)
+      expect(klass.repo.instance_variable_get(:@serializer_proc)).to be_a_kind_of(Proc)
     end
 
     specify do
@@ -255,7 +218,7 @@ RSpec.describe Esse::Index do
                      })
         end
       }.not_to raise_error
-      expect(klass.instance_variable_get(:@serializer_proc)['__default__']).to be_a_kind_of(Proc)
+      expect(klass.repo.instance_variable_get(:@serializer_proc)).to be_a_kind_of(Proc)
     end
 
     specify do
@@ -268,7 +231,7 @@ RSpec.describe Esse::Index do
                      })
         end
       }.not_to raise_error
-      expect(klass.instance_variable_get(:@serializer_proc)['__default__']).to be_a_kind_of(Proc)
+      expect(klass.repo.instance_variable_get(:@serializer_proc)).to be_a_kind_of(Proc)
     end
 
     specify do
@@ -281,7 +244,7 @@ RSpec.describe Esse::Index do
                      })
         end
       }.not_to raise_error
-      expect(klass.instance_variable_get(:@serializer_proc)['__default__']).to be_a_kind_of(Proc)
+      expect(klass.repo.instance_variable_get(:@serializer_proc)).to be_a_kind_of(Proc)
     end
   end
 end
