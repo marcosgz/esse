@@ -244,39 +244,39 @@ RSpec.describe Esse::Index do
     end
   end
 
-  describe '.type_hash' do
+  describe '.repo_hash' do
     before do
       stub_index(:posts)
       stub_index(:comments)
     end
 
     it 'initializes with a hash' do
-      expect(PostsIndex.type_hash).to eq({})
+      expect(PostsIndex.repo_hash).to eq({})
     end
 
     it 'allows subclasses change their own value and it will not impact parent class' do
-      PostsIndex.type_hash[:type] = 'my type'
-      expect(PostsIndex.type_hash).to eq(type: 'my type')
-      expect(CommentsIndex.type_hash).to eq({})
-      expect(Esse::Index.type_hash).to eq({})
+      PostsIndex.repo_hash[:type] = 'my type'
+      expect(PostsIndex.repo_hash).to eq(type: 'my type')
+      expect(CommentsIndex.repo_hash).to eq({})
+      expect(Esse::Index.repo_hash).to eq({})
 
-      PostsIndex.type_hash = { type: 'new type' }
-      expect(PostsIndex.type_hash).to eq(type: 'new type')
-      expect(CommentsIndex.type_hash).to eq({})
-      expect(Esse::Index.type_hash).to eq({})
+      PostsIndex.repo_hash = { type: 'new type' }
+      expect(PostsIndex.repo_hash).to eq(type: 'new type')
+      expect(CommentsIndex.repo_hash).to eq({})
+      expect(Esse::Index.repo_hash).to eq({})
     end
 
     it 'does not inherits values from parent class' do
-      Esse::Index.type_hash[:type] = 'my type'
-      expect(Esse::Index.type_hash).to eq(type: 'my type')
-      expect(CommentsIndex.type_hash).to eq({})
+      Esse::Index.repo_hash[:type] = 'my type'
+      expect(Esse::Index.repo_hash).to eq(type: 'my type')
+      expect(CommentsIndex.repo_hash).to eq({})
 
-      Esse::Index.type_hash = { type: 'new type' }
-      expect(Esse::Index.type_hash).to eq(type: 'new type')
-      expect(CommentsIndex.type_hash).to eq({})
+      Esse::Index.repo_hash = { type: 'new type' }
+      expect(Esse::Index.repo_hash).to eq(type: 'new type')
+      expect(CommentsIndex.repo_hash).to eq({})
 
       c = Class.new(Esse::Index)
-      expect(c.type_hash).to eq({})
+      expect(c.repo_hash).to eq({})
     end
   end
 

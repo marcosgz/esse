@@ -61,7 +61,7 @@ module Esse
       # @return [Enumerator] The enumerator
       # @yield [Array, **context] serialized collection and the optional context from the collection
       def each_serialized_batch(repo_name = nil, **kwargs, &block)
-        (repo_name ? [repo(repo_name)] : type_hash.values).each do |repo|
+        (repo_name ? [repo(repo_name)] : repo_hash.values).each do |repo|
           repo.each_serialized_batch(**kwargs, &block)
         end
       end
@@ -84,9 +84,9 @@ module Esse
       private
 
       def find_or_define_repo(repo_name)
-        return type_hash[repo_name] if type_hash.key?(repo_name)
+        return repo_hash[repo_name] if repo_hash.key?(repo_name)
 
-        repository(repo_name) { }
+        repository(repo_name) {}
       end
     end
 

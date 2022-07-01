@@ -2,7 +2,7 @@
 
 module Esse
   class Index
-    @type_hash = {}
+    @repo_hash = {}
     @setting = {}
     @mapping = {}
     @plugins = []

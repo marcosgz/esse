@@ -22,7 +22,7 @@ module Esse
       DEFINITION = %i[settings_hash mappings_hash].freeze
       DOCUMENTS = %i[each_serialized_batch].freeze
 
-      def_delegators :@index, :cluster, :type_hash, :bulk_wait_interval, *(NAMING + DEFINITION + DOCUMENTS)
+      def_delegators :@index, :cluster, :repo_hash, :bulk_wait_interval, *(NAMING + DEFINITION + DOCUMENTS)
       def_delegators :cluster, :document_type?, :client
 
       def initialize(index)

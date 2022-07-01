@@ -3,15 +3,6 @@
 require 'spec_helper'
 
 RSpec.describe Esse::Index do
-  describe '.define_type' do
-    specify do
-      Gem::Deprecate.skip_during do
-        index = Class.new(Esse::Index) { define_type :user }
-        expect(index.repo(:user).superclass).to eq(Esse::Repository)
-      end
-    end
-  end
-
   describe '.repository' do
     specify do
       index = Class.new(Esse::Index) { repository :user, const: true }
@@ -29,7 +20,7 @@ RSpec.describe Esse::Index do
       end
 
       specify do
-        expect(EventsIndex.type_hash.values).to eq([EventsIndex::ScheduleOccurrence])
+        expect(EventsIndex.repo_hash.values).to eq([EventsIndex::ScheduleOccurrence])
       end
     end
 
@@ -40,11 +31,11 @@ RSpec.describe Esse::Index do
       end
 
       specify do
-        expect(EventsIndex.type_hash.values).to eq([EventsIndex::Event])
+        expect(EventsIndex.repo_hash.values).to eq([EventsIndex::Event])
       end
     end
 
-    context 'index type_hash' do
+    context 'index repo_hash' do
       before do
         stub_index(:users) do
           repository :admin, const: true
@@ -53,9 +44,9 @@ RSpec.describe Esse::Index do
       end
 
       specify do
-        expect(UsersIndex.type_hash.keys).to match_array(%w[admin editorial])
-        expect(UsersIndex.type_hash['admin']).to eq(UsersIndex::Admin)
-        expect(UsersIndex.type_hash['editorial']).to eq(UsersIndex::Editorial)
+        expect(UsersIndex.repo_hash.keys).to match_array(%w[admin editorial])
+        expect(UsersIndex.repo_hash['admin']).to eq(UsersIndex::Admin)
+        expect(UsersIndex.repo_hash['editorial']).to eq(UsersIndex::Editorial)
       end
     end
 
@@ -69,7 +60,11 @@ RSpec.describe Esse::Index do
       end
 
       specify do
-        expect(EventsIndex::Event.type_name).to eq('event')
+        expect(EventsIndex::Event.document_type).to eq('event')
+      end
+
+      specify do
+        expect(EventsIndex::Event.repo_name).to eq('event')
       end
     end
   end

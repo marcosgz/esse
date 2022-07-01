@@ -17,8 +17,6 @@ module Esse
       def mapping_properties
         hash = mapping.body
         hash.key?('properties') ? hash['properties'] : hash
-        # properties = (hash.key?('properties') ? hash : { 'properties' => hash })
-        # index.mapping_single_type? ? properties : { type_name => properties }
       end
 
       private
@@ -34,7 +32,7 @@ module Esse
       end
 
       def mapping_filenames
-        Esse::IndexMapping::FILENAMES.map { |str| [type_name, str].join('_') }
+        Esse::IndexMapping::FILENAMES.map { |str| [document_type, str].join('_') }
       end
     end
 

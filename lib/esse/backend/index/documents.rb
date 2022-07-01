@@ -13,7 +13,7 @@ module Esse
         #   May be SQL condition or any other filter you have defined on the collection.
         # @return [Numeric] The number of documents imported
         def import(*types, context: {}, suffix: nil, **options)
-          types = type_hash.keys if types.empty?
+          types = repo_hash.keys if types.empty?
           count = 0
           types.each do |type|
             each_serialized_batch(type, **(context || {})) do |batch|

@@ -9,9 +9,8 @@ module Esse
         validate_options!
         indices.each do |index|
           if !index.mapping_single_type?
-            # @TODO: Add document_types to index to be used here after rename to repo_hash
-            index.type_hash.each_value do |type|
-              index.elasticsearch.update_mapping!(type: type.type_name, **options)
+            index.repo_hash.values.map(&:document_type).uniq.each do |doc_type|
+              index.elasticsearch.update_mapping!(type: doc_type, **options)
             end
           else
             index.elasticsearch.update_mapping!(**options)

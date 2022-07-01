@@ -21,18 +21,18 @@ module Esse
         props = props[Esse::MAPPING_ROOT_KEY] if props.key?(Esse::MAPPING_ROOT_KEY)
         props = props['properties'] if props.key?('properties')
         if mapping_single_type? || cluster.engine.mapping_default_type
-          type_hash.values.each do |type|
-            props = HashUtils.deep_merge(props, type.mapping_properties)
+          repo_hash.values.each do |klass|
+            props = HashUtils.deep_merge(props, klass.mapping_properties)
           end
         else
-          props = type_hash.values.each_with_object({}) do |type, memo|
-            memo[type.type_name.to_s] = {
-              'properties' => HashUtils.deep_merge(props, type.mapping_properties)
+          props = repo_hash.values.each_with_object({}) do |klass, memo|
+            memo[klass.document_type] = {
+              'properties' => HashUtils.deep_merge(props, klass.mapping_properties)
             }
           end
         end
-        values = if (type_name = cluster.engine.mapping_default_type)
-          { type_name => { 'properties' => props } }
+        values = if (doc_type = cluster.engine.mapping_default_type)
+          { doc_type => { 'properties' => props } }
         elsif mapping_single_type?
           { 'properties' => props }
         else

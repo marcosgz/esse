@@ -34,7 +34,7 @@ module Esse
 
       def inherited_instance_variables
         {
-          :@type_hash => nil,
+          :@repo_hash => nil,
           :@setting => nil,
           :@mapping => nil,
           :@cluster_id => :dup,

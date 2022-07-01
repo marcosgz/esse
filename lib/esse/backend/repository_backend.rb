@@ -8,66 +8,66 @@ module Esse
       extend Forwardable
 
       # Type delegators
-      def_delegators :@repo, :type_name, :index, :serialize
+      def_delegators :@repo, :document_type, :index, :serialize
 
       def initialize(repo)
         @repo = repo
       end
 
       def import(**kwargs)
-        elasticsearch.import(type_name, **kwargs)
+        elasticsearch.import(document_type, **kwargs)
       end
 
       def import!(**kwargs)
-        elasticsearch.import!(type_name, **kwargs)
+        elasticsearch.import!(document_type, **kwargs)
       end
 
       def bulk!(**kwargs)
-        elasticsearch.bulk!(**kwargs, type: type_name)
+        elasticsearch.bulk!(**kwargs, type: document_type)
       end
 
       def bulk(**kwargs)
-        elasticsearch.bulk(**kwargs, type: type_name)
+        elasticsearch.bulk(**kwargs, type: document_type)
       end
 
       def index!(**kwargs)
-        elasticsearch.index!(**kwargs, type: type_name)
+        elasticsearch.index!(**kwargs, type: document_type)
       end
 
       def index(**kwargs)
-        elasticsearch.index(**kwargs, type: type_name)
+        elasticsearch.index(**kwargs, type: document_type)
       end
 
       def update!(**kwargs)
-        elasticsearch.update!(**kwargs, type: type_name)
+        elasticsearch.update!(**kwargs, type: document_type)
       end
 
       def update(**kwargs)
-        elasticsearch.update(**kwargs, type: type_name)
+        elasticsearch.update(**kwargs, type: document_type)
       end
 
       def delete!(**kwargs)
-        elasticsearch.delete!(**kwargs, type: type_name)
+        elasticsearch.delete!(**kwargs, type: document_type)
       end
 
       def delete(**kwargs)
-        elasticsearch.delete(**kwargs, type: type_name)
+        elasticsearch.delete(**kwargs, type: document_type)
       end
 
       def exist?(**kwargs)
-        elasticsearch.exist?(**kwargs, type: type_name)
+        elasticsearch.exist?(**kwargs, type: document_type)
       end
 
       def count(**kwargs)
-        elasticsearch.count(**kwargs, type: type_name)
+        elasticsearch.count(**kwargs, type: document_type)
       end
 
       def find!(**kwargs)
-        elasticsearch.find!(**kwargs, type: type_name)
+        elasticsearch.find!(**kwargs, type: document_type)
       end
 
       def find(**kwargs)
-        elasticsearch.find(**kwargs, type: type_name)
+        elasticsearch.find(**kwargs, type: document_type)
       end
 
       protected
