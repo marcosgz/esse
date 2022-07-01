@@ -5,8 +5,8 @@ stack_describe 'elasticsearch', '7.x', 'elasticsearch#close', es_webmock: true d
   before do
     reset_config!
     stub_index(:geos) do
-      define_type :city
-      define_type :county
+      repository :city
+      repository :county
     end
   end
 

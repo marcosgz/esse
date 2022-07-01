@@ -5,18 +5,27 @@ require 'spec_helper'
 RSpec.describe Esse::Index do
   describe '.define_type' do
     specify do
-      index = Class.new(Esse::Index) { define_type :user, const: true }
+      Gem::Deprecate.skip_during do
+        index = Class.new(Esse::Index) { define_type :user }
+        expect(index.repo(:user).superclass).to eq(Esse::Repository)
+      end
+    end
+  end
+
+  describe '.repository' do
+    specify do
+      index = Class.new(Esse::Index) { repository :user, const: true }
       expect(index::User.superclass).to eq(Esse::Repository)
     end
 
     specify do
-      index = Class.new(Esse::Index) { define_type :user }
+      index = Class.new(Esse::Index) { repository :user }
       expect(index.repo(:user).superclass).to eq(Esse::Repository)
     end
 
     context 'with a underscored type' do
       before do
-        stub_index(:events) { define_type :schedule_occurrence, const: true }
+        stub_index(:events) { repository :schedule_occurrence, const: true }
       end
 
       specify do
@@ -27,7 +36,7 @@ RSpec.describe Esse::Index do
     context 'with a class under under namespace' do
       before do
         stub_class('Namespace::Event')
-        stub_index(:events) { define_type Namespace::Event, const: true }
+        stub_index(:events) { repository Namespace::Event, const: true }
       end
 
       specify do
@@ -38,8 +47,8 @@ RSpec.describe Esse::Index do
     context 'index type_hash' do
       before do
         stub_index(:users) do
-          define_type :admin, const: true
-          define_type :editorial, const: true
+          repository :admin, const: true
+          repository :editorial, const: true
         end
       end
 
@@ -52,7 +61,7 @@ RSpec.describe Esse::Index do
 
     context 'type singleton methods' do
       before do
-        stub_index(:events) { define_type :event, const: true }
+        stub_index(:events) { repository :event, const: true }
       end
 
       specify do
@@ -81,14 +90,14 @@ RSpec.describe Esse::Index do
     end
 
     it 'returns the first defined when calling with arguments' do
-      stub_index(:events) { define_type :event, const: true }
+      stub_index(:events) { repository :event, const: true }
       expect(EventsIndex.repo).to eq(EventsIndex::Event)
     end
 
     it 'raises an error when calling repo without arguments in index with multiple repos' do
       stub_index(:events) do
-        define_type :event, const: true
-        define_type :place, const: true
+        repository :event, const: true
+        repository :place, const: true
       end
 
       expect { EventsIndex.repo }.to raise_error(ArgumentError).with_message(
@@ -98,8 +107,8 @@ RSpec.describe Esse::Index do
 
     it 'returns the correct repo when calling repo with arguments in index with multiple repos' do
       stub_index(:events) do
-        define_type :event, const: true
-        define_type :place, const: true
+        repository :event, const: true
+        repository :place, const: true
       end
 
       expect(EventsIndex.repo(:event)).to eq(EventsIndex::Event)
@@ -116,7 +125,7 @@ RSpec.describe Esse::Index do
 
     context 'with a repo defined' do
       before do
-        stub_index(:events) { define_type :event, const: false }
+        stub_index(:events) { repository :event, const: false }
       end
 
       it { expect(EventsIndex.repo?).to eq(true) }

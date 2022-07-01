@@ -10,8 +10,8 @@ RSpec.describe Esse::CLI::Generate, type: :cli do
 
       expect_generate(%w[index users admin normal], expected_filename)
       expect_contains(expected_filename, 'class UsersIndex < Esse::Index')
-      expect_contains(expected_filename, 'define_type :admin do')
-      expect_contains(expected_filename, 'define_type :normal do')
+      expect_contains(expected_filename, 'repository :admin do')
+      expect_contains(expected_filename, 'repository :normal do')
     end
 
     it 'generates the mappings template for each type' do

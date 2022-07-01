@@ -8,7 +8,7 @@ RSpec.describe Esse::Repository do
     specify do
       expect {
         Class.new(Esse::Index) do
-          define_type :foo do
+          repository :foo do
             collection do
             end
           end
@@ -18,7 +18,7 @@ RSpec.describe Esse::Repository do
 
     specify do
       klass = Class.new(Esse::Index) do
-        define_type :foo do
+        repository :foo do
           collection do |&b|
             b.call([])
           end
@@ -32,7 +32,7 @@ RSpec.describe Esse::Repository do
     specify do
       expect {
         Class.new(Esse::Index) do
-          define_type :foo do
+          repository :foo do
             collection
           end
         end
@@ -41,7 +41,7 @@ RSpec.describe Esse::Repository do
 
     specify do
       klass = Class.new(Esse::Index) do
-        define_type :foo do
+        repository :foo do
           collection DummyGeosCollection
         end
       end
@@ -54,7 +54,7 @@ RSpec.describe Esse::Repository do
       collection_klass = Class.new
       expect {
         Class.new(Esse::Index) do
-          define_type :foo do
+          repository :foo do
             collection collection_klass
           end
         end
@@ -66,7 +66,7 @@ RSpec.describe Esse::Repository do
     context 'without the collection definition' do
       before do
         stub_index(:users) do
-          define_type(:user) {}
+          repository(:user) {}
         end
       end
 
@@ -80,7 +80,7 @@ RSpec.describe Esse::Repository do
     context 'without collection data' do
       before do
         stub_index(:users) do
-          define_type :user do
+          repository :user do
             collection do
             end
           end
@@ -95,7 +95,7 @@ RSpec.describe Esse::Repository do
     context 'with the collection definition' do
       before do
         stub_index(:users) do
-          define_type :user do
+          repository :user do
             collection do |**opts, &block|
               [[1], [2], [3]].each do |batch|
                 block.call batch, opts
@@ -114,7 +114,7 @@ RSpec.describe Esse::Repository do
     context 'with a collection class' do
       before do
         stub_index(:geos) do
-          define_type :city do
+          repository :city do
             collection DummyGeosCollection
           end
         end

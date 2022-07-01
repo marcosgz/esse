@@ -6,7 +6,7 @@ require 'ostruct'
 RSpec.describe Esse::Repository do
   describe '.serialize' do
     context 'without a serializer definition' do
-      before { stub_index(:dummies) { define_type(:dummy) } }
+      before { stub_index(:dummies) { repository(:dummy) } }
 
       specify do
         expect {
@@ -24,7 +24,7 @@ RSpec.describe Esse::Repository do
 
       before do
         stub_index(:dummies) do
-          define_type(:dummy) do
+          repository(:dummy) do
             serializer do |entry, **context|
               {
                 _id: entry.id,
@@ -47,7 +47,7 @@ RSpec.describe Esse::Repository do
     context 'without collection arguments' do
       before do
         stub_index(:states) do
-          define_type(:state) do
+          repository(:state) do
             collection do |&block|
               data = [
                 OpenStruct.new(id: 1, name: 'Il'),
@@ -87,7 +87,7 @@ RSpec.describe Esse::Repository do
     context 'with extra collection arguments' do
       before do
         stub_index(:states) do
-          define_type(:state) do
+          repository(:state) do
             collection do |**context, &block|
               data = [
                 OpenStruct.new(id: 1, name: 'Il'),
@@ -157,7 +157,7 @@ RSpec.describe Esse::Repository do
     context 'without collection arguments' do
       before do
         stub_index(:states) do
-          define_type(:state) do
+          repository(:state) do
             collection do |&block|
               data = [
                 OpenStruct.new(id: 1, name: 'Il'),
@@ -194,7 +194,7 @@ RSpec.describe Esse::Repository do
     context 'with extra collection arguments' do
       before do
         stub_index(:states) do
-          define_type(:state) do
+          repository(:state) do
             collection do |**context, &block|
               data = [
                 OpenStruct.new(id: 1, name: 'Il'),
@@ -244,7 +244,7 @@ RSpec.describe Esse::Repository do
       klass = nil
       expect {
         klass = Class.new(Esse::Index) do
-          define_type :foo do
+          repository :foo do
             serializer do
             end
           end
@@ -256,7 +256,7 @@ RSpec.describe Esse::Repository do
     specify do
       expect {
         Class.new(Esse::Index) do
-          define_type :foo do
+          repository :foo do
             serializer
           end
         end
@@ -266,7 +266,7 @@ RSpec.describe Esse::Repository do
     specify do
       expect {
         Class.new(Esse::Index) do
-          define_type :foo do
+          repository :foo do
             serializer :invalid
           end
         end
@@ -277,7 +277,7 @@ RSpec.describe Esse::Repository do
       klass = nil
       expect {
         klass = Class.new(Esse::Index) do
-          define_type :foo do
+          repository :foo do
             serializer(Class.new {
               def as_json
               end
@@ -292,7 +292,7 @@ RSpec.describe Esse::Repository do
       klass = nil
       expect {
         klass = Class.new(Esse::Index) do
-          define_type :foo do
+          repository :foo do
             serializer(Class.new {
               def to_h
               end
@@ -307,7 +307,7 @@ RSpec.describe Esse::Repository do
       klass = nil
       expect {
         klass = Class.new(Esse::Index) do
-          define_type :foo do
+          repository :foo do
             serializer(Class.new {
               def call
               end

@@ -63,7 +63,7 @@ stack_describe 'elasticsearch', '6.x', 'elasticsearch create index' do
               number_of_shards: 2,
             }
           end
-          define_type :dummy do
+          repository :dummy do
             mappings do
               {
                 age: { type: 'integer' },

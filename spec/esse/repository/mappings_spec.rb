@@ -6,11 +6,11 @@ RSpec.describe Esse::Repository do
   describe '.mapping_properties' do
     before do
       stub_index(:geos) do
-        define_type :county do
+        repository :county do
           mappings('properties' => { 'name' => { 'type' => 'string' } })
         end
 
-        define_type :city do
+        repository :city do
           mappings('name' => { 'type' => 'string' })
         end
       end
@@ -31,7 +31,7 @@ RSpec.describe Esse::Repository do
     specify do
       expect {
         Class.new(Esse::Index) do
-          define_type :test do
+          repository :test do
             mappings do
             end
           end
@@ -42,7 +42,7 @@ RSpec.describe Esse::Repository do
     specify do
       expect {
         Class.new(Esse::Index) do
-          define_type :test do
+          repository :test do
             mappings({})
           end
         end
@@ -56,7 +56,7 @@ RSpec.describe Esse::Repository do
 
   describe '.mapping' do
     subject { EventsIndex::Event.send(:mapping) }
-    before { stub_index(:events) { define_type(:event) } }
+    before { stub_index(:events) { repository(:event) } }
 
     it { is_expected.to be_an_instance_of(Esse::IndexMapping) }
   end
@@ -67,7 +67,7 @@ RSpec.describe Esse::Repository do
     context 'with a hash definition' do
       before do
         stub_index(:events) do
-          define_type :event do
+          repository :event do
             mappings(title: { type: 'string' })
           end
         end
@@ -81,7 +81,7 @@ RSpec.describe Esse::Repository do
     context 'with a hash definition' do
       before do
         stub_index(:events) do
-          define_type :event do
+          repository :event do
             mappings do
               { title: { type: :string.to_s } }
             end

@@ -7,7 +7,7 @@ module Esse
   class Repository
     class << self
       # This methods should be defined using meta programming in the index type definition
-      # @see Esse::Index::Type.define_type
+      # @see Esse::Index::Type.repository
       attr_reader :index, :type_name
     end
     require_relative 'repository/actions'

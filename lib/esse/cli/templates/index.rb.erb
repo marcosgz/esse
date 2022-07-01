@@ -38,7 +38,7 @@ class <%= @index_name %> < <%= @base_class %>
   <%- end # /@types.empty?-%>
 
   <%- @types.each do |type| -%>
-  define_type :<%= type.underscore %> do
+  repository :<%= type.underscore %> do
     <%- if @cli_options[:active_record] -%>
     collection ::<%= type.camelize %>.all
     <%- elsif @cli_options[:collections] -%>

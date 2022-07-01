@@ -55,7 +55,6 @@ module Esse
         self.type_hash = type_hash.merge(type_class.type_name => type_class)
         type_class
       end
-      alias_method :define_type, :repository
     end
 
     extend ClassMethods

@@ -15,8 +15,8 @@ RSpec.describe Esse::Index do
             }
           end
 
-          define_type :city
-          define_type :county
+          repository :city
+          repository :county
         end
       end
 
@@ -98,7 +98,7 @@ RSpec.describe Esse::Index do
             }
           end
 
-          define_type :city do
+          repository :city do
             mappings do
               {
                 'properties' => {
@@ -107,7 +107,7 @@ RSpec.describe Esse::Index do
               }
             end
           end
-          define_type :county
+          repository :county
         end
       end
 
@@ -186,7 +186,7 @@ RSpec.describe Esse::Index do
     context 'with definition only on type level' do
       before do
         stub_index(:geos) do
-          define_type :city do
+          repository :city do
             mappings do
               {
                 'properties' => {
@@ -195,7 +195,7 @@ RSpec.describe Esse::Index do
               }
             end
           end
-          define_type :county do
+          repository :county do
             mappings do
               {
                 'age' => { 'type' => 'integer' },

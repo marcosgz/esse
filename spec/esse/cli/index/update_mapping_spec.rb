@@ -58,8 +58,8 @@ RSpec.describe Esse::CLI::Index, type: :cli do
       before do
         stub_index(:geos) do
           self.mapping_single_type = false
-          define_type :city
-          define_type :county
+          repository :city
+          repository :county
         end
       end
 
