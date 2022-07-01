@@ -3,7 +3,7 @@
 module Esse
   class Index
     module ObjectDocumentMapper
-      DEFAULT_DOC_TYPE = '__default__'
+      DEFAULT_DOC_TYPE = DEFAULT_REPO_NAME
 
       # Convert ruby object to json. Arguments will be same of passed through the
       # collection. It's allowed a block or a class with the `to_h` instance method.
