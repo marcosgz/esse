@@ -3,7 +3,7 @@
 require 'spec_helper'
 require 'ostruct'
 
-RSpec.describe Esse::IndexType do
+RSpec.describe Esse::Repository do
   describe '.serialize' do
     context 'without a serializer definition' do
       before { stub_index(:dummies) { define_type(:dummy) } }

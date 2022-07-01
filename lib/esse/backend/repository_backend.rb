@@ -4,14 +4,14 @@ require 'forwardable'
 
 module Esse
   module Backend
-    class IndexType
+    class RepositoryBackend
       extend Forwardable
 
       # Type delegators
-      def_delegators :@index_type, :type_name, :index, :serialize
+      def_delegators :@repo, :type_name, :index, :serialize
 
-      def initialize(type)
-        @index_type = type
+      def initialize(repo)
+        @repo = repo
       end
 
       def import(**kwargs)
@@ -73,7 +73,7 @@ module Esse
       protected
 
       def elasticsearch
-        @index_type.index.elasticsearch
+        @repo.index.elasticsearch
       end
     end
   end

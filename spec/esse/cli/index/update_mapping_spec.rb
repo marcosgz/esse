@@ -25,8 +25,12 @@ RSpec.describe Esse::CLI::Index, type: :cli do
 
     context 'with a valid index name' do
       before do
-        stub_index(:counties)
-        stub_index(:cities)
+        stub_index(:counties) do
+          self.mapping_single_type = true
+        end
+        stub_index(:cities) do
+          self.mapping_single_type = true
+        end
       end
 
       specify do
@@ -41,7 +45,6 @@ RSpec.describe Esse::CLI::Index, type: :cli do
         cli_exec(%w[index update_mapping CountiesIndex --suffix=foo])
       end
 
-
       it 'allows multiple indices' do
         expect(CountiesIndex).to receive(:elasticsearch).at_least(1).and_return(api1 = double)
         expect(CitiesIndex).to receive(:elasticsearch).at_least(1).and_return(api2 = double)
@@ -54,6 +57,7 @@ RSpec.describe Esse::CLI::Index, type: :cli do
     context 'with a valid index name with types' do
       before do
         stub_index(:geos) do
+          self.mapping_single_type = false
           define_type :city
           define_type :county
         end

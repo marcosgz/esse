@@ -6,13 +6,13 @@ module Esse
       attr_writer :type_hash
 
       # @todo rename to repo_hash
-      def type_hash 
+      def type_hash
         @type_hash ||= {}
       end
 
       def repo(name = nil)
         if name.nil? && type_hash.size == 1
-          name = type_hash.keys.first 
+          name = type_hash.keys.first
         elsif name.nil? && type_hash.size > 1
           raise ArgumentError, "You can only call `repo' with a name when there is only one type defined."
         end
@@ -37,7 +37,7 @@ module Esse
       end
 
       def repository(type_name, *_args, **kwargs, &block)
-        type_class = Class.new(Esse::IndexType)
+        type_class = Class.new(Esse::Repository)
         kwargs[:const] ||= true
 
         if kwargs[:const]

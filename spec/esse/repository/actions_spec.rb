@@ -2,11 +2,11 @@
 
 require 'spec_helper'
 
-RSpec.describe Esse::IndexType do
+RSpec.describe Esse::Repository do
   describe '.action' do
     specify do
       expect {
-        Class.new(Esse::IndexType) do
+        Class.new(Esse::Repository) do
           action :update do
           end
         end
@@ -15,7 +15,7 @@ RSpec.describe Esse::IndexType do
 
     specify do
       expect {
-        Class.new(Esse::IndexType) do
+        Class.new(Esse::Repository) do
           action :update, {} do
           end
         end

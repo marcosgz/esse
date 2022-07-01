@@ -4,7 +4,7 @@ module Esse
   # Delegates all the methods to the index ODM by prepending the type name.
   #
   # @see ObjectDocumentMapper
-  class IndexType
+  class Repository
     module ClassMethods
       # Convert ruby object to json. Arguments will be same of passed through the
       # collection. It's allowed a block or a class with the `to_h` instance method.

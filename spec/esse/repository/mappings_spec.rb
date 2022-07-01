@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe Esse::IndexType do
+RSpec.describe Esse::Repository do
   describe '.mapping_properties' do
     before do
       stub_index(:geos) do

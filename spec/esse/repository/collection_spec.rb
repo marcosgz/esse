@@ -3,7 +3,7 @@
 require 'spec_helper'
 require 'support/collections'
 
-RSpec.describe Esse::IndexType do
+RSpec.describe Esse::Repository do
   describe '.collection' do
     specify do
       expect {

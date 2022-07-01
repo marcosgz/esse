@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Esse
-  class IndexType
+  class Repository
     # https://www.elastic.co/guide/en/elasticsearch/reference/master/indices-put-mapping.html
     module ClassMethods
       # This method is only used to define mapping

@@ -6,12 +6,12 @@ RSpec.describe Esse::Index do
   describe '.define_type' do
     specify do
       index = Class.new(Esse::Index) { define_type :user, const: true }
-      expect(index::User.superclass).to eq(Esse::IndexType)
+      expect(index::User.superclass).to eq(Esse::Repository)
     end
 
     specify do
       index = Class.new(Esse::Index) { define_type :user }
-      expect(index.repo(:user).superclass).to eq(Esse::IndexType)
+      expect(index.repo(:user).superclass).to eq(Esse::Repository)
     end
 
     context 'with a underscored type' do
