@@ -9,7 +9,7 @@ module Esse
         # @option options [String, nil] :suffix The index suffix. Defaults to the index_version.
         #   A uniq index name will be generated if one index already exist with the given alias.
         # @option options [Time] :timeout Explicit operation timeout
-        # @raise [Elasticsearch::Transport::Transport::Errors::BadRequest, Elasticsearch::Transport::Transport::Errors::NotFound]
+        # @raise [Esse::Backend::ServerError]
         #   in case of failure
         # @return [Hash] the elasticsearch response
         #
@@ -17,7 +17,7 @@ module Esse
         def reset_index!(suffix: index_version, **options)
           existing = []
           suffix ||= Esse.timestamp
-          suffix = Esse.timestamp while exist?(suffix: suffix).tap { |exist| existing << suffix if exist }
+          suffix = Esse.timestamp while index_exist?(suffix: suffix).tap { |exist| existing << suffix if exist }
 
           create_index!(**options, suffix: suffix, alias: false)
           import!(**options, suffix: suffix)

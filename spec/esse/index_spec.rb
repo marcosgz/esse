@@ -3,8 +3,8 @@
 require 'spec_helper'
 
 RSpec.describe Esse::Index do
-  let(:client1) { instance_double(Elasticsearch::Transport::Client) }
-  let(:client2) { instance_double(Elasticsearch::Transport::Client) }
+  let(:client1) { double }
+  let(:client2) { double }
 
   before(:each) do
     reset_config!
@@ -98,7 +98,7 @@ RSpec.describe Esse::Index do
     end
   end
 
-  describe "#bulk_wait_interval" do
+  describe '#bulk_wait_interval' do
     before { stub_index(:events) }
     after { Esse.config.bulk_wait_interval = 0.1 }
 
@@ -108,7 +108,7 @@ RSpec.describe Esse::Index do
       expect(EventsIndex.bulk_wait_interval).to eq(0.2)
     end
 
-    it "overwrites the global bulk wait interval" do
+    it 'overwrites the global bulk wait interval' do
       expect(Esse.config.bulk_wait_interval).to eq(0.1)
       EventsIndex.bulk_wait_interval = 1.5
       expect(EventsIndex.bulk_wait_interval).to eq(1.5)
@@ -129,7 +129,7 @@ RSpec.describe Esse::Index do
     end
   end
 
-  describe ".index_prefix" do
+  describe '.index_prefix' do
     before { stub_index(:users) }
 
     it 'default to index_prefix when its value is nil' do
@@ -244,39 +244,39 @@ RSpec.describe Esse::Index do
     end
   end
 
-  describe '.type_hash' do
+  describe '.repo_hash' do
     before do
       stub_index(:posts)
       stub_index(:comments)
     end
 
     it 'initializes with a hash' do
-      expect(PostsIndex.type_hash).to eq({})
+      expect(PostsIndex.repo_hash).to eq({})
     end
 
     it 'allows subclasses change their own value and it will not impact parent class' do
-      PostsIndex.type_hash[:type] = 'my type'
-      expect(PostsIndex.type_hash).to eq(type: 'my type')
-      expect(CommentsIndex.type_hash).to eq({})
-      expect(Esse::Index.type_hash).to eq({})
+      PostsIndex.repo_hash[:type] = 'my type'
+      expect(PostsIndex.repo_hash).to eq(type: 'my type')
+      expect(CommentsIndex.repo_hash).to eq({})
+      expect(Esse::Index.repo_hash).to eq({})
 
-      PostsIndex.type_hash = { type: 'new type' }
-      expect(PostsIndex.type_hash).to eq(type: 'new type')
-      expect(CommentsIndex.type_hash).to eq({})
-      expect(Esse::Index.type_hash).to eq({})
+      PostsIndex.repo_hash = { type: 'new type' }
+      expect(PostsIndex.repo_hash).to eq(type: 'new type')
+      expect(CommentsIndex.repo_hash).to eq({})
+      expect(Esse::Index.repo_hash).to eq({})
     end
 
     it 'does not inherits values from parent class' do
-      Esse::Index.type_hash[:type] = 'my type'
-      expect(Esse::Index.type_hash).to eq(type: 'my type')
-      expect(CommentsIndex.type_hash).to eq({})
+      Esse::Index.repo_hash[:type] = 'my type'
+      expect(Esse::Index.repo_hash).to eq(type: 'my type')
+      expect(CommentsIndex.repo_hash).to eq({})
 
-      Esse::Index.type_hash = { type: 'new type' }
-      expect(Esse::Index.type_hash).to eq(type: 'new type')
-      expect(CommentsIndex.type_hash).to eq({})
+      Esse::Index.repo_hash = { type: 'new type' }
+      expect(Esse::Index.repo_hash).to eq(type: 'new type')
+      expect(CommentsIndex.repo_hash).to eq({})
 
       c = Class.new(Esse::Index)
-      expect(c.type_hash).to eq({})
+      expect(c.repo_hash).to eq({})
     end
   end
 
@@ -291,6 +291,96 @@ RSpec.describe Esse::Index do
     specify do
       c = Class.new(Esse::Index)
       expect(c.elasticsearch).to be_an_instance_of(Esse::Backend::Index)
+    end
+  end
+
+  describe '.mapping_single_type?' do
+    subject { index_class.mapping_single_type? }
+
+    let(:index_class) { Class.new(Esse::Index) }
+
+    context 'with elasticsearch 1.x' do
+      it 'returns true' do
+        expect(index_class.cluster).to receive(:engine).and_return(Esse::ClusterEngine.new(version: '1.0', distribution: 'elasticsearch'))
+        is_expected.to be_falsey
+      end
+
+      it 'allows overriding' do
+        index_class.mapping_single_type = true
+        is_expected.to be_truthy
+      end
+    end
+
+    context 'with elasticsearch 2.x' do
+      it 'returns true' do
+        expect(index_class.cluster).to receive(:engine).and_return(Esse::ClusterEngine.new(version: '2.0', distribution: 'elasticsearch'))
+        is_expected.to be_falsey
+      end
+
+      it 'allows overriding' do
+        index_class.mapping_single_type = true
+        is_expected.to be_truthy
+      end
+    end
+
+    context 'with elasticsearch 5.x' do
+      it 'returns true' do
+        expect(index_class.cluster).to receive(:engine).and_return(Esse::ClusterEngine.new(version: '5.0', distribution: 'elasticsearch'))
+        is_expected.to be_falsey
+      end
+
+      it 'allows overriding' do
+        index_class.mapping_single_type = true
+        is_expected.to be_truthy
+      end
+    end
+
+    context 'with elasticsearch 6.x' do
+      it 'returns true' do
+        expect(index_class.cluster).to receive(:engine).and_return(Esse::ClusterEngine.new(version: '6.0', distribution: 'elasticsearch'))
+        is_expected.to be_truthy
+      end
+
+      it 'allows overriding' do
+        index_class.mapping_single_type = false
+        is_expected.to be_falsey
+      end
+    end
+
+    context 'with elasticsearch 7.x' do
+      it 'returns true' do
+        expect(index_class.cluster).to receive(:engine).and_return(Esse::ClusterEngine.new(version: '7.0', distribution: 'elasticsearch'))
+        is_expected.to be_truthy
+      end
+
+      it 'allows overriding' do
+        index_class.mapping_single_type = false
+        is_expected.to be_falsey
+      end
+    end
+
+    context 'with opensearch 1.x' do
+      it 'returns true' do
+        expect(index_class.cluster).to receive(:engine).and_return(Esse::ClusterEngine.new(version: '1.0', distribution: 'opensearch'))
+        is_expected.to be_truthy
+      end
+
+      it 'allows overriding' do
+        index_class.mapping_single_type = false
+        is_expected.to be_falsey
+      end
+    end
+
+    context 'with opensearch 2.x' do
+      it 'returns true' do
+        expect(index_class.cluster).to receive(:engine).and_return(Esse::ClusterEngine.new(version: '2.0', distribution: 'opensearch'))
+        is_expected.to be_truthy
+      end
+
+      it 'allows overriding' do
+        index_class.mapping_single_type = false
+        is_expected.to be_falsey
+      end
     end
   end
 end

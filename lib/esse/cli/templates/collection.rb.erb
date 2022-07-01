@@ -1,0 +1,29 @@
+# frozen_string_literal: true
+
+class <%= @index_name %> < <%= @base_class %>
+  module Collections
+    class <%= @type.camelize if @type %>Collection < Esse::Collection
+      <%- if @type -%>
+      # @yield [Array<<%= @type.camelize %>>]
+      # @see <%= @index_name %>::<%= @type.camelize %>#collection
+      <%- end -%>
+      def each
+        offset = 0
+        while (rows = find_all(offset))
+          break if rows.none?
+          offset += 1
+          yield(rows)
+          # You may also preload associations here or add metadata useful for the serializer
+          # yield(rows, **preload_associations(rows))
+        end
+      end
+
+      protected
+
+      # @param offset [Number] Offset to start from
+      def find_all(offset)
+        # @TODO load data from persistent store
+      end
+    end
+  end
+end

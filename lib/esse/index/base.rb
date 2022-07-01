@@ -67,7 +67,7 @@ module Esse
           raise ArgumentError.new, format(msg, arg: source, ids: valid_ids.map(&:inspect).join(', '))
         end
 
-        klass.type_hash = {}
+        klass.repo_hash = {}
         klass
       end
 

@@ -3,26 +3,56 @@
 module Esse
   class Index
     module ClassMethods
-      attr_writer :type_hash
+      attr_writer :repo_hash
 
-      def type_hash
-        @type_hash ||= {}
+      def repo_hash
+        @repo_hash ||= {}
       end
 
-      def define_type(type_name, &block)
-        type_class = Class.new(Esse::IndexType)
+      def repo(name = nil)
+        if name.nil? && repo_hash.size == 1
+          name = repo_hash.keys.first
+        elsif name.nil? && repo_hash.size > 1
+          raise ArgumentError, "You can only call `repo' with a name when there is only one type defined."
+        end
+        name ||= DEFAULT_REPO_NAME
 
-        const_set(Hstring.new(type_name).camelize.demodulize.to_s, type_class)
+        repo_hash.fetch(name.to_s)
+      rescue KeyError
+        raise ArgumentError, <<~MSG
+          No repo named "#{name}" found. Use the `repository' method to define one:
+
+            repository :#{name} do
+              # collection ...
+              # serializer ...
+            end
+        MSG
+      end
+
+      def repo?(name = nil)
+        return repo_hash.size > 0 if name.nil?
+
+        repo_hash.key?(name.to_s)
+      end
+
+      def repository(repo_name, *_args, **kwargs, &block)
+        repo_class = Class.new(Esse::Repository)
+        kwargs[:const] ||= true
+
+        if kwargs[:const]
+          const_set(Hstring.new(repo_name).camelize.demodulize.to_s, repo_class)
+        end
 
         index = self
 
-        type_class.send(:define_singleton_method, :index) { index }
-        type_class.send(:define_singleton_method, :type_name) { type_name.to_s }
+        repo_class.send(:define_singleton_method, :index) { index }
+        repo_class.send(:define_singleton_method, :repo_name) { repo_name.to_s }
+        repo_class.document_type = repo_name.to_s
 
-        type_class.class_eval(&block) if block
+        repo_class.class_eval(&block) if block
 
-        self.type_hash = type_hash.merge(type_class.type_name => type_class)
-        type_class
+        self.repo_hash = repo_hash.merge(repo_class.repo_name => repo_class)
+        repo_class
       end
     end
 

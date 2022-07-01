@@ -21,7 +21,7 @@ module Esse
         #   with the same name across all types
         # @option options [Time] :timeout Explicit operation timeout
         # @option options [Boolean] :master_timeout Timeout for connection to master
-        # @raise [Elasticsearch::Transport::Transport::Errors::BadRequest, Elasticsearch::Transport::Transport::Errors::NotFound]
+        # @raise [Esse::Backend::ServerError]
         #   in case of failure
         # @return [Hash] the elasticsearch response
         #
@@ -33,7 +33,7 @@ module Esse
               body = body[type.to_s] || body[type.to_sym]
             end
             payload[:request] = opts = options.merge(index: index_name(suffix: suffix), body: body)
-            payload[:response] = client.indices.put_mapping(**opts)
+            payload[:response] = coerce_exception { client.indices.put_mapping(**opts) }
           end
         end
 
@@ -59,7 +59,7 @@ module Esse
         # @see http://www.elasticsearch.org/guide/reference/api/admin-indices-put-mapping/
         def update_mapping(suffix: index_version, **options)
           update_mapping!(suffix: suffix, **options)
-        rescue Elasticsearch::Transport::Transport::ServerError
+        rescue ServerError
           { 'errors' => true }
         end
 
@@ -76,7 +76,7 @@ module Esse
         #   If set to `true` existing settings on an index remain unchanged, the default is `false`
         # @option options [Time] :master_timeout Specify timeout for connection to master
         # @option options [Boolean] :flat_settings Return settings in flat format (default: false)
-        # @raise [Elasticsearch::Transport::Transport::Errors::BadRequest, Elasticsearch::Transport::Transport::Errors::NotFound]
+        # @raise [Esse::Backend::ServerError]
         #   in case of failure
         # @return [Hash] the elasticsearch response
         #
@@ -93,7 +93,7 @@ module Esse
             # closed index might prevent the index to be opened correctly again.
             Esse::Events.instrument('elasticsearch.update_settings') do |payload|
               payload[:request] = opts = options.merge(index: index_name(suffix: suffix), body: { index: settings })
-              payload[:response] = response = client.indices.put_settings(**opts)
+              payload[:response] = response = coerce_exception { client.indices.put_settings(**opts) }
             end
           end
 
@@ -104,7 +104,7 @@ module Esse
             begin
               Esse::Events.instrument('elasticsearch.update_settings') do |payload|
                 payload[:request] = opts = options.merge(index: index_name(suffix: suffix), body: { analysis: analysis })
-                payload[:response] = response = client.indices.put_settings(**opts)
+                payload[:response] = response = coerce_exception { client.indices.put_settings(**opts) }
               end
             ensure
               open!(suffix: suffix)
@@ -132,7 +132,7 @@ module Esse
         # @see http://www.elasticsearch.org/guide/reference/api/admin-indices-update-settings/
         def update_settings(suffix: index_version, **options)
           update_settings!(suffix: suffix, **options)
-        rescue Elasticsearch::Transport::Transport::ServerError
+        rescue ServerError
           { 'errors' => true }
         end
       end

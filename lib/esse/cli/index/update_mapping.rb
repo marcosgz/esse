@@ -8,10 +8,9 @@ module Esse
       def run
         validate_options!
         indices.each do |index|
-          if index.type_hash.any?
-            index.type_hash.each_value do |type|
-              # @idea Add update_mapping! to IndexType and use it here
-              index.elasticsearch.update_mapping!(type: type.type_name, **options)
+          if !index.mapping_single_type?
+            index.repo_hash.values.map(&:document_type).uniq.each do |doc_type|
+              index.elasticsearch.update_mapping!(type: doc_type, **options)
             end
           else
             index.elasticsearch.update_mapping!(**options)

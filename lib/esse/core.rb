@@ -1,19 +1,17 @@
 # frozen_string_literal: true
 
-
-require 'multi_json'
-require 'elasticsearch'
-
 module Esse
   require_relative 'config'
   require_relative 'cluster'
   require_relative 'primitives'
-  require_relative 'index_type'
+  require_relative 'collection'
+  require_relative 'serializer'
+  require_relative 'repository'
   require_relative 'index_setting'
   require_relative 'index_mapping'
   require_relative 'template_loader'
   require_relative 'backend/index'
-  require_relative 'backend/index_type'
+  require_relative 'backend/repository_backend'
   require_relative 'version'
   require_relative 'logging'
   require_relative 'events'

@@ -5,7 +5,7 @@ require 'support/serializers'
 RSpec.shared_context 'geos index definition' do
   before do
     stub_index(:geos) do
-      define_type :state do
+      repository :state do
         mappings('name' => { 'type' => 'string' }, 'pk' => { 'type' => 'long'})
         collection do |**context, &block|
           [
@@ -23,7 +23,7 @@ RSpec.shared_context 'geos index definition' do
         end
         serializer DummyGeosSerializer
       end
-      define_type :county do
+      repository :county do
         mappings('name' => { 'type' => 'string' }, 'pk' => { 'type' => 'long'})
         collection do |**context, &block|
           [

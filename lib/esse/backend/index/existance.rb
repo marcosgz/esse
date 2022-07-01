@@ -6,13 +6,13 @@ module Esse
       module InstanceMethods
         # Checks the index existance. Returns true or false
         #
-        #   UsersIndex.elasticsearch.exist? #=> true
+        #   UsersIndex.elasticsearch.index_exist? #=> true
         #
         # @param options [Hash] Options hash
         # @option options [String, nil] :suffix The index suffix. Defaults to the index_version.
         #   Use nil if you want to check existence of the `index_name` index or alias.
-        def exist?(suffix: index_version)
-          client.indices.exists(index: index_name(suffix: suffix))
+        def index_exist?(suffix: index_version)
+          coerce_exception { client.indices.exists(index: index_name(suffix: suffix)) }
         end
       end
 

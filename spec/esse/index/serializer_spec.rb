@@ -5,43 +5,6 @@ require 'ostruct'
 require 'support/collections'
 
 RSpec.describe Esse::Index do
-  describe '.serialize' do
-    context 'without a serializer definition' do
-      before { stub_index(:dummies) {} }
-
-      specify do
-        expect {
-          DummiesIndex.serialize(double)
-        }.to raise_error(
-          NotImplementedError,
-          'there is no serializer defined for the "DummiesIndex" index',
-        )
-      end
-    end
-
-    context 'with a serializer definition' do
-      let(:dummy) { double(id: 1) }
-      let(:optionals) { { name: 'dummy' } }
-
-      before do
-        stub_index(:dummies) do
-          serializer do |entry, **context|
-            {
-              _id: entry.id,
-            }.merge(context)
-          end
-        end
-      end
-
-      specify do
-        expect(DummiesIndex.serialize(dummy, **optionals)).to eq(
-          _id: 1,
-          name: 'dummy',
-        )
-      end
-    end
-  end
-
   describe '.each_serialized_batch' do
     before do
       stub_index(:states) do
@@ -107,7 +70,7 @@ RSpec.describe Esse::Index do
       )
     end
 
-    context "when collection yields data with additional context" do
+    context 'when collection yields data with additional context' do
       before do
         stub_index(:geos) do
           collection do |**_kwargs, &block|
@@ -148,7 +111,7 @@ RSpec.describe Esse::Index do
       end
     end
 
-    context "when collection yields data with additional context" do
+    context 'when collection yields data with additional context' do
       before do
         stub_index(:geos) do
           collection do |**_kwargs, &block|
@@ -163,7 +126,7 @@ RSpec.describe Esse::Index do
         end
       end
 
-      it "does not flatten batch arrays" do
+      it 'does not flatten batch arrays' do
         expected_data = []
         expect {
           GeosIndex.each_serialized_batch { |batch| expected_data.push(*batch) }
@@ -226,7 +189,7 @@ RSpec.describe Esse::Index do
           end
         end
       }.not_to raise_error
-      expect(klass.instance_variable_get(:@serializer_proc)).to be_a_kind_of(Proc)
+      expect(klass.repo.instance_variable_get(:@serializer_proc)).to be_a_kind_of(Proc)
     end
 
     specify do
@@ -240,7 +203,7 @@ RSpec.describe Esse::Index do
     specify do
       expect {
         Class.new(Esse::Index) do
-          serializer :invalid
+          serializer :__default__, :invalid
         end
       }.to raise_error(ArgumentError, ':invalid is not a valid serializer. The serializer should respond with `to_h` instance method.')
     end
@@ -255,7 +218,7 @@ RSpec.describe Esse::Index do
                      })
         end
       }.not_to raise_error
-      expect(klass.instance_variable_get(:@serializer_proc)).to be_a_kind_of(Proc)
+      expect(klass.repo.instance_variable_get(:@serializer_proc)).to be_a_kind_of(Proc)
     end
 
     specify do
@@ -268,7 +231,7 @@ RSpec.describe Esse::Index do
                      })
         end
       }.not_to raise_error
-      expect(klass.instance_variable_get(:@serializer_proc)).to be_a_kind_of(Proc)
+      expect(klass.repo.instance_variable_get(:@serializer_proc)).to be_a_kind_of(Proc)
     end
 
     specify do
@@ -281,7 +244,7 @@ RSpec.describe Esse::Index do
                      })
         end
       }.not_to raise_error
-      expect(klass.instance_variable_get(:@serializer_proc)).to be_a_kind_of(Proc)
+      expect(klass.repo.instance_variable_get(:@serializer_proc)).to be_a_kind_of(Proc)
     end
   end
 end

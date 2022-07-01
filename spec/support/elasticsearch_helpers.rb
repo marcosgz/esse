@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 module ElasticsearchHelpers
+  extend self
+
   CONFIG_KEY = Esse::Config::DEFAULT_CLUSTER_ID
 
   # Deletes all corresponding indices with current prefix from ElasticSearch.
@@ -8,6 +10,7 @@ module ElasticsearchHelpers
   def delete_all_indices!(key: CONFIG_KEY, pattern: '*')
     with_config do |config|
       cluster = config.cluster(key)
+      Hooks::ServiceVersion.webmock_disable_all_except_elasticsearch_hosts!(cluster)
       cluster.client.indices.delete(index: [cluster.index_prefix, pattern].compact.join('_'))
       cluster.wait_for_status!(status: :green)
       yield cluster.client, config, cluster if block_given?
@@ -15,8 +18,9 @@ module ElasticsearchHelpers
   end
   alias_method :es_client, :delete_all_indices!
 
-  def elasticsearch_response_fixture(file:, version:, assigns: {}, **)
-    dirname = File.expand_path("../../fixtures/elasticsearch-response/#{version}", __FILE__)
+  # @option [String] :distribution ('elasticsearch') The name of the service to connect to. Valid values are 'elasticsearch' and 'opensearch'.
+  def elasticsearch_response_fixture(file:, version:, assigns: {}, distribution: 'elasticsearch', **)
+    dirname = File.expand_path("../../fixtures/#{distribution}-response/#{version}", __FILE__)
     path = nil
     [file, "#{file}.json", "#{file}.json.erb"].each do |filename|
       path = File.join(dirname, filename)
@@ -38,6 +42,9 @@ module ElasticsearchHelpers
     res[:status] ||= 200
     res[:body] ||= { acknowledged: true }
     res[:body] = MultiJson.dump(res[:body]) unless res[:body].is_a?(String)
+    res[:headers] ||= {
+      'Content-Type' => 'application/json',
+    }
 
     uri = es_cluster_uri
     uri.path = path
@@ -46,7 +53,12 @@ module ElasticsearchHelpers
   end
 
   def es_cluster_uri(cluster_id = CONFIG_KEY)
-    conn = Esse.config.cluster(cluster_id).client.transport.connections.first
+    client = Esse.config.cluster(cluster_id).client
+    # OpenSearch have an initial request to verify the client compatibility
+    client.instance_variable_set(:@verified, true)
+    transport = client.transport
+    transport = transport.transport if transport.respond_to?(:transport)
+    conn = transport.connections.first
     URI.parse(conn.full_url(''))
   end
 end
