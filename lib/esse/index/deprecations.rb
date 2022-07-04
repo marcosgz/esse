@@ -8,12 +8,12 @@ module Esse
       def define_type(name, *args, **kwargs, &block)
         repository(name, *args, **kwargs, &block)
       end
-      deprecate :define_type, :repository, 2022, 7
+      deprecate :define_type, :repository, 2022, 8
 
       def type_hash
         repo_hash
       end
-      deprecate :type_hash, :repo_hash, 2022, 7
+      deprecate :type_hash, :repo_hash, 2022, 8
     end
   end
 end

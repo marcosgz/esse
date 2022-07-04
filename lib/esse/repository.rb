@@ -16,7 +16,7 @@ module Esse
       def type_name
         document_type
       end
-      deprecate :type_name, :document_type, 2022, 7
+      deprecate :type_name, :document_type, 2022, 8
     end
     require_relative 'repository/actions'
     require_relative 'repository/mappings'
