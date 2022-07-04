@@ -14,6 +14,11 @@ RSpec.describe Esse::Index do
       expect(index.repo(:user).superclass).to eq(Esse::Repository)
     end
 
+    it 'allows define document_type' do
+      index = Class.new(Esse::Index) { repository :user, document_type: :foo }
+      expect(index.repo(:user).document_type).to eq('foo')
+    end
+
     context 'with a underscored type' do
       before do
         stub_index(:events) { repository :schedule_occurrence, const: true }
