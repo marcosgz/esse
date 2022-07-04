@@ -48,8 +48,13 @@ module Esse
         repo_class.send(:define_singleton_method, :index) { index }
         repo_class.send(:define_singleton_method, :repo_name) { repo_name.to_s }
         repo_class.document_type = repo_name.to_s
-
         repo_class.class_eval(&block) if block
+
+        plugins.each do |mod|
+          next unless mod.const_defined?(:RepositoryClassMethods, false)
+
+          repository_plugin_extend(repo_class, mod::RepositoryClassMethods)
+        end
 
         self.repo_hash = repo_hash.merge(repo_class.repo_name => repo_class)
         repo_class
