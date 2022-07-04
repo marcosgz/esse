@@ -15,6 +15,7 @@ module Esse
       require_relative 'index/documents'
       require_relative 'index/open'
       require_relative 'index/close'
+      require_relative 'index/search'
 
       extend Forwardable
 

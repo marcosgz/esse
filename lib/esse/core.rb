@@ -15,6 +15,8 @@ module Esse
   require_relative 'version'
   require_relative 'logging'
   require_relative 'events'
+  require_relative 'search/query'
+  require_relative 'search/response'
   include Logging
 
   @single_threaded = false

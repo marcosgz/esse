@@ -1,0 +1,37 @@
+{
+  "took" : 1,
+  "timed_out" : false,
+  "_shards" : {
+    "total" : 1,
+    "successful" : 1,
+    "skipped" : 0,
+    "failed" : 0
+  },
+  "hits" : {
+    "total" : {
+      "value" : 2,
+      "relation" : "eq"
+    },
+    "max_score" : 1.0,
+    "hits" : [
+      {
+        "_index" : "<%= assigns.fetch(:index_name, "esse_index_name") %>]",
+        "_type" : "_doc",
+        "_id" : "us",
+        "_score" : 1.0,
+        "_source" : {
+          "name" : "United States"
+        }
+      },
+      {
+        "_index" : "<%= assigns.fetch(:index_name, "esse_index_name") %>]",
+        "_type" : "_doc",
+        "_id" : "ca",
+        "_score" : 1.0,
+        "_source" : {
+          "name" : "Canada"
+        }
+      }
+    ]
+  }
+}

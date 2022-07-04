@@ -37,7 +37,7 @@ module Esse
 
       def repository(repo_name, *_args, **kwargs, &block)
         repo_class = Class.new(Esse::Repository)
-        kwargs[:const] ||= true
+        kwargs[:const] ||= true # TODO Change this to false to avoid collisions with application classes
 
         if kwargs[:const]
           const_set(Hstring.new(repo_name).camelize.demodulize.to_s, repo_class)
