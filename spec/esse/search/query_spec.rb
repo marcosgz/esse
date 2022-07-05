@@ -57,6 +57,60 @@ RSpec.describe Esse::Search::Query do
     end
   end
 
+  describe '#results' do
+    let(:searcher) { instance_double(Esse::Backend::Index) }
+    let(:request_body) { { query: { match_all: {} } } }
+    let(:query) { described_class.new(EventsIndex, request_body) }
+
+    before { stub_index(:events) }
+
+    context 'with elasticsearch < 7.x' do
+      let(:response_document) do
+        {
+          'took' => '5', 'timed_out' => false, '_shards' => {'one' => 'OK'},
+          'hits' => { 'total' => 100, 'hits' => (1..100).to_a.map { |i| { _id: i } } }
+        }
+      end
+
+      it 'returns the hits' do
+        expect(searcher).to receive(:search).with(body: request_body).and_return(response_document)
+        expect(EventsIndex).to receive(:elasticsearch).and_return(searcher)
+
+        expect(query.results).to be_an_instance_of(Array)
+        expect(query.results.size).to eq(100)
+      end
+    end
+
+    context 'with elasticsearch >= 7.x' do
+      let(:response_document) do
+        {
+          'took' => '5', 'timed_out' => false, '_shards' => {'one' => 'OK'},
+          'hits' => { 'total' => { 'value' => 100, 'relation' => 'eq' }, 'hits' => (1..100).to_a.map { |i| { _id: i } } }
+        }
+      end
+
+      it 'returns the hits and aggregations' do
+        expect(searcher).to receive(:search).with(body: request_body).and_return(response_document)
+        expect(EventsIndex).to receive(:elasticsearch).and_return(searcher)
+
+        expect(query.results).to be_an_instance_of(Array)
+        expect(query.results.size).to eq(100)
+      end
+    end
+
+    context 'when query have the :paginated_results method' do
+      it 'returns the data from paginated_results instead' do
+        query.extend Module.new {
+                       def paginated_results
+                         [:ok]
+                       end
+                     }
+
+        expect(query.results).to eq([:ok])
+      end
+    end
+  end
+
   describe '#raw_limit_value' do
     subject { described_class.new(Class.new(Esse::Index), definition, **params).send(:raw_limit_value) }
 

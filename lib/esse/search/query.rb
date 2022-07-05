@@ -29,6 +29,12 @@ module Esse
         end
       end
 
+      def results
+        return paginated_results if respond_to?(:paginated_results, true)
+
+        response.hits
+      end
+
       private
 
       def raw_limit_value
