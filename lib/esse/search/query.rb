@@ -28,6 +28,16 @@ module Esse
           Response.new(self, resp)
         end
       end
+
+      private
+
+      def raw_limit_value
+        definition.dig(:body, :size) || definition.dig(:body, 'size') || definition.dig(:size) || definition.dig('size') || options[:size]
+      end
+
+      def raw_offset_value
+        definition.dig(:body, :from) || definition.dig(:body, 'from') || definition.dig(:from) || definition.dig('from') || options[:from]
+      end
     end
   end
 end

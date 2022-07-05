@@ -33,6 +33,14 @@ module Esse
       def hits
         raw_response.dig('hits', 'hits') || []
       end
+
+      def total
+        if raw_response.dig('hits', 'total').respond_to?(:keys)
+          raw_response.dig('hits', 'total', 'value')
+        else
+          raw_response.dig('hits', 'total')
+        end.to_i
+      end
     end
   end
 end

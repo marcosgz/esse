@@ -56,4 +56,74 @@ RSpec.describe Esse::Search::Query do
       expect(resp.query).to eq(query)
     end
   end
+
+  describe '#raw_limit_value' do
+    subject { described_class.new(Class.new(Esse::Index), definition, **params).send(:raw_limit_value) }
+
+    let(:params) { {} }
+    let(:definition) { 'term' }
+
+    it { is_expected.to eq(nil) }
+
+    context 'when definition have [:body][:size] value' do
+      let(:definition) do
+        {
+          size: 10
+        }
+      end
+
+      it { is_expected.to eq(10) }
+    end
+
+    context 'when definition have [:body]["size"] value' do
+      let(:definition) do
+        {
+          'size' => 10
+        }
+      end
+
+      it { is_expected.to eq(10) }
+    end
+
+    context 'when params have the :size' do
+      let(:params) { { size: 20 } }
+
+      it { is_expected.to eq(20) }
+    end
+  end
+
+  describe '#raw_offset_value' do
+    subject { described_class.new(Class.new(Esse::Index), definition, **params).send(:raw_offset_value) }
+
+    let(:params) { {} }
+    let(:definition) { 'term' }
+
+    it { is_expected.to eq(nil) }
+
+    context 'when definition have [:body][:from] value' do
+      let(:definition) do
+        {
+          from: 10
+        }
+      end
+
+      it { is_expected.to eq(10) }
+    end
+
+    context 'when definition have [:body]["from"] value' do
+      let(:definition) do
+        {
+          'from' => 10
+        }
+      end
+
+      it { is_expected.to eq(10) }
+    end
+
+    context 'when params have the :from' do
+      let(:params) { { from: 20 } }
+
+      it { is_expected.to eq(20) }
+    end
+  end
 end

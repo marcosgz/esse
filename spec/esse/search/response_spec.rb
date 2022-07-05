@@ -92,4 +92,42 @@ RSpec.describe Esse::Search::Response do
       end
     end
   end
+
+  describe '#total' do
+    context 'without data' do
+      it 'returns the total' do
+        expect(model.total).to eq(0)
+      end
+    end
+
+    context 'with data total hits a number' do
+      let(:raw_response) do
+        {
+          'hits' => {
+            'total' => 3
+          }
+        }
+      end
+
+      it 'returns the total' do
+        expect(model.total).to eq(3)
+      end
+    end
+
+    context 'with data total hits as a hash' do
+      let(:raw_response) do
+        {
+          'hits' => {
+            'total' => {
+              'value' => 2
+            }
+          }
+        }
+      end
+
+      it 'returns the total' do
+        expect(model.total).to eq(2)
+      end
+    end
+  end
 end
