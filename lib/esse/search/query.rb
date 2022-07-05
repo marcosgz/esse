@@ -37,6 +37,10 @@ module Esse
 
       private
 
+      def reset!
+        @response = nil
+      end
+
       def raw_limit_value
         definition.dig(:body, :size) || definition.dig(:body, 'size') || definition.dig(:size) || definition.dig('size') || options[:size]
       end
