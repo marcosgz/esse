@@ -18,8 +18,20 @@ module Esse
         @options = options
       end
 
+      def shards
+        raw_response['_shards']
+      end
+
+      def aggregations
+        raw_response['aggregations']
+      end
+
+      def suggestions
+        raw_response['suggest']
+      end
+
       def hits
-        @raw_response.dig('hits', 'hits') || []
+        raw_response.dig('hits', 'hits') || []
       end
     end
   end

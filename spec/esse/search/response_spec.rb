@@ -34,6 +34,27 @@ RSpec.describe Esse::Search::Response do
     end
   end
 
+  describe '#aggregations' do
+    specify do
+      raw = { 'aggregations' => { 'foo' => { 'bar' => { 'baz' => 'qux' } } } }
+      expect(described_class.new(query, raw).aggregations).to eq(raw['aggregations'])
+    end
+  end
+
+  describe '#shards' do
+    specify do
+      raw = { '_shards' => { 'total' => 1, 'successful' => 1, 'failed' => 0 } }
+      expect(described_class.new(query, raw).shards).to eq(raw['_shards'])
+    end
+  end
+
+  describe '#suggestions' do
+    specify do
+      raw = { 'suggest' => { 'foo' => { 'bar' => { 'baz' => 'qux' } } } }
+      expect(described_class.new(query, raw).suggestions).to eq(raw['suggest'])
+    end
+  end
+
   describe '#size' do
     context 'without data' do
       it 'returns the size' do

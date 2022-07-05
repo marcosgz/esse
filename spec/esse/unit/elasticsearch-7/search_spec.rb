@@ -10,14 +10,27 @@ stack_describe 'elasticsearch', '7.x', 'elasticsearch#search', es_webmock: true 
   end
 
   describe '.search', events: %w[elasticsearch.search] do
+    let(:request_body) do
+      { query: { match_all: {} } }
+    end
+
     specify do
       body = elasticsearch_response_fixture(file: 'search_result_empty', version: '7.x', assigns: { index_name: 'geos' })
       stub_es_request(:post, '/geos/_search', res: { status: 200, body: body })
 
-      body = { query: { match_all: {} } }
-      resp = GeosIndex.elasticsearch.search(body: body)
+      resp = GeosIndex.elasticsearch.search(body: request_body)
       expect(resp).to be_an_instance_of(Hash)
-      assert_event 'elasticsearch.search', { request: { index: 'geos', body: body } }
+      assert_event 'elasticsearch.search', { request: { index: 'geos', body: request_body } }
+    end
+
+    it 'raises an exception if the api throws an error' do
+      body = elasticsearch_response_fixture(file: 'search_result_bad_request', version: '7.x')
+      stub_es_request(:post, '/geos/_search', res: { status: 400, body: request_body })
+
+      expect {
+        GeosIndex.elasticsearch.search(body: request_body)
+      }.to raise_error(Esse::Backend::BadRequestError)
+      refute_event 'elasticsearch.search'
     end
   end
 end
