@@ -15,8 +15,14 @@ module Esse
       # This is the actually content that will be passed through the ES api
       # @return [Hash] the mapping hash
       def mapping_properties
+        hash = mapping.body.dup
+        hash.delete(:dynamic_templates)
+        hash.key?(:properties) ? hash[:properties] : hash
+      end
+
+      def mapping_dynamic_templates
         hash = mapping.body
-        hash.key?('properties') ? hash['properties'] : hash
+        hash.key?(:dynamic_templates) ? hash[:dynamic_templates] : {}
       end
 
       private

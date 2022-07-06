@@ -17,28 +17,41 @@ module Esse
 
       # This is the actually content that will be passed through the ES api
       def mappings_hash
-        props = mapping.body.dup
-        props = props[Esse::MAPPING_ROOT_KEY] if props.key?(Esse::MAPPING_ROOT_KEY)
-        props = props['properties'] if props.key?('properties')
+        mapps = mapping.body.dup
+        mapps = mapps[Esse::MAPPING_ROOT_KEY] if mapps.key?(Esse::MAPPING_ROOT_KEY)
+        dynamic_template = DynamicTemplate.new(mapps.delete(:dynamic_templates))
+
+        properties = mapps.key?(:properties) ? mapps[:properties] : mapps
         if mapping_single_type? || cluster.engine.mapping_default_type
+          # Merge Mappings and Dynamic Templates from Repo templates
           repo_hash.values.each do |klass|
-            props = HashUtils.deep_merge(props, klass.mapping_properties)
+            dynamic_template.merge!(klass.mapping_dynamic_templates)
+            properties = HashUtils.deep_merge(properties, klass.mapping_properties)
           end
         else
-          props = repo_hash.values.each_with_object({}) do |klass, memo|
-            memo[klass.document_type] = {
-              'properties' => HashUtils.deep_merge(props, klass.mapping_properties)
-            }
+          values = repo_hash.values.each_with_object({}) do |klass, memo|
+            hash = {}
+            if (props = HashUtils.deep_merge(properties, klass.mapping_properties)).any?
+              hash[:properties] = props
+            end
+            if (dup_tmpl = dynamic_template.dup) && dup_tmpl.merge!(klass.mapping_dynamic_templates).any?
+              hash[:dynamic_templates] = dup_tmpl.to_a
+            end
+            memo[klass.document_type.to_sym] = hash
           end
+
+          return { Esse::MAPPING_ROOT_KEY => values }
         end
+
+        values = {}
+        values[:properties] = properties if properties.any?
+        values[:dynamic_templates] = dynamic_template.to_a if dynamic_template.any?
+
         values = if (doc_type = cluster.engine.mapping_default_type)
-          { doc_type => { 'properties' => props } }
-        elsif mapping_single_type?
-          { 'properties' => props }
+          { Esse::MAPPING_ROOT_KEY => { doc_type => values } }
         else
-          props
+          { Esse::MAPPING_ROOT_KEY => values }
         end
-        { Esse::MAPPING_ROOT_KEY => values }
       end
 
       private

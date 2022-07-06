@@ -36,7 +36,7 @@ module Esse
     def mapping_default_type
       return unless engine_version.to_i == 6
 
-      engine_version >= '6.4' ? '_doc' : 'doc'
+      engine_version >= '6.4' ? :_doc : :doc
     end
   end
 end

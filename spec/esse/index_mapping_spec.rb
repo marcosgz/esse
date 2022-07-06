@@ -37,4 +37,197 @@ RSpec.describe Esse::IndexMapping do
       expect(mapping.to_h).to eq('pk' => { 'type' => 'long' })
     end
   end
+
+  describe '.body' do
+    context 'with default mappings' do
+      specify do
+        reset_config!
+        model = described_class.new
+        expect(model.body).to eq({})
+      end
+    end
+
+    context 'with global explicit mappings' do
+      let(:fields) do
+        {
+          slug: { type: 'keyword' },
+        }
+      end
+
+      specify do
+        globals = -> { { properties: fields } }
+        model = described_class.new(globals: globals)
+        expect(model.body).to eq(properties: fields)
+      end
+
+      it 'overrides global mappings' do
+        globals = -> { { properties: fields } }
+        model = described_class.new(body: { properties: { slug: { type: 'text' } } }, globals: globals)
+        expect(model.body).to eq(properties: { slug: { type: 'text' } })
+      end
+
+      it 'recursive merges all configs global' do
+        globals = -> {
+          {
+            properties: {
+              slug: { type: 'keyword' },
+              title: { type: 'text' },
+            },
+          }
+        }
+
+        model = described_class.new(
+          body: {
+            properties: {
+              slug: { type: 'text' },
+              title: { type: 'text' },
+            },
+          },
+          globals: globals,
+        )
+        expect(model.body).to eq(
+          properties: {
+            slug: { type: 'text' },
+            title: { type: 'text' },
+          },
+        )
+      end
+    end
+
+    # @see https://www.elastic.co/guide/en/elasticsearch/reference/current/dynamic-templates.html
+    context 'with global dynamic templates' do
+      let(:global_template) do
+        {
+          my_string_tpl: {
+            match_mapping_type: 'string',
+          }
+        }
+      end
+
+      specify do
+        globals = -> { { dynamic_templates: [global_template] } }
+        model = described_class.new(globals: globals)
+        expect(model.body).to eq(dynamic_templates: [global_template])
+      end
+
+      it 'overrides global dynamic templates' do
+        globals = -> { { dynamic_templates: [global_template] } }
+        model = described_class.new(body: { dynamic_templates: [{ my_string_tpl: { match_mapping_type: 'text' } }] }, globals: globals)
+        expect(model.body).to eq(dynamic_templates: [{ my_string_tpl: { match_mapping_type: 'text' } }])
+      end
+
+      it 'recursive merges all configs global' do
+        globals = -> {
+          {
+            dynamic_templates: [
+              global_template,
+              {
+                my_string_tpl: {
+                  match_mapping_type: 'string',
+                },
+              },
+            ],
+          }
+        }
+
+        model = described_class.new(
+          body: {
+            dynamic_templates: [
+              { my_text_tpl: { match_mapping_type: 'text' } },
+            ],
+          },
+          globals: globals,
+        )
+        expect(model.body).to eq(
+          dynamic_templates: [
+            global_template,
+            { my_text_tpl: { match_mapping_type: 'text' } },
+          ],
+        )
+      end
+
+      it 'updates and merge the global template with the local' do
+        globals = -> {
+          {
+            dynamic_templates: [
+              global_template,
+              {
+                my_string_tpl: {
+                  match_mapping_type: 'string',
+                },
+              },
+            ],
+          }
+        }
+
+        model = described_class.new(
+          body: {
+            dynamic_templates: [
+              { 'my_string_tpl' => { match_mapping_type: 'text' } },
+              { 'my_text_tpl' => { match_mapping_type: 'text' } },
+            ],
+          },
+          globals: globals,
+        )
+        expect(model.body).to eq(
+          dynamic_templates: [
+            { my_string_tpl: { match_mapping_type: 'text' } },
+            { my_text_tpl: { match_mapping_type: 'text' } },
+          ],
+        )
+      end
+
+      it 'convert global hash template to array' do
+        globals = -> {
+          {
+            dynamic_templates: {
+              my_string_tpl: {
+                match_mapping_type: 'keyword',
+              },
+            },
+          }
+        }
+
+        model = described_class.new(
+          body: {
+            dynamic_templates: [
+              { 'my_text_tpl' => { match_mapping_type: 'text' } },
+            ],
+          },
+          globals: globals,
+        )
+        expect(model.body).to eq(
+          dynamic_templates: [
+            { my_string_tpl: { match_mapping_type: 'keyword' } },
+            { my_text_tpl: { match_mapping_type: 'text' } },
+          ],
+        )
+      end
+
+      it 'converts local hash template to array' do
+        globals = -> {
+          {
+            dynamic_templates: [
+              global_template,
+            ],
+          }
+        }
+
+        model = described_class.new(
+          body: {
+            dynamic_templates: {
+              'my_text_tpl' => { match_mapping_type: 'text' },
+            },
+          },
+          globals: globals,
+        )
+        expect(model.body).to eq(
+          dynamic_templates: [
+            { my_string_tpl: { match_mapping_type: 'string' } },
+            { my_text_tpl: { match_mapping_type: 'text' } },
+          ],
+        )
+      end
+    end
+  end
 end

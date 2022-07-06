@@ -45,6 +45,59 @@ Esse.configure do |config|
     cluster.index_settings = {
       number_of_shards: 4,
       number_of_replicas: 1,
+      analysis: {
+        analyzer: {
+          esse_index: {
+            type: "custom",
+            char_filter: ["ampersand"],
+            filter: [
+              "lowercase",
+              "asciifolding",
+              "esse_english_stop",
+              "esse_index_shingle",
+              "esse_stemmer"
+            ],
+            tokenizer: "standard"
+          },
+        },
+        filter: {
+          esse_index_shingle: {
+            token_separator: "",
+            type: "shingle"
+          },
+          esse_stemmer: {
+            type: "stemmer",
+            language: "English"
+          },
+        },
+        char_filter: {
+          ampersand: {
+            type: "mapping",
+            mappings: ["&=> and "]
+          }
+        }
+      }
+    }
+    cluster.index_mappings = {
+      dynamic_templates: [
+        {
+          esse_string_template: {
+            match: "*",
+            match_mapping_type: "string",
+            mapping: {
+              fields: {
+                analyzed: {
+                  analyzer: "esse_index",
+                  index: true,
+                  type: "text"
+                }
+              },
+              ignore_above: 1024,
+              type: "keyword"
+            }
+          }
+        }
+      ]
     }
     cluster.client = Elasticsearch::Client.new(host: 'http://localhost:9200')
   end

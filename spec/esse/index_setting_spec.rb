@@ -29,7 +29,7 @@ RSpec.describe Esse::IndexSetting do
   end
 
   describe '.body' do
-    context 'with defautl settings' do
+    context 'with default settings' do
       specify do
         reset_config!
         model = described_class.new
@@ -39,22 +39,18 @@ RSpec.describe Esse::IndexSetting do
 
     context 'with global settings' do
       specify do
-        with_cluster_config(index_settings: { refresh_interval: '1s' }) do
-          model = described_class.new
-          expect(model.body).to eq(refresh_interval: '1s')
-        end
+        model = described_class.new(globals: -> { { refresh_interval: '1s' } })
+        expect(model.body).to eq(refresh_interval: '1s')
       end
 
       it 'overrides global settings' do
-        with_cluster_config(index_settings: { refresh_interval: '1s' }) do
-          model = described_class.new(refresh_interval: '5s')
-          expect(model.body).to eq(refresh_interval: '5s')
-        end
+        model = described_class.new(body: { refresh_interval: '5s' }, globals: -> { { refresh_interval: '1s' } })
+        expect(model.body).to eq(refresh_interval: '5s')
       end
 
       it 'recursive merges all configs global' do
-        with_cluster_config(
-          index_settings: {
+        globals = -> {
+          {
             analysis: {
               analyzer: {
                 default: {
@@ -63,35 +59,35 @@ RSpec.describe Esse::IndexSetting do
                 },
               },
             },
-          },
-         ) do
-          model = described_class.new(
-            body: {
-              analysis: {
-                analyzer: {
-                  remove_html: {
-                    type: :custom,
-                    char_filter: :html_strip,
-                  }
-                }
-              }
-            }
-          )
-          expect(model.body).to eq(
+          }
+        }
+        model = described_class.new(
+          body: {
             analysis: {
               analyzer: {
-                default: {
-                  tokenizer: :standard,
-                  filter: %i[standard lowercase],
-                },
                 remove_html: {
                   type: :custom,
                   char_filter: :html_strip,
-                },
+                }
+              }
+            }
+          },
+          globals: globals
+        )
+        expect(model.body).to eq(
+          analysis: {
+            analyzer: {
+              default: {
+                tokenizer: :standard,
+                filter: %i[standard lowercase],
+              },
+              remove_html: {
+                type: :custom,
+                char_filter: :html_strip,
               },
             },
-          )
-        end
+          },
+        )
       end
     end
   end

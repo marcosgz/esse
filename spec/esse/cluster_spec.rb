@@ -23,11 +23,17 @@ RSpec.describe Esse::Cluster do
     specify do
       model = described_class.new(id: :v1)
       expect(model.index_settings).to eq({})
+      expect(model.index_mappings).to eq({})
     end
 
     specify do
       model = described_class.new(id: :v1, index_settings: { refresh_interval: '1s' })
       expect(model.index_settings).to eq(refresh_interval: '1s')
+    end
+
+    specify do
+      model = described_class.new(id: :v1, index_mappings: { foo: 'bar' })
+      expect(model.index_mappings).to eq(foo: 'bar')
     end
   end
 
@@ -44,6 +50,18 @@ RSpec.describe Esse::Cluster do
       expect(model.index_settings).to eq({})
       expect { model.assign('index_settings' => { 'refresh_interval' => '1s' }, 'other' => 1) }.not_to raise_error
       expect(model.index_settings).to eq('refresh_interval' => '1s')
+    end
+
+    specify do
+      expect(model.index_mappings).to eq({})
+      expect { model.assign(index_mappings: { foo: 'bar' }, other: 1) }.not_to raise_error
+      expect(model.index_mappings).to eq(foo: 'bar')
+    end
+
+    specify do
+      expect(model.index_mappings).to eq({})
+      expect { model.assign('index_mappings' => { 'foo' => 'bar' }, 'other' => 1) }.not_to raise_error
+      expect(model.index_mappings).to eq('foo' => 'bar')
     end
 
     specify do

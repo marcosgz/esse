@@ -60,20 +60,14 @@ RSpec.describe Esse::Index do
 
     it 'returns a directory using the index class location' do
       with_cluster_config do
-        expect(UsersIndex.index_directory).to eq('/tmp/app/indices/users_index')
+        expect(UsersIndex.index_directory).to eq('tmp/indices/users_index')
       end
     end
 
     it 'includes the namespace of the index class' do
       with_cluster_config do
-        expect(UsersIndex).to receive(:uname).and_return('V1::UsersIndex')
-        expect(UsersIndex.index_directory).to eq('/tmp/app/indices/v1/users_index')
-      end
-    end
-
-    it 'returns nil for the Esse::Index' do
-      with_cluster_config do
-        expect(Esse::Index.index_directory).to eq(nil)
+        allow(UsersIndex).to receive(:name).and_return('V1::UsersIndex')
+        expect(UsersIndex.index_directory).to eq('tmp/indices/v1/users_index')
       end
     end
 
@@ -139,8 +133,8 @@ RSpec.describe Esse::Index do
     end
 
     it 'default to index_prefix when its value is not nil' do
-      with_cluster_config(index_prefix: 'esse') do
-        expect(UsersIndex.index_prefix).to eq('app_indices')
+      with_cluster_config(index_prefix: 'app_esse') do
+        expect(UsersIndex.index_prefix).to eq('app_esse')
       end
     end
 

@@ -11,6 +11,7 @@ module ConfigHelpers
           number_of_shards: 1,
           number_of_replicas: 0,
         },
+        index_mappings: {}
       },
     },
   }.freeze
@@ -29,7 +30,10 @@ module ConfigHelpers
     reset_config!
   end
 
-  def with_cluster_config(id: :default, **opts)
-    with_config { |c| c.cluster(id).assign(opts) }
+  def with_cluster_config(id: :default, **opts, &block)
+    with_config { |c|
+      c.cluster(id).assign(opts)
+      block.call if block
+    }
   end
 end

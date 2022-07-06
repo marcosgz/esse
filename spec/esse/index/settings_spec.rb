@@ -23,7 +23,7 @@ RSpec.describe Esse::Index do
       end
 
       specify do
-        with_cluster_config do
+        with_cluster_config(index_settings: {}) do
           is_expected.to eq(number_of_replicas: 4)
         end
       end
@@ -68,16 +68,16 @@ RSpec.describe Esse::Index do
 
       specify do
         expect(GeosIndex.settings_hash).to eq(
-          'settings' => { 'number_of_replicas' => 4 },
+          settings: { number_of_replicas: 4 },
         )
       end
 
       specify do
         with_cluster_config(index_settings: { refresh_interval: '1s', number_of_replicas: 2 }) do
           expect(GeosIndex.settings_hash).to eq(
-            'settings' => {
-              'refresh_interval' => '1s',
-              'number_of_replicas' => 4,
+            settings: {
+              refresh_interval: '1s',
+              number_of_replicas: 4,
             },
           )
         end
@@ -97,7 +97,7 @@ RSpec.describe Esse::Index do
 
       specify do
         expect(GeosIndex.settings_hash).to eq(
-          'settings' => { 'number_of_replicas' => 6 },
+          settings: { number_of_replicas: 6 },
         )
       end
     end

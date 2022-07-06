@@ -13,6 +13,10 @@ module Esse
   #         number_of_shards: 2,
   #         number_of_replicas: 0
   #       }
+  #       cluster.index_mappings = { 
+  #         dynamic_templates: [...] 
+  #         properties: { ... }
+  #       }
   #     end
   #   end
   #

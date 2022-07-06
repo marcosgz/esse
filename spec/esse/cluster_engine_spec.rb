@@ -60,7 +60,7 @@ RSpec.describe Esse::ClusterEngine do
     it { expect(model).to be_elasticsearch }
     it { expect(model).not_to be_opensearch }
     it { expect(model).to be_mapping_single_type }
-    it { expect(model.mapping_default_type).to eq('doc') }
+    it { expect(model.mapping_default_type).to eq(:doc) }
   end
 
   it_behaves_like 'a cluster engine' do
@@ -70,7 +70,7 @@ RSpec.describe Esse::ClusterEngine do
     it { expect(model).to be_elasticsearch }
     it { expect(model).not_to be_opensearch }
     it { expect(model).to be_mapping_single_type }
-    it { expect(model.mapping_default_type).to eq('_doc') }
+    it { expect(model.mapping_default_type).to eq(:_doc) }
   end
 
   it_behaves_like 'a cluster engine' do

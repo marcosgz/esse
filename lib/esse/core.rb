@@ -8,6 +8,7 @@ module Esse
   require_relative 'serializer'
   require_relative 'repository'
   require_relative 'index_setting'
+  require_relative 'dynamic_template'
   require_relative 'index_mapping'
   require_relative 'template_loader'
   require_relative 'backend/index'

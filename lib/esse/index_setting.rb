@@ -30,7 +30,9 @@ module Esse
     end
 
     def body
-      HashUtils.deep_merge(@globals.call, to_h)
+      global = HashUtils.deep_transform_keys(@globals.call, &:to_sym)
+      local = HashUtils.deep_transform_keys(to_h, &:to_sym)
+      HashUtils.deep_merge(global, local)
     end
 
     protected

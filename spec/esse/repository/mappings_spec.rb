@@ -13,17 +13,50 @@ RSpec.describe Esse::Repository do
         repository :city do
           mappings('name' => { 'type' => 'string' })
         end
+
+        repository :zip_code do
+          mappings(
+            'properties' => { 'name' => { 'type' => 'string' } },
+            :dynamic_templates => { to_be_ignored: { match_mapping_type: 'string' } }
+          )
+        end
       end
     end
 
     it 'does not adds the properties key' do
       expect(GeosIndex::County.mapping_properties).to eq(
-        'name' => { 'type' => 'string' },
+        name: { type: 'string' },
       )
 
       expect(GeosIndex::City.mapping_properties).to eq(
-        'name' => { 'type' => 'string' },
+        name: { type: 'string' },
       )
+
+      expect(GeosIndex::ZipCode.mapping_properties).to eq(
+        name: { type: 'string' },
+      )
+    end
+  end
+
+  describe '.mapping_dynamic_templates' do
+    before do
+      stub_index(:geos) do
+        repository :county do
+          mappings('dynamic_templates' => { 'test' => { match_mapping_type: 'string' } })
+        end
+
+        repository :city do
+          mappings('name' => { 'type' => 'string' })
+        end
+      end
+    end
+
+    it 'does not adds the dynamic_templates key' do
+      expect(GeosIndex::County.mapping_dynamic_templates).to eq(
+        [{test: { match_mapping_type: 'string' }}]
+      )
+
+      expect(GeosIndex::City.mapping_dynamic_templates).to eq({})
     end
   end
 

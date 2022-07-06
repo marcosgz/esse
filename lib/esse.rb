@@ -13,8 +13,8 @@ rescue LoadError
 end
 
 module Esse
-  SETTING_ROOT_KEY = 'settings'
-  MAPPING_ROOT_KEY = 'mappings'
+  SETTING_ROOT_KEY = :settings
+  MAPPING_ROOT_KEY = :mappings
   DEFAULT_REPO_NAME = '__default__'
   CLI_IGNORE_OPTS = %i[
     require

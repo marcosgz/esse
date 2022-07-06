@@ -4,15 +4,19 @@ require_relative 'cluster_engine'
 
 module Esse
   class Cluster
-    ATTRIBUTES = %i[index_prefix index_settings client wait_for_status].freeze
+    ATTRIBUTES = %i[index_prefix index_settings index_mappings client wait_for_status].freeze
     WAIT_FOR_STATUSES = %w[green yellow red].freeze
 
     # The index prefix. For example an index named UsersIndex.
     # With `index_prefix = 'app1'`. Final index/alias is: 'app1_users'
     attr_accessor :index_prefix
 
-    # This settings will be passed through all indices during the mapping
+    # This global settings will be passed through all indices
     attr_accessor :index_settings
+
+    # This global mappings will be applied to all indices
+    # @see https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping.html
+    attr_accessor :index_mappings
 
     # if this option set, actions such as creating or deleting index,
     # importing data will wait for the status specified. Extremely useful
@@ -28,6 +32,7 @@ module Esse
     def initialize(id:, **options)
       @id = id.to_sym
       @index_settings = {}
+      @index_mappings = {}
       assign(options)
     end
 

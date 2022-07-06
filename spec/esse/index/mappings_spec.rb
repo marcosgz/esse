@@ -9,8 +9,8 @@ RSpec.describe Esse::Index do
         stub_index(:geos) do
           mappings do
             {
-              'properties' => {
-                'age' => { 'type' => 'integer' },
+              properties: {
+                age: { type: 'integer' },
               },
             }
           end
@@ -23,15 +23,15 @@ RSpec.describe Esse::Index do
       it 'merges the global mapping into each type definition on elasticsearch 5.x and lower' do
         allow(GeosIndex.cluster).to receive(:engine).and_return(Esse::ClusterEngine.new(version: '5.0.0', distribution: 'elasticsearch'))
         expect(GeosIndex.mappings_hash).to eq(
-          'mappings' => {
-            'city' => {
-              'properties' => {
-                'age' => { 'type' => 'integer' },
+          mappings: {
+            city: {
+              properties: {
+                age: { type: 'integer' },
               },
             },
-            'county' => {
-              'properties' => {
-                'age' => { 'type' => 'integer' },
+            county: {
+              properties: {
+                age: { type: 'integer' },
               },
             },
           },
@@ -41,10 +41,10 @@ RSpec.describe Esse::Index do
       it "adds the _doc type to the index's mappings on elasticsearch 6.4 and upper" do
         allow(GeosIndex.cluster).to receive(:engine).and_return(Esse::ClusterEngine.new(version: '6.4.0', distribution: 'elasticsearch'))
         expect(GeosIndex.mappings_hash).to eq(
-          'mappings' => {
-            '_doc' => {
-              'properties' => {
-                'age' => { 'type' => 'integer' },
+          mappings: {
+            _doc: {
+              properties: {
+                age: { type: 'integer' },
               },
             },
           },
@@ -54,10 +54,10 @@ RSpec.describe Esse::Index do
       it "adds the doc type to the index's mappings on elasticsearch 6.3 and lower" do
         allow(GeosIndex.cluster).to receive(:engine).and_return(Esse::ClusterEngine.new(version: '6.3.0', distribution: 'elasticsearch'))
         expect(GeosIndex.mappings_hash).to eq(
-          'mappings' => {
-            'doc' => {
-              'properties' => {
-                'age' => { 'type' => 'integer' },
+          mappings: {
+            doc: {
+              properties: {
+                age: { type: 'integer' },
               },
             },
           },
@@ -67,9 +67,9 @@ RSpec.describe Esse::Index do
       it "does not include the type on index's mappings on elasticsearch 7.x" do
         allow(GeosIndex.cluster).to receive(:engine).and_return(Esse::ClusterEngine.new(version: '7.0.0', distribution: 'elasticsearch'))
         expect(GeosIndex.mappings_hash).to eq(
-          'mappings' => {
-            'properties' => {
-              'age' => { 'type' => 'integer' },
+          mappings: {
+            properties: {
+              age: { type: 'integer' },
             },
           },
         )
@@ -78,9 +78,113 @@ RSpec.describe Esse::Index do
       it "does not include the type on index's mappings on opensearch" do
         allow(GeosIndex.cluster).to receive(:engine).and_return(Esse::ClusterEngine.new(version: '1.0.0', distribution: 'opensearch'))
         expect(GeosIndex.mappings_hash).to eq(
-          'mappings' => {
-            'properties' => {
-              'age' => { 'type' => 'integer' },
+          mappings: {
+            properties: {
+              age: { type: 'integer' },
+            },
+          },
+        )
+      end
+    end
+
+    context 'with properties and dynamic_templates definition only on index level' do
+      before do
+        stub_index(:geos) do
+          mappings do
+            {
+              properties: {
+                age: { type: 'integer' },
+              },
+              dynamic_templates: [
+                { test: {} }
+              ]
+            }
+          end
+
+          repository :city
+          repository :county
+        end
+      end
+
+      it 'merges the global mapping into each type definition on elasticsearch 5.x and lower' do
+        allow(GeosIndex.cluster).to receive(:engine).and_return(Esse::ClusterEngine.new(version: '5.0.0', distribution: 'elasticsearch'))
+        expect(GeosIndex.mappings_hash).to eq(
+          mappings: {
+            city: {
+              dynamic_templates: [
+                { test: {} }
+              ],
+              properties: {
+                age: { type: 'integer' },
+              },
+            },
+            county: {
+              dynamic_templates: [
+                { test: {} }
+              ],
+              properties: {
+                age: { type: 'integer' },
+              },
+            },
+          },
+        )
+      end
+
+      it "adds the _doc type to the index's mappings on elasticsearch 6.4 and upper" do
+        allow(GeosIndex.cluster).to receive(:engine).and_return(Esse::ClusterEngine.new(version: '6.4.0', distribution: 'elasticsearch'))
+        expect(GeosIndex.mappings_hash).to eq(
+          mappings: {
+            _doc: {
+              dynamic_templates: [
+                { test: {} }
+              ],
+              properties: {
+                age: { type: 'integer' },
+              },
+            },
+          },
+        )
+      end
+
+      it "adds the doc type to the index's mappings on elasticsearch 6.3 and lower" do
+        allow(GeosIndex.cluster).to receive(:engine).and_return(Esse::ClusterEngine.new(version: '6.3.0', distribution: 'elasticsearch'))
+        expect(GeosIndex.mappings_hash).to eq(
+          mappings: {
+            doc: {
+              dynamic_templates: [
+                { test: {} }
+              ],
+              properties: {
+                age: { type: 'integer' },
+              },
+            },
+          },
+        )
+      end
+
+      it "does not include the type on index's mappings on elasticsearch 7.x" do
+        allow(GeosIndex.cluster).to receive(:engine).and_return(Esse::ClusterEngine.new(version: '7.0.0', distribution: 'elasticsearch'))
+        expect(GeosIndex.mappings_hash).to eq(
+          mappings: {
+            dynamic_templates: [
+              { test: {} }
+            ],
+            properties: {
+              age: { type: 'integer' },
+            },
+          },
+        )
+      end
+
+      it "does not include the type on index's mappings on opensearch" do
+        allow(GeosIndex.cluster).to receive(:engine).and_return(Esse::ClusterEngine.new(version: '1.0.0', distribution: 'opensearch'))
+        expect(GeosIndex.mappings_hash).to eq(
+          mappings: {
+            dynamic_templates: [
+              { test: {} }
+            ],
+            properties: {
+              age: { type: 'integer' },
             },
           },
         )
@@ -92,8 +196,8 @@ RSpec.describe Esse::Index do
         stub_index(:geos) do
           mappings do
             {
-              'properties' => {
-                'age' => { 'type' => 'integer' },
+              properties: {
+                age: { type: 'integer' },
               },
             }
           end
@@ -101,8 +205,8 @@ RSpec.describe Esse::Index do
           repository :city do
             mappings do
               {
-                'properties' => {
-                  'name' => { 'type' => 'string' },
+                properties: {
+                  name: { type: 'string' },
                 },
               }
             end
@@ -114,16 +218,16 @@ RSpec.describe Esse::Index do
       it 'merges the global mapping into each type definition on elasticsearch 5.x and lower' do
         allow(GeosIndex.cluster).to receive(:engine).and_return(Esse::ClusterEngine.new(version: '5.0.0', distribution: 'elasticsearch'))
         expect(GeosIndex.mappings_hash).to eq(
-          'mappings' => {
-            'city' => {
-              'properties' => {
-                'age' => { 'type' => 'integer' },
-                'name' => { 'type' => 'string' },
+          mappings: {
+            city: {
+              properties: {
+                age: { type: 'integer' },
+                name: { type: 'string' },
               },
             },
-            'county' => {
-              'properties' => {
-                'age' => { 'type' => 'integer' },
+            county: {
+              properties: {
+                age: { type: 'integer' },
               },
             },
           },
@@ -133,11 +237,11 @@ RSpec.describe Esse::Index do
       it "adds the _doc type to the index's mappings on elasticsearch 6.4 and upper" do
         allow(GeosIndex.cluster).to receive(:engine).and_return(Esse::ClusterEngine.new(version: '6.4.0', distribution: 'elasticsearch'))
         expect(GeosIndex.mappings_hash).to eq(
-          'mappings' => {
-            '_doc' => {
-              'properties' => {
-                'age' => { 'type' => 'integer' },
-                'name' => { 'type' => 'string' },
+          mappings: {
+            _doc: {
+              properties: {
+                age: { type: 'integer' },
+                name: { type: 'string' },
               },
             },
           },
@@ -147,11 +251,11 @@ RSpec.describe Esse::Index do
       it "adds the doc type to the index's mappings on elasticsearch 6.3 and lower" do
         allow(GeosIndex.cluster).to receive(:engine).and_return(Esse::ClusterEngine.new(version: '6.3.0', distribution: 'elasticsearch'))
         expect(GeosIndex.mappings_hash).to eq(
-          'mappings' => {
-            'doc' => {
-              'properties' => {
-                'age' => { 'type' => 'integer' },
-                'name' => { 'type' => 'string' },
+          mappings: {
+            doc: {
+              properties: {
+                age: { type: 'integer' },
+                name: { type: 'string' },
               },
             },
           },
@@ -161,10 +265,10 @@ RSpec.describe Esse::Index do
       it "does not include the type on index's mappings on elasticsearch 7.x" do
         allow(GeosIndex.cluster).to receive(:engine).and_return(Esse::ClusterEngine.new(version: '7.0.0', distribution: 'elasticsearch'))
         expect(GeosIndex.mappings_hash).to eq(
-          'mappings' => {
-            'properties' => {
-              'age' => { 'type' => 'integer' },
-              'name' => { 'type' => 'string' },
+          mappings: {
+            properties: {
+              age: { type: 'integer' },
+              name: { type: 'string' },
             },
           },
         )
@@ -173,10 +277,10 @@ RSpec.describe Esse::Index do
       it "does not include the type on index's mappings on opensearch" do
         allow(GeosIndex.cluster).to receive(:engine).and_return(Esse::ClusterEngine.new(version: '1.0.0', distribution: 'opensearch'))
         expect(GeosIndex.mappings_hash).to eq(
-          'mappings' => {
-            'properties' => {
-              'age' => { 'type' => 'integer' },
-              'name' => { 'type' => 'string' },
+          mappings: {
+            properties: {
+              age: { type: 'integer' },
+              name: { type: 'string' },
             },
           },
         )
@@ -189,8 +293,8 @@ RSpec.describe Esse::Index do
           repository :city do
             mappings do
               {
-                'properties' => {
-                  'name' => { 'type' => 'string' },
+                properties: {
+                  name: { type: 'string' },
                 },
               }
             end
@@ -198,7 +302,7 @@ RSpec.describe Esse::Index do
           repository :county do
             mappings do
               {
-                'age' => { 'type' => 'integer' },
+                age: { type: 'integer' },
               }
             end
           end
@@ -208,15 +312,15 @@ RSpec.describe Esse::Index do
       it 'merges the global mapping into each type definition on elasticsearch 5.x and lower' do
         allow(GeosIndex.cluster).to receive(:engine).and_return(Esse::ClusterEngine.new(version: '5.0.0', distribution: 'elasticsearch'))
         expect(GeosIndex.mappings_hash).to eq(
-          'mappings' => {
-            'city' => {
-              'properties' => {
-                'name' => { 'type' => 'string' },
+          mappings: {
+            city: {
+              properties: {
+                name: { type: 'string' },
               },
             },
-            'county' => {
-              'properties' => {
-                'age' => { 'type' => 'integer' },
+            county: {
+              properties: {
+                age: { type: 'integer' },
               },
             },
           },
@@ -226,11 +330,11 @@ RSpec.describe Esse::Index do
       it "adds the _doc type to the index's mappings on elasticsearch 6.4 and upper" do
         allow(GeosIndex.cluster).to receive(:engine).and_return(Esse::ClusterEngine.new(version: '6.4.0', distribution: 'elasticsearch'))
         expect(GeosIndex.mappings_hash).to eq(
-          'mappings' => {
-            '_doc' => {
-              'properties' => {
-                'age' => { 'type' => 'integer' },
-                'name' => { 'type' => 'string' },
+          mappings: {
+            _doc: {
+              properties: {
+                age: { type: 'integer' },
+                name: { type: 'string' },
               },
             },
           },
@@ -240,11 +344,11 @@ RSpec.describe Esse::Index do
       it "adds the doc type to the index's mappings on elasticsearch 6.3 and lower" do
         allow(GeosIndex.cluster).to receive(:engine).and_return(Esse::ClusterEngine.new(version: '6.3.0', distribution: 'elasticsearch'))
         expect(GeosIndex.mappings_hash).to eq(
-          'mappings' => {
-            'doc' => {
-              'properties' => {
-                'age' => { 'type' => 'integer' },
-                'name' => { 'type' => 'string' },
+          mappings: {
+            doc: {
+              properties: {
+                age: { type: 'integer' },
+                name: { type: 'string' },
               },
             },
           },
@@ -254,10 +358,10 @@ RSpec.describe Esse::Index do
       it "does not include the type on index's mappings on elasticsearch 7.x" do
         allow(GeosIndex.cluster).to receive(:engine).and_return(Esse::ClusterEngine.new(version: '7.0.0', distribution: 'elasticsearch'))
         expect(GeosIndex.mappings_hash).to eq(
-          'mappings' => {
-            'properties' => {
-              'age' => { 'type' => 'integer' },
-              'name' => { 'type' => 'string' },
+          mappings: {
+            properties: {
+              age: { type: 'integer' },
+              name: { type: 'string' },
             },
           },
         )
@@ -266,10 +370,10 @@ RSpec.describe Esse::Index do
       it "does not include the type on index's mappings on opensearch" do
         allow(GeosIndex.cluster).to receive(:engine).and_return(Esse::ClusterEngine.new(version: '1.0.0', distribution: 'opensearch'))
         expect(GeosIndex.mappings_hash).to eq(
-          'mappings' => {
-            'properties' => {
-              'age' => { 'type' => 'integer' },
-              'name' => { 'type' => 'string' },
+          mappings: {
+            properties: {
+              age: { type: 'integer' },
+              name: { type: 'string' },
             },
           },
         )

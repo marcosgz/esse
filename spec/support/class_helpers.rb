@@ -7,9 +7,6 @@ module ClassHelpers
     klass_name = "#{Esse::Hstring.new(name).camelize}Index"
     klass = stub_class(klass_name, superclass)
     klass.class_eval(&block) if block
-    klass.define_singleton_method(:index_directory) do
-      Esse.config.indices_directory.join(Esse::Hstring.new(klass_name).underscore.to_s).to_s
-    end
     klass
   end
 
