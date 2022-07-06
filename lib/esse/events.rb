@@ -47,5 +47,6 @@ module Esse
     register_event 'elasticsearch.update_aliases'
     register_event 'elasticsearch.bulk'
     register_event 'elasticsearch.search'
+    register_event 'elasticsearch.execute_search_query'
   end
 end

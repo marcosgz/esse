@@ -23,10 +23,7 @@ module Esse
       end
 
       def response
-        @response ||= begin
-          resp = index.elasticsearch.search(**definition, **options)
-          Response.new(self, resp)
-        end
+        @response ||= execute!
       end
 
       def results
@@ -36,6 +33,23 @@ module Esse
       end
 
       private
+
+      def execute!
+        resp, err = nil
+         Esse::Events.instrument('elasticsearch.execute_search_query') do |payload|
+          payload[:query] = self
+          begin
+            resp = Response.new(self, index.elasticsearch.search(**definition, **options))
+          rescue => e
+            err = e
+          end
+          payload[:error] = err if err
+          payload[:response] = resp
+        end
+        raise err if err
+
+        resp
+      end
 
       def reset!
         @response = nil

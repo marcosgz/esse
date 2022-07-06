@@ -57,6 +57,40 @@ RSpec.describe Esse::Search::Query do
     end
   end
 
+  describe '#execute!', events: %w[elasticsearch.execute_search_query] do
+    let(:searcher) { instance_double(Esse::Backend::Index) }
+    let(:request_body) { { query: { match_all: {} } } }
+    let(:query) { described_class.new(EventsIndex, request_body) }
+
+    before { stub_index(:events) }
+
+    context 'when the query is successful' do
+      it 'returns a Response' do
+        response_body = elasticsearch_response_fixture(file: 'search_result_empty', version: '7.x', assigns: { index_name: 'geos' })
+        expect(searcher).to receive(:search).with(body: request_body).and_return(response_body)
+        expect(EventsIndex).to receive(:elasticsearch).and_return(searcher)
+
+        expect(query.response).to be_an_instance_of(Esse::Search::Response)
+        assert_event 'elasticsearch.execute_search_query', { query: query, response: query.response }
+      end
+    end
+
+    context 'when the query fails' do
+      let(:request_body) { { query: { match_all: {} }, size: 0 } }
+
+      it 'raises an exception' do
+        exception = Esse::Backend::BadRequestError.new
+        expect(searcher).to receive(:search).with(body: request_body).and_raise(exception)
+        expect(EventsIndex).to receive(:elasticsearch).and_return(searcher)
+
+        expect {
+          query.response
+        }.to raise_error(Esse::Backend::BadRequestError)
+        assert_event 'elasticsearch.execute_search_query', { query: query, error: exception }
+      end
+    end
+  end
+
   describe '#results' do
     let(:searcher) { instance_double(Esse::Backend::Index) }
     let(:request_body) { { query: { match_all: {} } } }
