@@ -4,6 +4,16 @@ require 'spec_helper'
 
 RSpec.describe Esse::Index do
   describe '.mappings_hash' do
+    context 'with global mappings definition' do
+      specify do
+        index = Class.new(Esse::Index)
+        allow(index.cluster).to receive(:engine).and_return(Esse::ClusterEngine.new(version: '7.0.0', distribution: 'elasticsearch'))
+        with_cluster_config(index_mappings: { name: { type: 'text' } }) do |config|
+          expect(index.mappings_hash).to eq(mappings: { properties: { name: { type: 'text' } } })
+        end
+      end
+    end
+
     context 'with definition only on index level' do
       before do
         stub_index(:geos) do
