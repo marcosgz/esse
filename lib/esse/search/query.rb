@@ -36,7 +36,7 @@ module Esse
 
       def execute!
         resp, err = nil
-         Esse::Events.instrument('elasticsearch.execute_search_query') do |payload|
+        Esse::Events.instrument('elasticsearch.execute_search_query') do |payload|
           payload[:query] = self
           begin
             resp = Response.new(self, index.elasticsearch.search(**definition, **options))

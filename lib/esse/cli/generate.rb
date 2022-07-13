@@ -27,7 +27,7 @@ module Esse
         @base_class = base_index_class(*ns_path)
         @cli_options = options
 
-        base_dir = Esse.config.indices_directory.join(*ns_path)
+        base_dir = Esse.config.indices_directory.join(*ns_path.map { |n| Hstring.new(n).underscore.to_s })
         index_name = @index_name.demodulize.underscore.to_s
         template(
           'templates/index.rb.erb',

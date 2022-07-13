@@ -64,7 +64,7 @@ module Esse
       def eager_load_indices!
         return false unless Esse.config.indices_directory.exist?
 
-        Esse.config.indices_directory.each_child do |path|
+        Dir[Esse.config.indices_directory.join('**/*_index.rb')].map { |path| Pathname.new(path) }.each do |path|
           next unless path.extname == '.rb'
 
           require(path.expand_path.to_s)

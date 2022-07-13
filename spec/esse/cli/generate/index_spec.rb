@@ -39,6 +39,13 @@ RSpec.describe Esse::CLI::Generate, type: :cli do
       expect_contains(expected_filename, 'class V1::UsersIndex < Esse::Index')
     end
 
+    it 'generates a new index class when passing ruby class as argument' do
+      expected_filename = Esse.config.indices_directory.join('ver_one/users_index.rb')
+
+      expect_generate(%w[index VerOne::Users user], expected_filename)
+      expect_contains(expected_filename, 'class VerOne::UsersIndex < Esse::Index')
+    end
+
     it 'generates the mappings template for each type using an index class with namespace' do
       expected_filename = Esse.config.indices_directory.join('v1/users_index/templates/user_mapping.json')
 

@@ -14,6 +14,9 @@ class <%= @index_name %> < <%= @base_class %>
       def source
         {
           name: object.name,
+          <%- if @type -%>
+          type: "<%= @type %>",
+          <%- end -%>
           <%- if @cli_options[:active_record] -%>
           created_at: object.created_at,
           updated_at: object.updated_at,
