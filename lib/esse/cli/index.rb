@@ -15,6 +15,7 @@ module Esse
         * Delete the old index.
       DESC
       option :suffix, type: :string, default: nil, aliases: '-s', desc: 'Suffix to append to index name'
+      option :import, type: :boolean, default: true, desc: 'Import documents before point alias to the new index'
       def reset(*index_classes)
         require_relative 'index/reset'
         Reset.new(indices: index_classes, **options.to_h.transform_keys(&:to_sym)).run
