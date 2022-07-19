@@ -36,9 +36,9 @@ RSpec.describe Esse::Index do
       }.not_to raise_error
       expect(expected_data).to match_array(
         [
-          [{ _id: 1, name: 'Il' }],
-          [{ _id: 2, name: 'Md' }],
-          [{ _id: 3, name: 'Ny' }]
+          [Esse::HashDocument.new(_id: 1, name: 'Il')],
+          [Esse::HashDocument.new(_id: 2, name: 'Md')],
+          [Esse::HashDocument.new(_id: 3, name: 'Ny')],
         ],
       )
     end
@@ -50,8 +50,8 @@ RSpec.describe Esse::Index do
       }.not_to raise_error
       expect(expected_data).to match_array(
         [
-          [{ _id: 1, name: 'Il' }],
-          [{ _id: 2, name: 'Md' }]
+          [Esse::HashDocument.new(_id: 1, name: 'Il')],
+          [Esse::HashDocument.new(_id: 2, name: 'Md')],
         ],
       )
     end
@@ -63,9 +63,9 @@ RSpec.describe Esse::Index do
       }.not_to raise_error
       expect(expected_data).to match_array(
         [
-          [{ _id: 1, name: 'IL' }],
-          [{ _id: 2, name: 'MD' }],
-          [{ _id: 3, name: 'NY' }]
+          [Esse::HashDocument.new(_id: 1, name: 'IL')],
+          [Esse::HashDocument.new(_id: 2, name: 'MD')],
+          [Esse::HashDocument.new(_id: 3, name: 'NY')],
         ],
       )
     end
@@ -103,9 +103,9 @@ RSpec.describe Esse::Index do
         }.not_to raise_error
         expect(expected_data).to match_array(
           [
-            { _id: 1, name: 'Illinois' },
-            { _id: 2, name: 'Maryland' },
-            { _id: 3, name: 'New York' }
+            Esse::HashDocument.new(_id: 1, name: 'Illinois'),
+            Esse::HashDocument.new(_id: 2, name: 'Maryland'),
+            Esse::HashDocument.new(_id: 3, name: 'New York'),
           ],
         )
       end
@@ -133,8 +133,8 @@ RSpec.describe Esse::Index do
         }.not_to raise_error
         expect(expected_data).to match_array(
           [
-            { _id: 1, name: 'Illinois' },
-            { _id: 2, name: 'Maryland' },
+            Esse::HashDocument.new(_id: 1, name: 'Illinois'),
+            Esse::HashDocument.new(_id: 2, name: 'Maryland'),
           ],
         )
       end
@@ -173,8 +173,8 @@ RSpec.describe Esse::Index do
     it 'forward filters to the collection' do
       expect(StatesIndex.documents(filter: ->(state) { state.id > 2 }).take(3)).to match_array(
         [
-          { _id: 1, name: 'Il' },
-          { _id: 2, name: 'Md' },
+          Esse::HashDocument.new(_id: 1, name: 'Il'),
+          Esse::HashDocument.new(_id: 2, name: 'Md'),
         ],
       )
     end
@@ -197,7 +197,7 @@ RSpec.describe Esse::Index do
         Class.new(Esse::Index) do
           serializer
         end
-      }.to raise_error(ArgumentError, 'nil is not a valid serializer. The serializer should respond with `to_h` instance method.')
+      }.to raise_error(ArgumentError, "nil is not a valid serializer. The serializer should inherit from Esse::Serializer or respond to `to_h'")
     end
 
     specify do
@@ -205,7 +205,7 @@ RSpec.describe Esse::Index do
         Class.new(Esse::Index) do
           serializer :__default__, :invalid
         end
-      }.to raise_error(ArgumentError, ':invalid is not a valid serializer. The serializer should respond with `to_h` instance method.')
+      }.to raise_error(ArgumentError, ":invalid is not a valid serializer. The serializer should inherit from Esse::Serializer or respond to `to_h'")
     end
 
     specify do

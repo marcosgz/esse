@@ -49,5 +49,24 @@ module Esse
         hash.merge!(meta)
       end
     end
+
+    def to_bulk(data: true)
+      { _id: id }.tap do |h|
+        h[:data] = source if data
+        h[:_type] = type if type
+        h[:_routing] = routing if routing
+        h.merge!(meta)
+      end
+    end
+
+    def ignore?
+      id.nil?
+    end
+
+    def ==(other)
+      other.is_a?(self.class) && (
+        id == other.id && type == other.type && routing == other.routing && meta == other.meta && source == other.source
+      )
+    end
   end
 end

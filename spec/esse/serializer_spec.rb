@@ -60,4 +60,72 @@ RSpec.describe Esse::Serializer do
       expect(serializer.source).to eq({})
     end
   end
+
+  describe '#to_bulk' do
+    let(:document_class) do
+      Class.new(described_class) do
+        def id
+          1
+        end
+
+        def type
+          'foo'
+        end
+
+        def routing
+          'bar'
+        end
+
+        def meta
+          { timeout: 10 }
+        end
+
+        def source
+          { foo: 'bar' }
+        end
+      end
+    end
+
+    let(:document) { document_class.new(object, **options) }
+
+    context 'with data: true' do
+      subject { document.to_bulk(data: true) }
+
+      it { is_expected.to eq(_id: 1, _type: 'foo', _routing: 'bar', timeout: 10, data: { foo: 'bar' }) }
+    end
+
+    context 'with data: false' do
+      subject { document.to_bulk(data: false) }
+
+      it { is_expected.to eq(_id: 1, _type: 'foo', _routing: 'bar', timeout: 10) }
+    end
+
+    context 'when document does not have a routing' do
+      it 'should not include the routing' do
+        allow(document).to receive(:routing).and_return(nil)
+        expect(document.to_bulk(data: true)).to eq(_id: 1, _type: 'foo', timeout: 10, data: { foo: 'bar' })
+      end
+    end
+
+    context 'when document does not have a type' do
+      it 'should not include the type' do
+        allow(document).to receive(:type).and_return(nil)
+        expect(document.to_bulk(data: true)).to eq(_id: 1, _routing: 'bar', timeout: 10, data: { foo: 'bar' })
+      end
+    end
+
+    context 'when document does not have a meta' do
+      it 'should not include the meta' do
+        allow(document).to receive(:meta).and_return({})
+        expect(document.to_bulk(data: true)).to eq(_id: 1, _type: 'foo', _routing: 'bar', data: { foo: 'bar' })
+      end
+    end
+
+    context 'when document does not have a source' do
+      it 'should not include the source' do
+        allow(document).to receive(:source).and_return({})
+        expect(document.to_bulk(data: true)).to eq(_id: 1, _type: 'foo', _routing: 'bar', timeout: 10, data: {})
+      end
+    end
+  end
 end

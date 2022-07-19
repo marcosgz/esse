@@ -37,7 +37,7 @@ RSpec.describe Esse::CLI::Index, type: :cli do
 
       specify do
         expect(CountiesIndex).to receive(:elasticsearch).at_least(1).and_return(api = double)
-        expect(api).to receive(:reset_index!).with(suffix: 'foo').and_return(true)
+        expect(api).to receive(:reset_index!).with(suffix: 'foo', import: true).and_return(true)
         cli_exec(%w[index reset CountiesIndex --suffix=foo])
       end
 

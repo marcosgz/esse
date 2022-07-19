@@ -23,24 +23,38 @@ module Esse
         end
 
         if block
-          @serializer_proc = block
+          @serializer_proc = ->(model, **kwargs) { coerce_to_document(block.call(model, **kwargs)) }
+        elsif klass.is_a?(Class) && klass <= Esse::Serializer
+          @serializer_proc = ->(model, **kwargs) { klass.new(*args, **kwargs) }
         elsif klass.is_a?(Class) && klass.instance_methods.include?(:to_h)
-          @serializer_proc = proc { |*args, **kwargs| klass.new(*args, **kwargs).to_h }
+          @serializer_proc = ->(model, **kwargs) { coerce_to_document(klass.new(model, **kwargs).to_h) }
         elsif klass.is_a?(Class) && klass.instance_methods.include?(:as_json) # backward compatibility
-          @serializer_proc = proc { |*args, **kwargs| klass.new(*args, **kwargs).as_json }
+          @serializer_proc = ->(model, **kwargs) { coerce_to_document(klass.new(model, **kwargs).as_json) }
         elsif klass.is_a?(Class) && klass.instance_methods.include?(:call)
-          @serializer_proc = proc { |*args, **kwargs| klass.new(*args, **kwargs).call }
+          @serializer_proc = ->(model, **kwargs) { coerce_to_document(klass.new(model, **kwargs).call) }
         else
-          msg = format('%<arg>p is not a valid serializer. The serializer should ' \
-                        'respond with `to_h` instance method.', arg: klass,)
+          msg = format("%<arg>p is not a valid serializer. The serializer should inherit from Esse::Serializer or respond to `to_h'", arg: klass)
           raise ArgumentError, msg
+        end
+      end
+
+      def coerce_to_document(value)
+        case value
+        when Esse::Serializer
+          value
+        when Hash
+          Esse::HashDocument.new(value)
+        when NilClass, FalseClass
+          Esse::NullDocument.new
+        else
+          raise ArgumentError, format('%<arg>p is not a valid document. The document should be a hash or an instance of Esse::Serializer', arg: value)
         end
       end
 
       # Convert ruby object to json by using the serializer of the given document type.
       # @param [Object] model The ruby object
       # @param [Hash] kwargs The context
-      # @return [Hash] The json object
+      # @return [Esse::Document] The serialized document
       def serialize(model, **kwargs)
         if @serializer_proc.nil?
           raise NotImplementedError, format('there is no %<t>p serializer defined for the %<k>p index', t: repo_name, k: index.to_s)

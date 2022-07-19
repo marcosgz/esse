@@ -42,26 +42,25 @@ module Esse
         def bulk(index: nil, delete: nil, create: nil, type: nil, suffix: nil, **options)
           body = []
           stats = { index: 0, delete: 0, create: 0 }
-          Array(index).each do |entry|
-            meta, source = doc_meta_and_source!(entry.dup, type: type)
-            unless meta.empty?
-              stats[:index] += 1
-              body << { index: meta.merge(data: source) }
-            end
+          Array(index).each do |doc|
+            next unless doc && doc.is_a?(Esse::Serializer)
+            next if doc.ignore?
+            stats[:index] += 1
+            body << { index: doc.to_bulk }
           end
-          Array(create).each do |entry|
-            meta, source = doc_meta_and_source!(entry.dup, type: type)
-            unless meta.empty?
-              stats[:create] += 1
-              body << { create: meta.merge(data: source) }
-            end
+          Array(create).each do |doc|
+            next unless doc && doc.is_a?(Esse::Serializer)
+            next if doc.ignore?
+
+            stats[:create] += 1
+            body << { create: doc.to_bulk }
           end
-          Array(delete).each do |entry|
-            meta, _source = doc_meta_and_source!(entry.dup, type: type)
-            if meta[:_id]
-              stats[:delete] += 1
-              body << { delete: meta }
-            end
+          Array(delete).each do |doc|
+            next unless doc && doc.is_a?(Esse::Serializer)
+            next if doc.ignore?
+
+            stats[:delete] += 1
+            body << { delete: doc.to_bulk(data: false) }
           end
 
           return if body.empty?

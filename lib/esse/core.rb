@@ -6,6 +6,8 @@ module Esse
   require_relative 'primitives'
   require_relative 'collection'
   require_relative 'serializer'
+  require_relative 'hash_document'
+  require_relative 'null_document'
   require_relative 'repository'
   require_relative 'index_setting'
   require_relative 'dynamic_template'

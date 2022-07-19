@@ -36,8 +36,10 @@ RSpec.describe Esse::Repository do
 
       specify do
         expect(DummiesIndex::Dummy.serialize(dummy, **optionals)).to eq(
-          _id: 1,
-          name: 'dummy',
+          Esse::HashDocument.new(
+            _id: 1,
+            name: 'dummy',
+          )
         )
       end
     end
@@ -76,9 +78,9 @@ RSpec.describe Esse::Repository do
         }.not_to raise_error
         expect(expected_data).to match_array(
           [
-            [{ _id: 1, name: 'Il' }],
-            [{ _id: 2, name: 'Md' }],
-            [{ _id: 3, name: 'Ny' }]
+            [Esse::HashDocument.new(_id: 1, name: 'Il')],
+            [Esse::HashDocument.new(_id: 2, name: 'Md')],
+            [Esse::HashDocument.new(_id: 3, name: 'Ny')],
           ],
         )
       end
@@ -117,9 +119,9 @@ RSpec.describe Esse::Repository do
         }.not_to raise_error
         expect(expected_data).to match_array(
           [
-            [{ _id: 1, name: 'Il' }],
-            [{ _id: 2, name: 'Md' }],
-            [{ _id: 3, name: 'Ny' }]
+            [Esse::HashDocument.new(_id: 1, name: 'Il')],
+            [Esse::HashDocument.new(_id: 2, name: 'Md')],
+            [Esse::HashDocument.new(_id: 3, name: 'Ny')],
           ],
         )
       end
@@ -131,8 +133,8 @@ RSpec.describe Esse::Repository do
         }.not_to raise_error
         expect(expected_data).to match_array(
           [
-            [{ _id: 1, name: 'Il' }],
-            [{ _id: 2, name: 'Md' }]
+            [Esse::HashDocument.new(_id: 1, name: 'Il')],
+            [Esse::HashDocument.new(_id: 2, name: 'Md')],
           ],
         )
       end
@@ -144,9 +146,9 @@ RSpec.describe Esse::Repository do
         }.not_to raise_error
         expect(expected_data).to match_array(
           [
-            [{ _id: 1, name: 'IL' }],
-            [{ _id: 2, name: 'MD' }],
-            [{ _id: 3, name: 'NY' }]
+            [Esse::HashDocument.new(_id: 1, name: 'IL')],
+            [Esse::HashDocument.new(_id: 2, name: 'MD')],
+            [Esse::HashDocument.new(_id: 3, name: 'NY')],
           ],
         )
       end
@@ -183,9 +185,9 @@ RSpec.describe Esse::Repository do
         expect(StatesIndex::State.documents).to be_a(Enumerator)
         expect(StatesIndex::State.documents.to_a).to match_array(
           [
-            { _id: 1, name: 'Il' },
-            { _id: 2, name: 'Md' },
-            { _id: 3, name: 'Ny' },
+            Esse::HashDocument.new(_id: 1, name: 'Il'),
+            Esse::HashDocument.new(_id: 2, name: 'Md'),
+            Esse::HashDocument.new(_id: 3, name: 'Ny'),
           ]
         )
       end
@@ -221,9 +223,9 @@ RSpec.describe Esse::Repository do
         expect(StatesIndex::State.documents).to be_a(Enumerator)
         expect(StatesIndex::State.documents.to_a).to match_array(
           [
-            { _id: 1, name: 'Il' },
-            { _id: 2, name: 'Md' },
-            { _id: 3, name: 'Ny' },
+            Esse::HashDocument.new(_id: 1, name: 'Il'),
+            Esse::HashDocument.new(_id: 2, name: 'Md'),
+            Esse::HashDocument.new(_id: 3, name: 'Ny'),
           ]
         )
       end
@@ -231,8 +233,8 @@ RSpec.describe Esse::Repository do
       it 'returns enumerator with all serialized objects with a collection filter' do
         expect(StatesIndex::State.documents(filter: ->(state) { state.id > 2 }).take(3)).to match_array(
           [
-            { _id: 1, name: 'Il' },
-            { _id: 2, name: 'Md' },
+            Esse::HashDocument.new(_id: 1, name: 'Il'),
+            Esse::HashDocument.new(_id: 2, name: 'Md'),
           ],
         )
       end
@@ -260,7 +262,7 @@ RSpec.describe Esse::Repository do
             serializer
           end
         end
-      }.to raise_error(ArgumentError, 'nil is not a valid serializer. The serializer should respond with `to_h` instance method.')
+      }.to raise_error(ArgumentError, "nil is not a valid serializer. The serializer should inherit from Esse::Serializer or respond to `to_h'")
     end
 
     specify do
@@ -270,7 +272,7 @@ RSpec.describe Esse::Repository do
             serializer :invalid
           end
         end
-      }.to raise_error(ArgumentError, ':invalid is not a valid serializer. The serializer should respond with `to_h` instance method.')
+      }.to raise_error(ArgumentError, ":invalid is not a valid serializer. The serializer should inherit from Esse::Serializer or respond to `to_h'")
     end
 
     specify do
@@ -316,6 +318,54 @@ RSpec.describe Esse::Repository do
         end
       }.not_to raise_error
       expect(klass.repo(:foo).instance_variable_get(:@serializer_proc)).to be_a_kind_of(Proc)
+    end
+  end
+
+  describe '.coerce_to_document' do
+    before { stub_index(:states) { repository(:state) } }
+
+    specify do
+      expect {
+        StatesIndex::State.coerce_to_document(:invalid)
+      }.to raise_error(ArgumentError, ':invalid is not a valid document. The document should be a hash or an instance of Esse::Serializer')
+    end
+
+    specify do
+      expect {
+        StatesIndex::State.coerce_to_document(OpenStruct.new)
+      }.to raise_error(ArgumentError, '#<OpenStruct> is not a valid document. The document should be a hash or an instance of Esse::Serializer')
+    end
+
+    specify do
+      expected_object = nil
+      expect {
+        expected_object = StatesIndex::State.coerce_to_document(Esse::Serializer.new(nil))
+      }.not_to raise_error
+      expect(expected_object).to be_a(Esse::Serializer)
+    end
+
+    specify do
+      expected_object = nil
+      expect {
+        expected_object = StatesIndex::State.coerce_to_document({id: 1})
+      }.not_to raise_error
+      expect(expected_object).to be_a(Esse::HashDocument)
+    end
+
+    specify do
+      expected_object = nil
+      expect {
+        expected_object = StatesIndex::State.coerce_to_document(nil)
+      }.not_to raise_error
+      expect(expected_object).to be_a(Esse::NullDocument)
+    end
+
+    specify do
+      expected_object = nil
+      expect {
+        expected_object = StatesIndex::State.coerce_to_document(false)
+      }.not_to raise_error
+      expect(expected_object).to be_a(Esse::NullDocument)
     end
   end
 end
