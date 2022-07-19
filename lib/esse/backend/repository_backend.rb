@@ -38,6 +38,18 @@ module Esse
         elasticsearch.index(**kwargs, type: document_type)
       end
 
+      # @param [Esse::Serializer] document A document instance
+      def index_document(document, **kwargs)
+        return unless document.is_a?(Esse::Serializer)
+        return if document.ignore?
+
+        kwargs[:id] = document.id
+        kwargs[:routing] = document.routing if document.routing
+        kwargs[:type] = document.type || document_type
+        kwargs[:body] = document.source
+        elasticsearch.index(**kwargs)
+      end
+
       def update!(**kwargs)
         elasticsearch.update!(**kwargs, type: document_type)
       end
@@ -52,6 +64,17 @@ module Esse
 
       def delete(**kwargs)
         elasticsearch.delete(**kwargs, type: document_type)
+      end
+
+      # @param [Esse::Serializer] document A document instance
+      def delete_document(document, **kwargs)
+        return unless document.is_a?(Esse::Serializer)
+        return if document.ignore?
+
+        kwargs[:id] = document.id
+        kwargs[:routing] = document.routing if document.routing
+        kwargs[:type] = document.type || document_type
+        elasticsearch.delete(**kwargs)
       end
 
       def exist?(**kwargs)

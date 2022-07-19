@@ -25,7 +25,7 @@ module Esse
         if block
           @serializer_proc = ->(model, **kwargs) { coerce_to_document(block.call(model, **kwargs)) }
         elsif klass.is_a?(Class) && klass <= Esse::Serializer
-          @serializer_proc = ->(model, **kwargs) { klass.new(*args, **kwargs) }
+          @serializer_proc = ->(model, **kwargs) { klass.new(model, **kwargs) }
         elsif klass.is_a?(Class) && klass.instance_methods.include?(:to_h)
           @serializer_proc = ->(model, **kwargs) { coerce_to_document(klass.new(model, **kwargs).to_h) }
         elsif klass.is_a?(Class) && klass.instance_methods.include?(:as_json) # backward compatibility
