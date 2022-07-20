@@ -219,7 +219,7 @@ Generate an index with the following command:
 $ esse generate index <IndexName> <*doc_type>
 ```
 
-List of types are optional. If not specified, the index will be created with definition on Index level with the `"__default__"` as type. Example:
+List of types are optional. If not specified, the index will be created with definition on Index level with the `"default"` as type. Example:
 
 ```bash
 $ bundle exec esse generate index GeosIndex                                                                                                                                        [ruby-2.6.9p207]

@@ -78,7 +78,7 @@ RSpec.describe Esse::Index do
     it 'raise an error when calling without arguments when no type is defined' do
       stub_index(:events)
       expect { EventsIndex.repo }.to raise_error(ArgumentError).with_message(
-        /No repo named "__default__" found. Use the `repository' method to define one/
+        /No repo named "default" found. Use the `repository' method to define one/
       )
     end
 

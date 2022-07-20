@@ -38,6 +38,7 @@ module Esse
       def repository(repo_name, *_args, **kwargs, &block)
         repo_class = Class.new(Esse::Repository)
         kwargs[:const] ||= true # TODO Change this to false to avoid collisions with application classes
+        kwargs[:lazy_evaluate] ||= false
 
         if kwargs[:const]
           const_set(Hstring.new(repo_name).camelize.demodulize.to_s, repo_class)
@@ -55,7 +56,11 @@ module Esse
           repository_plugin_extend(repo_class, mod::RepositoryClassMethods)
         end
 
-        repo_class.class_eval(&block) if block
+        if kwargs[:lazy_evaluate]
+
+        elsif block
+          repo_class.class_eval(&block)
+        end
 
         self.repo_hash = repo_hash.merge(repo_class.repo_name => repo_class)
         repo_class
