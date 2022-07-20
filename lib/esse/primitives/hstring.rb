@@ -9,7 +9,7 @@ module Esse
   class Hstring
     extend Forwardable
 
-    def_delegators :@value, :==, :eq, :to_s, :to_sym, :inspect, :sub, :capitalize
+    def_delegators :@value, :==, :eq, :to_s, :to_sym, :inspect, :sub, :capitalize, :tr
     attr_reader :value
 
     def self.def_conventional(bang_method, conv_method = nil)

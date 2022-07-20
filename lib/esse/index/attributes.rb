@@ -85,7 +85,7 @@ module Esse
       end
 
       def normalized_name
-        Hstring.new(name).demodulize.underscore.sub(/_(index)$/, '')
+        Hstring.new(name).underscore.tr('/', '_').sub(/_(index)$/, '')
       end
     end
 

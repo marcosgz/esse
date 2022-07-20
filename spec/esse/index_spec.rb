@@ -181,6 +181,14 @@ RSpec.describe Esse::Index do
       end
     end
 
+    it 'normalize index namespace' do
+      with_cluster_config(index_prefix: nil) do
+        stub_const('BusinessIntelligence::V1::UsersIndex', UsersIndex)
+        allow(BusinessIntelligence::V1::UsersIndex).to receive(:name).and_return('BusinessIntelligence::V1::UsersIndex')
+        expect(BusinessIntelligence::V1::UsersIndex.index_name).to eq('business_intelligence_v1_users')
+      end
+    end
+
     it 'appends index_prefix from global config' do
       with_cluster_config(index_prefix: 'esse') do
         expect(UsersIndex.index_name).to eq('esse_users')
