@@ -8,14 +8,18 @@ module Esse
       def run
         validate_options!
         indices.each do |index|
-          index.elasticsearch.import!(**options)
+          if (repo = @options[:repo])
+            index.elasticsearch.import!(repo, **options)
+          else
+            index.elasticsearch.import!(**options)
+          end
         end
       end
 
       private
 
       def options
-        @options.slice(*@options.keys - CLI_IGNORE_OPTS)
+        @options.slice(*@options.keys - CLI_IGNORE_OPTS - [:repo])
       end
 
       def validate_options!

@@ -26,7 +26,10 @@ RSpec.describe Esse::CLI::Index, type: :cli do
     context 'with a valid index name' do
       before do
         stub_index(:counties)
-        stub_index(:cities)
+        stub_index(:cities) do
+          repository :city do
+          end
+        end
       end
 
       specify do
@@ -39,6 +42,12 @@ RSpec.describe Esse::CLI::Index, type: :cli do
         expect(CountiesIndex).to receive(:elasticsearch).at_least(1).and_return(api = double)
         expect(api).to receive(:import!).with(suffix: 'foo', context: {}).and_return(true)
         cli_exec(%w[index import CountiesIndex --suffix=foo])
+      end
+
+      specify do
+        expect(CitiesIndex).to receive(:elasticsearch).at_least(1).and_return(api = double)
+        expect(api).to receive(:import!).with('city', suffix: 'foo', context: {}).and_return(true)
+        cli_exec(%w[index import CitiesIndex --suffix=foo --repo=city])
       end
 
       specify do
