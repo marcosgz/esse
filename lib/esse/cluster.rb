@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative 'cluster_engine'
+require_relative 'client_proxy'
 
 module Esse
   class Cluster
@@ -108,6 +109,21 @@ module Esse
 
     def engine
       ClusterEngine.new(**info)
+    end
+
+    # Build a search query for the given indices
+    #
+    # @param indices [Array<Esse::Index, String>] The indices class or the index name
+    # @return [Esse::Search::Query] The search query instance
+    def search(*indices, **kwargs, &block)
+      Esse::Search::Query.new(api, *indices, **kwargs, &block)
+    end
+
+    # Return the proxy object used to perform low level actions on the elasticsearch cluster through the official api client
+    #
+    # @return [Esse::ClientProxy] The cluster api instance
+    def api
+      Esse::ClientProxy.new(self)
     end
   end
 end

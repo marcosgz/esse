@@ -3,12 +3,12 @@
 require 'spec_helper'
 
 RSpec.describe Esse::Search::Response do
-  before { stub_index(:events) }
-
   subject(:model) { described_class.new(query, raw_response) }
 
+  before { stub_index(:events) }
+
   let(:request_body) { { query: { match_all: {} } } }
-  let(:query) { Esse::Search::Query.new(EventsIndex, request_body) }
+  let(:query) { Esse::Search::Query.new(EventsIndex, body: request_body) }
   let(:raw_response) do
     json = elasticsearch_response_fixture(file: 'search_result_empty', version: '7.x', assigns: { index_name: 'geos' })
     MultiJson.load(json)

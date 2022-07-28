@@ -19,8 +19,8 @@ stack_describe 'elasticsearch', '7.x', 'elasticsearch#search' do
       es_client do |client, _conf, cluster|
         GeosIndex.elasticsearch.create_index!(alias: true)
 
-        expect(resp = GeosIndex.elasticsearch.search(body: { query: { match_all: {} } })).to be_an_instance_of(Hash)
-        expect(resp).to have_key('hits')
+        expect(resp = GeosIndex.search(query: { match_all: {} }).response).to be_an_instance_of(Esse::Search::Response)
+        expect(resp.raw_response).to have_key('hits')
       end
     end
   end

@@ -12,8 +12,12 @@ module Esse
         @index_name = Hstring.new(value.to_s).underscore.presence
       end
 
-      def index_name
-        index_prefixed_name(@index_name || normalized_name)
+      def index_name(suffix: nil)
+        iname = index_prefixed_name(@index_name || normalized_name)
+        suffix = Hstring.new(suffix).underscore.presence
+        return iname if !iname || !suffix
+
+        [iname, suffix].join('_')
       end
 
       def index_name?

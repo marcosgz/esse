@@ -15,7 +15,6 @@ module Esse
       require_relative 'index/documents'
       require_relative 'index/open'
       require_relative 'index/close'
-      require_relative 'index/search'
 
       extend Forwardable
 
@@ -23,7 +22,7 @@ module Esse
       DEFINITION = %i[settings_hash mappings_hash].freeze
       DOCUMENTS = %i[each_serialized_batch].freeze
 
-      def_delegators :@index, :cluster, :repo_hash, :bulk_wait_interval, *(NAMING + DEFINITION + DOCUMENTS)
+      def_delegators :@index, :index_name, :cluster, :repo_hash, :bulk_wait_interval, *(NAMING + DEFINITION + DOCUMENTS)
       def_delegators :cluster, :document_type?, :client
 
       def initialize(index)
@@ -31,13 +30,6 @@ module Esse
       end
 
       protected
-
-      def index_name(suffix: nil)
-        suffix = Hstring.new(suffix).underscore.presence
-        return @index.index_name unless suffix
-
-        [@index.index_name, suffix].join('_')
-      end
 
       def build_real_index_name(suffix = nil)
         suffix = Hstring.new(suffix).underscore.presence || index_version || Esse.timestamp

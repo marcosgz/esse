@@ -4,6 +4,7 @@ module Esse
   class Error < StandardError
   end
 
+  # @todo Rename this
   module Backend
     class ServerError < ::Esse::Error; end
 

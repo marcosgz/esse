@@ -123,7 +123,7 @@ RSpec.describe Esse::Cluster do
   end
 
   describe '.client=', service_type: :elasticsearch do
-    it { expect(model).to respond_to(:"client=") }
+    it { expect(model).to respond_to(:'client=') }
 
     it 'defines a connection from hash' do
       expect(Elasticsearch::Client).to receive(:new).with(hosts: []).and_return(client = double)
@@ -144,7 +144,7 @@ RSpec.describe Esse::Cluster do
   end
 
   describe '.client=', service_type: :opensearch do
-    it { expect(model).to respond_to(:"client=") }
+    it { expect(model).to respond_to(:'client=') }
 
     it 'defines a connection from hash' do
       expect(OpenSearch::Client).to receive(:new).with(hosts: []).and_return(client = double)
@@ -206,7 +206,7 @@ RSpec.describe Esse::Cluster do
     specify do
       body = elasticsearch_response_fixture(file: 'info', version: '1.x', assigns: { version__number: version = '1.7.6' })
       stub_es_request(:get, '/', res: { body: body })
-      is_expected.to eq(
+      expect(subject).to eq(
         distribution: 'elasticsearch',
         version: version,
       )
@@ -215,7 +215,7 @@ RSpec.describe Esse::Cluster do
     specify do
       body = elasticsearch_response_fixture(file: 'info', version: '2.x', assigns: { version__number: version = '2.0.0' })
       stub_es_request(:get, '/', res: { body: body })
-      is_expected.to eq(
+      expect(subject).to eq(
         distribution: 'elasticsearch',
         version: version,
       )
@@ -224,7 +224,7 @@ RSpec.describe Esse::Cluster do
     specify do
       body = elasticsearch_response_fixture(file: 'info', version: '5.x', assigns: { version__number: version = '5.0.0' })
       stub_es_request(:get, '/', res: { body: body })
-      is_expected.to eq(
+      expect(subject).to eq(
         distribution: 'elasticsearch',
         version: version,
       )
@@ -233,7 +233,7 @@ RSpec.describe Esse::Cluster do
     specify do
       body = elasticsearch_response_fixture(file: 'info', version: '6.x', assigns: { version__number: version = '6.0.0' })
       stub_es_request(:get, '/', res: { body: body })
-      is_expected.to eq(
+      expect(subject).to eq(
         distribution: 'elasticsearch',
         version: version,
       )
@@ -242,7 +242,7 @@ RSpec.describe Esse::Cluster do
     specify do
       body = elasticsearch_response_fixture(file: 'info', version: '7.x', assigns: { version__number: version = '7.0.0' })
       stub_es_request(:get, '/', res: { body: body })
-      is_expected.to eq(
+      expect(subject).to eq(
         distribution: 'elasticsearch',
         version: version,
       )
@@ -251,7 +251,7 @@ RSpec.describe Esse::Cluster do
     specify do
       body = elasticsearch_response_fixture(file: 'info', version: '8.x', assigns: { version__number: version = '8.0.0' })
       stub_es_request(:get, '/', res: { body: body })
-      is_expected.to eq(
+      expect(subject).to eq(
         distribution: 'elasticsearch',
         version: version,
       )
@@ -260,7 +260,7 @@ RSpec.describe Esse::Cluster do
     specify do
       body = elasticsearch_response_fixture(file: 'info', version: '1.x', distribution: 'opensearch', assigns: { version__number: version = '1.0.0' })
       stub_es_request(:get, '/', res: { body: body })
-      is_expected.to eq(
+      expect(subject).to eq(
         distribution: 'opensearch',
         version: version,
       )
@@ -269,7 +269,7 @@ RSpec.describe Esse::Cluster do
     specify do
       body = elasticsearch_response_fixture(file: 'info', version: '2.x', distribution: 'opensearch', assigns: { version__number: version = '2.0.0' })
       stub_es_request(:get, '/', res: { body: body })
-      is_expected.to eq(
+      expect(subject).to eq(
         distribution: 'opensearch',
         version: version,
       )
@@ -283,6 +283,62 @@ RSpec.describe Esse::Cluster do
         version: '7.0.0',
       )
       expect(model.engine).to be_an_instance_of(Esse::ClusterEngine)
+    end
+  end
+
+  describe '#api' do
+    it 'returns an instance of Esse::ClientProxy' do
+      expect(model.api).to be_an_instance_of(Esse::ClientProxy)
+    end
+  end
+
+  describe '#search' do
+    before do
+      stub_index(:posts)
+      stub_index(:comments)
+    end
+
+    it 'returns an instance of Search::Query' do
+      expect(query = model.search(PostsIndex, body: { query: { match_all: {}} }, limit: 10)).to be_an_instance_of(Esse::Search::Query)
+      expect(query.definition).to eq({
+        index: PostsIndex.index_name,
+        body: {
+          query: {
+            match_all: {},
+          },
+        },
+        limit: 10
+      })
+    end
+
+    it 'combines multiple indices' do
+      expect(query = model.search(PostsIndex, CommentsIndex, body: { query: { match_all: {}} })).to be_an_instance_of(Esse::Search::Query)
+      expect(query.definition).to eq({
+        index: [PostsIndex.index_name, CommentsIndex.index_name].join(','),
+        body: {
+          query: {
+            match_all: {},
+          },
+        },
+      })
+    end
+
+    it 'allows string and symbols as index' do
+      expect(query = model.search('posts_index', :comments_index, body: { query: { match_all: {}} })).to be_an_instance_of(Esse::Search::Query)
+      expect(query.definition).to eq({
+        index: 'posts_index,comments_index',
+        body: {
+          query: {
+            match_all: {},
+          },
+        },
+      })
+    end
+
+    it "raises an error if indices aren't allowed" do
+      expect {
+        model.search(nil, body: { query: { match_all: {}} })
+      }.to raise_error(ArgumentError).with_message(/Invalid index type: nil/)
     end
   end
 end

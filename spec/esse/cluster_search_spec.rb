@@ -2,10 +2,10 @@
 
 require 'spec_helper'
 
-RSpec.describe Esse::Index, '.search' do
+RSpec.describe Esse::Cluster, '.search' do
   describe '.search' do
     specify do
-      c = Class.new(described_class)
+      c = described_class.new(id: :v1)
       expect(c.search).to be_an_instance_of(Esse::Search::Query)
     end
   end

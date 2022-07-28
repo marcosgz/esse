@@ -6,7 +6,7 @@ RSpec.describe Esse::Index do
   let(:client1) { double }
   let(:client2) { double }
 
-  before(:each) do
+  before do
     reset_config!
     Esse.configure do |conf|
       conf.cluster do |cluster|
@@ -94,6 +94,7 @@ RSpec.describe Esse::Index do
 
   describe '#bulk_wait_interval' do
     before { stub_index(:events) }
+
     after { Esse.config.bulk_wait_interval = 0.1 }
 
     it 'returns the global bulk wait interval' do
@@ -178,6 +179,7 @@ RSpec.describe Esse::Index do
     it 'returns class name expect the "index" suffix' do
       with_cluster_config(index_prefix: nil) do
         expect(UsersIndex.index_name).to eq('users')
+        expect(UsersIndex.index_name(suffix: '2022')).to eq('users_2022')
       end
     end
 
@@ -192,6 +194,7 @@ RSpec.describe Esse::Index do
     it 'appends index_prefix from global config' do
       with_cluster_config(index_prefix: 'esse') do
         expect(UsersIndex.index_name).to eq('esse_users')
+        expect(UsersIndex.index_name(suffix: 'v1')).to eq('esse_users_v1')
       end
     end
 
@@ -199,6 +202,7 @@ RSpec.describe Esse::Index do
       with_cluster_config(index_prefix: nil) do
         klass = Class.new(Esse::Index) { self.abstract_class = true }
         expect(klass.index_name).to eq(nil)
+        expect(klass.index_name(suffix: 'v2')).to eq(nil)
       end
     end
 
@@ -206,6 +210,7 @@ RSpec.describe Esse::Index do
       with_cluster_config(index_prefix: 'esse') do
         klass = Class.new(Esse::Index)
         expect(klass.index_name).to eq(nil)
+        expect(klass.index_name(suffix: 'v3')).to eq(nil)
       end
     end
   end
@@ -304,84 +309,84 @@ RSpec.describe Esse::Index do
     context 'with elasticsearch 1.x' do
       it 'returns true' do
         expect(index_class.cluster).to receive(:engine).and_return(Esse::ClusterEngine.new(version: '1.0', distribution: 'elasticsearch'))
-        is_expected.to be_falsey
+        expect(subject).to be_falsey
       end
 
       it 'allows overriding' do
         index_class.mapping_single_type = true
-        is_expected.to be_truthy
+        expect(subject).to be_truthy
       end
     end
 
     context 'with elasticsearch 2.x' do
       it 'returns true' do
         expect(index_class.cluster).to receive(:engine).and_return(Esse::ClusterEngine.new(version: '2.0', distribution: 'elasticsearch'))
-        is_expected.to be_falsey
+        expect(subject).to be_falsey
       end
 
       it 'allows overriding' do
         index_class.mapping_single_type = true
-        is_expected.to be_truthy
+        expect(subject).to be_truthy
       end
     end
 
     context 'with elasticsearch 5.x' do
       it 'returns true' do
         expect(index_class.cluster).to receive(:engine).and_return(Esse::ClusterEngine.new(version: '5.0', distribution: 'elasticsearch'))
-        is_expected.to be_falsey
+        expect(subject).to be_falsey
       end
 
       it 'allows overriding' do
         index_class.mapping_single_type = true
-        is_expected.to be_truthy
+        expect(subject).to be_truthy
       end
     end
 
     context 'with elasticsearch 6.x' do
       it 'returns true' do
         expect(index_class.cluster).to receive(:engine).and_return(Esse::ClusterEngine.new(version: '6.0', distribution: 'elasticsearch'))
-        is_expected.to be_truthy
+        expect(subject).to be_truthy
       end
 
       it 'allows overriding' do
         index_class.mapping_single_type = false
-        is_expected.to be_falsey
+        expect(subject).to be_falsey
       end
     end
 
     context 'with elasticsearch 7.x' do
       it 'returns true' do
         expect(index_class.cluster).to receive(:engine).and_return(Esse::ClusterEngine.new(version: '7.0', distribution: 'elasticsearch'))
-        is_expected.to be_truthy
+        expect(subject).to be_truthy
       end
 
       it 'allows overriding' do
         index_class.mapping_single_type = false
-        is_expected.to be_falsey
+        expect(subject).to be_falsey
       end
     end
 
     context 'with opensearch 1.x' do
       it 'returns true' do
         expect(index_class.cluster).to receive(:engine).and_return(Esse::ClusterEngine.new(version: '1.0', distribution: 'opensearch'))
-        is_expected.to be_truthy
+        expect(subject).to be_truthy
       end
 
       it 'allows overriding' do
         index_class.mapping_single_type = false
-        is_expected.to be_falsey
+        expect(subject).to be_falsey
       end
     end
 
     context 'with opensearch 2.x' do
       it 'returns true' do
         expect(index_class.cluster).to receive(:engine).and_return(Esse::ClusterEngine.new(version: '2.0', distribution: 'opensearch'))
-        is_expected.to be_truthy
+        expect(subject).to be_truthy
       end
 
       it 'allows overriding' do
         index_class.mapping_single_type = false
-        is_expected.to be_falsey
+        expect(subject).to be_falsey
       end
     end
   end
