@@ -3,6 +3,10 @@
 module Esse
   module Events
     class Event
+      extend Forwardable
+      def_delegators :@payload, :[], :fetch, :to_h, :key?
+      alias_method :to_hash, :to_h
+
       attr_reader :id
 
       # Initialize a new event
@@ -17,25 +21,6 @@ module Esse
         @id = id
         @payload = payload
       end
-
-      # Get data from the payload
-      #
-      # @param [String,Symbol] name
-      #
-      # @api public
-      def [](name)
-        @payload.fetch(name)
-      end
-
-      # Coerce an event to a hash
-      #
-      # @return [Hash]
-      #
-      # @api public
-      def to_h
-        @payload
-      end
-      alias_method :to_hash, :to_h
 
       # Get or set a payload
       #

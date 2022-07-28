@@ -17,8 +17,34 @@ RSpec.describe Esse::Events::Event do
       expect(event[:test]).to eq :foo
     end
 
+    it 'returns nil' do
+      expect(event[:fake]).to be_nil
+    end
+  end
+
+  describe '#fetch' do
+    let(:event_id) { :test }
+    let(:payload) { { test: :foo } }
+
+    it 'fetches payload key' do
+      expect(event.fetch(:test)).to eq :foo
+    end
+
     it 'raises KeyError when no key found' do
-      expect { event[:fake] }.to raise_error(KeyError)
+      expect { event.fetch(:fake) }.to raise_error(KeyError)
+    end
+  end
+
+  describe '#key?' do
+    let(:event_id) { :test }
+    let(:payload) { { test: :foo } }
+
+    it 'returns true' do
+      expect(event.key?(:test)).to be true
+    end
+
+    it 'returns false' do
+      expect(event.key?(:fake)).to be false
     end
   end
 
@@ -32,7 +58,7 @@ RSpec.describe Esse::Events::Event do
 
     it 'returns new event with payload payload' do
       new_event = event.payload(bar: :baz)
-      expect(new_event).to_not eq(event)
+      expect(new_event).not_to eq(event)
       expect(new_event.payload).to eq(test: :foo, bar: :baz)
     end
   end
