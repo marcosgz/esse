@@ -31,7 +31,7 @@ module Esse
       end
 
       def indices
-        eager_load_indices!
+        Esse.eager_load_indices!
         @indices.map do |class_name|
           const_exist = begin
             Kernel.const_defined?(class_name)
@@ -59,17 +59,6 @@ module Esse
 
           klass
         end
-      end
-
-      def eager_load_indices!
-        return false unless Esse.config.indices_directory.exist?
-
-        Dir[Esse.config.indices_directory.join('**/*_index.rb')].map { |path| Pathname.new(path) }.each do |path|
-          next unless path.extname == '.rb'
-
-          require(path.expand_path.to_s)
-        end
-        true
       end
     end
   end
