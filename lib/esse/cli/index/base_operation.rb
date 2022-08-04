@@ -32,6 +32,9 @@ module Esse
 
       def indices
         Esse.eager_load_indices!
+        if @indices == ['all']
+          return Esse::Index.descendants
+        end
         @indices.map do |class_name|
           const_exist = begin
             Kernel.const_defined?(class_name)
