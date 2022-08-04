@@ -37,39 +37,35 @@ module Esse
         if options[:settings]
           copy_file(
             'templates/settings.json',
-            base_dir.join(index_name, 'templates', "settings.json"),
+            base_dir.join(index_name, 'templates', 'settings.json'),
+          )
+        end
+
+        if options[:mappings]
+          copy_file(
+            'templates/mappings.json',
+            base_dir.join(index_name, 'templates', 'mappings.json'),
           )
         end
 
         if @types.empty?
-          if options[:mappings]
-            copy_file(
-              'templates/mapping.json',
-              base_dir.join(index_name, 'templates', "mapping.json"),
-            )
-          end
           if options[:serializers]
             template(
               'templates/serializer.rb.erb',
-              base_dir.join(index_name, 'serializers', "serializer.rb"),
+              base_dir.join(index_name, 'serializers', 'serializer.rb'),
             )
           end
           if options[:collections] && !options[:active_record]
             template(
               'templates/collection.rb.erb',
-              base_dir.join(index_name, 'collections', "collection.rb"),
+              base_dir.join(index_name, 'collections', 'collection.rb'),
             )
           end
         end
 
         @types.each do |type|
           @type = Hstring.new(type).underscore
-          if options[:mappings]
-            copy_file(
-              'templates/mapping.json',
-              base_dir.join(index_name, 'templates', "#{@type}_mapping.json"),
-            )
-          end
+
           if options[:serializers]
             template(
               'templates/serializer.rb.erb',

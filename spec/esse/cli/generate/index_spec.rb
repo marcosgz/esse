@@ -14,8 +14,8 @@ RSpec.describe Esse::CLI::Generate, type: :cli do
       expect_contains(expected_filename, 'repository :normal do')
     end
 
-    it 'generates the mappings template for each type' do
-      expected_filename = Esse.config.indices_directory.join('users_index/templates/user_mapping.json')
+    it 'does NOT generates the mappings template for each repo' do
+      expected_filename = Esse.config.indices_directory.join('users_index/templates/mappings.json')
 
       expect_generate(%w[index users user --mappings], expected_filename)
     end
@@ -44,12 +44,6 @@ RSpec.describe Esse::CLI::Generate, type: :cli do
 
       expect_generate(%w[index VerOne::Users user], expected_filename)
       expect_contains(expected_filename, 'class VerOne::UsersIndex < Esse::Index')
-    end
-
-    it 'generates the mappings template for each type using an index class with namespace' do
-      expected_filename = Esse.config.indices_directory.join('v1/users_index/templates/user_mapping.json')
-
-      expect_generate(%w[index v1/users user --mappings], expected_filename)
     end
 
     it 'generates a serializer for each type under a namespace' do

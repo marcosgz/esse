@@ -247,10 +247,9 @@ As default, the index will be create d with the collection, serializer, settings
 $ ./exec/esse generate index GeosIndex state city --settings --mappings --serializers --collections                                                                           [ruby-2.6.9p207]
       create  app/indices/geos_index.rb
       create  app/indices/geos_index/templates/settings.json
-      create  app/indices/geos_index/templates/state_mapping.json
+      create  app/indices/geos_index/templates/mappings.json
       create  app/indices/geos_index/serializers/state_serializer.rb
       create  app/indices/geos_index/collections/state_collection.rb
-      create  app/indices/geos_index/templates/city_mapping.json
       create  app/indices/geos_index/serializers/city_serializer.rb
       create  app/indices/geos_index/collections/city_collection.rb
 ```

@@ -1,0 +1,27 @@
+{
+  "dynamic_templates": [
+    {
+      "string_template": {
+        "match": "*",
+        "match_mapping_type": "string",
+        "mapping": {
+          "fields": {
+            "analyzed": {
+              "analyzer": "pipeline_index",
+              "index": true,
+              "type": "text"
+            }
+          },
+          "ignore_above": 30000,
+          "type": "keyword"
+        }
+      }
+    }
+  ],
+  "properties": {
+    "slug": {
+      "type": "keyword",
+      "ignore_above": 255
+    }
+  }
+}
