@@ -28,7 +28,7 @@ module Esse
       #     end
       #   end
       def settings(hash = {}, &block)
-        @setting = Esse::IndexSetting.new(body: hash, paths: template_dirs, globals: -> { cluster.index_settings })
+        @setting = Esse::IndexSetting.new(body: hash, paths: template_dirs, globals: -> { cluster.settings })
         return unless block
 
         @setting.define_singleton_method(:to_h, &block)
@@ -37,7 +37,7 @@ module Esse
       private
 
       def setting
-        @setting ||= Esse::IndexSetting.new(paths: template_dirs, globals: -> { cluster.index_settings })
+        @setting ||= Esse::IndexSetting.new(paths: template_dirs, globals: -> { cluster.settings })
       end
     end
 

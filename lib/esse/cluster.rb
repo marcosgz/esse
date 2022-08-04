@@ -5,7 +5,7 @@ require_relative 'client_proxy'
 
 module Esse
   class Cluster
-    ATTRIBUTES = %i[index_prefix index_settings index_mappings client wait_for_status].freeze
+    ATTRIBUTES = %i[index_prefix settings index_mappings client wait_for_status].freeze
     WAIT_FOR_STATUSES = %w[green yellow red].freeze
 
     # The index prefix. For example an index named UsersIndex.
@@ -13,7 +13,7 @@ module Esse
     attr_accessor :index_prefix
 
     # This global settings will be passed through all indices
-    attr_accessor :index_settings
+    attr_accessor :settings
 
     # This global mappings will be applied to all indices
     # @see https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping.html
@@ -32,7 +32,7 @@ module Esse
 
     def initialize(id:, **options)
       @id = id.to_sym
-      @index_settings = {}
+      @settings = {}
       @index_mappings = {}
       assign(options)
     end

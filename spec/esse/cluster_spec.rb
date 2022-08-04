@@ -22,13 +22,13 @@ RSpec.describe Esse::Cluster do
   describe 'initialization properties' do
     specify do
       model = described_class.new(id: :v1)
-      expect(model.index_settings).to eq({})
+      expect(model.settings).to eq({})
       expect(model.index_mappings).to eq({})
     end
 
     specify do
-      model = described_class.new(id: :v1, index_settings: { refresh_interval: '1s' })
-      expect(model.index_settings).to eq(refresh_interval: '1s')
+      model = described_class.new(id: :v1, settings: { refresh_interval: '1s' })
+      expect(model.settings).to eq(refresh_interval: '1s')
     end
 
     specify do
@@ -41,15 +41,15 @@ RSpec.describe Esse::Cluster do
     let(:model) { described_class.new(id: :v1) }
 
     specify do
-      expect(model.index_settings).to eq({})
-      expect { model.assign(index_settings: { refresh_interval: '1s' }, other: 1) }.not_to raise_error
-      expect(model.index_settings).to eq(refresh_interval: '1s')
+      expect(model.settings).to eq({})
+      expect { model.assign(settings: { refresh_interval: '1s' }, other: 1) }.not_to raise_error
+      expect(model.settings).to eq(refresh_interval: '1s')
     end
 
     specify do
-      expect(model.index_settings).to eq({})
-      expect { model.assign('index_settings' => { 'refresh_interval' => '1s' }, 'other' => 1) }.not_to raise_error
-      expect(model.index_settings).to eq('refresh_interval' => '1s')
+      expect(model.settings).to eq({})
+      expect { model.assign('settings' => { 'refresh_interval' => '1s' }, 'other' => 1) }.not_to raise_error
+      expect(model.settings).to eq('refresh_interval' => '1s')
     end
 
     specify do
@@ -104,12 +104,12 @@ RSpec.describe Esse::Cluster do
     end
   end
 
-  describe '.index_settings' do
-    it { expect(model.index_settings).to eq({}) }
+  describe '.settings' do
+    it { expect(model.settings).to eq({}) }
 
     it 'allows overwriting default value' do
-      model.index_settings = { foo: 'bar' }
-      expect(model.index_settings).to eq(foo: 'bar')
+      model.settings = { foo: 'bar' }
+      expect(model.settings).to eq(foo: 'bar')
     end
   end
 

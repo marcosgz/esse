@@ -9,12 +9,12 @@ module Esse
   #     conf.cluster(:v1) do |cluster|
   #       cluster.index_prefix = 'backend'
   #       cluster.client = Elasticsearch::Client.new
-  #       cluster.index_settings = {
+  #       cluster.settings = {
   #         number_of_shards: 2,
   #         number_of_replicas: 0
   #       }
-  #       cluster.index_mappings = { 
-  #         dynamic_templates: [...] 
+  #       cluster.index_mappings = {
+  #         dynamic_templates: [...]
   #         properties: { ... }
   #       }
   #     end

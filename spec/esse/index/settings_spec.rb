@@ -9,6 +9,7 @@ RSpec.describe Esse::Index do
 
   describe '.setting' do
     subject { EventsIndex.send(:setting) }
+
     before { stub_index(:events) }
 
     it { is_expected.to be_an_instance_of(Esse::IndexSetting) }
@@ -23,14 +24,14 @@ RSpec.describe Esse::Index do
       end
 
       specify do
-        with_cluster_config(index_settings: {}) do
-          is_expected.to eq(number_of_replicas: 4)
+        with_cluster_config(settings: {}) do
+          expect(subject).to eq(number_of_replicas: 4)
         end
       end
 
       specify do
-        with_cluster_config(index_settings: { number_of_replicas: 3, refresh_interval: '1s' }) do
-          is_expected.to eq(number_of_replicas: 4, refresh_interval: '1s')
+        with_cluster_config(settings: { number_of_replicas: 3, refresh_interval: '1s' }) do
+          expect(subject).to eq(number_of_replicas: 4, refresh_interval: '1s')
         end
       end
     end
@@ -45,12 +46,12 @@ RSpec.describe Esse::Index do
       end
 
       specify do
-        is_expected.to eq(number_of_replicas: 4)
+        expect(subject).to eq(number_of_replicas: 4)
       end
 
       specify do
-        with_cluster_config(index_settings: { number_of_replicas: 3, refresh_interval: '1s' }) do
-          is_expected.to eq(number_of_replicas: 4, refresh_interval: '1s')
+        with_cluster_config(settings: { number_of_replicas: 3, refresh_interval: '1s' }) do
+          expect(subject).to eq(number_of_replicas: 4, refresh_interval: '1s')
         end
       end
     end
@@ -73,7 +74,7 @@ RSpec.describe Esse::Index do
       end
 
       specify do
-        with_cluster_config(index_settings: { refresh_interval: '1s', number_of_replicas: 2 }) do
+        with_cluster_config(settings: { refresh_interval: '1s', number_of_replicas: 2 }) do
           expect(GeosIndex.settings_hash).to eq(
             settings: {
               refresh_interval: '1s',

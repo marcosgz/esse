@@ -20,7 +20,6 @@ module Esse
     require_relative 'index/backend'
     require_relative 'index/object_document_mapper'
     require_relative 'index/search'
-    require_relative 'index/deprecations'
 
     def_Index(::Esse)
   end

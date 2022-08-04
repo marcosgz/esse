@@ -20,6 +20,7 @@ module Esse
   require_relative 'events'
   require_relative 'search/query'
   require_relative 'search/response'
+  require_relative 'deprecations' # Should be last
   include Logging
 
   @single_threaded = false

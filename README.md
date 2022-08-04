@@ -42,7 +42,7 @@ Esse.configure do |config|
   config.indices_directory = 'app/indices'
   config.cluster do |cluster|
     cluster.index_prefix = 'illinois'
-    cluster.index_settings = {
+    cluster.settings = {
       number_of_shards: 4,
       number_of_replicas: 1,
       analysis: {
@@ -107,11 +107,11 @@ end
 Note that that if the cluster is configured without any identifier, it will be used as the `:default` cluster.
 
 ```ruby
-Esse.config.cluster.index_settings
+Esse.config.cluster.settings
 # => {number_of_shards: 4, number_of_replicas: 1}
 
 # or
-Esse.config.cluster(:default).index_settings
+Esse.config.cluster(:default).settings
 # => {number_of_shards: 4, number_of_replicas: 1}
 ```
 
@@ -121,7 +121,7 @@ Esse.configure do |config|
   config.indices_directory = 'app/indices'
   config.cluster(:il) do |cluster|
     cluster.index_prefix = 'illinois'
-    cluster.index_settings = {
+    cluster.settings = {
       number_of_shards: 4,
       number_of_replicas: 1,
     }
@@ -129,7 +129,7 @@ Esse.configure do |config|
   end
   config.cluster(:fl) do |cluster|
     cluster.index_prefix = 'florida'
-    cluster.index_settings = {
+    cluster.settings = {
       number_of_shards: 2,
       number_of_replicas: 2,
     }
@@ -167,14 +167,14 @@ indices_directory: "app/indices"
 clusters:
   il:
     index_prefix: "illinois"
-    index_settings:
+    settings:
       number_of_shards: 4
       number_of_replicas: 1
     client:
       host: "https://illinois:9200"
   fl:
     index_prefix: "florida"
-    index_settings:
+    settings:
       number_of_shards: 2
       number_of_replicas: 2
     client:

@@ -6,17 +6,10 @@ module Esse
   # But I want to keep compatibility with old versions of es.
   class Repository
     class << self
-      extend Gem::Deprecate
-
       # This methods will be defined using meta programming in the index respository definition
       # @see Esse::Index::Type.repository
       attr_reader :index
       attr_accessor :document_type
-
-      def type_name
-        document_type
-      end
-      deprecate :type_name, :document_type, 2022, 8
     end
     require_relative 'repository/actions'
     require_relative 'repository/mappings'

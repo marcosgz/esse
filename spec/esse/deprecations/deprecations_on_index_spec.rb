@@ -32,18 +32,4 @@ RSpec.describe 'deprecations' do
       end
     end
   end
-
-  describe 'Esse::Repository.type_name' do
-    before do
-      stub_index(:comments) do
-        repository :comment, const: true
-      end
-    end
-
-    specify do
-      Gem::Deprecate.skip_during do
-        expect(CommentsIndex::Comment.type_name).to eq('comment')
-      end
-    end
-  end
 end
