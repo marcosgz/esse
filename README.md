@@ -78,7 +78,7 @@ Esse.configure do |config|
         }
       }
     }
-    cluster.index_mappings = {
+    cluster.mappings = {
       dynamic_templates: [
         {
           esse_string_template: {

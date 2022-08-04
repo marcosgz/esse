@@ -9,7 +9,7 @@ module Esse
     module ClassMethods
       # This method is only used to define mapping
       def mappings(hash = {}, &block)
-        @mapping = Esse::IndexMapping.new(body: hash, paths: template_dirs, globals: -> { cluster.index_mappings })
+        @mapping = Esse::IndexMapping.new(body: hash, paths: template_dirs, globals: -> { cluster.mappings })
         return unless block
 
         @mapping.define_singleton_method(:to_h, &block)
@@ -57,7 +57,7 @@ module Esse
       private
 
       def mapping
-        @mapping ||= Esse::IndexMapping.new(paths: template_dirs, globals: -> { cluster.index_mappings })
+        @mapping ||= Esse::IndexMapping.new(paths: template_dirs, globals: -> { cluster.mappings })
       end
     end
 

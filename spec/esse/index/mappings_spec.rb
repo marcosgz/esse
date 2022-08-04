@@ -8,7 +8,7 @@ RSpec.describe Esse::Index do
       specify do
         index = Class.new(Esse::Index)
         allow(index.cluster).to receive(:engine).and_return(Esse::ClusterEngine.new(version: '7.0.0', distribution: 'elasticsearch'))
-        with_cluster_config(index_mappings: { name: { type: 'text' } }) do |config|
+        with_cluster_config(mappings: { name: { type: 'text' } }) do |config|
           expect(index.mappings_hash).to eq(mappings: { properties: { name: { type: 'text' } } })
         end
       end

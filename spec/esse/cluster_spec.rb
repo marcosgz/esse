@@ -23,7 +23,7 @@ RSpec.describe Esse::Cluster do
     specify do
       model = described_class.new(id: :v1)
       expect(model.settings).to eq({})
-      expect(model.index_mappings).to eq({})
+      expect(model.mappings).to eq({})
     end
 
     specify do
@@ -32,8 +32,8 @@ RSpec.describe Esse::Cluster do
     end
 
     specify do
-      model = described_class.new(id: :v1, index_mappings: { foo: 'bar' })
-      expect(model.index_mappings).to eq(foo: 'bar')
+      model = described_class.new(id: :v1, mappings: { foo: 'bar' })
+      expect(model.mappings).to eq(foo: 'bar')
     end
   end
 
@@ -53,15 +53,15 @@ RSpec.describe Esse::Cluster do
     end
 
     specify do
-      expect(model.index_mappings).to eq({})
-      expect { model.assign(index_mappings: { foo: 'bar' }, other: 1) }.not_to raise_error
-      expect(model.index_mappings).to eq(foo: 'bar')
+      expect(model.mappings).to eq({})
+      expect { model.assign(mappings: { foo: 'bar' }, other: 1) }.not_to raise_error
+      expect(model.mappings).to eq(foo: 'bar')
     end
 
     specify do
-      expect(model.index_mappings).to eq({})
-      expect { model.assign('index_mappings' => { 'foo' => 'bar' }, 'other' => 1) }.not_to raise_error
-      expect(model.index_mappings).to eq('foo' => 'bar')
+      expect(model.mappings).to eq({})
+      expect { model.assign('mappings' => { 'foo' => 'bar' }, 'other' => 1) }.not_to raise_error
+      expect(model.mappings).to eq('foo' => 'bar')
     end
 
     specify do
