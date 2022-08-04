@@ -43,8 +43,10 @@ Esse.configure do |config|
   config.cluster do |cluster|
     cluster.index_prefix = 'illinois'
     cluster.settings = {
-      number_of_shards: 4,
-      number_of_replicas: 1,
+      index: {
+        number_of_shards: 4,
+        number_of_replicas: 1,
+      },
       analysis: {
         analyzer: {
           esse_index: {
@@ -108,11 +110,11 @@ Note that that if the cluster is configured without any identifier, it will be u
 
 ```ruby
 Esse.config.cluster.settings
-# => {number_of_shards: 4, number_of_replicas: 1}
+# => {index: {number_of_shards: 4, number_of_replicas: 1} }
 
 # or
 Esse.config.cluster(:default).settings
-# => {number_of_shards: 4, number_of_replicas: 1}
+# => {index: {number_of_shards: 4, number_of_replicas: 1} }
 ```
 
 You may also configure multiple cluster connections by specifying the identifier like the example below:
@@ -122,16 +124,20 @@ Esse.configure do |config|
   config.cluster(:il) do |cluster|
     cluster.index_prefix = 'illinois'
     cluster.settings = {
-      number_of_shards: 4,
-      number_of_replicas: 1,
+      index: {
+        number_of_shards: 4,
+        number_of_replicas: 1,
+      }
     }
     cluster.client = Elasticsearch::Client.new(host: 'https://illinois:9200')
   end
   config.cluster(:fl) do |cluster|
     cluster.index_prefix = 'florida'
     cluster.settings = {
-      number_of_shards: 2,
-      number_of_replicas: 2,
+      index: {
+        number_of_shards: 2,
+        number_of_replicas: 2,
+      }
     }
     cluster.client = Elasticsearch::Client.new(host: 'https://florida:9200')
   end
@@ -168,15 +174,17 @@ clusters:
   il:
     index_prefix: "illinois"
     settings:
-      number_of_shards: 4
-      number_of_replicas: 1
+      index:
+        number_of_shards: 4
+        number_of_replicas: 1
     client:
       host: "https://illinois:9200"
   fl:
     index_prefix: "florida"
     settings:
-      number_of_shards: 2
-      number_of_replicas: 2
+      index:
+        number_of_shards: 2
+        number_of_replicas: 2
     client:
       host: "https://florida:9200"
 ```

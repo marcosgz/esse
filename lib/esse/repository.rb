@@ -12,7 +12,6 @@ module Esse
       attr_accessor :document_type
     end
     require_relative 'repository/actions'
-    require_relative 'repository/mappings'
     require_relative 'repository/backend'
     require_relative 'repository/object_document_mapper'
   end

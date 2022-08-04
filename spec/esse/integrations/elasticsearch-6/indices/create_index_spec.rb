@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-stack_describe 'elasticsearch', '7.x', 'elasticsearch create index' do
+stack_describe 'elasticsearch', '6.x', 'elasticsearch create index' do
   describe '.create!' do
     context 'without settings and mappings' do
       before do
@@ -63,13 +63,16 @@ stack_describe 'elasticsearch', '7.x', 'elasticsearch create index' do
               number_of_shards: 2,
             }
           end
-          repository :dummy do
-            mappings do
-              {
-                age: { type: 'integer' },
+          mappings do
+            {
+              _doc: {
+                properties: {
+                  age: { type: 'integer' },
+                }
               }
-            end
+            }
           end
+          repository :dummy
         end
       end
 

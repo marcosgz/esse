@@ -5,10 +5,17 @@ require 'spec_helper'
 stack_describe 'elasticsearch', '1.x', 'elasticsearch update mappings' do
   before do
     stub_index(:dummies) do
+      mappings do
+        {
+          dummy: {
+            properties: {
+              'title' => { 'type' => 'string', 'index' => 'not_analyzed' }
+            }
+          }
+        }
+      end
+
       repository :dummy do
-        mappings do
-          { 'title' => { 'type' => 'string', 'index' => 'not_analyzed' } }
-        end
       end
     end
   end
