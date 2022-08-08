@@ -1,4 +1,62 @@
 {
   "index": {
+    "max_ngram_diff": 5,
+    "max_shingle_diff": 3,
+    "analysis": {
+      "filter": {
+        "esse_search_shingle": {
+          "token_separator": "",
+          "output_unigrams_if_no_shingles": "true",
+          "output_unigrams": "false",
+          "type": "shingle"
+        },
+        "esse_index_shingle": {
+          "token_separator": "",
+          "type": "shingle"
+        },
+        "esse_stemmer": {
+          "type": "stemmer",
+          "language": "English"
+        }
+      },
+      "analyzer": {
+        "esse_index": {
+          "filter": [
+            "lowercase",
+            "asciifolding",
+            "english_stop",
+            "esse_index_shingle",
+            "esse_stemmer"
+          ],
+          "char_filter": [
+            "ampersand"
+          ],
+          "type": "custom",
+          "tokenizer": "standard"
+        },
+        "esse_search": {
+          "filter": [
+            "lowercase",
+            "asciifolding",
+            "english_stop",
+            "esse_search_shingle",
+            "esse_stemmer"
+          ],
+          "char_filter": [
+            "ampersand"
+          ],
+          "type": "custom",
+          "tokenizer": "standard"
+        }
+      },
+      "char_filter": {
+        "ampersand": {
+          "type": "mapping",
+          "mappings": [
+            "&=> and "
+          ]
+        }
+      }
+    }
   }
 }

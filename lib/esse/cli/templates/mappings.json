@@ -7,7 +7,7 @@
         "mapping": {
           "fields": {
             "analyzed": {
-              "analyzer": "pipeline_index",
+              "analyzer": "esse_index",
               "index": true,
               "type": "text"
             }
