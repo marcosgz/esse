@@ -54,7 +54,7 @@ module Esse
       { _id: id }.tap do |h|
         h[:data] = source if data
         h[:_type] = type if type
-        h[:_routing] = routing if routing
+        h[:routing] = routing if routing
         h.merge!(meta)
       end
     end

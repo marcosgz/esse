@@ -58,7 +58,7 @@ RSpec.describe Esse::HashDocument do
     end
 
     specify do
-      expect(described_class.new('routing' => 'foo').routing).to eq(nil)
+      expect(described_class.new('routing' => 'foo').routing).to eq('foo')
     end
 
     specify do
@@ -66,7 +66,7 @@ RSpec.describe Esse::HashDocument do
     end
 
     specify do
-      expect(described_class.new(routing: 'foo').routing).to eq(nil)
+      expect(described_class.new(routing: 'foo').routing).to eq('foo')
     end
   end
 

@@ -2,7 +2,7 @@
 
 module Esse
   class HashDocument < Esse::Serializer
-    META_KEYS = %i[_id _type _routing].freeze
+    META_KEYS = %i[_id _type _routing routing].freeze
 
     def initialize(object)
       @object = object
@@ -21,7 +21,7 @@ module Esse
 
     # @return [String, nil] the document routing
     def routing
-      object['_routing'] || object[:_routing]
+      object['_routing'] || object[:_routing] || object['routing'] || object[:routing]
     end
 
     # @return [Hash] the document meta

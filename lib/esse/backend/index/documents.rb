@@ -104,6 +104,7 @@ module Esse
         # @return [Hash] the elasticsearch response Hash
         #
         # @see https://www.elastic.co/guide/en/elasticsearch/reference/7.5/docs-index_.html
+        # @todo update to allow serialized document as parameter
         def index(id:, body:, type: nil, suffix: nil, **options)
           params = {
             index: index_name(suffix: suffix),
@@ -128,6 +129,7 @@ module Esse
         # @return [Hash] elasticsearch response hash
         #
         # @see https://www.elastic.co/guide/en/elasticsearch/reference/7.5/docs-update.html
+        # @todo update to allow serialized document as parameter
         def update!(id:, body:, type: nil, suffix: nil, **options)
           params = {
             index: index_name(suffix: suffix),
@@ -150,6 +152,7 @@ module Esse
         # @return [Hash] the elasticsearch response, or an hash with 'errors' as true in case of failure
         #
         # @see https://www.elastic.co/guide/en/elasticsearch/reference/7.5/docs-update.html
+        # @todo update to allow serialized document as parameter
         def update(id:, body:, suffix: nil, **options)
           update!(id: id, body: body, suffix: suffix, **options)
         rescue NotFoundError
@@ -169,6 +172,7 @@ module Esse
         # @return [Boolean] true when the operation is successfully completed
         #
         # @see https://www.elastic.co/guide/en/elasticsearch/reference/7.5/docs-delete.html
+        # @todo update to allow serialized document as parameter
         def delete!(id:, type: nil, suffix: nil, **options)
           params = {
             index: index_name(suffix: suffix),
@@ -191,6 +195,7 @@ module Esse
         # @return [Boolean] true when the operation is successfully completed
         #
         # @see https://www.elastic.co/guide/en/elasticsearch/reference/7.5/docs-delete.html
+        # @todo update to allow serialized document as parameter
         def delete(id:, type: nil, suffix: nil, **options)
           delete!(id: id, type: type, suffix: suffix, **options)
         rescue NotFoundError

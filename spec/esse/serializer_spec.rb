@@ -91,13 +91,13 @@ RSpec.describe Esse::Serializer do
     context 'with data: true' do
       subject { document.to_bulk(data: true) }
 
-      it { is_expected.to eq(_id: 1, _type: 'foo', _routing: 'bar', timeout: 10, data: { foo: 'bar' }) }
+      it { is_expected.to eq(_id: 1, _type: 'foo', routing: 'bar', timeout: 10, data: { foo: 'bar' }) }
     end
 
     context 'with data: false' do
       subject { document.to_bulk(data: false) }
 
-      it { is_expected.to eq(_id: 1, _type: 'foo', _routing: 'bar', timeout: 10) }
+      it { is_expected.to eq(_id: 1, _type: 'foo', routing: 'bar', timeout: 10) }
     end
 
     context 'when document does not have a routing' do
@@ -110,21 +110,21 @@ RSpec.describe Esse::Serializer do
     context 'when document does not have a type' do
       it 'should not include the type' do
         allow(document).to receive(:type).and_return(nil)
-        expect(document.to_bulk(data: true)).to eq(_id: 1, _routing: 'bar', timeout: 10, data: { foo: 'bar' })
+        expect(document.to_bulk(data: true)).to eq(_id: 1, routing: 'bar', timeout: 10, data: { foo: 'bar' })
       end
     end
 
     context 'when document does not have a meta' do
       it 'should not include the meta' do
         allow(document).to receive(:meta).and_return({})
-        expect(document.to_bulk(data: true)).to eq(_id: 1, _type: 'foo', _routing: 'bar', data: { foo: 'bar' })
+        expect(document.to_bulk(data: true)).to eq(_id: 1, _type: 'foo', routing: 'bar', data: { foo: 'bar' })
       end
     end
 
     context 'when document does not have a source' do
       it 'should not include the source' do
         allow(document).to receive(:source).and_return({})
-        expect(document.to_bulk(data: true)).to eq(_id: 1, _type: 'foo', _routing: 'bar', timeout: 10, data: {})
+        expect(document.to_bulk(data: true)).to eq(_id: 1, _type: 'foo', routing: 'bar', timeout: 10, data: {})
       end
     end
   end
