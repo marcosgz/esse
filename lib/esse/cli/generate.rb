@@ -19,12 +19,16 @@ module Esse
       option :serializers, type: :boolean, default: false, desc: 'Generate serializers'
       option :collections, type: :boolean, default: false, desc: 'Generate collections'
       option :active_record, type: :boolean, default: false, desc: 'Generate ActiveRecord models'
+      option :cluster_id, type: :string, desc: 'Elasticsearch cluster ID'
       def index(name, *types)
         ns_path = name.split(NAMESPACE_PATTERN_RE).tap(&:pop)
         @index_name = Hstring.new(name.to_s).modulize.sub(/Index$/, '') + 'Index'
         @index_name = Hstring.new(@index_name)
         @types = types.map { |type| Hstring.new(type) }
         @base_class = base_index_class(*ns_path)
+        if options[:cluster_id]
+          @base_class += format('(:%s)', options[:cluster_id])
+        end
         @cli_options = options
 
         base_dir = Esse.config.indices_directory.join(*ns_path.map { |n| Hstring.new(n).underscore.to_s })

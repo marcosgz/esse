@@ -57,5 +57,14 @@ RSpec.describe Esse::CLI::Generate, type: :cli do
       CODE
       )
     end
+
+    it 'generates index with the cluster_id' do
+      expected_filename = Esse.config.indices_directory.join('users_index.rb')
+      expect_generate(%w[index users user --cluster_id=v2], expected_filename)
+      expect_contains(expected_filename, <<~CODE
+        class UsersIndex < Esse::Index(:v2)
+      CODE
+      )
+    end
   end
 end
