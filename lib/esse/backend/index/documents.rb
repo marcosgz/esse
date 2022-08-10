@@ -44,19 +44,23 @@ module Esse
           stats = { index: 0, delete: 0, create: 0 }
           Array(index).each do |doc|
             next unless doc&.is_a?(Esse::Serializer)
-            next if doc.ignore?
+            next if doc.ignore_on_index?
+            next unless doc.id
+
             stats[:index] += 1
             body << { index: doc.to_bulk }
           end
           Array(create).each do |doc|
             next unless doc&.is_a?(Esse::Serializer)
-            next if doc.ignore?
+            next if doc.ignore_on_index?
+            next unless doc.id
 
             stats[:create] += 1
             body << { create: doc.to_bulk }
           end
           Array(delete).each do |doc|
             next unless doc&.is_a?(Esse::Serializer)
+            next if doc.ignore_on_delete?
             next unless doc.id
 
             stats[:delete] += 1

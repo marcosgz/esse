@@ -59,7 +59,11 @@ module Esse
       end
     end
 
-    def ignore?
+    def ignore_on_index?
+      id.nil?
+    end
+
+    def ignore_on_delete?
       id.nil?
     end
 

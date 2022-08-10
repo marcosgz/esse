@@ -41,7 +41,8 @@ module Esse
       # @param [Esse::Serializer] document A document instance
       def index_document(document, **kwargs)
         return unless document.is_a?(Esse::Serializer)
-        return if document.ignore?
+        return if document.ignore_on_index?
+        return unless document.id
 
         kwargs[:id] = document.id
         kwargs[:routing] = document.routing if document.routing
@@ -69,7 +70,8 @@ module Esse
       # @param [Esse::Serializer] document A document instance
       def delete_document(document, **kwargs)
         return unless document.is_a?(Esse::Serializer)
-        return if document.ignore?
+        return if document.ignore_on_delete?
+        return unless document.id
 
         kwargs[:id] = document.id
         kwargs[:routing] = document.routing if document.routing

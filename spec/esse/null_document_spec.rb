@@ -14,7 +14,8 @@ RSpec.describe Esse::NullDocument do
   describe '#id' do
     specify do
       expect(document.id).to eq(nil)
-      expect(document).to be_ignore
+      expect(document).to be_ignore_on_index
+      expect(document).to be_ignore_on_delete
     end
   end
 
