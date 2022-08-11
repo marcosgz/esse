@@ -273,6 +273,67 @@ Commands:
   esse index update_settings *INDEX_CLASS               # Closes the index for read/write operations, updates the index settings, and open it again
 ```
 
+
+## Search
+
+Searching is done through the `search` method on the index class. It returns an instance of `Esse::Search::Query` that can be used to build the query and retrieve the results.
+
+```ruby
+# Searching using Lucene query syntax
+> query = GeosIndex.search('*', size: 10, offset: 0)
+=> #<Esse::Search::Query:0x0 @definition={:size=>10, :offset=>0, :q=>"*", :index=>"esse_console_geos"}>
+
+
+# Searching using DSL
+> query = GeosIndex.search(body: {query: {match: {name: 'Illinois'}}}, size: 1)
+=> #<Esse::Search::Query:0x0 @definition={:body=>{:query=>{:match=>{:name=>"Illinois"}}}, :size=>1, :index=>"esse_console_geos"}>
+
+# Retrieve response hits
+> query.results
+=> [{"_index"=>"esse_console_geos_v1", "_type"=>"_doc", "_id"=>"IL", "_score"=>2.5433555, "_routing"=>"IL", "_source"=>{"id"=>"IL", "name"=>"Illinois"}}]
+> query = GeosIndex.search(body: {query: {match: {"name.analyzed" => 'Illinois'}}}, _source: false)
+=> #<Esse::Search::Query:0x0 @definition={:body=>{:query=>{:match=>{"name.analyzed"=>"Illinois"}}}, :_source=>false, :index=>"esse_console_geos"}
+> query.results
+=> [{"_index"=>"esse_console_geos_v1", "_type"=>"_doc", "_id"=>"IL", "_score"=>2.5433555, "_routing"=>"IL"}
+# Retrieve response
+> query.response
+=> #<Esse::Search::Response:0x0 ...>
+```
+
+Search aggregations can be retrieved using the `aggregations` method from query response.
+
+```ruby
+> query = GeosIndex.search(body: {query: { match_all: {}}, aggregations: { names: { terms: { field: "name", size: 2 }}}}, size: 2)
+=> #<Esse::Search::Query:0x0 @definition={:body=>{:query=>{:match_all=>{}}, :aggregations=>{:names=>{:terms=>{:field=>"name", :size=>2}}}}, :size=>2, :index=>"esse_console_geos"}>
+> query.response.aggregations
+=> {"names"=>{"doc_count_error_upper_bound"=>0, "sum_other_doc_count"=>14, "buckets"=>[{"key"=>"Alabama", "doc_count"=>1}, {"key"=>"Alaska", "doc_count"=>1}]}}
+
+# or just use the raw response
+> query.response.raw_response
+=> {"took"=>1,
+ "timed_out"=>false,
+ "_shards"=>{"total"=>1, "successful"=>1, "skipped"=>0, "failed"=>0},
+ "hits"=>
+  {"total"=>{"value"=>16, "relation"=>"eq"},
+   "max_score"=>1.0,
+   "hits"=>
+    [{"_index"=>"esse_console_geos_v1", "_type"=>"_doc", "_id"=>"AL", "_score"=>1.0, "_routing"=>"AL", "_source"=>{"id"=>"AL", "name"=>"Alabama"}},
+     {"_index"=>"esse_console_geos_v1", "_type"=>"_doc", "_id"=>"AK", "_score"=>1.0, "_routing"=>"AK", "_source"=>{"id"=>"AK", "name"=>"Alaska"}}]},
+ "aggregations"=>{"names"=>{"doc_count_error_upper_bound"=>0, "sum_other_doc_count"=>14, "buckets"=>[{"key"=>"Alabama", "doc_count"=>1}, {"key"=>"Alaska", "doc_count"=>1}]}}}
+> query.response.total
+=> 16
+```
+
+Scroll queries can be performed using the `scroll_hits` method on the query.
+
+```ruby
+> query.scroll_hits(batch_size: 6, scroll: '1m') { |hits| puts hits.size }
+6
+6
+4
+=> nil
+```
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. The command will dependencies of all `./ci/Gemfile.*`. You can use `./ci/setup.sh` combined different environment variables script to start the elasticsearch or opensearch service using docker in different combination. The `./bin/run` will do it for you.

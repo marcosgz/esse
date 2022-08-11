@@ -75,7 +75,17 @@ class GeosIndex < ApplicationIndex
     {
       numeric_detection: true,
       _routing: {
-        required: true
+        required: false
+      },
+      properties: {
+        name: {
+          type: "keyword",
+          fields: {
+            analyzed: {
+              type: "text",
+            }
+          }
+        }
       }
     }
   end

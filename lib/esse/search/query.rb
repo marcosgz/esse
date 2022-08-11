@@ -32,14 +32,52 @@ module Esse
         response.hits
       end
 
+      def scroll_hits(batch_size: 1_000, scroll: '1m')
+        response = execute_search_query!(size: batch_size, scroll: scroll)
+        scroll_id = nil
+        fetched = 0
+        total = response.total
+
+        loop do
+          fetched += response.hits.size
+          yield(response.hits) if response.hits.any?
+          break if fetched >= total
+          scroll_id = response.raw_response['scroll_id'] || response.raw_response['_scroll_id']
+          break unless scroll_id
+          response = execute_scroll_query(scroll: scroll, scroll_id: scroll_id)
+        end
+      ensure
+        begin
+          client_proxy.clear_scroll(body: {scroll_id: scroll_id}) if scroll_id
+        rescue Esse::Backend::NotFoundError
+        end
+      end
+
       private
 
-      def execute_search_query!
+      def execute_search_query!(**execution_options)
         resp, err = nil
         Esse::Events.instrument('elasticsearch.execute_search_query') do |payload|
           payload[:query] = self
           begin
-            resp = Response.new(self, client_proxy.search(**definition))
+            resp = Response.new(self, client_proxy.search(**definition, **execution_options))
+          rescue => e
+            err = e
+          end
+          payload[:error] = err if err
+          payload[:response] = resp
+        end
+        raise err if err
+
+        resp
+      end
+
+      def execute_scroll_query(scroll:, scroll_id:)
+        resp, err = nil
+        Esse::Events.instrument('elasticsearch.execute_search_query') do |payload|
+          payload[:query] = self
+          begin
+            resp = Response.new(self, client_proxy.scroll(scroll: scroll, body: { scroll_id: scroll_id }))
           rescue => e
             err = e
           end
