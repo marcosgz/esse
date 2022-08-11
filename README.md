@@ -334,6 +334,24 @@ Scroll queries can be performed using the `scroll_hits` method on the query.
 => nil
 ```
 
+Searching across multiple indices can be done using the `search` method on the cluster.
+
+Using string indices as arguments:
+
+```ruby
+> Esse.config.cluster.search('esse_*', body: {query: {match_all:{}}})
+=> #<Esse::Search::Query:0x0 @definition={:body=>{:query=>{:match_all=>{}}}, :index=>"esse_*"}>
+> Esse.config.cluster.search('esse_cities_index', 'esse_counties_index', body: {query: {match_all:{}}})
+=> #<Esse::Search::Query:0x0 @definition={:body=>{:query=>{:match_all=>{}}}, :index=>"esse_cities_index,esse_counties_index"}>
+```
+
+Using index classes as arguments:
+
+```ruby
+> Esse.config.cluster.search(CitiesIndex, CountiesIndex, body: {query: {match_all:{}}})
+=> #<Esse::Search::Query:0x0 @definition={:body=>{:query=>{:match_all=>{}}}, :index=>"esse_cities_index,esse_counties_index"}>
+```
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. The command will dependencies of all `./ci/Gemfile.*`. You can use `./ci/setup.sh` combined different environment variables script to start the elasticsearch or opensearch service using docker in different combination. The `./bin/run` will do it for you.
