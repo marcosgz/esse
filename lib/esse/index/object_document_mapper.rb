@@ -42,7 +42,7 @@ module Esse
       # @param [Class] klass The class of the collection. (Optional when block is passed)
       # @param [Proc] block The block that will be used to iterate over the collection. (Optional when using a class)
       # @return [void]
-      def collection(*args, &block)
+      def collection(*args, **kwargs, &block)
         repo_name, collection_klass = args
         # >> Backward compatibility for the old collection syntax without explicit repo_name
         if repo_name && !repo_name.is_a?(Symbol) && !repo_name.is_a?(String) && collection_klass.nil?
@@ -51,7 +51,7 @@ module Esse
         end
         repo_name = repo_name&.to_s || DEFAULT_REPO_NAME
         # <<
-        find_or_define_repo(repo_name).collection(collection_klass, &block)
+        find_or_define_repo(repo_name).collection(collection_klass, **kwargs, &block)
       end
 
       # Wrap collection data into serialized batches

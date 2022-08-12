@@ -79,7 +79,7 @@ module Esse
       # @param [Class] klass The class of the collection. (Optional when block is passed)
       # @param [Proc] block The block that will be used to iterate over the collection. (Optional when using a class)
       # @return [void]
-      def collection(collection_klass = nil, &block)
+      def collection(collection_klass = nil, **_, &block)
         if collection_klass.nil? && block.nil?
           raise ArgumentError, 'a document type, followed by a collection class or block that stream the data ' \
                               'is required to define the collection'
