@@ -65,6 +65,28 @@ RSpec.describe Esse::Import::Bulk do
           "{\"index\":{\"_id\":1}}\n{\"id\":1,\"source\":{\"name\":\"#{"Aaa" * 30}\"}}\n"
         )
       end
+
+      it 'discard documents that are larger than the bulk size' do
+        bulk_size = 150 # 200 bytes
+        body = elasticsearch_response_fixture(file: 'bulk_request_too_large', version: '7.x', assigns: { request_size: bulk_size })
+
+        requests = []
+        bulk.each_request { |request|
+          requests << request
+          raise Esse::Backend::RequestEntityTooLargeError.new(MultiJson.dump(body)) if requests.size == 1
+        }
+        expect(requests.size).to eq(3)
+        expect(requests[0]).to be_an_instance_of(Esse::Import::RequestBodyAsJson)
+        expect(requests[1]).to be_an_instance_of(Esse::Import::RequestBodyRaw)
+        expect(requests[2]).to be_an_instance_of(Esse::Import::RequestBodyRaw)
+
+        expect(requests[1].body).to eq(
+          "{\"delete\":{\"_id\":3}}\n"
+        )
+        expect(requests[2].body).to eq(
+          "{\"index\":{\"_id\":1}}\n{\"id\":1,\"source\":{\"name\":\"#{"Aaa" * 30}\"}}\n"
+        )
+      end
     end
   end
 end

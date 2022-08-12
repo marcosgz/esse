@@ -71,6 +71,13 @@ module Esse
             data = meta.delete(:data)
             piece = MultiJson.dump(operation => meta)
             piece << "\n" << MultiJson.dump(data) if data
+            if piece.bytesize > bulk_size
+              Esse.logger.warn <<~MSG
+                The document #{meta.inspect} size is #{piece.bytesize} bytes, which exceeds the maximum bulk size of #{bulk_size} bytes.
+                Consider increasing the bulk size or reducing the document size. The document will be ignored during this import.
+              MSG
+              next
+            end
 
             if result.last.body.bytesize + piece.bytesize > bulk_size
               result.push(Import::RequestBodyRaw.new.tap { |r| r.add(operation, piece) })
