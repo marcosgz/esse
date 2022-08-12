@@ -40,57 +40,32 @@ module Esse
         # @see https://github.com/elastic/elasticsearch-ruby/blob/main/elasticsearch-api/lib/elasticsearch/api/utils.rb
         # @see https://github.com/elastic/elasticsearch-ruby/blob/main/elasticsearch-api/lib/elasticsearch/api/actions/bulk.rb
         def bulk(index: nil, delete: nil, create: nil, type: nil, suffix: nil, **options)
-          body = []
-          stats = { index: 0, delete: 0, create: 0 }
-          Array(index).each do |doc|
-            next unless doc&.is_a?(Esse::Serializer)
-            next if doc.ignore_on_index?
-            next unless doc.id
-
-            stats[:index] += 1
-            body << { index: doc.to_bulk }
-          end
-          Array(create).each do |doc|
-            next unless doc&.is_a?(Esse::Serializer)
-            next if doc.ignore_on_index?
-            next unless doc.id
-
-            stats[:create] += 1
-            body << { create: doc.to_bulk }
-          end
-          Array(delete).each do |doc|
-            next unless doc&.is_a?(Esse::Serializer)
-            next if doc.ignore_on_delete?
-            next unless doc.id
-
-            stats[:delete] += 1
-            body << { delete: doc.to_bulk(data: false) }
-          end
-
-          return if body.empty?
-
           definition = {
             index: index_name(suffix: suffix),
           }.merge(options)
           definition[:type] = type if document_type?
 
-          Esse::Events.instrument('elasticsearch.bulk') do |payload|
-            payload[:request] = definition.merge(body_stats: stats)
-            payload[:response] = resp = coerce_exception { client.bulk(definition.merge(body: body)) }
-
-            # @todo move it to a BulkRequest class
-            if resp&.[]('errors')
-              payload[:error] = resp['errors']
-              raise resp&.fetch('items', [])&.select { |item| item.values.first['error'] }.join("\n")
+          Esse::Import::Bulk.new(
+            index: index,
+            delete: delete,
+            create: create,
+          ).each_request do |request_body|
+            Esse::Events.instrument('elasticsearch.bulk') do |payload|
+              payload[:request] = definition.merge(body_stats: request_body.stats)
+              payload[:response] = resp = coerce_exception { client.bulk(**definition, body: request_body.body) }
+              # @todo move it to a BulkRequest class
+              if resp&.[]('errors')
+                payload[:error] = resp['errors']
+                raise resp&.fetch('items', [])&.select { |item| item.values.first['error'] }.join("\n")
+              end
+              if bulk_wait_interval > 0
+                payload[:wait_interval] = bulk_wait_interval
+                sleep(bulk_wait_interval)
+              else
+                payload[:wait_interval] = 0.0
+              end
+              resp
             end
-
-            if bulk_wait_interval > 0
-              payload[:wait_interval] = bulk_wait_interval
-              sleep(bulk_wait_interval)
-            else
-              payload[:wait_interval] = 0.0
-            end
-            resp
           end
         end
         alias_method :bulk!, :bulk

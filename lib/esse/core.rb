@@ -13,6 +13,8 @@ module Esse
   require_relative 'dynamic_template'
   require_relative 'index_mapping'
   require_relative 'template_loader'
+  require_relative 'import/request_body'
+  require_relative 'import/bulk'
   require_relative 'backend/index'
   require_relative 'backend/repository_backend'
   require_relative 'version'
