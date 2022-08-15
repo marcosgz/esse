@@ -47,7 +47,7 @@ module Esse
         kwargs[:id] = document.id
         kwargs[:routing] = document.routing if document.routing
         kwargs[:type] = document.type || document_type
-        kwargs[:body] = document.source
+        kwargs[:body] = document.source&.to_h
         elasticsearch.index(**kwargs)
       end
 

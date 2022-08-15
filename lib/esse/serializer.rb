@@ -52,7 +52,7 @@ module Esse
 
     def to_bulk(data: true)
       { _id: id }.tap do |h|
-        h[:data] = source if data
+        h[:data] = source&.to_h if data
         h[:_type] = type if type
         h[:routing] = routing if routing
         h.merge!(meta)
