@@ -27,7 +27,7 @@ module Esse
 
         begin
           requests.each do |request|
-            yield request
+            yield(request) if request.body?
           end
         rescue Faraday::TimeoutError, Esse::Backend::RequestTimeoutError => e
           retry_count += 1

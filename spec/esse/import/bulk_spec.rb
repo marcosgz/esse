@@ -39,6 +39,16 @@ RSpec.describe Esse::Import::Bulk do
       expect(retries).to eq(3)
     end
 
+    context 'without data' do
+      let(:index) { [] }
+      let(:create) { [] }
+      let(:delete) { [] }
+
+      it 'does not yield a request body instance' do
+        expect { |b| bulk.each_request(&b) }.not_to yield_control
+      end
+    end
+
     context 'with a request entity too large error' do
       let(:index) { [Esse::HashDocument.new(id: 1, source: { name: 'Aaa' * 30 })] }
       let(:create) { [Esse::HashDocument.new(id: 2, source: { name: 'Bbbb' * 100 })] }

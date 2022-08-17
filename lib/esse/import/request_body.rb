@@ -7,6 +7,10 @@ module Esse
         @body = body # body may be String or Array<Hash>
         @stats = { index: 0, create: 0, delete: 0 }
       end
+
+      def body?
+        !body.empty?
+      end
     end
 
     class RequestBodyRaw < RequestBody
