@@ -1,3 +1,6 @@
+![esse-red](https://user-images.githubusercontent.com/18994/186032704-f1c9ce86-a41a-41ae-a224-30f4b382c012.png)
+
+
 # esse
 
 **This project is under development and may suffer constant structural changes. I don't recommend using it right now**
