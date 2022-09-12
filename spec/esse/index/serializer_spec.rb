@@ -8,23 +8,25 @@ RSpec.describe Esse::Index do
   describe '.each_serialized_batch' do
     before do
       stub_index(:states) do
-        collection do |**context, &block|
-          data = [
-            OpenStruct.new(id: 1, name: 'Il'),
-            OpenStruct.new(id: 2, name: 'Md'),
-            OpenStruct.new(id: 3, name: 'Ny')
-          ]
-          data.delete_if(&context[:filter]) if context[:filter]
-          data.each do |datum|
-            block.call([datum], **context)
+        repository :state, const: false do
+          collection do |**context, &block|
+            data = [
+              OpenStruct.new(id: 1, name: 'Il'),
+              OpenStruct.new(id: 2, name: 'Md'),
+              OpenStruct.new(id: 3, name: 'Ny')
+            ]
+            data.delete_if(&context[:filter]) if context[:filter]
+            data.each do |datum|
+              block.call([datum], **context)
+            end
           end
-        end
 
-        serializer do |entry, **context|
-          {
-            _id: entry.id,
-            name: (context[:uppercase] ? entry.name.upcase : entry.name),
-          }
+          serializer do |entry, **context|
+            {
+              _id: entry.id,
+              name: (context[:uppercase] ? entry.name.upcase : entry.name),
+            }
+          end
         end
       end
     end
@@ -73,25 +75,27 @@ RSpec.describe Esse::Index do
     context 'when collection yields data with additional context' do
       before do
         stub_index(:geos) do
-          collection do |**_kwargs, &block|
-            data = [
-              OpenStruct.new(id: 1, name: 'Il'),
-              OpenStruct.new(id: 2, name: 'Md'),
-              OpenStruct.new(id: 3, name: 'Ny')
-            ]
-            labels = {
-              1 => 'Illinois',
-              2 => 'Maryland',
-              3 => 'New York',
-            }
-            block.call(data, labels: labels)
-          end
+          repository :state, const: false do
+            collection do |**_kwargs, &block|
+              data = [
+                OpenStruct.new(id: 1, name: 'Il'),
+                OpenStruct.new(id: 2, name: 'Md'),
+                OpenStruct.new(id: 3, name: 'Ny')
+              ]
+              labels = {
+                1 => 'Illinois',
+                2 => 'Maryland',
+                3 => 'New York',
+              }
+              block.call(data, labels: labels)
+            end
 
-          serializer do |struct, labels:, **_|
-            {
-              _id: struct.id,
-              name: labels[struct.id],
-            }
+            serializer do |struct, labels:, **_|
+              {
+                _id: struct.id,
+                name: labels[struct.id],
+              }
+            end
           end
         end
       end
@@ -114,14 +118,16 @@ RSpec.describe Esse::Index do
     context 'when collection yields data with additional context' do
       before do
         stub_index(:geos) do
-          collection do |**_kwargs, &block|
-            labels = { 1 => 'Illinois', 2 => 'Maryland', 3 => 'New York' }
-            block.call([[1, {}], [2, {}]], labels: labels)
-          end
+          repository :state, const: false do
+            collection do |**_kwargs, &block|
+              labels = { 1 => 'Illinois', 2 => 'Maryland', 3 => 'New York' }
+              block.call([[1, {}], [2, {}]], labels: labels)
+            end
 
-          serializer do |datum, labels:, **_|
-            id, _ = datum
-            { _id: id, name: labels[id] }
+            serializer do |datum, labels:, **_|
+              id, _ = datum
+              { _id: id, name: labels[id] }
+            end
           end
         end
       end
@@ -144,23 +150,25 @@ RSpec.describe Esse::Index do
   describe '.documents' do
     before do
       stub_index(:states) do
-        collection do |**context, &block|
-          data = [
-            OpenStruct.new(id: 1, name: 'Il'),
-            OpenStruct.new(id: 2, name: 'Md'),
-            OpenStruct.new(id: 3, name: 'Ny')
-          ]
-          data.delete_if(&context[:filter]) if context[:filter]
-          data.each do |datum|
-            block.call([datum], **context)
+        repository :state, const: false do
+          collection do |**context, &block|
+            data = [
+              OpenStruct.new(id: 1, name: 'Il'),
+              OpenStruct.new(id: 2, name: 'Md'),
+              OpenStruct.new(id: 3, name: 'Ny')
+            ]
+            data.delete_if(&context[:filter]) if context[:filter]
+            data.each do |datum|
+              block.call([datum], **context)
+            end
           end
-        end
 
-        serializer do |entry, **context|
-          {
-            _id: entry.id,
-            name: (context[:uppercase] ? entry.name.upcase : entry.name),
-          }
+          serializer do |entry, **context|
+            {
+              _id: entry.id,
+              name: (context[:uppercase] ? entry.name.upcase : entry.name),
+            }
+          end
         end
       end
     end
@@ -177,74 +185,6 @@ RSpec.describe Esse::Index do
           Esse::HashDocument.new(_id: 2, name: 'Md'),
         ],
       )
-    end
-  end
-
-  describe '.serializer' do
-    specify do
-      klass = nil
-      expect {
-        klass = Class.new(Esse::Index) do
-          serializer do
-          end
-        end
-      }.not_to raise_error
-      expect(klass.repo.instance_variable_get(:@serializer_proc)).to be_a_kind_of(Proc)
-    end
-
-    specify do
-      expect {
-        Class.new(Esse::Index) do
-          serializer
-        end
-      }.to raise_error(ArgumentError, "nil is not a valid serializer. The serializer should inherit from Esse::Serializer or respond to `to_h'")
-    end
-
-    specify do
-      expect {
-        Class.new(Esse::Index) do
-          serializer :default, :invalid
-        end
-      }.to raise_error(ArgumentError, ":invalid is not a valid serializer. The serializer should inherit from Esse::Serializer or respond to `to_h'")
-    end
-
-    specify do
-      klass = nil
-      expect {
-        klass = Class.new(Esse::Index) do
-          serializer(Class.new {
-                       def as_json
-                       end
-                     })
-        end
-      }.not_to raise_error
-      expect(klass.repo.instance_variable_get(:@serializer_proc)).to be_a_kind_of(Proc)
-    end
-
-    specify do
-      klass = nil
-      expect {
-        klass = Class.new(Esse::Index) do
-          serializer(Class.new {
-                       def to_h
-                       end
-                     })
-        end
-      }.not_to raise_error
-      expect(klass.repo.instance_variable_get(:@serializer_proc)).to be_a_kind_of(Proc)
-    end
-
-    specify do
-      klass = nil
-      expect {
-        klass = Class.new(Esse::Index) do
-          serializer(Class.new {
-                       def call
-                       end
-                     })
-        end
-      }.not_to raise_error
-      expect(klass.repo.instance_variable_get(:@serializer_proc)).to be_a_kind_of(Proc)
     end
   end
 end
