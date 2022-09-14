@@ -52,7 +52,7 @@ stack_describe 'elasticsearch', '1.x', 'elasticsearch update aliases' do
     specify do
       es_client do |client, _conf, cluster|
         expect { DummiesIndex.elasticsearch.update_aliases!(suffix: 'v1') }.to raise_error(
-          Esse::Backend::NotFoundError,
+          Esse::Transport::NotFoundError,
         ).with_message(/\[#{cluster.index_prefix}_dummies_v1\] missing/)
         expect(DummiesIndex.elasticsearch.create_index(alias: false, suffix: 'v1')['acknowledged']).to eq(true)
         expect(client.indices.exists(index: "#{cluster.index_prefix}_dummies")).to eq(false)

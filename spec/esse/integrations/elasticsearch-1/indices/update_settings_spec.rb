@@ -17,7 +17,7 @@ stack_describe 'elasticsearch', '1.x', 'elasticsearch update settings' do
     specify do
       es_client do |_client, _conf, cluster|
         expect { DummiesIndex.elasticsearch.update_settings! }.to raise_error(
-          Esse::Backend::NotFoundError,
+          Esse::Transport::NotFoundError,
         ).with_message(/\[#{cluster.index_prefix}_dummies\] missing/)
       end
     end
@@ -25,7 +25,7 @@ stack_describe 'elasticsearch', '1.x', 'elasticsearch update settings' do
     specify do
       es_client do |_client, _conf, cluster|
         expect { DummiesIndex.elasticsearch.update_settings!(suffix: 'v1') }.to raise_error(
-          Esse::Backend::NotFoundError,
+          Esse::Transport::NotFoundError,
         ).with_message(/\[#{cluster.index_prefix}_dummies_v1\] missing/)
       end
     end
@@ -45,7 +45,7 @@ stack_describe 'elasticsearch', '1.x', 'elasticsearch update settings' do
         )
         expect(DummiesIndex).to receive(:setting).and_return(new_setting)
         expect { DummiesIndex.elasticsearch.update_settings! }.to raise_error(
-          Esse::Backend::BadRequestError,
+          Esse::Transport::BadRequestError,
         ).with_message(/index.some_invalid_setting/)
       end
     end

@@ -10,7 +10,7 @@ module Esse
         # @param :suffix [String, nil] :suffix The index suffix. Defaults to the index_version.
         #   A uniq index name will be generated if one index already exist with the given alias.
         # @param options [Hash] Options hash
-        # @raise [Esse::Backend::ServerError]
+        # @raise [Esse::Transport::ServerError]
         #   in case of failure
         # @return [Hash] the elasticsearch response
         #
@@ -34,7 +34,7 @@ module Esse
         # @see https://www.elastic.co/guide/en/elasticsearch/reference/master/indices-refresh.html
         def refresh(suffix: index_version, **options)
           refresh!(suffix: suffix, **options)
-        rescue ServerError
+        rescue Esse::Transport::ServerError
           { 'errors' => true }
         end
       end

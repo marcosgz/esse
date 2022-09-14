@@ -12,10 +12,10 @@ stack_describe 'elasticsearch', '1.x', 'elasticsearch update document' do
     specify do
       es_client do
         expect { GeosIndex::State.elasticsearch.update!(id: data['_id'], body: { doc: {} }) }.to raise_error(
-          Esse::Backend::NotFoundError,
+          Esse::Transport::NotFoundError,
         )
         expect { GeosIndex::State.elasticsearch.update!(id: data['_id'], body: { doc: {} }, suffix: 'v2') }.to raise_error(
-          Esse::Backend::NotFoundError,
+          Esse::Transport::NotFoundError,
         )
       end
     end

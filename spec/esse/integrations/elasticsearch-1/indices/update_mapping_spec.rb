@@ -24,7 +24,7 @@ stack_describe 'elasticsearch', '1.x', 'elasticsearch update mappings' do
     specify do
       es_client do |_client, _conf, cluster|
         expect { DummiesIndex.elasticsearch.update_mapping!(type: 'dummy') }.to raise_error(
-          Esse::Backend::NotFoundError,
+          Esse::Transport::NotFoundError,
         ).with_message(/\[#{cluster.index_prefix}_dummies\] missing/)
       end
     end
@@ -32,7 +32,7 @@ stack_describe 'elasticsearch', '1.x', 'elasticsearch update mappings' do
     specify do
       es_client do |_client, _conf, cluster|
         expect { DummiesIndex.elasticsearch.update_mapping!(suffix: 'v1', type: 'dummy') }.to raise_error(
-          Esse::Backend::NotFoundError,
+          Esse::Transport::NotFoundError,
         ).with_message(/\[#{cluster.index_prefix}_dummies_v1\] missing/)
       end
     end
@@ -55,7 +55,7 @@ stack_describe 'elasticsearch', '1.x', 'elasticsearch update mappings' do
         )
         expect(DummiesIndex::Dummy).to receive(:mapping).and_return(new_mapping)
         expect { DummiesIndex.elasticsearch.update_mapping!(type: 'dummy') }.to raise_error(
-          Esse::Backend::BadRequestError,
+          Esse::Transport::BadRequestError,
         ).with_message(/mapper \[title\] has different index_analyzer/)
       end
     end

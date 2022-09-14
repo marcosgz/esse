@@ -29,7 +29,7 @@ stack_describe 'elasticsearch', '7.x', 'elasticsearch#scroll', es_webmock: true 
 
       expect {
         GeosIndex.cluster.api.scroll(scroll: '1m', body: request_body)
-      }.to raise_error(Esse::Backend::NotFoundError)
+      }.to raise_error(Esse::Transport::NotFoundError)
       refute_event 'elasticsearch.search'
     end
   end

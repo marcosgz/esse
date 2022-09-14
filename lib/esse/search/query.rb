@@ -49,7 +49,7 @@ module Esse
       ensure
         begin
           client_proxy.clear_scroll(body: {scroll_id: scroll_id}) if scroll_id
-        rescue Esse::Backend::NotFoundError
+        rescue Esse::Transport::NotFoundError
         end
       end
 

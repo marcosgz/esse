@@ -29,7 +29,7 @@ stack_describe 'elasticsearch', '7.x', 'elasticsearch#search', es_webmock: true 
 
       expect {
         GeosIndex.cluster.api.search(index: 'geos', body: request_body)
-      }.to raise_error(Esse::Backend::BadRequestError)
+      }.to raise_error(Esse::Transport::BadRequestError)
       refute_event 'elasticsearch.search'
     end
   end

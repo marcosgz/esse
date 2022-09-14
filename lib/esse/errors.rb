@@ -5,7 +5,7 @@ module Esse
   end
 
   # @todo Rename this
-  module Backend
+  module Transport
     class ServerError < ::Esse::Error; end
 
     ES_TRANSPORT_ERRORS = {

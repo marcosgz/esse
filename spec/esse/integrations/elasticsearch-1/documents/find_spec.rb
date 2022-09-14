@@ -12,10 +12,10 @@ stack_describe 'elasticsearch', '1.x', 'elasticsearch find documents' do
     specify do
       es_client do
         expect { GeosIndex::State.elasticsearch.find!(id: data['pk']) }.to raise_error(
-          Esse::Backend::NotFoundError,
+          Esse::Transport::NotFoundError,
         )
         expect { GeosIndex::State.elasticsearch.find!(id: data['pk'], suffix: 'v2') }.to raise_error(
-          Esse::Backend::NotFoundError,
+          Esse::Transport::NotFoundError,
         )
       end
     end
@@ -28,7 +28,7 @@ stack_describe 'elasticsearch', '1.x', 'elasticsearch find documents' do
         expect(response['_source']).to eq(data)
         expect(response['_type']).to eq('state')
         expect { GeosIndex::County.elasticsearch.find!(id: data['pk']) }.to raise_error(
-          Esse::Backend::NotFoundError,
+          Esse::Transport::NotFoundError,
         )
       end
     end

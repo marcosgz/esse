@@ -11,7 +11,7 @@ stack_describe 'elasticsearch', '1.x', 'elasticsearch refresh index' do
     specify do
       es_client do
         expect { DummiesIndex.elasticsearch.refresh! }.to raise_error(
-          Esse::Backend::NotFoundError,
+          Esse::Transport::NotFoundError,
         )
       end
     end

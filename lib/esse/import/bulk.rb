@@ -29,14 +29,14 @@ module Esse
           requests.each do |request|
             yield(request) if request.body?
           end
-        rescue Faraday::TimeoutError, Esse::Backend::RequestTimeoutError => e
+        rescue Faraday::TimeoutError, Esse::Transport::RequestTimeoutError => e
           retry_count += 1
-          raise Esse::Backend::RequestTimeoutError.new(e.message) if retry_count >= max_retries
+          raise Esse::Transport::RequestTimeoutError.new(e.message) if retry_count >= max_retries
           wait_interval = (retry_count**4) + 15 + (rand(10) * (retry_count + 1))
           Esse.logger.warn "Timeout error, retrying in #{wait_interval} seconds"
           sleep(wait_interval)
           retry
-        rescue Esse::Backend::RequestEntityTooLargeError => e
+        rescue Esse::Transport::RequestEntityTooLargeError => e
           retry_count += 1
           raise e if retry_count > 1 # only retry once on this error
           requests = balance_requests_size(e)

@@ -104,7 +104,7 @@ module Esse
         # @option [Hash] :body the body of the request
         # @option [String, NilClass] :type The type of the document (Optional for elasticsearch >= 7)
         # @option [String, nil] :suffix The index suffix. Defaults to the nil.
-        # @raise [Esse::Backend::NotFoundError] when the doc does not exist
+        # @raise [Esse::Transport::NotFoundError] when the doc does not exist
         # @return [Hash] elasticsearch response hash
         #
         # @see https://www.elastic.co/guide/en/elasticsearch/reference/7.5/docs-update.html
@@ -134,20 +134,20 @@ module Esse
         # @todo update to allow serialized document as parameter
         def update(id:, body:, suffix: nil, **options)
           update!(id: id, body: body, suffix: suffix, **options)
-        rescue NotFoundError
+        rescue Esse::Transport::NotFoundError
           { 'errors' => true }
         end
 
         # Removes a JSON document from the specified index.
         #
         #   UsersIndex::User.delete!(id: 1) # true
-        #   UsersIndex::User.delete!(id: 'missing') # raise Esse::Backend::NotFoundError
+        #   UsersIndex::User.delete!(id: 'missing') # raise Esse::Transport::NotFoundError
         #
         # @param options [Hash] Hash of paramenters that will be passed along to elasticsearch request
         # @option [String, Integer] :id The `_id` of the elasticsearch document
         # @option [String, NilClass] :type The type of the document (Optional for elasticsearch >= 7)
         # @option [String, nil] :suffix The index suffix. Defaults to the nil.
-        # @raise [Esse::Backend::NotFoundError] when the doc does not exist
+        # @raise [Esse::transport::NotFoundError] when the doc does not exist
         # @return [Boolean] true when the operation is successfully completed
         #
         # @see https://www.elastic.co/guide/en/elasticsearch/reference/7.5/docs-delete.html
@@ -170,14 +170,14 @@ module Esse
         # @option [String, Integer] :id The `_id` of the elasticsearch document
         # @option [String, NilClass] :type The type of the document (Optional for elasticsearch >= 7)
         # @option [String, nil] :suffix The index suffix. Defaults to the nil.
-        # @raise [Esse::Backend::NotFoundError] when the doc does not exist
+        # @raise [Esse::Transport::NotFoundError] when the doc does not exist
         # @return [Boolean] true when the operation is successfully completed
         #
         # @see https://www.elastic.co/guide/en/elasticsearch/reference/7.5/docs-delete.html
         # @todo update to allow serialized document as parameter
         def delete(id:, type: nil, suffix: nil, **options)
           delete!(id: id, type: type, suffix: suffix, **options)
-        rescue NotFoundError
+        rescue Esse::Transport::NotFoundError
           false
         end
 
@@ -200,7 +200,7 @@ module Esse
           params[:type] = type if document_type?
           response = coerce_exception { client.count(**options, **params) }
           response['count']
-        rescue NotFoundError
+        rescue Esse::Transport::NotFoundError
           0
         end
 
@@ -226,13 +226,13 @@ module Esse
         # Retrieves the specified JSON document from an index.
         #
         #   UsersIndex::User.find!(id: 1) # { '_id' => 1, ... }
-        #   UsersIndex::User.find!(id: 'missing') # raise Esse::Backend::NotFoundError
+        #   UsersIndex::User.find!(id: 'missing') # raise Esse::Transport::NotFoundError
         #
         # @param options [Hash] Hash of paramenters that will be passed along to elasticsearch request
         # @option [String, Integer] :id The `_id` of the elasticsearch document
         # @option [String, NilClass] :type The type of the document (Optional for elasticsearch >= 7)
         # @option [String, nil] :suffix The index suffix. Defaults to the nil.
-        # @raise [Esse::Backend::NotFoundError] when the doc does not exist
+        # @raise [Esse::Transport::NotFoundError] when the doc does not exist
         # @return [Hash] The elasticsearch document.
         #
         # @see https://www.elastic.co/guide/en/elasticsearch/reference/7.5/docs-get.html
@@ -259,7 +259,7 @@ module Esse
         # @see https://www.elastic.co/guide/en/elasticsearch/reference/7.5/docs-get.html
         def find(id:, suffix: nil, **options)
           find!(id: id, suffix: suffix, **options)
-        rescue NotFoundError
+        rescue Esse::Transport::NotFoundError
           nil
         end
       end

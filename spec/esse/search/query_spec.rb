@@ -105,12 +105,12 @@ RSpec.describe Esse::Search::Query do
       let(:request_body) { { query: { match_all: {} }, size: 0 } }
 
       it 'raises an exception' do
-        exception = Esse::Backend::BadRequestError.new
+        exception = Esse::Transport::BadRequestError.new
         expect(client_proxy).to receive(:search).with(index: 'events', body: request_body).and_raise(exception)
 
         expect {
           query.response
-        }.to raise_error(Esse::Backend::BadRequestError)
+        }.to raise_error(Esse::Transport::BadRequestError)
         assert_event 'elasticsearch.execute_search_query', { query: query, error: exception }
       end
     end

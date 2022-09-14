@@ -22,7 +22,7 @@ module Esse
     rescue => exception
       name = Hstring.new(exception.class.name)
       if /^(Elasticsearch|Elastic|OpenSearch)?::Transport::Transport::Errors/.match?(name.value) && \
-          (exception_class = Esse::Backend::ERRORS[name.demodulize.value])
+          (exception_class = Esse::Transport::ERRORS[name.demodulize.value])
         raise exception_class.new(exception.message)
       else
         raise exception

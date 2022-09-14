@@ -11,7 +11,7 @@ stack_describe 'elasticsearch', '1.x', 'elasticsearch open index' do
     specify do
       es_client do |_client, _conf, cluster|
         expect { DummiesIndex.elasticsearch.open! }.to raise_error(
-          Esse::Backend::NotFoundError,
+          Esse::Transport::NotFoundError,
         ).with_message(/\[#{cluster.index_prefix}_dummies\] missing/)
       end
     end
@@ -19,7 +19,7 @@ stack_describe 'elasticsearch', '1.x', 'elasticsearch open index' do
     specify do
       es_client do |_client, _conf, cluster|
         expect { DummiesIndex.elasticsearch.open!(suffix: 'v1') }.to raise_error(
-          Esse::Backend::NotFoundError,
+          Esse::Transport::NotFoundError,
         ).with_message(/\[#{cluster.index_prefix}_dummies_v1\] missing/)
       end
     end

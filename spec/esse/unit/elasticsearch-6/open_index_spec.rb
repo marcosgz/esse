@@ -17,7 +17,7 @@ stack_describe 'elasticsearch', '6.x', 'elasticsearch#open', es_webmock: true do
       stub_es_request(:post, '/geos/_open', res: { status: 404, body: body })
       expect {
         GeosIndex.elasticsearch.open!
-      }.to raise_error(Esse::Backend::NotFoundError)
+      }.to raise_error(Esse::Transport::NotFoundError)
       refute_event 'elasticsearch.open'
     end
 
