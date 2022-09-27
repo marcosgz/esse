@@ -91,6 +91,12 @@ module Esse
       def normalized_name
         Hstring.new(name).underscore.tr('/', '_').sub(/_(index)$/, '')
       end
+
+      def build_real_index_name(suffix = nil)
+        suffix = Hstring.new(suffix).underscore.presence || index_version || Esse.timestamp
+
+        index_name(suffix: suffix)
+      end
     end
 
     extend ClassMethods

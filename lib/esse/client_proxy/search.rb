@@ -4,6 +4,8 @@ module Esse
   class ClientProxy
     module InstanceMethods
       # Returns results matching a query.
+      # @param [Hash] options
+      # @option [String] :index The comma-separated list of index names to search; use `_all` to perform the operation on all indices
       def search(index:, **options)
         definition = options.merge(
           index: index,
@@ -17,9 +19,10 @@ module Esse
 
       # Allows to retrieve a large numbers of results from a single search request.
       #
-      # @param [Time] :scroll Specify how long a consistent view of the index should be maintained for scrolled search
-      # @param [Boolean] :rest_total_hits_as_int Indicates whether hits.total should be rendered as an integer or an object in the rest search response
-      # @param [Hash] :body The scroll ID
+      # @param [Hash] options
+      # @option [Time] :scroll Specify how long a consistent view of the index should be maintained for scrolled search
+      # @option [Boolean] :rest_total_hits_as_int Indicates whether hits.total should be rendered as an integer or an object in the rest search response
+      # @option [Hash] :body The scroll ID
       def scroll(scroll:, **definition)
         unless definition[:body]
           raise ArgumentError, 'scroll search must have a :body with the :scroll_id'
@@ -32,7 +35,8 @@ module Esse
 
       # Explicitly clears the search context for a scroll.
       #
-      # @param [Hash] :body Body with the "scroll_id" (string or array of strings) Scroll IDs to clear.
+      # @param [Hash] options
+      # @option [Hash] :body Body with the "scroll_id" (string or array of strings) Scroll IDs to clear.
       #   To clear all scroll IDs, use _all.
       def clear_scroll(body:, **options)
         coerce_exception { client.clear_scroll(body: body, **options) }

@@ -14,6 +14,18 @@ module Esse
         @index.indices_pointing_to_alias(**kwargs)
       end
       deprecate :indices, "Esse::Index.indices_pointing_to_alias", 2022, 11
+
+      def update_aliases!(**kwargs)
+        @index.update_aliases(**kwargs)
+      end
+      deprecate :update_aliases!, "Esse::Index.update_aliases", 2022, 11
+
+      def update_aliases(**kwargs)
+        @index.update_aliases(**kwargs)
+      rescue Esse::Transport::NotFoundError
+        { 'errors' => true }
+      end
+      deprecate :update_aliases, "Esse::Index.update_aliases", 2022, 11
     end
   end
 end

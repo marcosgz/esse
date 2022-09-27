@@ -8,7 +8,7 @@ module Esse
       def run
         validate_options!
         indices.each do |index|
-          index.elasticsearch.update_aliases!(**options)
+          index.update_aliases(**options)
         end
       end
 

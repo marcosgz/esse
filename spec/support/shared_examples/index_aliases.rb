@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 RSpec.shared_examples "index.aliases" do
+  include_context 'with geos index definition'
+
   it 'retrieves the aliases for the given index' do
     es_client do |client, _conf, cluster|
       GeosIndex.elasticsearch.create_index!(alias: true, suffix: "2022")

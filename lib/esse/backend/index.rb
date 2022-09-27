@@ -5,7 +5,6 @@ require 'forwardable'
 module Esse
   module Backend
     class Index
-      require_relative 'index/aliases'
       require_relative 'index/create'
       require_relative 'index/delete'
       require_relative 'index/existance'
@@ -31,10 +30,9 @@ module Esse
 
       protected
 
+      # @TODO Remove
       def build_real_index_name(suffix = nil)
-        suffix = Hstring.new(suffix).underscore.presence || index_version || Esse.timestamp
-
-        index_name(suffix: suffix)
+        @index.send :build_real_index_name, suffix
       end
 
       # Elasticsearch::Transport was renamed to Elastic::Transport in 8.0
