@@ -2,6 +2,7 @@
 
 module Esse
   class ClientProxy
+    require_relative './client_proxy/aliases'
     require_relative './client_proxy/search'
 
     extend Forwardable

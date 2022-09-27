@@ -284,6 +284,7 @@ RSpec.describe Esse::Index do
 
       c = Class.new(Esse::Index)
       expect(c.repo_hash).to eq({})
+      Esse::Index.repo_hash = {}
     end
   end
 

@@ -4,7 +4,7 @@ require 'spec_helper'
 require 'support/shared_contexts/geos_index_definition'
 
 stack_describe 'elasticsearch', '1.x', 'elasticsearch count' do
-  include_context 'geos index definition'
+  include_context 'with geos index definition'
 
   describe '.count' do
     let(:data) { { 'name' => 'Illinois', 'pk' => 1 } }
