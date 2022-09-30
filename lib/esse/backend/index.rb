@@ -5,7 +5,6 @@ require 'forwardable'
 module Esse
   module Backend
     class Index
-      require_relative 'index/create'
       require_relative 'index/delete'
       require_relative 'index/existance'
       require_relative 'index/update'

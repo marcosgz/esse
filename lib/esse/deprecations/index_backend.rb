@@ -26,6 +26,16 @@ module Esse
         { 'errors' => true }
       end
       deprecate :update_aliases, "Esse::Index.update_aliases", 2022, 11
+
+      def create_index(**kwargs)
+        @index.create_index(**kwargs)
+      end
+      deprecate :create_index, "Esse::Index.create_index", 2022, 11
+
+      def create_index!(**kwargs)
+        @index.create_index(**kwargs)
+      end
+      deprecate :create_index!, "Esse::Index.create_index", 2022, 11
     end
   end
 end

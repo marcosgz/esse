@@ -3,7 +3,7 @@
 require 'spec_helper'
 require 'support/shared_examples/index_create_index'
 
-stack_describe 'elasticsearch', '6.x', Esse::Index, '.create_index' do
+stack_describe 'elasticsearch', '5.x', Esse::Index, '.create_index' do
   include_examples 'index.create_index'
 
   context 'with settings and mappings' do
@@ -17,7 +17,7 @@ stack_describe 'elasticsearch', '6.x', Esse::Index, '.create_index' do
         end
         mappings do
           {
-            _doc: {
+            dummy: {
               properties: {
                 age: { type: 'integer' },
               }
@@ -33,7 +33,7 @@ stack_describe 'elasticsearch', '6.x', Esse::Index, '.create_index' do
         DummiesIndex.create_index(alias: true, suffix: 'v1')
 
         response = client.indices.get_mapping(index: real_name = DummiesIndex.index_name(suffix: 'v1'))
-        expect(response.dig(real_name, 'mappings', 'properties')).to eq('age' => { 'type' => 'integer' })
+        expect(response.dig(real_name, 'mappings', 'properties', 'dummy')).to eq('age' => { 'type' => 'integer' })
         response = client.indices.get_settings(index: real_name)
         expect(response.dig(real_name, 'settings', 'index', 'number_of_shards')).to eq('1')
       end

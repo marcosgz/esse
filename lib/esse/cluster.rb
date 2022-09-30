@@ -85,10 +85,14 @@ module Esse
       format('#<Esse::Cluster %<attrs>s>', attrs: attrs.join(' '))
     end
 
-    def wait_for_status!(status: wait_for_status)
+    # Wait until cluster is in a specific state
+    #
+    # @option [String] :status Wait until cluster is in a specific state (options: green, yellow, red)
+    # @option [String] :index Limit the information returned to a specific index
+    def wait_for_status!(status: wait_for_status, **kwargs)
       return unless WAIT_FOR_STATUSES.include?(status.to_s)
 
-      client.cluster.health(wait_for_status: status.to_s)
+      api.health(**kwargs, wait_for_status: status.to_s)
     end
 
     # @idea Change this to use the response from `GET /`

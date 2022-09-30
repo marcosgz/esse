@@ -20,8 +20,9 @@ module Esse
     require_relative 'index/backend'
     require_relative 'index/object_document_mapper'
     # Methods that use the cluster API
-    require_relative 'index/search'
     require_relative 'index/aliases'
+    require_relative 'index/indices'
+    require_relative 'index/search'
 
     def_Index(::Esse)
   end

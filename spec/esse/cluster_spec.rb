@@ -81,25 +81,25 @@ RSpec.describe Esse::Cluster do
   end
 
   describe '.wait_for_status!' do
-    let(:client) { double }
+    let(:api) { instance_double(Esse::ClientProxy) }
 
-    before { model.client = client }
+    before do
+      allow(model).to receive(:api).and_return(api)
+    end
 
     it 'checks for the cluster health using the given status' do
-      expect(client).to receive(:cluster).and_return(cluster_api = double)
-      expect(cluster_api).to receive(:health).with(wait_for_status: 'green').and_return(:ok)
+      expect(api).to receive(:health).with(wait_for_status: 'green').and_return(:ok)
       expect(model.wait_for_status!(status: 'green')).to eq(:ok)
     end
 
     it 'checks for the cluster health using the status from config' do
-      expect(client).to receive(:cluster).and_return(cluster_api = double)
-      expect(cluster_api).to receive(:health).with(wait_for_status: 'yellow').and_return(:ok)
+      expect(api).to receive(:health).with(wait_for_status: 'yellow').and_return(:ok)
       model.wait_for_status = :yellow
       expect(model.wait_for_status!).to eq(:ok)
     end
 
     it 'does not sends any request to elasticsearch when wait for status is not defined' do
-      expect(client).not_to receive(:cluster)
+      expect(api).not_to receive(:health)
       expect(model.wait_for_status!).to eq(nil)
     end
   end

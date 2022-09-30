@@ -3,7 +3,7 @@
 require 'spec_helper'
 require 'support/shared_examples/index_create_index'
 
-stack_describe 'elasticsearch', '6.x', Esse::Index, '.create_index' do
+stack_describe 'elasticsearch', '7.x', Esse::Index, '.create_index' do
   include_examples 'index.create_index'
 
   context 'with settings and mappings' do
@@ -12,15 +12,13 @@ stack_describe 'elasticsearch', '6.x', Esse::Index, '.create_index' do
         settings do
           {
             number_of_shards: 1,
-            number_of_replicas: 0,
+            number_of_replicas: 0
           }
         end
         mappings do
           {
-            _doc: {
-              properties: {
-                age: { type: 'integer' },
-              }
+            properties: {
+              age: { type: 'integer' },
             }
           }
         end
