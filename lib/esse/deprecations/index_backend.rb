@@ -56,6 +56,16 @@ module Esse
         @index.open(**kwargs)
       end
       deprecate :open!, "Esse::Index.open", 2022, 11
+
+      def refresh(**kwargs)
+        @index.refresh(**kwargs)
+      end
+      deprecate :refresh, "Esse::Index.refresh", 2022, 11
+
+      def refresh!(**kwargs)
+        @index.refresh(**kwargs)
+      end
+      deprecate :refresh!, "Esse::Index.refresh", 2022, 11
     end
   end
 end

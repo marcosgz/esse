@@ -53,6 +53,15 @@ module Esse
       def close(suffix: nil, **options)
         cluster.api.close(index: index_name(suffix: suffix), **options)
       end
+
+      # Performs the refresh operation in one or more indices.
+      #
+      # @note The refresh operation can adversely affect indexing throughput when used too frequently.
+      # @param :suffix [String, nil] :suffix The index suffix
+      # @see Esse::ClientProxy#refresh
+      def refresh(suffix: nil, **options)
+        cluster.api.refresh(index: index_name(suffix: suffix), **options)
+      end
     end
 
     extend ClassMethods

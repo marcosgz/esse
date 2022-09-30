@@ -69,6 +69,24 @@ module Esse
           payload[:response] = coerce_exception { client.indices.close(**attributes) }
         end
       end
+
+      # Performs the refresh operation in one or more indices.
+      #
+      # @note The refresh operation can adversely affect indexing throughput when used too frequently.
+      # @param :suffix [String, nil] :suffix The index suffix. Defaults to the index_version.
+      #   A uniq index name will be generated if one index already exist with the given alias.
+      # @param options [Hash] Options hash
+      # @raise [Esse::Transport::ServerError]
+      #   in case of failure
+      # @return [Hash] the elasticsearch response
+      #
+      # @see https://www.elastic.co/guide/en/elasticsearch/reference/master/indices-refresh.html
+      def refresh(index:, **options)
+        Esse::Events.instrument('elasticsearch.refresh') do |payload|
+          payload[:request] = attributes = options.merge(index: index)
+          payload[:response] = coerce_exception { client.indices.refresh(**attributes) }
+        end
+      end
     end
 
     include InstanceMethods

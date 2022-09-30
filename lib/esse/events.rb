@@ -40,6 +40,7 @@ module Esse
 
     register_event 'elasticsearch.close'
     register_event 'elasticsearch.open'
+    register_event 'elasticsearch.refresh'
     register_event 'elasticsearch.create_index'
     register_event 'elasticsearch.delete_index'
     register_event 'elasticsearch.update_mapping'
