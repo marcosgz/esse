@@ -11,8 +11,6 @@ module Esse
       require_relative 'index/refresh'
       require_relative 'index/reset'
       require_relative 'index/documents'
-      require_relative 'index/open'
-      require_relative 'index/close'
 
       extend Forwardable
 

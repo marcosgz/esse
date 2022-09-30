@@ -25,6 +25,7 @@ module Esse
       # @return [Hash] the elasticsearch response
       #
       # @see http://www.elasticsearch.org/blog/changing-mapping-with-zero-downtime/
+      # @see Esse::ClientProxy#create_index
       def create_index(suffix: index_version, **options)
         options = CREATE_INDEX_RESERVED_KEYWORDS.merge(options)
         name = build_real_index_name(suffix)
@@ -35,6 +36,22 @@ module Esse
         end
 
         cluster.api.create_index(index: name, body: definition, **options)
+      end
+
+      # Open a previously closed index
+      #
+      # @option options [String, nil] :suffix The index suffix
+      # @see Esse::ClientProxy#open
+      def open(suffix: nil, **options)
+        cluster.api.open(index: index_name(suffix: suffix), **options)
+      end
+
+      # Close an index (keep the data on disk, but deny operations with the index).
+      #
+      # @option options [String, nil] :suffix The index suffix
+      # @see Esse::ClientProxy#close
+      def close(suffix: nil, **options)
+        cluster.api.close(index: index_name(suffix: suffix), **options)
       end
     end
 

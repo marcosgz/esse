@@ -26,6 +26,49 @@ module Esse
           response
         end
       end
+
+      # Open a previously closed index
+      #
+      # @option options [List] :index A comma separated list of indices to open
+      # @option options [String] :expand_wildcards Whether to expand wildcard expression to concrete indices that
+      #   are open, closed or both. (options: open, closed)
+      # @option options [String] :ignore_indices When performed on multiple indices, allows to ignore
+      #   `missing` ones (options: none, missing) @until 1.0
+      # @option options [Boolean] :ignore_unavailable Whether specified concrete indices should be ignored when
+      #   unavailable (missing, closed, etc)
+      # @option options [Time] :timeout Explicit operation timeout
+      # @raise [Esse::Transport::ServerError]
+      #   in case of failure
+      # @return [Hash] the elasticsearch response
+      #
+      # @see https://www.elastic.co/guide/en/elasticsearch/reference/master/indices-open-open.html
+      def open(index:, **options)
+        Esse::Events.instrument('elasticsearch.open') do |payload|
+          payload[:request] = attributes = options.merge(index: index)
+          payload[:response] = coerce_exception { client.indices.open(**attributes) }
+        end
+      end
+
+      # Close an index (keep the data on disk, but deny operations with the index).
+      #
+      # @option options [List] :index A comma separated list of indices to open
+      # @option options [String] :expand_wildcards Whether to expand wildcard expression to concrete indices that
+      #   are open, closed or both. (options: open, closed)
+      # @option options [String] :ignore_indices When performed on multiple indices, allows to ignore
+      #   `missing` ones (options: none, missing) @until 1.0
+      # @option options [Boolean] :ignore_unavailable Whether specified concrete indices should be ignored when
+      #   unavailable (missing, closed, etc)
+      # @option options [Time] :timeout Explicit operation timeout
+      # @raise [Esse::Transport::ServerError] in case of failure
+      # @return [Hash] the elasticsearch response
+      #
+      # @see https://www.elastic.co/guide/en/elasticsearch/reference/master/indices-open-close.html
+      def close(index:, **options)
+        Esse::Events.instrument('elasticsearch.close') do |payload|
+          payload[:request] = attributes = options.merge(index: index)
+          payload[:response] = coerce_exception { client.indices.close(**attributes) }
+        end
+      end
     end
 
     include InstanceMethods

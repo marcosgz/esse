@@ -36,6 +36,26 @@ module Esse
         @index.create_index(**kwargs)
       end
       deprecate :create_index!, "Esse::Index.create_index", 2022, 11
+
+      def close(**kwargs)
+        @index.close(**kwargs)
+      end
+      deprecate :close, "Esse::Index.close", 2022, 11
+
+      def close!(**kwargs)
+        @index.close(**kwargs)
+      end
+      deprecate :close!, "Esse::Index.close", 2022, 11
+
+      def open(**kwargs)
+        @index.open(**kwargs)
+      end
+      deprecate :open, "Esse::Index.open", 2022, 11
+
+      def open!(**kwargs)
+        @index.open(**kwargs)
+      end
+      deprecate :open!, "Esse::Index.open", 2022, 11
     end
   end
 end

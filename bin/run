@@ -74,6 +74,27 @@ case "${service_name}-${service_version}" in
     export BUNDLE_GEMFILE=gemfiles/Gemfile.opensearch-2.x
     # docker-compose up -d opensearch-v2
     ;;
+  elasticsearch-all)
+    es_versions=('v1' 'v2' 'v5' 'v6' 'v7' 'v8')
+    for es_version in "${es_versions[@]}"; do
+      echo "Running $0 elasticsearch ${es_version} $@"
+      ./$0 "elasticsearch" $es_version $@
+    done
+    exit 0
+    ;;
+  opensearch-all)
+    os_versions=('v1' 'v2')
+    for os_version in "${os_versions[@]}"; do
+      echo "Running $0 opensearch ${os_version}"
+      ./$0 "opensearch" ${os_version} $@
+    done
+    exit 0
+    ;;
+  all-all)
+    ./$0 "elasticsearch" "all" $@
+    ./$0 "opensearch" "all" $@
+    exit 0
+    ;;
   *)
     echo -e "\033[31;1mERROR:\033[0m Unknown service type [${service_name}] and/or version [${service_version}]"
     exit 1

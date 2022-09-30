@@ -3,6 +3,6 @@
 require 'spec_helper'
 require 'support/shared_examples/index_open'
 
-stack_describe 'elasticsearch', '1.x', Esse::Index, '.open' do
+stack_describe 'elasticsearch', '7.x', Esse::Index, '.open' do
   include_examples 'index.open'
 end
