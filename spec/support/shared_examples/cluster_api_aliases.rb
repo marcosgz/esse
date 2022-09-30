@@ -1,14 +1,15 @@
 # frozen_string_literal: true
 
 RSpec.shared_examples "cluster_api#aliases" do
-  include_context 'with geos index definition' # @TODO Don't use Index stuff on Cluster API
-
   it 'retrieves the aliases for the given index' do
     es_client do |client, _conf, cluster|
-      GeosIndex.elasticsearch.create_index!(alias: true, suffix: "2022") # @TODO Don't use Index stuff on Cluster API
+      cluster.api.create_index(index: "#{cluster.index_prefix}_dummies_v1", body: {
+        aliases: { "#{cluster.index_prefix}_dummies" => {} },
+        settings: { number_of_shards: 1, number_of_replicas: 0 },
+      })
 
-      expect(cluster.api.aliases(index: GeosIndex.index_name, name: '*')).to eq(
-        "#{GeosIndex.index_name}_2022" => { 'aliases' => { GeosIndex.index_name => {} } },
+      expect(cluster.api.aliases(index: "#{cluster.index_prefix}_dummies", name: '*')).to eq(
+        "#{cluster.index_prefix}_dummies_v1" => { 'aliases' => { "#{cluster.index_prefix}_dummies" => {} } },
       )
     end
   end

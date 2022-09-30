@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 RSpec.shared_examples "cluster_api#update_aliases" do
-  include_context 'with geos index definition' # @TODO Don't use Index stuff on Cluster API
-
   it "raises an Esse::Transport::ServerError exception when api throws an error" do
     es_client do |client, _conf, cluster|
       expect{
@@ -13,32 +11,41 @@ RSpec.shared_examples "cluster_api#update_aliases" do
 
   it "adds an alias to an index" do
     es_client do |client, _conf, cluster|
-      GeosIndex.elasticsearch.create_index!(alias: false, suffix: "2022") # @TODO Don't use Index stuff on Cluster API
+      cluster.api.create_index(index: "#{cluster.index_prefix}_dummies_v1", body: {
+        settings: { number_of_shards: 1, number_of_replicas: 0 },
+      })
 
       expect {
-        cluster.api.update_aliases(body: { actions: [{ add: { index: "#{GeosIndex.index_name}_2022", alias: GeosIndex.index_name } }] })
+        cluster.api.update_aliases(body: {
+          actions: [{ add: { index: "#{cluster.index_prefix}_dummies_v1", alias: "#{cluster.index_prefix}_dummies" } }]
+        })
       }.not_to raise_error
 
-      expect(cluster.api.aliases(index: GeosIndex.index_name, name: '*')).to eq(
-        "#{GeosIndex.index_name}_2022" => { 'aliases' => { GeosIndex.index_name => {} } },
+      expect(cluster.api.aliases(index: "#{cluster.index_prefix}_dummies", name: '*')).to eq(
+        "#{cluster.index_prefix}_dummies_v1" => { 'aliases' => { "#{cluster.index_prefix}_dummies" => {} } },
       )
     end
   end
 
   it "replace an alias to an index" do
     es_client do |client, _conf, cluster|
-      GeosIndex.elasticsearch.create_index!(alias: true, suffix: "2021") # @TODO Don't use Index stuff on Cluster API
-      GeosIndex.elasticsearch.create_index!(alias: false, suffix: "2022")
+      cluster.api.create_index(index: "#{cluster.index_prefix}_dummies_v1", body: {
+        aliases: { "#{cluster.index_prefix}_dummies" => {} },
+        settings: { number_of_shards: 1, number_of_replicas: 0 },
+      })
+      cluster.api.create_index(index: "#{cluster.index_prefix}_dummies_v2", body: {
+        settings: { number_of_shards: 1, number_of_replicas: 0 },
+      })
 
       expect {
         cluster.api.update_aliases(body: { actions: [
-          { remove: { index: "#{GeosIndex.index_name}_2021", alias: GeosIndex.index_name } },
-          { add: { index: "#{GeosIndex.index_name}_2022", alias: GeosIndex.index_name } },
+          { remove: { index: "#{cluster.index_prefix}_dummies_v1", alias: "#{cluster.index_prefix}_dummies" } },
+          { add: { index: "#{cluster.index_prefix}_dummies_v2", alias: "#{cluster.index_prefix}_dummies" } },
         ] })
       }.not_to raise_error
 
-      expect(cluster.api.aliases(index: GeosIndex.index_name, name: '*')).to eq(
-        "#{GeosIndex.index_name}_2022" => { 'aliases' => { GeosIndex.index_name => {} } },
+      expect(cluster.api.aliases(index: "#{cluster.index_prefix}_dummies", name: '*')).to eq(
+        "#{cluster.index_prefix}_dummies_v2" => { 'aliases' => { "#{cluster.index_prefix}_dummies" => {} } },
       )
     end
   end
