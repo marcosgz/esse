@@ -357,7 +357,7 @@ Using index classes as arguments:
 
 ## Development
 
-After checking out the repo, run `bin/setup` to install dependencies. The command will dependencies of all `./ci/Gemfile.*`.
+After checking out the repo, run `bin/setup` to install dependencies. The command will dependencies of all `./gemfiles/Gemfile.*`.
 
 You can use `docker-compose` to start elasticsearch and opensearch services.
 
@@ -384,7 +384,7 @@ Tests and console uses the `ESSE_URL` along with `STACK_VERSION` and `BUNDLE_GEM
 ```bash
 ❯ export ESSE_URL=http://localhost:9201
 ❯ export STACK_VERSION=7.13.2
-❯ export BUNDLE_GEMFILE=ci/Gemfile.v7
+❯ export BUNDLE_GEMFILE=gemfiles/Gemfile.v7
 ```
 
 But we have `bin/run` script to simplify this process. It will automatically set the required envionment variables according to the given arguments.
@@ -392,7 +392,7 @@ But we have `bin/run` script to simplify this process. It will automatically set
 ```bash
 ❯ bin/run elasticsearch v7 ./bin/console
 > ENV.values_at('ESSE_URL', 'STACK_VERSION', 'BUNDLE_GEMFILE')
-=> ["http://localhost:9207", "7.13.2", "ci/Gemfile.elasticsearch-7.x"]
+=> ["http://localhost:9207", "7.13.2", "gemfiles/Gemfile.elasticsearch-7.x"]
 > Esse.config.cluster.api.health.fetch('cluster_name')
 => "cluster-elasticsearch-v7"
 ```
@@ -406,7 +406,7 @@ And to run the tests:
 If you don't have elasticsearch running and want to ignore integratino tests, you can use the `STUB_STACK=<distribution>-<version>` environment variable to stup the test suite for a specific elasticsearch version. Note that all examples with `:es_version` meta data will be skipped.
 
 ```bash
-❯ STUB_STACK=elasticsearch-7.0.3 bundle exec --gemfile ci/Gemfile.elasticsearch-7.x rspec
+❯ STUB_STACK=elasticsearch-7.0.3 bundle exec --gemfile gemfiles/Gemfile.elasticsearch-7.x rspec
 ```
 
 ## Contributing
