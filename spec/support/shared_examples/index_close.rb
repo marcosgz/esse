@@ -11,7 +11,7 @@ RSpec.shared_examples "index.close" do
     end
   end
 
-  it "closes the aliased index" do
+  it "closes the aliased index" do |example|
     es_client do |client, _conf, cluster|
       GeosIndex.create_index(alias: true, suffix: '2022')
 
@@ -20,20 +20,25 @@ RSpec.shared_examples "index.close" do
         resp = GeosIndex.close
       }.not_to raise_error
       expect(resp['acknowledged']).to eq(true)
-      expect(resp.dig('indices', GeosIndex.index_name(suffix: '2022'), 'closed')).to eq(true)
+      unless %w[1.x 2.x 5.x 6.x].include?(example.metadata[:es_version])
+        expect(resp.dig('indices', GeosIndex.index_name(suffix: '2022'), 'closed')).to eq(true)
+      end
     end
   end
 
-  it "closes the unaliased index" do
+  it "closes the unaliased index" do |example|
     es_client do |client, _conf, cluster|
       GeosIndex.create_index(alias: false, suffix: "2022")
+      cluster.wait_for_status!(index: GeosIndex.index_name(suffix: '2022'))
 
       resp = nil
       expect {
         resp = GeosIndex.close(suffix: "2022")
       }.not_to raise_error
       expect(resp['acknowledged']).to eq(true)
-      expect(resp.dig('indices', GeosIndex.index_name(suffix: '2022'), 'closed')).to eq(true)
+      unless %w[1.x 2.x 5.x 6.x].include?(example.metadata[:es_version])
+        expect(resp.dig('indices', GeosIndex.index_name(suffix: '2022'), 'closed')).to eq(true)
+      end
     end
   end
 end

@@ -14,7 +14,9 @@ RSpec.shared_examples "index.open" do
   it "opens the aliased index" do
     es_client do |client, _conf, cluster|
       GeosIndex.create_index(alias: true, suffix: '2022')
+      cluster.wait_for_status!(index: GeosIndex.index_name(suffix: '2022'))
       GeosIndex.close(suffix: '2022')
+      cluster.wait_for_status!(index: GeosIndex.index_name(suffix: '2022'))
 
       resp = nil
       expect {
@@ -27,7 +29,9 @@ RSpec.shared_examples "index.open" do
   it "opens the unaliased index" do
     es_client do |client, _conf, cluster|
       GeosIndex.create_index(alias: false, suffix: "2022")
+      cluster.wait_for_status!(index: GeosIndex.index_name(suffix: '2022'))
       GeosIndex.close(suffix: "2022")
+      cluster.wait_for_status!(index: GeosIndex.index_name(suffix: '2022'))
 
       resp = nil
       expect {

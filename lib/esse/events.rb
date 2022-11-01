@@ -38,16 +38,17 @@ module Esse
   module Events
     include Publisher
 
+    register_event 'elasticsearch.bulk'
     register_event 'elasticsearch.close'
-    register_event 'elasticsearch.open'
-    register_event 'elasticsearch.refresh'
     register_event 'elasticsearch.create_index'
     register_event 'elasticsearch.delete_index'
+    register_event 'elasticsearch.execute_search_query'
+    register_event 'elasticsearch.index_exist'
+    register_event 'elasticsearch.open'
+    register_event 'elasticsearch.refresh'
+    register_event 'elasticsearch.search'
+    register_event 'elasticsearch.update_aliases'
     register_event 'elasticsearch.update_mapping'
     register_event 'elasticsearch.update_settings'
-    register_event 'elasticsearch.update_aliases'
-    register_event 'elasticsearch.bulk'
-    register_event 'elasticsearch.search'
-    register_event 'elasticsearch.execute_search_query'
   end
 end

@@ -3,6 +3,6 @@
 require 'spec_helper'
 require 'support/shared_examples/index_delete_index'
 
-stack_describe 'elasticsearch', '1.x', Esse::Index, '.delete_index' do
+stack_describe 'elasticsearch', '2.x', Esse::Index, '.delete_index' do
   include_examples 'index.delete_index'
 end

@@ -1,90 +1,41 @@
 # frozen_string_literal: true
 
 require 'spec_helper'
+require 'support/shared_examples/index_create_index'
 
-stack_describe 'elasticsearch', '5.x', 'elasticsearch create index' do
-  describe '.create!' do
-    context 'without settings and mappings' do
-      before do
-        stub_index(:dummies)
-      end
+stack_describe 'elasticsearch', '5.x', Esse::Index, '.create_index' do
+  include_examples 'index.create_index'
 
-      specify do
-        es_client do
-          expect(DummiesIndex.elasticsearch.create_index['acknowledged']).to eq(true)
+  context 'with settings and mappings' do
+    before do
+      stub_index(:dummies) do
+        settings do
+          {
+            number_of_shards: 1,
+            number_of_replicas: 0,
+          }
         end
-      end
-
-      it 'creates a suffixed index and its alias' do
-        es_client do |client, _conf, cluster|
-          allow(Esse).to receive(:timestamp).and_return('2020')
-          expect(DummiesIndex.elasticsearch.create_index!['acknowledged']).to eq(true)
-          expect(DummiesIndex.elasticsearch.create_index!(suffix: 'v1')['acknowledged']).to eq(true)
-          expect(client.indices.exists(index: "#{cluster.index_prefix}_dummies")).to eq(true)
-          expect(client.indices.exists(index: "#{cluster.index_prefix}_dummies_v1")).to eq(true)
-          expect { DummiesIndex.elasticsearch.create_index!(suffix: 'v1') }.to raise_error(
-            Esse::Transport::BadRequestError,
-          ).with_message(/already exists/)
-          expect(DummiesIndex.elasticsearch.indices).to match_array(
-            [
-              "#{cluster.index_prefix}_dummies_2020",
-              "#{cluster.index_prefix}_dummies_v1"
-            ],
-          )
-          expect(DummiesIndex.elasticsearch.aliases).to match_array(
-            [
-              "#{cluster.index_prefix}_dummies"
-            ],
-          )
+        mappings do
+          {
+            dummy: {
+              properties: {
+                age: { type: 'integer' },
+              }
+            }
+          }
         end
-      end
-
-      it 'creates a suffixed index without alias' do
-        es_client do |client, _conf, cluster|
-          allow(Esse).to receive(:timestamp).and_return('2020')
-          expect(DummiesIndex.elasticsearch.create_index!(alias: false)['acknowledged']).to eq(true)
-          expect(DummiesIndex.elasticsearch.create_index!(alias: false, suffix: 'v1')['acknowledged']).to eq(true)
-          expect(client.indices.exists(index: "#{cluster.index_prefix}_dummies")).to eq(false)
-          expect(client.indices.exists(index: "#{cluster.index_prefix}_dummies_v1")).to eq(true)
-          expect { DummiesIndex.elasticsearch.create_index!(alias: false, suffix: 'v1') }.to raise_error(
-            Esse::Transport::BadRequestError,
-          ).with_message(/already exists/)
-          expect(DummiesIndex.elasticsearch.indices).to match_array([])
-          expect(DummiesIndex.elasticsearch.aliases).to eq([])
-        end
+        repository :dummy
       end
     end
 
-    context 'with settings and mappings' do
-      before do
-        stub_index(:dummies) do
-          settings do
-            {
-              number_of_shards: 2,
-            }
-          end
-          mappings do
-            {
-              dummy: {
-                properties: {
-                  age: { type: 'integer' },
-                }
-              }
-            }
-          end
-          repository :dummy
-        end
-      end
+    it 'creates index with settings and mappings' do
+      es_client do |client, _conf, cluster|
+        DummiesIndex.create_index(alias: true, suffix: 'v1')
 
-      it 'creates index with settings and mappings' do
-        es_client do |client, _conf, cluster|
-          expect(DummiesIndex.elasticsearch.create_index!(alias: true, suffix: 'v1')['acknowledged']).to eq(true)
-          real_name = "#{DummiesIndex.index_name}_v1"
-          response = client.indices.get_mapping(index: real_name)
-          expect(response.dig(real_name, 'mappings', 'dummy', 'properties')).to eq('age' => { 'type' => 'integer' })
-          response = client.indices.get_settings(index: real_name)
-          expect(response.dig(real_name, 'settings', 'index', 'number_of_shards')).to eq('2')
-        end
+        response = client.indices.get_mapping(index: real_name = DummiesIndex.index_name(suffix: 'v1'))
+        expect(response.dig(real_name, 'mappings', 'dummy', 'properties')).to eq('age' => { 'type' => 'integer' })
+        response = client.indices.get_settings(index: real_name)
+        expect(response.dig(real_name, 'settings', 'index', 'number_of_shards')).to eq('1')
       end
     end
   end

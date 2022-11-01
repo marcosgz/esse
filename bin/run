@@ -42,7 +42,7 @@ case "${service_name}-${service_version}" in
   elasticsearch-v6)
     export STACK_VERSION=6.8.16
     export DOCKER_ES_V6=${STACK_VERSION}
-    export ESSE_URL=http://localhost:9205
+    export ESSE_URL=http://localhost:9206
     export BUNDLE_GEMFILE=gemfiles/Gemfile.elasticsearch-6.x
     # docker-compose up -d elasticsearch-v6
     ;;

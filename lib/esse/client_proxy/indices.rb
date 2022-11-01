@@ -22,7 +22,48 @@ module Esse
           coerce_exception do
             cluster.wait_for_status!(status: (wait_for_status || cluster.wait_for_status), index: index)
           end if response && response['acknowledged']
+          response
+        end
+      end
 
+      # Returns information about whether a particular index exists.
+      #
+      # @option [List] :index A comma-separated list of index names
+      # @option [Boolean] :local Return local information, do not retrieve the state from master node (default: false)
+      # @option [Boolean] :ignore_unavailable Ignore unavailable indexes (default: false)
+      # @option [Boolean] :allow_no_indices Ignore if a wildcard expression resolves to no concrete indices (default: false)
+      # @option [String] :expand_wildcards Whether wildcard expressions should get expanded to open or closed indices (default: open) (options: open, closed, hidden, none, all)
+      # @option [Boolean] :flat_settings Return settings in flat format (default: false)
+      # @option [Boolean] :include_defaults Whether to return all default setting for each of the indices.
+      # @option [Hash] :headers Custom HTTP headers
+      #
+      # @see https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-exists.html
+      def index_exist?(index:, **options)
+        Esse::Events.instrument('elasticsearch.index_exist') do |payload|
+          payload[:request] = opts = options.merge(**options, index: index)
+          payload[:response] = coerce_exception { client.indices.exists(**opts) }
+        end
+      end
+
+      # Deletes an index.
+      #
+      # @option [List] :index A comma-separated list of indices to delete; use `_all` or `*` string to delete all indices
+      # @option [Time] :timeout Explicit operation timeout
+      # @option [Time] :master_timeout Specify timeout for connection to master
+      # @option [Boolean] :ignore_unavailable Ignore unavailable indexes (default: false)
+      # @option [Boolean] :allow_no_indices Ignore if a wildcard expression resolves to no concrete indices (default: false)
+      # @option [String] :expand_wildcards Whether wildcard expressions should get expanded to open, closed, or hidden indices (options: open, closed, hidden, none, all)
+      # @option [Hash] :headers Custom HTTP headers
+      # @option [String] :wait_for_status Wait until cluster is in a specific state (options: green, yellow, red)
+      #
+      # @see https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-delete-index.html
+      def delete_index(index:, wait_for_status: nil, **options)
+        Esse::Events.instrument('elasticsearch.delete_index') do |payload|
+          payload[:request] = opts = options.merge(index: index)
+          payload[:response] = response = coerce_exception { client.indices.delete(**opts) }
+          coerce_exception do
+            cluster.wait_for_status!(status: (wait_for_status || cluster.wait_for_status), index: index)
+          end if response && response['acknowledged']
           response
         end
       end

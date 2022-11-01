@@ -66,6 +66,21 @@ module Esse
         @index.refresh(**kwargs)
       end
       deprecate :refresh!, "Esse::Index.refresh", 2022, 11
+
+      def delete_index(**kwargs)
+        @index.delete_index(**kwargs)
+      end
+      deprecate :delete_index, "Esse::Index.delete_index", 2022, 11
+
+      def delete_index!(**kwargs)
+        @index.delete_index(**kwargs)
+      end
+      deprecate :delete_index!, "Esse::Index.delete_index", 2022, 11
+
+      def index_exist?(**kwargs)
+        @index.index_exist?(**kwargs)
+      end
+      deprecate :index_exist?, "Esse::Index.index_exist?", 2022, 11
     end
   end
 end

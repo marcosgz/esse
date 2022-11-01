@@ -33,7 +33,7 @@ stack_describe 'elasticsearch', '2.x', Esse::Index, '.create_index' do
         DummiesIndex.create_index(alias: true, suffix: 'v1')
 
         response = client.indices.get_mapping(index: real_name = DummiesIndex.index_name(suffix: 'v1'))
-        expect(response.dig(real_name, 'mappings', 'properties', 'dummy')).to eq('age' => { 'type' => 'integer' })
+        expect(response.dig(real_name, 'mappings', 'dummy', 'properties')).to eq('age' => { 'type' => 'integer' })
         response = client.indices.get_settings(index: real_name)
         expect(response.dig(real_name, 'settings', 'index', 'number_of_shards')).to eq('1')
       end

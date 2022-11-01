@@ -26,7 +26,7 @@ module Esse
       #
       # @see http://www.elasticsearch.org/blog/changing-mapping-with-zero-downtime/
       # @see Esse::ClientProxy#create_index
-      def create_index(suffix: index_version, **options)
+      def create_index(suffix: nil, **options)
         options = CREATE_INDEX_RESERVED_KEYWORDS.merge(options)
         name = build_real_index_name(suffix)
         definition = [settings_hash, mappings_hash].reduce(&:merge)
@@ -36,6 +36,30 @@ module Esse
         end
 
         cluster.api.create_index(index: name, body: definition, **options)
+      end
+
+      # Checks the index existance. Returns true or false
+      #
+      #   UsersIndex.elasticsearch.index_exist? #=> true
+      #
+      # @param options [Hash] Options hash
+      # @option options [String, nil] :suffix The index suffix
+      # @see Esse::ClientProxy#index_exist?
+      def index_exist?(suffix: nil)
+        cluster.api.index_exist?(index: index_name(suffix: suffix))
+      end
+
+      # Deletes an existing index.
+      #
+      #   UsersIndex.delete_index # deletes `<prefix_>users<_suffix|_index_version|_timestamp>` index
+      #
+      # @param suffix [String, nil] The index suffix Use nil if you want to delete the current index.
+      # @raise [Esse::Transport::NotFoundError] when index does not exists
+      # @return [Hash] elasticsearch response
+      def delete_index(suffix: nil, **options)
+        index = suffix ? index_name(suffix: suffix) : indices_pointing_to_alias.first
+        index ||= index_name
+        cluster.api.delete_index(**options, index: index)
       end
 
       # Open a previously closed index

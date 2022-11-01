@@ -5,8 +5,6 @@ require 'forwardable'
 module Esse
   module Backend
     class Index
-      require_relative 'index/delete'
-      require_relative 'index/existance'
       require_relative 'index/update'
       require_relative 'index/refresh'
       require_relative 'index/reset'
@@ -26,11 +24,6 @@ module Esse
       end
 
       protected
-
-      # @TODO Remove
-      def build_real_index_name(suffix = nil)
-        @index.send :build_real_index_name, suffix
-      end
 
       # Elasticsearch::Transport was renamed to Elastic::Transport in 8.0
       # This lib should support both versions that's why we are wrapping up the transport

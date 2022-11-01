@@ -11,11 +11,13 @@ RSpec.shared_examples "cluster_api#open" do
 
   it 'opens an index' do
     es_client do |client, _conf, cluster|
-      index_name = "#{cluster.index_prefix}_dummies_v1"
+      index_name = "#{cluster.index_prefix}_dummies_#{Esse.timestamp}"
       cluster.api.create_index(index: index_name, body: {
         settings: { number_of_shards: 1, number_of_replicas: 0 },
       })
+      cluster.wait_for_status!(index: index_name)
       cluster.api.close(index: index_name)
+      cluster.wait_for_status!(index: index_name)
 
       resp = nil
       expect {
