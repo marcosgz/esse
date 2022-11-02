@@ -86,6 +86,54 @@ module Esse
       def refresh(suffix: nil, **options)
         cluster.api.refresh(index: index_name(suffix: suffix), **options)
       end
+
+      # Updates index mappings
+      #
+      # @param :suffix [String, nil] :suffix The index suffix
+      # @see Esse::ClientProxy#update_mapping
+      def update_mapping(suffix: nil, **options)
+        body = mappings_hash.fetch(Esse::MAPPING_ROOT_KEY)
+        if (type = options[:type])
+          # Elasticsearch <= 5.x should submit request with type both in the path and in the body
+          # Elasticsearch 6.x should submit request with type in the path but not in the body
+          # Elasticsearch >= 7.x does not support type in the mapping
+          body = body[type.to_s] || body[type.to_sym] || body
+        end
+        cluster.api.update_mapping(index: index_name(suffix: suffix), body: body, **options)
+      end
+
+      # Updates index settings
+      #
+      # @param :suffix [String, nil] :suffix The index suffix
+      # @see Esse::ClientProxy#update_settings
+      def update_settings(suffix: nil, **options)
+        response = nil
+
+        settings = HashUtils.deep_transform_keys(settings_hash.fetch(Esse::SETTING_ROOT_KEY), &:to_s)
+        if options[:body]
+          settings = settings.merge(HashUtils.deep_transform_keys(options.delete(:body), &:to_s))
+        end
+        settings.delete('number_of_shards') # Can't change number of shards for an index
+        settings['index']&.delete('number_of_shards')
+        analysis = settings.delete('analysis')
+
+        if settings.any?
+          response = cluster.api.update_settings(index: index_name(suffix: suffix), body: settings, **options)
+        end
+
+        if analysis
+          # It is also possible to define new analyzers for the index. But it is required to close the
+          # index first and open it after the changes are made.
+          close(suffix: suffix)
+          begin
+            response = cluster.api.update_settings(index: index_name(suffix: suffix), body: { analysis: analysis }, **options)
+          ensure
+            open(suffix: suffix)
+          end
+        end
+
+        response
+      end
     end
 
     extend ClassMethods

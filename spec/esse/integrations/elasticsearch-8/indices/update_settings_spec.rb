@@ -3,6 +3,6 @@
 require 'spec_helper'
 require 'support/shared_examples/index_update_settings'
 
-stack_describe 'elasticsearch', '1.x', Esse::Index, '.update_settings' do
+stack_describe 'elasticsearch', '8.x', Esse::Index, '.update_settings' do
   include_examples 'index.update_settings'
 end

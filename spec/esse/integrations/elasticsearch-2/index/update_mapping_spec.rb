@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-stack_describe 'elasticsearch', '1.x', Esse::Index, '.update_mapping' do
+stack_describe 'elasticsearch', '2.x', Esse::Index, '.update_mapping' do
   include_context 'with geos index definition'
 
   before do

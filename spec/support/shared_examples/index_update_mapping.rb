@@ -1,26 +1,12 @@
 # frozen_string_literal: true
 
-require 'spec_helper'
-
-stack_describe 'elasticsearch', '1.x', Esse::Index, '.update_mapping' do
+RSpec.shared_examples 'index.update_mapping' do
   include_context 'with geos index definition'
-
-  before do
-    GeosIndex.mappings do
-      {
-        state: {
-          properties: {
-            state_abbr: { type: 'keyword' },
-          }
-        }
-      }
-    end
-  end
 
   it 'raises an Esse::Transport::ServerError exception when api throws an error' do
     es_client do |client, _conf, cluster|
       expect {
-        GeosIndex.update_mapping(suffix: '2022', type: 'state')
+        GeosIndex.update_mapping(suffix: '2022')
       }.to raise_error(Esse::Transport::ServerError)
     end
   end
@@ -31,23 +17,20 @@ stack_describe 'elasticsearch', '1.x', Esse::Index, '.update_mapping' do
 
       GeosIndex.mappings do
         {
-          state: {
-            properties: {
-              state_abbr: { type: 'keyword' },
-              new_field: { type: 'text' },
-            }
+          properties: {
+            new_field: { type: 'text' }
           }
         }
       end
 
       resp = nil
       expect {
-        resp = GeosIndex.update_mapping(suffix: '2022', type: 'state')
+        resp = GeosIndex.update_mapping(suffix: '2022')
       }.not_to raise_error
       expect(resp['acknowledged']).to eq(true)
 
       mapping = client.indices.get_mapping(index: index_name = GeosIndex.index_name(suffix: '2022'))
-      expect(mapping.dig(index_name, 'mappings', 'state', 'properties', 'new_field')).to eq(
+      expect(mapping.dig(index_name, 'mappings', 'properties', 'new_field')).to eq(
         'type' => 'text',
       )
     end
@@ -59,19 +42,16 @@ stack_describe 'elasticsearch', '1.x', Esse::Index, '.update_mapping' do
 
       resp = nil
       expect {
-        resp = GeosIndex.update_mapping(suffix: '2022', type: 'state', body: {
-          state: {
-            properties: {
-              state_abbr: { type: 'keyword' },
-              new_field: { type: 'text' },
-            }
+        resp = GeosIndex.update_mapping(suffix: '2022', body: {
+          properties: {
+            new_field: { type: 'text' }
           }
         })
       }.not_to raise_error
       expect(resp['acknowledged']).to eq(true)
 
       mapping = client.indices.get_mapping(index: index_name = GeosIndex.index_name(suffix: '2022'))
-      expect(mapping.dig(index_name, 'mappings', 'state', 'properties', 'new_field')).to eq(
+      expect(mapping.dig(index_name, 'mappings', 'properties', 'new_field')).to eq(
         'type' => 'text',
       )
     end

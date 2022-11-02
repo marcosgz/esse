@@ -43,4 +43,8 @@ RSpec.describe 'deprecations' do
   include_examples "backend operation moved to index", :delete_index!, :delete_index
   include_examples "backend operation moved to index", :create_index, :create_index
   include_examples "backend operation moved to index", :create_index!, :create_index
+  include_examples "backend operation moved to index", :update_mapping, :update_mapping
+  include_examples "backend operation moved to index", :update_mapping!, :update_mapping
+  include_examples "backend operation moved to index", :update_settings, :update_settings
+  include_examples "backend operation moved to index", :update_settings!, :update_settings
 end
