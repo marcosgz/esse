@@ -6,7 +6,6 @@ module Esse
   module Backend
     class Index
       require_relative 'index/update'
-      require_relative 'index/refresh'
       require_relative 'index/reset'
       require_relative 'index/documents'
 
