@@ -3,6 +3,6 @@
 require 'spec_helper'
 require 'support/shared_examples/index_reset_index'
 
-stack_describe 'elasticsearch', '1.x', Esse::Index, '.reset_index' do
+stack_describe 'elasticsearch', '6.x', Esse::Index, '.reset_index' do
   include_examples 'index.reset_index'
 end

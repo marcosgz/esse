@@ -38,6 +38,35 @@ module Esse
         cluster.api.create_index(index: name, body: definition, **options)
       end
 
+      # Deletes, creates and imports data to the index. Performs zero-downtime index resetting.
+      #
+      # @option options [String, nil] :suffix The index suffix. Defaults to the index_version.
+      #   A uniq index name will be generated if one index already exist with the given alias.
+      # @option options [Time] :timeout Explicit operation timeout
+      # @raise [Esse::Transport::ServerError]
+      #   in case of failure
+      # @return [Hash] the elasticsearch response
+      #
+      # @see https://www.elastic.co/guide/en/elasticsearch/reference/master/indices-open-close.html
+      def reset_index(suffix: index_version, import: true, reindex: false, **options)
+        existing = []
+        suffix ||= Esse.timestamp
+        suffix = Esse.timestamp while index_exist?(suffix: suffix).tap { |exist| existing << suffix if exist }
+
+        create_index(**options, suffix: suffix, alias: false)
+        if index_exist? && aliases.none?
+          cluster.api.delete_index(index: index_name)
+        end
+        if import
+          import(**options, suffix: suffix)
+        elsif reindex && (_from = indices_pointing_to_alias).any?
+          # @TODO: Reindex using the reindex API
+        end
+        update_aliases(suffix: suffix)
+        existing.each { |_s| delete_index!(**options, suffix: suffix) }
+        true
+      end
+
       # Checks the index existance. Returns true or false
       #
       #   UsersIndex.elasticsearch.index_exist? #=> true
