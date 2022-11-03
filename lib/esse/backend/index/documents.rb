@@ -206,8 +206,8 @@ module Esse
 
         # Check if a JSON document exists
         #
-        #   UsersIndex::User.elasticsearch.exist?(id: 1) # true
-        #   UsersIndex::User.elasticsearch.exist?(id: 'missing') # false
+        #   UsersIndex::User.exist?(id: 1) # true
+        #   UsersIndex::User.exist?(id: 'missing') # false
         #
         # @param options [Hash] Hash of paramenters that will be passed along to elasticsearch request
         # @option [String, Integer] :id The `_id` of the elasticsearch document

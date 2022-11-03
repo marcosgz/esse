@@ -30,28 +30,23 @@ RSpec.describe Esse::CLI::Index, type: :cli do
       end
 
       specify do
-        expect(CountiesIndex).to receive(:elasticsearch).at_least(1).and_return(api = double)
-        expect(api).to receive(:create_index!).with(alias: false).and_return(true)
+        expect(CountiesIndex).to receive(:create_index).with(alias: false).and_return(true)
         cli_exec(%w[index create CountiesIndex])
       end
 
       specify do
-        expect(CountiesIndex).to receive(:elasticsearch).at_least(1).and_return(api = double)
-        expect(api).to receive(:create_index!).with(suffix: 'foo', alias: false).and_return(true)
+        expect(CountiesIndex).to receive(:create_index).with(suffix: 'foo', alias: false).and_return(true)
         cli_exec(%w[index create CountiesIndex --suffix=foo])
       end
 
       specify do
-        expect(CountiesIndex).to receive(:elasticsearch).at_least(1).and_return(api = double)
-        expect(api).to receive(:create_index!).with(alias: true).and_return(true)
+        expect(CountiesIndex).to receive(:create_index).with(alias: true).and_return(true)
         cli_exec(%w[index create CountiesIndex --alias])
       end
 
       it 'allows multiple indices' do
-        expect(CountiesIndex).to receive(:elasticsearch).at_least(1).and_return(api1 = double)
-        expect(CitiesIndex).to receive(:elasticsearch).at_least(1).and_return(api2 = double)
-        expect(api1).to receive(:create_index!).with(alias: false).and_return(true)
-        expect(api2).to receive(:create_index!).with(alias: false).and_return(true)
+        expect(CountiesIndex).to receive(:create_index).with(alias: false).and_return(true)
+        expect(CitiesIndex).to receive(:create_index).with(alias: false).and_return(true)
         cli_exec(%w[index create CountiesIndex CitiesIndex])
       end
     end
