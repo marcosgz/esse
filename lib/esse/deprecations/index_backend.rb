@@ -106,6 +106,76 @@ module Esse
         @index.reset_index(**kwargs)
       end
       deprecate :reset_index!, 'Esse::Index.reset_index', 2023, 1
+
+      def import(**kwargs)
+        @index.import(**kwargs)
+      end
+      deprecate :import, 'Esse::Index.import', 2023, 1
+
+      def import!(**kwargs)
+        @index.import(**kwargs)
+      end
+      deprecate :import!, 'Esse::Index.import', 2023, 1
+
+      def bulk!(**kwargs)
+        @index.bulk(**kwargs)
+      end
+      deprecate :bulk!, 'Esse::Index.bulk', 2023, 1
+
+      def bulk(**kwargs)
+        @index.bulk(**kwargs)
+      end
+      deprecate :bulk, 'Esse::Index.bulk', 2023, 1
+
+      def index!(**kwargs)
+        @index.index(**kwargs)
+      end
+      deprecate :index!, 'Esse::Index.index', 2023, 1
+
+      def index(**kwargs)
+        @index.index(**kwargs)
+      end
+      deprecate :index, 'Esse::Index.index', 2023, 1
+
+      def update!(**kwargs)
+        @index.update(**kwargs)
+      end
+      deprecate :update!, 'Esse::Index.update', 2023, 1
+
+      def update(**kwargs)
+        @index.update(**kwargs)
+      end
+      deprecate :update, 'Esse::Index.update', 2023, 1
+
+      def delete!(**kwargs)
+        @index.delete(**kwargs)
+      end
+      deprecate :delete!, 'Esse::Index.delete', 2023, 1
+
+      def delete(**kwargs)
+        @index.delete(**kwargs)
+      end
+      deprecate :delete, 'Esse::Index.delete', 2023, 1
+
+      def count(**kwargs)
+        @index.count(**kwargs)
+      end
+      deprecate :count, 'Esse::Index.count', 2023, 1
+
+      def exist?(**kwargs)
+        @index.exist?(**kwargs)
+      end
+      deprecate :exist?, 'Esse::Index.exist?', 2023, 1
+
+      def find!(**kwargs)
+        @index.get(**kwargs)
+      end
+      deprecate :find!, 'Esse::Index.find', 2023, 1
+
+      def find(**kwargs)
+        @index.get(**kwargs)
+      end
+      deprecate :find, 'Esse::Index.find', 2023, 1
     end
   end
 end

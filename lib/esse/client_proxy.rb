@@ -6,6 +6,7 @@ module Esse
     require_relative './client_proxy/health'
     require_relative './client_proxy/indices'
     require_relative './client_proxy/search'
+    require_relative './client_proxy/documents'
 
     extend Forwardable
 

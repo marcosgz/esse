@@ -50,5 +50,11 @@ module Esse
     register_event 'elasticsearch.update_aliases'
     register_event 'elasticsearch.update_mapping'
     register_event 'elasticsearch.update_settings'
+    register_event 'elasticsearch.index'
+    register_event 'elasticsearch.update'
+    register_event 'elasticsearch.delete'
+    register_event 'elasticsearch.exist'
+    register_event 'elasticsearch.count'
+    register_event 'elasticsearch.get'
   end
 end

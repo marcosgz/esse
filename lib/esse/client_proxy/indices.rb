@@ -17,11 +17,13 @@ module Esse
       # @see https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-create-index.html
       def create_index(index:, wait_for_status: nil, **options)
         Esse::Events.instrument('elasticsearch.create_index') do |payload|
-          payload[:request] = opts = options.merge(**options, index: index)
+          payload[:request] = opts = options.merge(index: index)
           payload[:response] = response = coerce_exception { client.indices.create(**opts) }
-          coerce_exception do
-            cluster.wait_for_status!(status: (wait_for_status || cluster.wait_for_status), index: index)
-          end if response && response['acknowledged']
+          if response && response['acknowledged']
+            coerce_exception do
+              cluster.wait_for_status!(status: (wait_for_status || cluster.wait_for_status), index: index)
+            end
+          end
           response
         end
       end
@@ -40,7 +42,7 @@ module Esse
       # @see https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-exists.html
       def index_exist?(index:, **options)
         Esse::Events.instrument('elasticsearch.index_exist') do |payload|
-          payload[:request] = opts = options.merge(**options, index: index)
+          payload[:request] = opts = options.merge(index: index)
           payload[:response] = coerce_exception { client.indices.exists(**opts) }
         end
       end

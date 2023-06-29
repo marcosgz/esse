@@ -27,7 +27,11 @@ module Esse
 
         begin
           requests.each do |request|
-            yield(request) if request.body?
+            next unless request.body?
+            resp = yield request
+            if resp&.[]('errors')
+              raise resp&.fetch('items', [])&.select { |item| item.values.first['error'] }&.join("\n")
+            end
           end
         rescue Faraday::TimeoutError, Esse::Transport::RequestTimeoutError => e
           retry_count += 1
@@ -51,7 +55,9 @@ module Esse
       private
 
       def valid_doc?(doc)
-        doc && doc.is_a?(Esse::Serializer) && doc.id
+        return false unless doc
+
+        doc.is_a?(Esse::Serializer) && doc.id
       end
 
       def optimistic_request
@@ -90,7 +96,6 @@ module Esse
           raise err
         end
       end
-
     end
   end
 end

@@ -48,4 +48,18 @@ RSpec.describe 'deprecations' do
   include_examples 'backend operation moved to index', :update_settings, :update_settings
   include_examples 'backend operation moved to index', :update_settings!, :update_settings
   include_examples 'backend operation moved to index', :reset_index!, :reset_index
+  include_examples 'backend operation moved to index', :import!, :import
+  include_examples 'backend operation moved to index', :import, :import
+  include_examples 'backend operation moved to index', :bulk!, :bulk
+  include_examples 'backend operation moved to index', :bulk, :bulk
+  include_examples 'backend operation moved to index', :index!, :index
+  include_examples 'backend operation moved to index', :index, :index
+  include_examples 'backend operation moved to index', :update!, :update
+  include_examples 'backend operation moved to index', :update, :update
+  include_examples 'backend operation moved to index', :delete!, :delete
+  include_examples 'backend operation moved to index', :delete, :delete
+  include_examples 'backend operation moved to index', :count, :count
+  include_examples 'backend operation moved to index', :exist?, :exist?
+  include_examples 'backend operation moved to index', :find!, :get
+  include_examples 'backend operation moved to index', :find, :get
 end

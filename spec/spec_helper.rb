@@ -12,6 +12,7 @@ require 'support/hooks/service_type'
 require 'support/hooks/service_version'
 require 'support/hooks/pub_sub'
 require 'pry'
+require 'securerandom'
 
 Hooks::ServiceVersion.banner!
 
