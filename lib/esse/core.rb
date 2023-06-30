@@ -15,8 +15,6 @@ module Esse
   require_relative 'template_loader'
   require_relative 'import/request_body'
   require_relative 'import/bulk'
-  require_relative 'backend/index'
-  require_relative 'backend/repository_backend'
   require_relative 'version'
   require_relative 'logging'
   require_relative 'events'
