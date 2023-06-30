@@ -70,14 +70,14 @@ RSpec.describe Esse::Search::Query do
   end
 
   describe '#response' do
-    let(:client_proxy) { instance_double(Esse::ClientProxy) }
+    let(:transport) { instance_double(Esse::Transport) }
     let(:request_body) { { query: { match_all: {} } } }
-    let(:query) { described_class.new(client_proxy, 'events', body: request_body) }
+    let(:query) { described_class.new(transport, 'events', body: request_body) }
 
     it 'returns a Response' do
       body = elasticsearch_response_fixture(file: 'search_result_empty', version: '7.x', assigns: { index_name: 'geos' })
 
-      expect(client_proxy).to receive(:search).with(index: 'events', body: request_body).and_return(body)
+      expect(transport).to receive(:search).with(index: 'events', body: request_body).and_return(body)
 
       expect(resp = query.response).to be_an_instance_of(Esse::Search::Response)
       expect(resp.query).to eq(query)
@@ -85,16 +85,16 @@ RSpec.describe Esse::Search::Query do
   end
 
   describe '#execute_search_query!', events: %w[elasticsearch.execute_search_query] do
-    let(:client_proxy) { instance_double(Esse::ClientProxy) }
+    let(:transport) { instance_double(Esse::Transport) }
     let(:request_body) { { query: { match_all: {} } } }
-    let(:query) { described_class.new(client_proxy, 'events', body: request_body) }
+    let(:query) { described_class.new(transport, 'events', body: request_body) }
 
     before { stub_index(:events) }
 
     context 'when the query is successful' do
       it 'returns a Response' do
         response_body = elasticsearch_response_fixture(file: 'search_result_empty', version: '7.x', assigns: { index_name: 'geos' })
-        expect(client_proxy).to receive(:search).with(index: 'events', body: request_body).and_return(response_body)
+        expect(transport).to receive(:search).with(index: 'events', body: request_body).and_return(response_body)
 
         expect(query.response).to be_an_instance_of(Esse::Search::Response)
         assert_event 'elasticsearch.execute_search_query', { query: query, response: query.response }
@@ -106,7 +106,7 @@ RSpec.describe Esse::Search::Query do
 
       it 'raises an exception' do
         exception = Esse::Transport::BadRequestError.new
-        expect(client_proxy).to receive(:search).with(index: 'events', body: request_body).and_raise(exception)
+        expect(transport).to receive(:search).with(index: 'events', body: request_body).and_raise(exception)
 
         expect {
           query.response
@@ -117,9 +117,9 @@ RSpec.describe Esse::Search::Query do
   end
 
   describe '#results' do
-    let(:client_proxy) { instance_double(Esse::ClientProxy) }
+    let(:transport) { instance_double(Esse::Transport) }
     let(:request_body) { { query: { match_all: {} } } }
-    let(:query) { described_class.new(client_proxy, EventsIndex, body: request_body) }
+    let(:query) { described_class.new(transport, EventsIndex, body: request_body) }
 
     before { stub_index(:events) }
 
@@ -132,7 +132,7 @@ RSpec.describe Esse::Search::Query do
       end
 
       it 'returns the hits' do
-        expect(client_proxy).to receive(:search).with(index: EventsIndex.index_name, body: request_body).and_return(response_document)
+        expect(transport).to receive(:search).with(index: EventsIndex.index_name, body: request_body).and_return(response_document)
 
         expect(query.results).to be_an_instance_of(Array)
         expect(query.results.size).to eq(100)
@@ -148,7 +148,7 @@ RSpec.describe Esse::Search::Query do
       end
 
       it 'returns the hits and aggregations' do
-        expect(client_proxy).to receive(:search).with(index: EventsIndex.index_name, body: request_body).and_return(response_document)
+        expect(transport).to receive(:search).with(index: EventsIndex.index_name, body: request_body).and_return(response_document)
 
         expect(query.results).to be_an_instance_of(Array)
         expect(query.results.size).to eq(100)

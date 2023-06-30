@@ -25,7 +25,7 @@ module Esse
       # @return [Hash] the elasticsearch response
       #
       # @see http://www.elasticsearch.org/blog/changing-mapping-with-zero-downtime/
-      # @see Esse::ClientProxy#create_index
+      # @see Esse::Transport#create_index
       def create_index(suffix: nil, **options)
         options = CREATE_INDEX_RESERVED_KEYWORDS.merge(options)
         name = build_real_index_name(suffix)
@@ -73,7 +73,7 @@ module Esse
       #
       # @param options [Hash] Options hash
       # @option options [String, nil] :suffix The index suffix
-      # @see Esse::ClientProxy#index_exist?
+      # @see Esse::Transport#index_exist?
       def index_exist?(suffix: nil)
         cluster.api.index_exist?(index: index_name(suffix: suffix))
       end
@@ -94,7 +94,7 @@ module Esse
       # Open a previously closed index
       #
       # @option options [String, nil] :suffix The index suffix
-      # @see Esse::ClientProxy#open
+      # @see Esse::Transport#open
       def open(suffix: nil, **options)
         cluster.api.open(index: index_name(suffix: suffix), **options)
       end
@@ -102,7 +102,7 @@ module Esse
       # Close an index (keep the data on disk, but deny operations with the index).
       #
       # @option options [String, nil] :suffix The index suffix
-      # @see Esse::ClientProxy#close
+      # @see Esse::Transport#close
       def close(suffix: nil, **options)
         cluster.api.close(index: index_name(suffix: suffix), **options)
       end
@@ -111,7 +111,7 @@ module Esse
       #
       # @note The refresh operation can adversely affect indexing throughput when used too frequently.
       # @param :suffix [String, nil] :suffix The index suffix
-      # @see Esse::ClientProxy#refresh
+      # @see Esse::Transport#refresh
       def refresh(suffix: nil, **options)
         cluster.api.refresh(index: index_name(suffix: suffix), **options)
       end
@@ -119,7 +119,7 @@ module Esse
       # Updates index mappings
       #
       # @param :suffix [String, nil] :suffix The index suffix
-      # @see Esse::ClientProxy#update_mapping
+      # @see Esse::Transport#update_mapping
       def update_mapping(suffix: nil, **options)
         body = mappings_hash.fetch(Esse::MAPPING_ROOT_KEY)
         if (type = options[:type])
@@ -134,7 +134,7 @@ module Esse
       # Updates index settings
       #
       # @param :suffix [String, nil] :suffix The index suffix
-      # @see Esse::ClientProxy#update_settings
+      # @see Esse::Transport#update_settings
       def update_settings(suffix: nil, **options)
         response = nil
 

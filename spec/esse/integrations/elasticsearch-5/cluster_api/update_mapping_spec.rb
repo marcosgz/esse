@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-stack_describe 'elasticsearch', '5.x', Esse::ClientProxy, '#update_mapping' do
+stack_describe 'elasticsearch', '5.x', Esse::Transport, '#update_mapping' do
   it 'raises an Esse::Transport::ServerError exception when api throws an error' do
     es_client do |client, _conf, cluster|
       expect {

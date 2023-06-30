@@ -3,6 +3,6 @@
 require 'spec_helper'
 require 'support/shared_examples/cluster_api_documents_get'
 
-stack_describe 'elasticsearch', '7.x', Esse::ClientProxy, '#get' do
+stack_describe 'elasticsearch', '7.x', Esse::Transport, '#get' do
   include_examples 'cluster_api#get'
 end

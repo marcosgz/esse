@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Esse
-  class ClientProxy
+  class Transport
     module InstanceMethods
       # Return a list of index aliases.
       #

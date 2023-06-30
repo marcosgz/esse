@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require_relative 'cluster_engine'
-require_relative 'client_proxy'
+require_relative 'transport'
 
 module Esse
   class Cluster
@@ -125,9 +125,9 @@ module Esse
 
     # Return the proxy object used to perform low level actions on the elasticsearch cluster through the official api client
     #
-    # @return [Esse::ClientProxy] The cluster api instance
+    # @return [Esse::Transport] The cluster api instance
     def api
-      Esse::ClientProxy.new(self)
+      Esse::Transport.new(self)
     end
   end
 end

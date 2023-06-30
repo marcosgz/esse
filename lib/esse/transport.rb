@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
 module Esse
-  class ClientProxy
-    require_relative './client_proxy/aliases'
-    require_relative './client_proxy/health'
-    require_relative './client_proxy/indices'
-    require_relative './client_proxy/search'
-    require_relative './client_proxy/documents'
+  class Transport
+    require_relative './transport/aliases'
+    require_relative './transport/health'
+    require_relative './transport/indices'
+    require_relative './transport/search'
+    require_relative './transport/documents'
 
     extend Forwardable
 

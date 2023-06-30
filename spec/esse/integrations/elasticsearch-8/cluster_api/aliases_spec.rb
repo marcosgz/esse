@@ -3,6 +3,6 @@
 require 'spec_helper'
 require 'support/shared_examples/cluster_api_aliases'
 
-stack_describe 'elasticsearch', '8.x', Esse::ClientProxy, '#aliases' do
+stack_describe 'elasticsearch', '8.x', Esse::Transport, '#aliases' do
   include_examples 'cluster_api#aliases'
 end

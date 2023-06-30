@@ -81,7 +81,7 @@ RSpec.describe Esse::Cluster do
   end
 
   describe '.wait_for_status!' do
-    let(:api) { instance_double(Esse::ClientProxy) }
+    let(:api) { instance_double(Esse::Transport) }
 
     before do
       allow(model).to receive(:api).and_return(api)
@@ -308,8 +308,8 @@ RSpec.describe Esse::Cluster do
   end
 
   describe '#api' do
-    it 'returns an instance of Esse::ClientProxy' do
-      expect(model.api).to be_an_instance_of(Esse::ClientProxy)
+    it 'returns an instance of Esse::Transport' do
+      expect(model.api).to be_an_instance_of(Esse::Transport)
     end
   end
 

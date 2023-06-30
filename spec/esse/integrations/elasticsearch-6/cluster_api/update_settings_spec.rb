@@ -3,6 +3,6 @@
 require 'spec_helper'
 require 'support/shared_examples/cluster_api_update_settings'
 
-stack_describe 'elasticsearch', '6.x', Esse::ClientProxy, '#update_settings' do
+stack_describe 'elasticsearch', '6.x', Esse::Transport, '#update_settings' do
   include_examples 'cluster_api#update_settings'
 end

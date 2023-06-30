@@ -3,6 +3,6 @@
 require 'spec_helper'
 require 'support/shared_examples/cluster_api_documents_count'
 
-stack_describe 'elasticsearch', '1.x', Esse::ClientProxy, '#count' do
+stack_describe 'elasticsearch', '1.x', Esse::Transport, '#count' do
   include_examples 'cluster_api#count', doc_type: true
 end
