@@ -3,13 +3,15 @@
 RSpec.shared_examples 'index.reset_index' do
   include_context 'with geos index definition'
 
+  let(:index_suffix) { SecureRandom.hex(8) }
+
   it 'creates a new index, import data and put the alias' do
     es_client do |client, _conf, cluster|
       expect {
-        GeosIndex.reset_index(suffix: '2022', import: false)
+        GeosIndex.reset_index(suffix: index_suffix, import: false)
       }.not_to raise_error
 
-      expect(GeosIndex.indices_pointing_to_alias).to eq(["#{GeosIndex.index_name}_2022"])
+      expect(GeosIndex.indices_pointing_to_alias).to eq(["#{GeosIndex.index_name}_#{index_suffix}"])
     end
   end
 
@@ -18,12 +20,12 @@ RSpec.shared_examples 'index.reset_index' do
       GeosIndex.create_index(alias: true, suffix: '2021')
 
       expect {
-        GeosIndex.reset_index(suffix: '2022', import: false)
+        GeosIndex.reset_index(suffix: index_suffix, import: false)
       }.not_to raise_error
 
-      expect(GeosIndex.indices_pointing_to_alias).to eq(["#{GeosIndex.index_name}_2022"])
+      expect(GeosIndex.indices_pointing_to_alias).to eq(["#{GeosIndex.index_name}_#{index_suffix}"])
       expect(GeosIndex.index_exist?(suffix: '2021')).to eq(true)
-      expect(GeosIndex.index_exist?(suffix: '2022')).to eq(true)
+      expect(GeosIndex.index_exist?(suffix: index_suffix)).to eq(true)
     end
   end
 
@@ -32,11 +34,11 @@ RSpec.shared_examples 'index.reset_index' do
       client.indices.create(index: GeosIndex.index_name)
 
       expect {
-        GeosIndex.reset_index(suffix: '2022', import: false)
+        GeosIndex.reset_index(suffix: index_suffix, import: false)
       }.not_to raise_error
 
-      expect(GeosIndex.indices_pointing_to_alias).to eq(["#{GeosIndex.index_name}_2022"])
-      expect(GeosIndex.index_exist?(suffix: '2022')).to eq(true)
+      expect(GeosIndex.indices_pointing_to_alias).to eq(["#{GeosIndex.index_name}_#{index_suffix}"])
+      expect(GeosIndex.index_exist?(suffix: index_suffix)).to eq(true)
     end
   end
 end

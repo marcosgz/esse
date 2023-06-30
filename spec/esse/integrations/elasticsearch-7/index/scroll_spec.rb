@@ -20,8 +20,8 @@ stack_describe 'elasticsearch', '7.x', 'elasticsearch#scroll' do
   describe '.search', events: %w[elasticsearch.search] do
     it 'yields batches of hits' do
       es_client do |client, _conf, cluster|
-        GeosIndex.elasticsearch.create_index!(alias: true)
-        GeosIndex.elasticsearch.import(refresh: true)
+        GeosIndex.create_index(alias: true)
+        GeosIndex.import(refresh: true)
 
         expect { |b| GeosIndex.search(query: { match_all: {} }).scroll_hits(batch_size: 1, &b) }.to yield_control.twice
       end

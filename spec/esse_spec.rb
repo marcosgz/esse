@@ -74,4 +74,27 @@ RSpec.describe Esse do
       expect(hash).to eq(hash)
     end
   end
+
+  describe '.document?' do
+    specify { expect(Esse.document?(nil)).to eq(false) }
+    specify { expect(Esse.document?({})).to eq(false) }
+    specify { expect(Esse.document?(Class.new.new)).to eq(false) }
+    specify { expect(Esse.document?(Class.new(Esse::Index).new)).to eq(false) }
+
+    context 'with a class that inherit Esse::Serializer' do
+      let(:doc_class) do
+        Class.new(Esse::Serializer) do
+          def initialize(*)
+          end
+
+          def id
+            1
+          end
+        end
+      end
+      let(:doc) { doc_class.new }
+
+      specify { expect(Esse.document?(doc)).to eq(true) }
+    end
+  end
 end

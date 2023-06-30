@@ -55,9 +55,7 @@ module Esse
       private
 
       def valid_doc?(doc)
-        return false unless doc
-
-        doc.is_a?(Esse::Serializer) && doc.id
+        Esse.document?(doc)
       end
 
       def optimistic_request

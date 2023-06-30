@@ -21,10 +21,20 @@ module Esse
       nil
     end
 
+    # @return [Boolean] whether the document has type
+    def type?
+      !type.nil?
+    end
+
     # @return [String, nil] the document routing
     # @abstract Override this method to return the document routing
     def routing
       nil
+    end
+
+    # @return [Boolean] whether the document has routing
+    def routing?
+      !routing.nil?
     end
 
     # @return [Hash] the document meta
@@ -39,6 +49,7 @@ module Esse
       {}
     end
 
+    def
     # @return [Hash] the document data
     def to_h
       source.merge(
@@ -54,7 +65,7 @@ module Esse
       { _id: id }.tap do |h|
         h[:data] = source&.to_h if data
         h[:_type] = type if type
-        h[:routing] = routing if routing
+        h[:routing] = routing if routing?
         h.merge!(meta)
       end
     end

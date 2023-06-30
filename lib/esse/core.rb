@@ -85,4 +85,10 @@ module Esse
     end
     true
   end
+
+  def self.document?(object)
+    return false unless object
+
+    !!(object.is_a?(Esse::Serializer) && object.id)
+  end
 end

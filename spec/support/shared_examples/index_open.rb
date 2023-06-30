@@ -3,6 +3,8 @@
 RSpec.shared_examples "index.open" do
   include_context 'with geos index definition'
 
+  let(:index_suffix) { SecureRandom.hex(8) }
+
   it "raises an Esse::Transport::ServerError exception when api throws an error" do
     es_client do |client, _conf, cluster|
       expect{
@@ -13,10 +15,10 @@ RSpec.shared_examples "index.open" do
 
   it "opens the aliased index" do
     es_client do |client, _conf, cluster|
-      GeosIndex.create_index(alias: true, suffix: '2022')
-      cluster.wait_for_status!(index: GeosIndex.index_name(suffix: '2022'))
-      GeosIndex.close(suffix: '2022')
-      cluster.wait_for_status!(index: GeosIndex.index_name(suffix: '2022'))
+      GeosIndex.create_index(alias: true, suffix: index_suffix)
+      cluster.wait_for_status!(index: GeosIndex.index_name(suffix: index_suffix))
+      GeosIndex.close(suffix: index_suffix)
+      cluster.wait_for_status!(index: GeosIndex.index_name(suffix: index_suffix))
 
       resp = nil
       expect {
@@ -29,9 +31,9 @@ RSpec.shared_examples "index.open" do
   it "opens the unaliased index" do
     es_client do |client, _conf, cluster|
       GeosIndex.create_index(alias: false, suffix: "2022")
-      cluster.wait_for_status!(index: GeosIndex.index_name(suffix: '2022'))
+      cluster.wait_for_status!(index: GeosIndex.index_name(suffix: index_suffix))
       GeosIndex.close(suffix: "2022")
-      cluster.wait_for_status!(index: GeosIndex.index_name(suffix: '2022'))
+      cluster.wait_for_status!(index: GeosIndex.index_name(suffix: index_suffix))
 
       resp = nil
       expect {

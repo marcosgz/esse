@@ -27,6 +27,8 @@ RSpec.shared_context 'with geos index definition' do
     ]
   end
 
+  let(:total_geos) { states_batches.flatten.size + counties_batches.flatten.size }
+
   let(:geo_serializer) do
     Class.new(Esse::Serializer) do
       def id

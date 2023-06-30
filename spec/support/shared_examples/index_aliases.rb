@@ -1,19 +1,19 @@
 # frozen_string_literal: true
 
-RSpec.shared_examples "index.aliases" do
+RSpec.shared_examples 'index.aliases' do
   include_context 'with geos index definition'
 
   it 'retrieves the aliases for the given index' do
     es_client do |client, _conf, cluster|
-      GeosIndex.elasticsearch.create_index!(alias: true, suffix: "2022")
+      GeosIndex.create_index(alias: true, suffix: '2022')
 
       expect(GeosIndex.aliases).to eq([GeosIndex.index_name])
     end
   end
 
-  it "returns an empty array when the index was created without alias" do
+  it 'returns an empty array when the index was created without alias' do
     es_client do |client, _conf, cluster|
-      GeosIndex.elasticsearch.create_index!(alias: false, suffix: "2022")
+      GeosIndex.create_index(alias: false, suffix: '2022')
 
       expect(GeosIndex.aliases).to eq([])
     end
@@ -23,7 +23,7 @@ RSpec.shared_examples "index.aliases" do
     expected_value = nil
 
     es_client do |client, _conf, cluster|
-      expect{
+      expect {
         expected_value = GeosIndex.aliases
       }.not_to raise_error
     end
