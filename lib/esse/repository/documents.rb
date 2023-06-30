@@ -4,18 +4,11 @@ module Esse
   class Repository
     module ClassMethods
       def import(**kwargs)
-        index.import(repo_type, **kwargs)
+        index.import(repo_name, **kwargs)
       end
 
       def import!(**kwargs)
-        index.import!(repo_type, **kwargs)
-      end
-
-      protected
-
-      # @TODO change document_type to repo_type globally
-      def repo_type
-        document_type
+        index.import!(repo_name, **kwargs)
       end
     end
 
