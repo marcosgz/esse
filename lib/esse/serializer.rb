@@ -49,7 +49,6 @@ module Esse
       {}
     end
 
-    def
     # @return [Hash] the document data
     def to_h
       source.merge(

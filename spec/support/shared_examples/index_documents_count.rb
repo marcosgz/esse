@@ -1,52 +1,52 @@
 # frozen_string_literal: true
 
 RSpec.shared_examples 'index.count' do
-  include_context 'with geos index definition'
+  include_context 'with venues index definition'
 
   let(:index_suffix) { SecureRandom.hex(8) }
 
   it 'raises an Esse::Transport::ServerError exception when api throws an error' do
     es_client do |client, _conf, cluster|
       expect {
-        GeosIndex.count
+        VenuesIndex.count
       }.to raise_error(Esse::Transport::NotFoundError)
     end
   end
 
   it 'counts the documents in the aliased index' do
     es_client do |client, _conf, cluster|
-      GeosIndex.create_index(alias: true, suffix: index_suffix)
-      GeosIndex.import(refresh: true, suffix: index_suffix)
+      VenuesIndex.create_index(alias: true, suffix: index_suffix)
+      VenuesIndex.import(refresh: true, suffix: index_suffix)
 
       resp = nil
       expect {
-        resp = GeosIndex.count
+        resp = VenuesIndex.count
       }.not_to raise_error
-      expect(resp).to eq(6)
+      expect(resp).to eq(total_venues)
     end
   end
 
   it 'counts the documents in the unaliased index' do
     es_client do |client, _conf, cluster|
-      GeosIndex.create_index(alias: false, suffix: index_suffix)
-      GeosIndex.import(refresh: true, suffix: index_suffix)
+      VenuesIndex.create_index(alias: false, suffix: index_suffix)
+      VenuesIndex.import(refresh: true, suffix: index_suffix)
 
       resp = nil
       expect {
-        resp = GeosIndex.count(suffix: index_suffix)
+        resp = VenuesIndex.count(suffix: index_suffix)
       }.not_to raise_error
-      expect(resp).to eq(6)
+      expect(resp).to eq(total_venues)
     end
   end
 
   it 'counts using the q parameter' do
     es_client do |client, _conf, cluster|
-      GeosIndex.create_index(alias: true, suffix: index_suffix)
-      GeosIndex.import(refresh: true, suffix: index_suffix)
+      VenuesIndex.create_index(alias: true, suffix: index_suffix)
+      VenuesIndex.import(refresh: true, suffix: index_suffix)
 
       resp = nil
       expect {
-        resp = GeosIndex.count(q: 'name:IL')
+        resp = VenuesIndex.count(q: 'name:Hotel')
       }.not_to raise_error
       expect(resp).to eq(1)
     end

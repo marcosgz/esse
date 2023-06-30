@@ -1,55 +1,56 @@
 # frozen_string_literal: true
 
-RSpec.shared_examples "index.delete_index" do
-  include_context 'with geos index definition'
+RSpec.shared_examples 'index.delete_index' do
+  include_context 'with venues index definition'
 
-  it "raises an Esse::Transport::ServerError exception when api throws an error" do
+  let(:index_suffix) { SecureRandom.hex(8) }
+
+  it 'raises an Esse::Transport::ServerError exception when api throws an error' do
     es_client do |client, _conf, cluster|
-      expect{
-        GeosIndex.delete_index(suffix: "v1")
+      expect {
+        VenuesIndex.delete_index(suffix: index_suffix)
       }.to raise_error(Esse::Transport::ServerError)
     end
   end
 
-  it "deletes the aliased index" do
+  it 'deletes the aliased index' do
     es_client do |client, _conf, cluster|
-      GeosIndex.create_index(alias: true, suffix: 'v1')
+      VenuesIndex.create_index(alias: true, suffix: index_suffix)
 
       resp = nil
       expect {
-        resp = GeosIndex.delete_index
+        resp = VenuesIndex.delete_index
       }.not_to raise_error
       expect(resp['acknowledged']).to eq(true)
-      expect(cluster.api.index_exist?(index: GeosIndex.index_name(suffix: 'v1'))).to eq(false)
+      expect(cluster.api.index_exist?(index: VenuesIndex.index_name(suffix: index_suffix))).to eq(false)
     end
   end
 
-  it "deletes the unaliased index" do
+  it 'deletes the unaliased index' do
     es_client do |client, _conf, cluster|
-      GeosIndex.create_index(alias: false, suffix: "v1")
+      VenuesIndex.create_index(alias: false, suffix: index_suffix)
 
       resp = nil
       expect {
-        resp = GeosIndex.delete_index(suffix: "v1")
+        resp = VenuesIndex.delete_index(suffix: index_suffix)
       }.not_to raise_error
       expect(resp['acknowledged']).to eq(true)
-      expect(cluster.api.index_exist?(index: GeosIndex.index_name(suffix: 'v1'))).to eq(false)
-
+      expect(cluster.api.index_exist?(index: VenuesIndex.index_name(suffix: index_suffix))).to eq(false)
     end
   end
 
-  it "deletes the index created with root naming" do
+  it 'deletes the index created with root naming' do
     es_client do |client, _conf, cluster|
-      cluster.api.create_index(index: GeosIndex.index_name, body: {
+      cluster.api.create_index(index: VenuesIndex.index_name, body: {
         settings: { number_of_shards: 1, number_of_replicas: 0 },
       })
 
       resp = nil
       expect {
-        resp = GeosIndex.delete_index
+        resp = VenuesIndex.delete_index
       }.not_to raise_error
       expect(resp['acknowledged']).to eq(true)
-      expect(cluster.api.index_exist?(index: GeosIndex.index_name)).to eq(false)
+      expect(cluster.api.index_exist?(index: VenuesIndex.index_name)).to eq(false)
     end
   end
 end
