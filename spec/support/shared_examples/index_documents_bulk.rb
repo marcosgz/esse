@@ -1,11 +1,17 @@
 # frozen_string_literal: true
 
-RSpec.shared_examples 'index.bulk' do
+RSpec.shared_examples 'index.bulk' do |doc_type: false|
   include_context 'with venues index definition'
 
+  let(:params) do
+    doc_type ? { type: 'venue' } : {}
+  end
+  let(:doc_params) do
+    doc_type ? { _type: 'venue' } : {}
+  end
   let(:documents) do
     venues.flatten.map do |item|
-      Esse::HashDocument.new(item)
+      Esse::HashDocument.new(item.merge(doc_params))
     end
   end
 
@@ -40,7 +46,7 @@ RSpec.shared_examples 'index.bulk' do
   it 'deletes a batch of documents to the aliased index' do
     es_client do |client, _conf, cluster|
       VenuesIndex.create_index(alias: true)
-      VenuesIndex.import(refresh: true)
+      VenuesIndex.import(refresh: true, **params)
 
       resp = nil
       expect {

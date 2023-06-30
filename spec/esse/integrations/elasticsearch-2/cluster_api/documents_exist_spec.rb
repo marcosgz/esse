@@ -4,5 +4,5 @@ require 'spec_helper'
 require 'support/shared_examples/cluster_api_documents_exist'
 
 stack_describe 'elasticsearch', '2.x', Esse::ClientProxy, '#exist?' do
-  include_examples 'cluster_api#exist?'
+  include_examples 'cluster_api#exist?', doc_type: true
 end

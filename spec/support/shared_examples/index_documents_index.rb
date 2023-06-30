@@ -1,12 +1,19 @@
 # frozen_string_literal: true
 
-RSpec.shared_examples 'index.index' do
+RSpec.shared_examples 'index.index' do |doc_type: false|
   include_context 'with venues index definition'
+
+  let(:params) do
+    doc_type ? { type: 'venue' } : {}
+  end
+  let(:doc_params) do
+    doc_type ? { _type: 'venue' } : {}
+  end
 
   it 'raises ArgumentError when the :id is not provided' do
     es_client do |client, _conf, cluster|
       expect {
-        VenuesIndex.index(body: { name: 'Restaurant' })
+        VenuesIndex.index(body: { name: 'Restaurant' }, **params)
       }.to raise_error(ArgumentError, 'missing keyword: id')
     end
   end
@@ -14,7 +21,7 @@ RSpec.shared_examples 'index.index' do
   it 'raises ArgumentError when the :body is not provided' do
     es_client do |client, _conf, cluster|
       expect {
-        VenuesIndex.index(id: 1)
+        VenuesIndex.index(id: 1, **params)
       }.to raise_error(ArgumentError, 'missing keyword: body')
     end
   end
@@ -25,7 +32,7 @@ RSpec.shared_examples 'index.index' do
 
       resp = nil
       expect {
-        resp = VenuesIndex.index(id: 1, body: { name: 'New Name' })
+        resp = VenuesIndex.index(id: 1, body: { name: 'New Name' }, **params)
       }.not_to raise_error
       expect(resp['result']).to eq('created')
 
@@ -37,11 +44,11 @@ RSpec.shared_examples 'index.index' do
   it 'updates the document in the aliased index' do
     es_client do |client, _conf, cluster|
       VenuesIndex.create_index(alias: true)
-      VenuesIndex.import(refresh: true)
+      VenuesIndex.import(refresh: true, **params)
 
       resp = nil
       expect {
-        resp = VenuesIndex.index(id: 1, body: { name: 'New Name' })
+        resp = VenuesIndex.index(id: 1, body: { name: 'New Name' }, **params)
       }.not_to raise_error
       expect(resp['result']).to eq('updated')
 
@@ -56,7 +63,7 @@ RSpec.shared_examples 'index.index' do
 
       resp = nil
       expect {
-        resp = VenuesIndex.index(id: 1, body: { name: 'New Name' }, suffix: '2022')
+        resp = VenuesIndex.index(id: 1, body: { name: 'New Name' }, suffix: '2022', **params)
       }.not_to raise_error
       expect(resp['result']).to eq('created')
       expect(resp['_index']).to eq("#{cluster.index_prefix}_venues_2022")
@@ -69,11 +76,11 @@ RSpec.shared_examples 'index.index' do
   it 'updates the document in the unaliased index' do
     es_client do |client, _conf, cluster|
       VenuesIndex.create_index(alias: false, suffix: '2022')
-      VenuesIndex.import(refresh: true, suffix: '2022')
+      VenuesIndex.import(refresh: true, suffix: '2022', **params)
 
       resp = nil
       expect {
-        resp = VenuesIndex.index(id: 1, body: { name: 'New Name' }, suffix: '2022')
+        resp = VenuesIndex.index(id: 1, body: { name: 'New Name' }, suffix: '2022', **params)
       }.not_to raise_error
       expect(resp['result']).to eq('updated')
       expect(resp['_index']).to eq("#{cluster.index_prefix}_venues_2022")
@@ -87,9 +94,10 @@ RSpec.shared_examples 'index.index' do
     es_client do |client, _conf, cluster|
       VenuesIndex.create_index(alias: true)
 
+      document = Esse::HashDocument.new(id: 1, name: 'New Name', **doc_params)
       resp = nil
       expect {
-        resp = VenuesIndex.index(Esse::HashDocument.new(id: 1, name: 'New Name'))
+        resp = VenuesIndex.index(document)
       }.not_to raise_error
       expect(resp['result']).to eq('created')
 

@@ -4,5 +4,5 @@ require 'spec_helper'
 require 'support/shared_examples/index_documents_count'
 
 stack_describe 'elasticsearch', '5.x', Esse::Index, '.count' do
-  include_examples 'index.count'
+  include_examples 'index.count', doc_type: true
 end
