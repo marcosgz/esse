@@ -13,12 +13,18 @@ RSpec.shared_examples 'index.open' do
     end
   end
 
-  it 'opens the aliased index' do
+  it 'opens the aliased index' do |example|
     es_client do |client, _conf, cluster|
       VenuesIndex.create_index(alias: true, suffix: index_suffix)
       cluster.wait_for_status!(index: VenuesIndex.index_name(suffix: index_suffix))
+      if %w[1.x 2.x].include?(example.metadata[:es_version])
+        sleep(1)
+      end
       VenuesIndex.close(suffix: index_suffix)
       cluster.wait_for_status!(index: VenuesIndex.index_name(suffix: index_suffix))
+      if %w[1.x 2.x].include?(example.metadata[:es_version])
+        sleep(1)
+      end
 
       resp = nil
       expect {
@@ -28,12 +34,18 @@ RSpec.shared_examples 'index.open' do
     end
   end
 
-  it 'opens the unaliased index' do
+  it 'opens the unaliased index' do |example|
     es_client do |client, _conf, cluster|
       VenuesIndex.create_index(alias: false, suffix: index_suffix)
       cluster.wait_for_status!(index: VenuesIndex.index_name(suffix: index_suffix))
+      if %w[1.x 2.x].include?(example.metadata[:es_version])
+        sleep(1)
+      end
       VenuesIndex.close(suffix: index_suffix)
       cluster.wait_for_status!(index: VenuesIndex.index_name(suffix: index_suffix))
+      if %w[1.x 2.x].include?(example.metadata[:es_version])
+        sleep(1)
+      end
 
       resp = nil
       expect {

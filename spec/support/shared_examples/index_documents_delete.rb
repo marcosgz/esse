@@ -35,7 +35,7 @@ RSpec.shared_examples 'index.delete' do |doc_type: false|
     end
   end
 
-  it 'deletes the document from the aliased index' do
+  it 'deletes the document from the aliased index' do |example|
     es_client do |client, _conf, cluster|
       VenuesIndex.create_index(alias: true, suffix: index_suffix)
       VenuesIndex.import(refresh: true, suffix: index_suffix, **params)
@@ -44,11 +44,15 @@ RSpec.shared_examples 'index.delete' do |doc_type: false|
       expect {
         resp = VenuesIndex.delete(id: 1, **params)
       }.not_to raise_error
-      expect(resp['result']).to eq('deleted')
+      if %w[1.x 2.x].include?(example.metadata[:es_version])
+        expect(resp['found']).to eq(true)
+      else
+        expect(resp['result']).to eq('deleted')
+      end
     end
   end
 
-  it 'deletes the document from the unaliased index' do
+  it 'deletes the document from the unaliased index' do |example|
     es_client do |client, _conf, cluster|
       VenuesIndex.create_index(alias: false, suffix: index_suffix)
       VenuesIndex.import(refresh: true, suffix: index_suffix, **params)
@@ -57,11 +61,15 @@ RSpec.shared_examples 'index.delete' do |doc_type: false|
       expect {
         resp = VenuesIndex.delete(id: 1, suffix: index_suffix, **params)
       }.not_to raise_error
-      expect(resp['result']).to eq('deleted')
+      if %w[1.x 2.x].include?(example.metadata[:es_version])
+        expect(resp['found']).to eq(true)
+      else
+        expect(resp['result']).to eq('deleted')
+      end
     end
   end
 
-  it 'deletes the document using the instance of Esse::Serializer' do
+  it 'deletes the document using the instance of Esse::Serializer' do |example|
     es_client do |client, _conf, cluster|
       VenuesIndex.create_index(alias: true, suffix: index_suffix)
       VenuesIndex.import(refresh: true, suffix: index_suffix, **params)
@@ -71,7 +79,11 @@ RSpec.shared_examples 'index.delete' do |doc_type: false|
       expect {
         resp = VenuesIndex.delete(document)
       }.not_to raise_error
-      expect(resp['result']).to eq('deleted')
+      if %w[1.x 2.x].include?(example.metadata[:es_version])
+        expect(resp['found']).to eq(true)
+      else
+        expect(resp['result']).to eq('deleted')
+      end
     end
   end
 end

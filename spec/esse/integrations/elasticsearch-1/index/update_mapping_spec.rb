@@ -12,7 +12,7 @@ stack_describe 'elasticsearch', '1.x', Esse::Index, '.update_mapping' do
       {
         state: {
           properties: {
-            state_abbr: { type: 'keyword' },
+            state_abbr: { type: 'string' },
           }
         }
       }
@@ -35,8 +35,8 @@ stack_describe 'elasticsearch', '1.x', Esse::Index, '.update_mapping' do
         {
           state: {
             properties: {
-              state_abbr: { type: 'keyword' },
-              new_field: { type: 'text' },
+              state_abbr: { type: 'string' },
+              new_field: { type: 'integer' },
             }
           }
         }
@@ -50,7 +50,7 @@ stack_describe 'elasticsearch', '1.x', Esse::Index, '.update_mapping' do
 
       mapping = client.indices.get_mapping(index: index_name = GeosIndex.index_name(suffix: index_suffix))
       expect(mapping.dig(index_name, 'mappings', 'state', 'properties', 'new_field')).to eq(
-        'type' => 'text',
+        'type' => 'integer',
       )
     end
   end
@@ -64,8 +64,8 @@ stack_describe 'elasticsearch', '1.x', Esse::Index, '.update_mapping' do
         resp = GeosIndex.update_mapping(suffix: index_suffix, type: 'state', body: {
           state: {
             properties: {
-              state_abbr: { type: 'keyword' },
-              new_field: { type: 'text' },
+              state_abbr: { type: 'string' },
+              new_field: { type: 'integer' },
             }
           }
         })
@@ -74,7 +74,7 @@ stack_describe 'elasticsearch', '1.x', Esse::Index, '.update_mapping' do
 
       mapping = client.indices.get_mapping(index: index_name = GeosIndex.index_name(suffix: index_suffix))
       expect(mapping.dig(index_name, 'mappings', 'state', 'properties', 'new_field')).to eq(
-        'type' => 'text',
+        'type' => 'integer',
       )
     end
   end

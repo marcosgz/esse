@@ -27,6 +27,7 @@ RSpec.shared_examples 'cluster_api#exist?' do |doc_type: false|
       cluster.api.create_index(index: index_name, body: {
         settings: { number_of_shards: 1, number_of_replicas: 0 },
       })
+      cluster.api.refresh(index: index_name)
 
       resp = nil
       expect {

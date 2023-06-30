@@ -26,7 +26,7 @@ RSpec.shared_examples 'index.index' do |doc_type: false|
     end
   end
 
-  it 'indexes a new document in the aliased index' do
+  it 'indexes a new document in the aliased index' do |example|
     es_client do |client, _conf, cluster|
       VenuesIndex.create_index(alias: true)
 
@@ -34,14 +34,18 @@ RSpec.shared_examples 'index.index' do |doc_type: false|
       expect {
         resp = VenuesIndex.index(id: 1, body: { name: 'New Name' }, **params)
       }.not_to raise_error
-      expect(resp['result']).to eq('created')
+      if %w[1.x 2.x].include?(example.metadata[:es_version])
+        expect(resp['created']).to eq(true)
+      else
+        expect(resp['result']).to eq('created')
+      end
 
       resp = VenuesIndex.get(id: 1)
       expect(resp['_source']).to include('name' => 'New Name')
     end
   end
 
-  it 'updates the document in the aliased index' do
+  it 'updates the document in the aliased index' do |example|
     es_client do |client, _conf, cluster|
       VenuesIndex.create_index(alias: true)
       VenuesIndex.import(refresh: true, **params)
@@ -50,14 +54,18 @@ RSpec.shared_examples 'index.index' do |doc_type: false|
       expect {
         resp = VenuesIndex.index(id: 1, body: { name: 'New Name' }, **params)
       }.not_to raise_error
-      expect(resp['result']).to eq('updated')
+      if %w[1.x 2.x].include?(example.metadata[:es_version])
+        expect(resp['_version']).to eq(2)
+      else
+        expect(resp['result']).to eq('updated')
+      end
 
       resp = VenuesIndex.get(id: 1)
       expect(resp['_source']).to include('name' => 'New Name')
     end
   end
 
-  it 'indexes a new document in the unaliased index' do
+  it 'indexes a new document in the unaliased index' do |example|
     es_client do |client, _conf, cluster|
       VenuesIndex.create_index(alias: false, suffix: '2022')
 
@@ -65,7 +73,11 @@ RSpec.shared_examples 'index.index' do |doc_type: false|
       expect {
         resp = VenuesIndex.index(id: 1, body: { name: 'New Name' }, suffix: '2022', **params)
       }.not_to raise_error
-      expect(resp['result']).to eq('created')
+      if %w[1.x 2.x].include?(example.metadata[:es_version])
+        expect(resp['created']).to eq(true)
+      else
+        expect(resp['result']).to eq('created')
+      end
       expect(resp['_index']).to eq("#{cluster.index_prefix}_venues_2022")
 
       resp = VenuesIndex.get(id: 1, suffix: '2022')
@@ -73,7 +85,7 @@ RSpec.shared_examples 'index.index' do |doc_type: false|
     end
   end
 
-  it 'updates the document in the unaliased index' do
+  it 'updates the document in the unaliased index' do |example|
     es_client do |client, _conf, cluster|
       VenuesIndex.create_index(alias: false, suffix: '2022')
       VenuesIndex.import(refresh: true, suffix: '2022', **params)
@@ -82,7 +94,11 @@ RSpec.shared_examples 'index.index' do |doc_type: false|
       expect {
         resp = VenuesIndex.index(id: 1, body: { name: 'New Name' }, suffix: '2022', **params)
       }.not_to raise_error
-      expect(resp['result']).to eq('updated')
+      if %w[1.x 2.x].include?(example.metadata[:es_version])
+        expect(resp['_version']).to eq(2)
+      else
+        expect(resp['result']).to eq('updated')
+      end
       expect(resp['_index']).to eq("#{cluster.index_prefix}_venues_2022")
 
       resp = VenuesIndex.get(id: 1, suffix: '2022')
@@ -90,7 +106,7 @@ RSpec.shared_examples 'index.index' do |doc_type: false|
     end
   end
 
-  it 'indexes the document using the instance of Esse::Serializer' do
+  it 'indexes the document using the instance of Esse::Serializer' do |example|
     es_client do |client, _conf, cluster|
       VenuesIndex.create_index(alias: true)
 
@@ -99,7 +115,11 @@ RSpec.shared_examples 'index.index' do |doc_type: false|
       expect {
         resp = VenuesIndex.index(document)
       }.not_to raise_error
-      expect(resp['result']).to eq('created')
+      if %w[1.x 2.x].include?(example.metadata[:es_version])
+        expect(resp['created']).to eq(true)
+      else
+        expect(resp['result']).to eq('created')
+      end
 
       resp = VenuesIndex.get(id: 1)
       expect(resp['_source']).to include('name' => 'New Name')

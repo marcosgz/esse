@@ -17,6 +17,11 @@ RSpec.shared_examples 'index.close' do
     es_client do |client, _conf, cluster|
       VenuesIndex.create_index(alias: true, suffix: index_suffix)
 
+      cluster.wait_for_status!(index: VenuesIndex.index_name(suffix: index_suffix))
+      if %w[1.x 2.x].include?(example.metadata[:es_version])
+        sleep(1)
+      end
+
       resp = nil
       expect {
         resp = VenuesIndex.close
@@ -32,6 +37,9 @@ RSpec.shared_examples 'index.close' do
     es_client do |client, _conf, cluster|
       VenuesIndex.create_index(alias: false, suffix: index_suffix)
       cluster.wait_for_status!(index: VenuesIndex.index_name(suffix: index_suffix))
+      if %w[1.x 2.x].include?(example.metadata[:es_version])
+        sleep(1)
+      end
 
       resp = nil
       expect {

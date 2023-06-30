@@ -35,7 +35,7 @@ RSpec.shared_examples 'index.update' do |doc_type: false|
     end
   end
 
-  it 'updates the document in the aliased index' do
+  it 'updates the document in the aliased index' do |example|
     es_client do |client, _conf, cluster|
       VenuesIndex.create_index(alias: true, suffix: index_suffix)
       VenuesIndex.import(refresh: true, suffix: index_suffix, **params)
@@ -44,14 +44,18 @@ RSpec.shared_examples 'index.update' do |doc_type: false|
       expect {
         resp = VenuesIndex.update(id: 1, body: { doc: { name: 'New Name' } }, **params)
       }.not_to raise_error
-      expect(resp['result']).to eq('updated')
+      if %w[1.x 2.x].include?(example.metadata[:es_version])
+        expect(resp['_version']).to eq(2)
+      else
+        expect(resp['result']).to eq('updated')
+      end
 
       resp = VenuesIndex.get(id: 1)
       expect(resp['_source']).to include('name' => 'New Name')
     end
   end
 
-  it 'updates the document in the unaliased index' do
+  it 'updates the document in the unaliased index' do |example|
     es_client do |client, _conf, cluster|
       VenuesIndex.create_index(alias: false, suffix: index_suffix)
       VenuesIndex.import(refresh: true, suffix: index_suffix, **params)
@@ -60,14 +64,18 @@ RSpec.shared_examples 'index.update' do |doc_type: false|
       expect {
         resp = VenuesIndex.update(id: 1, body: { doc: { name: 'New Name' } }, suffix: index_suffix, **params)
       }.not_to raise_error
-      expect(resp['result']).to eq('updated')
+      if %w[1.x 2.x].include?(example.metadata[:es_version])
+        expect(resp['_version']).to eq(2)
+      else
+        expect(resp['result']).to eq('updated')
+      end
 
       resp = VenuesIndex.get(id: 1, suffix: index_suffix)
       expect(resp['_source']).to include('name' => 'New Name')
     end
   end
 
-  it 'updates the document using the instance of Esse::Serializer' do
+  it 'updates the document using the instance of Esse::Serializer' do |example|
     es_client do |client, _conf, cluster|
       VenuesIndex.create_index(alias: true)
       VenuesIndex.import(refresh: true, **params)
@@ -77,7 +85,11 @@ RSpec.shared_examples 'index.update' do |doc_type: false|
       expect {
         resp = VenuesIndex.update(document)
       }.not_to raise_error
-      expect(resp['result']).to eq('updated')
+      if %w[1.x 2.x].include?(example.metadata[:es_version])
+        expect(resp['_version']).to eq(2)
+      else
+        expect(resp['result']).to eq('updated')
+      end
 
       resp = VenuesIndex.get(id: 1)
       expect(resp['_source']).to include('name' => 'New Name')

@@ -21,13 +21,13 @@ stack_describe 'elasticsearch', '1.x', Esse::ClientProxy, '#update_mapping' do
       expect {
         cluster.api.update_mapping(index: index_name, type: 'dummy', body: {
           properties: {
-            name: { type: 'text' },
+            name: { type: 'string' },
           },
         })
       }.not_to raise_error
       mapping = client.indices.get_mapping(index: index_name)
       expect(mapping.dig(index_name, 'mappings', 'dummy', 'properties')).to eq(
-        'name' => { 'type' => 'text' },
+        'name' => { 'type' => 'string' },
       )
     end
   end
