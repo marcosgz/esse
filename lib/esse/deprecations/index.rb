@@ -3,7 +3,7 @@
 module Esse
   class Index
     class << self
-      extend Gem::Deprecate
+      extend Esse::Deprecations::Deprecate
 
       def define_type(name, *args, **kwargs, &block)
         repository(name, *args, **kwargs, &block)
@@ -16,11 +16,12 @@ module Esse
       deprecate :type_hash, :repo_hash, 2023, 12
 
       def elasticsearch
-        Esse::Deprecations::IndexBackendDelegator.new(self)
+        Esse::Deprecations::IndexBackendDelegator.new(:elasticsearch, self)
       end
-      alias_method :backend, :elasticsearch
-      deprecate :elasticsearch, 'Esse::Index.<elasticsearch.method>', 2023, 12
-      deprecate :backend, 'Esse::Index.<elasticsearch.method>', 2023, 12
+
+      def backend
+        Esse::Deprecations::IndexBackendDelegator.new(:backend, self)
+      end
     end
   end
 end

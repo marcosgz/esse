@@ -3,183 +3,215 @@
 module Esse
   module Deprecations
     class IndexBackendDelegator
-      extend Gem::Deprecate
+      extend Esse::Deprecations::Deprecate
 
-      def initialize(index)
+      def initialize(namespace, index)
+        @namespace = namespace
         @index = index
       end
 
       def aliases(**kwargs)
+        warning("#{@index}.#{@namespace}.aliases", "#{@index}.aliases", 2023, 12)
         @index.aliases(**kwargs)
       end
-      deprecate :aliases, 'Esse::Index.aliases', 2023, 12
 
       def indices(**kwargs)
+        warning("#{@index}.#{@namespace}.indices", "#{@index}.indices_pointing_to_alias", 2023, 12)
         @index.indices_pointing_to_alias(**kwargs)
       end
-      deprecate :indices, 'Esse::Index.indices_pointing_to_alias', 2023, 12
 
       def update_aliases!(**kwargs)
+        warning("#{@index}.#{@namespace}.update_aliases!", "#{@index}.update_aliases", 2023, 12)
         @index.update_aliases(**kwargs)
       end
-      deprecate :update_aliases!, 'Esse::Index.update_aliases', 2023, 12
 
       def update_aliases(**kwargs)
+        warning("#{@index}.#{@namespace}.update_aliases", "#{@index}.update_aliases", 2023, 12)
+
         @index.update_aliases(**kwargs)
       rescue Esse::Transport::NotFoundError
         { 'errors' => true }
       end
-      deprecate :update_aliases, 'Esse::Index.update_aliases', 2023, 12
 
       def create_index(**kwargs)
+        warning("#{@index}.#{@namespace}.create_index", "#{@index}.create_index", 2023, 12)
+
         @index.create_index(**kwargs)
       end
-      deprecate :create_index, 'Esse::Index.create_index', 2023, 12
 
       def create_index!(**kwargs)
+        warning("#{@index}.#{@namespace}.create_index!", "#{@index}.create_index", 2023, 12)
+
         @index.create_index(**kwargs)
       end
-      deprecate :create_index!, 'Esse::Index.create_index', 2023, 12
 
       def close(**kwargs)
+        warning("#{@index}.#{@namespace}.close", "#{@index}.close", 2023, 12)
+
         @index.close(**kwargs)
       end
-      deprecate :close, 'Esse::Index.close', 2023, 12
 
       def close!(**kwargs)
+        warning("#{@index}.#{@namespace}.close!", "#{@index}.close", 2023, 12)
+
         @index.close(**kwargs)
       end
-      deprecate :close!, 'Esse::Index.close', 2023, 12
 
       def open(**kwargs)
+        warning("#{@index}.#{@namespace}.open", "#{@index}.open", 2023, 12)
+
         @index.open(**kwargs)
       end
-      deprecate :open, 'Esse::Index.open', 2023, 12
 
       def open!(**kwargs)
+        warning("#{@index}.#{@namespace}.open!", "#{@index}.open", 2023, 12)
+
         @index.open(**kwargs)
       end
-      deprecate :open!, 'Esse::Index.open', 2023, 12
 
       def refresh(**kwargs)
+        warning("#{@index}.#{@namespace}.refresh", "#{@index}.refresh", 2023, 12)
+
         @index.refresh(**kwargs)
       end
-      deprecate :refresh, 'Esse::Index.refresh', 2023, 12
 
       def refresh!(**kwargs)
+        warning("#{@index}.#{@namespace}.refresh!", "#{@index}.refresh", 2023, 12)
+
         @index.refresh(**kwargs)
       end
-      deprecate :refresh!, 'Esse::Index.refresh', 2023, 12
 
       def delete_index(**kwargs)
+        warning("#{@index}.#{@namespace}.delete_index", "#{@index}.delete_index", 2023, 12)
+
         @index.delete_index(**kwargs)
       end
-      deprecate :delete_index, 'Esse::Index.delete_index', 2023, 12
 
       def delete_index!(**kwargs)
+        warning("#{@index}.#{@namespace}.delete_index!", "#{@index}.delete_index", 2023, 12)
+
         @index.delete_index(**kwargs)
       end
-      deprecate :delete_index!, 'Esse::Index.delete_index', 2023, 12
 
       def index_exist?(**kwargs)
+        warning("#{@index}.#{@namespace}.index_exist?", "#{@index}.index_exist?", 2023, 12)
+
         @index.index_exist?(**kwargs)
       end
-      deprecate :index_exist?, 'Esse::Index.index_exist?', 2023, 12
 
       def update_mapping!(**kwargs)
+        warning("#{@index}.#{@namespace}.update_mapping!", "#{@index}.update_mapping", 2023, 12)
+
         @index.update_mapping(**kwargs)
       end
-      deprecate :update_mapping!, 'Esse::Index.update_mapping', 2023, 12
 
       def update_mapping(**kwargs)
+        warning("#{@index}.#{@namespace}.update_mapping", "#{@index}.update_mapping", 2023, 12)
+
         @index.update_mapping(**kwargs)
       end
-      deprecate :update_mapping, 'Esse::Index.update_mapping', 2023, 12
 
       def update_settings!(**kwargs)
+        warning("#{@index}.#{@namespace}.update_settings!", "#{@index}.update_settings", 2023, 12)
+
         @index.update_settings(**kwargs)
       end
-      deprecate :update_settings!, 'Esse::Index.update_settings', 2023, 12
 
       def update_settings(**kwargs)
+        warning("#{@index}.#{@namespace}.update_settings", "#{@index}.update_settings", 2023, 12)
+
         @index.update_settings(**kwargs)
       end
-      deprecate :update_settings, 'Esse::Index.update_settings', 2023, 12
 
       def reset_index!(**kwargs)
+        warning("#{@index}.#{@namespace}.reset_index!", "#{@index}.reset_index", 2023, 12)
+
         @index.reset_index(**kwargs)
       end
-      deprecate :reset_index!, 'Esse::Index.reset_index', 2023, 12
 
       def import(**kwargs)
+        warning("#{@index}.#{@namespace}.import", "#{@index}.import", 2023, 12)
+
         @index.import(**kwargs)
       end
-      deprecate :import, 'Esse::Index.import', 2023, 12
 
       def import!(**kwargs)
+        warning("#{@index}.#{@namespace}.import!", "#{@index}.import", 2023, 12)
+
         @index.import(**kwargs)
       end
-      deprecate :import!, 'Esse::Index.import', 2023, 12
 
       def bulk!(**kwargs)
+        warning("#{@index}.#{@namespace}.bulk!", "#{@index}.bulk", 2023, 12)
+
         @index.bulk(**kwargs)
       end
-      deprecate :bulk!, 'Esse::Index.bulk', 2023, 12
 
       def bulk(**kwargs)
+        warning("#{@index}.#{@namespace}.bulk", "#{@index}.bulk", 2023, 12)
+
         @index.bulk(**kwargs)
       end
-      deprecate :bulk, 'Esse::Index.bulk', 2023, 12
 
       def index!(**kwargs)
+        warning("#{@index}.#{@namespace}.index!", "#{@index}.index", 2023, 12)
+
         @index.index(**kwargs)
       end
-      deprecate :index!, 'Esse::Index.index', 2023, 12
 
       def index(**kwargs)
+        warning("#{@index}.#{@namespace}.index", "#{@index}.index", 2023, 12)
+
         @index.index(**kwargs)
       end
-      deprecate :index, 'Esse::Index.index', 2023, 12
 
       def update!(**kwargs)
+        warning("#{@index}.#{@namespace}.update!", "#{@index}.update", 2023, 12)
+
         @index.update(**kwargs)
       end
-      deprecate :update!, 'Esse::Index.update', 2023, 12
 
       def update(**kwargs)
+        warning("#{@index}.#{@namespace}.update", "#{@index}.update", 2023, 12)
+
         @index.update(**kwargs)
       end
-      deprecate :update, 'Esse::Index.update', 2023, 12
 
       def delete!(**kwargs)
+        warning("#{@index}.#{@namespace}.delete!", "#{@index}.delete", 2023, 12)
+
         @index.delete(**kwargs)
       end
-      deprecate :delete!, 'Esse::Index.delete', 2023, 12
 
       def delete(**kwargs)
+        warning("#{@index}.#{@namespace}.delete", "#{@index}.delete", 2023, 12)
+
         @index.delete(**kwargs)
       end
-      deprecate :delete, 'Esse::Index.delete', 2023, 12
 
       def count(**kwargs)
+        warning("#{@index}.#{@namespace}.count", "#{@index}.count", 2023, 12)
+
         @index.count(**kwargs)
       end
-      deprecate :count, 'Esse::Index.count', 2023, 12
 
       def exist?(**kwargs)
+        warning("#{@index}.#{@namespace}.exist?", "#{@index}.exist?", 2023, 12)
+
         @index.exist?(**kwargs)
       end
-      deprecate :exist?, 'Esse::Index.exist?', 2023, 12
 
       def find!(**kwargs)
+        warning("#{@index}.#{@namespace}.find!", "#{@index}.get", 2023, 12)
+
         @index.get(**kwargs)
       end
-      deprecate :find!, 'Esse::Index.find', 2023, 12
 
       def find(**kwargs)
+        warning("#{@index}.#{@namespace}.find", "#{@index}.get", 2023, 12)
+
         @index.get(**kwargs)
       end
-      deprecate :find, 'Esse::Index.find', 2023, 12
     end
   end
 end

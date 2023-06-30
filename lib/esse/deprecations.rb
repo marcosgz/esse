@@ -1,3 +1,4 @@
+require_relative 'deprecations/deprecate'
 require_relative 'deprecations/index_backend_delegator'
 require_relative 'deprecations/index'
 require_relative 'deprecations/cluster'

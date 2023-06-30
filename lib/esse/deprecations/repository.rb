@@ -3,7 +3,7 @@
 module Esse
   class Repository
     class << self
-      extend Gem::Deprecate
+      extend Esse::Deprecations::Deprecate
 
       def type_name
         document_type

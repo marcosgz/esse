@@ -2,7 +2,7 @@
 
 module Esse
   class Cluster
-    extend Gem::Deprecate
+    extend Esse::Deprecations::Deprecate
 
     def index_settings
       settings
