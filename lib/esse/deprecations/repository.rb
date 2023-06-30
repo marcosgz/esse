@@ -8,12 +8,12 @@ module Esse
       def type_name
         document_type
       end
-      deprecate :type_name, :document_type, 2022, 10
+      deprecate :type_name, :document_type, 2023, 12
 
       def mappings(*args, &block)
         index.mappings(*args, &block)
       end
-      deprecate :mappings, 'Esse::Index.mappings', 2022, 10
+      deprecate :mappings, 'Esse::Index.mappings', 2023, 12
     end
   end
 end
