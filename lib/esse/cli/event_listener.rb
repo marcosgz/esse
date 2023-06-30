@@ -84,17 +84,16 @@ module Esse
       end
 
       def elasticsearch_bulk(event)
-        print_message("[%<runtime>s] Bulk index %<name>s%<type>s%<wait_interval>s: ",
+        print_message('[%<runtime>s] Bulk index %<name>s%<type>s%<wait_interval>s: ',
           runtime: formatted_runtime(event[:runtime]),
           name: colorize(event[:request][:index], :bold),
           type: (event[:request][:type] ? " for type #{colorize(event[:request][:type], :bold)}" : ''),
           wait_interval: (event[:wait_interval].nonzero? ? " (wait interval #{event[:wait_interval]}s)" : ''),
-          newline: false,
-        )
-        stats = event[:request][:body_stats].select {|_, v| v.nonzero? }.map do |type, count|
+          newline: false,)
+        stats = event[:request][:body_stats].select { |_, v| v.nonzero? }.map do |type, count|
           "#{colorize(type, :bold)}: #{count} docs"
         end
-        print_message(stats.join(", ") + ".")
+        print_message(stats.join(', ') + '.')
       end
     end
   end

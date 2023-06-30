@@ -79,10 +79,10 @@ class GeosIndex < ApplicationIndex
       },
       properties: {
         name: {
-          type: "keyword",
+          type: 'keyword',
           fields: {
             analyzed: {
-              type: "text",
+              type: 'text',
             }
           }
         }

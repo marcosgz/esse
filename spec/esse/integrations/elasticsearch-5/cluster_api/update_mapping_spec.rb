@@ -3,9 +3,9 @@
 require 'spec_helper'
 
 stack_describe 'elasticsearch', '5.x', Esse::ClientProxy, '#update_mapping' do
-  it "raises an Esse::Transport::ServerError exception when api throws an error" do
+  it 'raises an Esse::Transport::ServerError exception when api throws an error' do
     es_client do |client, _conf, cluster|
-      expect{
+      expect {
         cluster.api.update_mapping(index: 'esse_unknow_index_name_v1', type: 'dummy', body: {})
       }.to raise_error(Esse::Transport::ServerError)
     end

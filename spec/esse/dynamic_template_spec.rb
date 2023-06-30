@@ -31,13 +31,13 @@ RSpec.describe Esse::DynamicTemplate do
   describe '.merge!' do
     specify do
       model = described_class.new(nil)
-      model.merge!(foo: :bar)
+      model[:foo] = :bar
       expect(model.to_a).to eq([{ foo: :bar }])
     end
 
     specify do
       model = described_class.new('my_text_tpl' => { 'match_mapping_type' => 'text' },)
-      model.merge!('my_keyword_tpl' => { 'match_mapping_type' => 'keyword' })
+      model['my_keyword_tpl'] = { 'match_mapping_type' => 'keyword' }
       expect(model.to_a).to eq([
         { my_text_tpl: { match_mapping_type: 'text' } },
         { my_keyword_tpl: { match_mapping_type: 'keyword' } },
@@ -46,7 +46,7 @@ RSpec.describe Esse::DynamicTemplate do
 
     specify do
       model = described_class.new([{'my_text_tpl' => { 'match_mapping_type' => 'text' }}])
-      model.merge!('my_keyword_tpl' => { 'match_mapping_type' => 'keyword' })
+      model['my_keyword_tpl'] = { 'match_mapping_type' => 'keyword' }
       expect(model.to_a).to eq([
         { my_text_tpl: { match_mapping_type: 'text' } },
         { my_keyword_tpl: { match_mapping_type: 'keyword' } },

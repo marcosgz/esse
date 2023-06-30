@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.shared_examples "cluster_api#create_index" do
+RSpec.shared_examples 'cluster_api#create_index' do
   let(:body) do
     {
       settings: {
@@ -9,7 +9,7 @@ RSpec.shared_examples "cluster_api#create_index" do
       }
     }
   end
-  it "creates a new index with defined settings" do
+  it 'creates a new index with defined settings' do
     es_client do |client, _conf, cluster|
       index_name = "#{cluster.index_prefix}_dummies"
       resp = nil
@@ -24,7 +24,7 @@ RSpec.shared_examples "cluster_api#create_index" do
     end
   end
 
-  it "creates a new index and wait for configured global status" do
+  it 'creates a new index and wait for configured global status' do
     es_client do |client, _conf, cluster|
       index_name = "#{cluster.index_prefix}_dummies"
       expect(cluster).to receive(:wait_for_status!).with(
@@ -40,7 +40,7 @@ RSpec.shared_examples "cluster_api#create_index" do
     end
   end
 
-  it "creates a new index and wait for given status" do
+  it 'creates a new index and wait for given status' do
     es_client do |client, _conf, cluster|
       index_name = "#{cluster.index_prefix}_dummies"
       expect(cluster).to receive(:wait_for_status!).with(
@@ -56,12 +56,12 @@ RSpec.shared_examples "cluster_api#create_index" do
     end
   end
 
-  it "raises an exeption when api throws an error" do
+  it 'raises an exeption when api throws an error' do
     es_client do |client, _conf, cluster|
       index_name = "#{cluster.index_prefix}_dummies"
       cluster.api.create_index(index: index_name, body: body)
 
-      expect{
+      expect {
         cluster.api.create_index(index: index_name, body: body)
       }.to raise_error(Esse::Transport::BadRequestError)
     end

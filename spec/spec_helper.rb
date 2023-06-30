@@ -16,7 +16,7 @@ require 'securerandom'
 
 Hooks::ServiceVersion.banner!
 
-Dir[File.expand_path('support/shared_contexts/**/*.rb', __dir__)].each { |f| require f }
+Dir[File.expand_path('support/shared_contexts/**/*.rb', __dir__)].sort.each { |f| require f }
 
 RSpec.configure do |config|
   config.example_status_persistence_file_path = '.rspec_status'
@@ -25,7 +25,7 @@ RSpec.configure do |config|
   config.shared_context_metadata_behavior = :apply_to_host_groups
   config.filter_run_when_matching :focus
   if config.files_to_run.one?
-    config.default_formatter = "doc"
+    config.default_formatter = 'doc'
   end
   config.expect_with :rspec do |c|
     c.syntax = :expect

@@ -39,7 +39,6 @@ RSpec.describe Esse::CLI::Index, type: :cli do
         cli_exec(%w[index close CountiesIndex --suffix=foo])
       end
 
-
       it 'allows multiple indices' do
         expect(CountiesIndex).to receive(:close).and_return(true)
         expect(CitiesIndex).to receive(:close).and_return(true)

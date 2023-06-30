@@ -45,7 +45,7 @@ module Esse
           raise e if retry_count > 1 # only retry once on this error
           requests = balance_requests_size(e)
           Esse.logger.warn <<~MSG
-            Request entity too large, retrying with a bulk with: #{requests.map(&:bytesize).join(" + ")}.
+            Request entity too large, retrying with a bulk with: #{requests.map(&:bytesize).join(' + ')}.
             Note that this cause performance degradation, consider adjusting the batch_size of the index or increasing the bulk size.
           MSG
           retry

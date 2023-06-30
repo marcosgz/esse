@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.shared_examples "cluster_api#aliases" do
+RSpec.shared_examples 'cluster_api#aliases' do
   it 'retrieves the aliases for the given index' do
     es_client do |client, _conf, cluster|
       cluster.api.create_index(index: "#{cluster.index_prefix}_dummies_v1", body: {
@@ -16,7 +16,7 @@ RSpec.shared_examples "cluster_api#aliases" do
 
   it 'raises an exeption when api throws an error' do
     es_client do |client, _conf, cluster|
-      expect{
+      expect {
         cluster.api.aliases(name: 'esse_unknow_index_name')
       }.to raise_error(Esse::Transport::NotFoundError)
     end

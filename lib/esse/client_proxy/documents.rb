@@ -189,4 +189,3 @@ module Esse
     include InstanceMethods
   end
 end
-

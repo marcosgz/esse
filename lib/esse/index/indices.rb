@@ -157,7 +157,7 @@ module Esse
           begin
             response = cluster.api.update_settings(index: index_name(suffix: suffix), body: { analysis: analysis }, **options)
           ensure
-            open(suffix: suffix)
+            self.open(suffix: suffix)
           end
         end
 

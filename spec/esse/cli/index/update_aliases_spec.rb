@@ -40,7 +40,6 @@ RSpec.describe Esse::CLI::Index, type: :cli do
         cli_exec(%w[index update_aliases CountiesIndex --suffix=foo])
       end
 
-
       it 'allows multiple indices' do
         expect(CountiesIndex).to receive(:update_aliases).with(suffix: '123').and_return(true)
         expect(CitiesIndex).to receive(:update_aliases).with(suffix: '123').and_return(true)

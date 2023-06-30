@@ -69,10 +69,10 @@ RSpec.describe Esse::Import::Bulk do
         expect(requests[2]).to be_an_instance_of(Esse::Import::RequestBodyRaw)
 
         expect(requests[1].body).to eq(
-          "{\"delete\":{\"_id\":3}}\n{\"create\":{\"_id\":2}}\n{\"id\":2,\"source\":{\"name\":\"#{"Bbbb" * 100}\"}}\n"
+          "{\"delete\":{\"_id\":3}}\n{\"create\":{\"_id\":2}}\n{\"id\":2,\"source\":{\"name\":\"#{'Bbbb' * 100}\"}}\n"
         )
         expect(requests[2].body).to eq(
-          "{\"index\":{\"_id\":1}}\n{\"id\":1,\"source\":{\"name\":\"#{"Aaa" * 30}\"}}\n"
+          "{\"index\":{\"_id\":1}}\n{\"id\":1,\"source\":{\"name\":\"#{'Aaa' * 30}\"}}\n"
         )
       end
 
@@ -94,7 +94,7 @@ RSpec.describe Esse::Import::Bulk do
           "{\"delete\":{\"_id\":3}}\n"
         )
         expect(requests[2].body).to eq(
-          "{\"index\":{\"_id\":1}}\n{\"id\":1,\"source\":{\"name\":\"#{"Aaa" * 30}\"}}\n"
+          "{\"index\":{\"_id\":1}}\n{\"id\":1,\"source\":{\"name\":\"#{'Aaa' * 30}\"}}\n"
         )
       end
     end

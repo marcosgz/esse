@@ -13,7 +13,7 @@ module Esse
       def mappings(*args, &block)
         index.mappings(*args, &block)
       end
-      deprecate :mappings, "Esse::Index.mappings", 2022, 10
+      deprecate :mappings, 'Esse::Index.mappings', 2022, 10
     end
   end
 end

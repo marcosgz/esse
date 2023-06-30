@@ -31,7 +31,10 @@ module Esse
       end
 
       def index_prefix=(value)
-        return @index_prefix = nil if value == false
+        if value == false
+          @index_prefix = nil
+          return
+        end
 
         @index_prefix = Hstring.new(value.to_s).underscore.presence
       end

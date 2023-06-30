@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-RSpec.shared_examples "cluster_api#delete_index" do
-  it "raises an Esse::Transport::ServerError exception when api throws an error" do
+RSpec.shared_examples 'cluster_api#delete_index' do
+  it 'raises an Esse::Transport::ServerError exception when api throws an error' do
     es_client do |client, _conf, cluster|
-      expect{
+      expect {
         cluster.api.delete_index(index: 'esse_unknow_index_name_v1')
       }.to raise_error(Esse::Transport::ServerError)
     end

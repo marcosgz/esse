@@ -33,7 +33,7 @@ module ConfigHelpers
   def with_cluster_config(id: :default, **opts, &block)
     with_config { |c|
       c.cluster(id).assign(opts)
-      block.call if block
+      block&.call
     }
   end
 end
