@@ -204,7 +204,7 @@ module Esse
       def import(*repo_types, context: {}, suffix: nil, **options)
         repo_types = repo_hash.keys if repo_types.empty?
         count = 0
-        repo_hash.slice(*repo_types).each do |type, repo|
+        repo_hash.values_at(*repo_types).each do |repo|
           repo.each_serialized_batch(**(context || {})) do |batch|
             bulk(type: repo.document_type, index: batch, suffix: suffix, **options)
             count += batch.size
