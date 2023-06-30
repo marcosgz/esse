@@ -11,6 +11,10 @@ module Esse
       @hash = HashUtils.deep_merge(@hash, normalize(value))
     end
 
+    def []=(key, value)
+      merge!(key => value)
+    end
+
     def to_a
       @hash.map do |name, value|
         { name => value }

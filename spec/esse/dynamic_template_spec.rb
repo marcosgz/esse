@@ -28,7 +28,8 @@ RSpec.describe Esse::DynamicTemplate do
       expect(described_class.new([{test: { foo: :bar }}])).to be_any
     end
   end
-  describe '.merge!' do
+
+  describe '[]=' do
     specify do
       model = described_class.new(nil)
       model[:foo] = :bar
@@ -52,6 +53,33 @@ RSpec.describe Esse::DynamicTemplate do
         { my_keyword_tpl: { match_mapping_type: 'keyword' } },
       ])
     end
+  end
+
+  describe '.merge!' do
+    # rubocop:disable Performance/RedundantMerge
+    specify do
+      model = described_class.new(nil)
+      model.merge!(foo: :bar)
+      expect(model.to_a).to eq([{ foo: :bar }])
+    end
+
+    specify do
+      model = described_class.new('my_text_tpl' => { 'match_mapping_type' => 'text' },)
+      model.merge!('my_keyword_tpl' => { 'match_mapping_type' => 'keyword' })
+      expect(model.to_a).to eq([
+        { my_text_tpl: { match_mapping_type: 'text' } },
+        { my_keyword_tpl: { match_mapping_type: 'keyword' } },
+      ])
+    end
+
+    specify do
+      model = described_class.new([{'my_text_tpl' => { 'match_mapping_type' => 'text' }}])
+      model.merge!('my_keyword_tpl' => { 'match_mapping_type' => 'keyword' })
+      expect(model.to_a).to eq([
+        { my_text_tpl: { match_mapping_type: 'text' } },
+        { my_keyword_tpl: { match_mapping_type: 'keyword' } },
+      ])
+    end
 
     specify do
       model = described_class.new('my_text_tpl' => { 'match_mapping_type' => 'text' },)
@@ -67,6 +95,7 @@ RSpec.describe Esse::DynamicTemplate do
       model.merge!([{'my_text_tpl' => { 'match_mapping_type' => 'text' }}])
       expect(model.to_a).to eq([{ my_text_tpl: { match_mapping_type: 'text' } }])
     end
+    # rubocop:enable Performance/RedundantMerge
   end
 
   describe '.to_a' do
