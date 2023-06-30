@@ -21,8 +21,16 @@ module Esse
     # Elasticsearch::Transport was renamed to Elastic::Transport in 8.0
     # This lib should support both versions that's why we are wrapping up the transport
     # errors to local errors.
+    #
+    # We are not only coercing exceptions but also the response body. Elasticsearch-ruby >= 8.0 returns
+    # the response wrapped in a Elasticsearch::API::Response::Response object. We are unwrapping it
+    # to keep the same interface. But we may want to coerce it to some internal object in the future.
     def coerce_exception
-      yield
+      resp = yield
+      if resp.class.name.start_with?('Elasticsearch::API::Response')
+        resp = resp.body
+      end
+      resp
     rescue => exception
       name = Hstring.new(exception.class.name)
       if /^(Elasticsearch|Elastic|OpenSearch)?::Transport::Transport::Errors/.match?(name.value) && \

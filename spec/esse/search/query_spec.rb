@@ -65,7 +65,7 @@ RSpec.describe Esse::Search::Query do
           q: '*',
           timeout: '1m'
         ).definition
-      ).to include(index: 'events_2022,venues_2022', q: '*', timeout: '1m')
+      ).to include(index: "events_2022,#{VenuesIndex.index_name(suffix: '2022')}", q: '*', timeout: '1m')
     end
   end
 

@@ -8,7 +8,7 @@ RSpec.shared_examples 'index.count' do
   it 'raises an Esse::Transport::ServerError exception when api throws an error' do
     es_client do |client, _conf, cluster|
       expect {
-        GeosIndex.count(id: -1)
+        GeosIndex.count
       }.to raise_error(Esse::Transport::NotFoundError)
     end
   end

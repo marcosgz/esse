@@ -45,6 +45,9 @@ module ElasticsearchHelpers
     res[:headers] ||= {
       'Content-Type' => 'application/json',
     }
+    # elasticsearch-ruby >= 8.0 throws Elasticsearch::UnsupportedProductError if the response
+    # doesn't include the 'x-elastic-product' header
+    res[:headers]['x-elastic-product'] ||= 'Elasticsearch'
 
     uri = es_cluster_uri
     uri.path = path
