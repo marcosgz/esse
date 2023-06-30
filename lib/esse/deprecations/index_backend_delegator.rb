@@ -1,9 +1,13 @@
 # frozen_string_literal: true
 
 module Esse
-  module Backend
-    class Index
+  module Deprecations
+    class IndexBackendDelegator
       extend Gem::Deprecate
+
+      def initialize(index)
+        @index = index
+      end
 
       def aliases(**kwargs)
         @index.aliases(**kwargs)

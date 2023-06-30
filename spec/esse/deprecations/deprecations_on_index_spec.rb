@@ -32,4 +32,22 @@ RSpec.describe 'deprecations' do
       end
     end
   end
+
+  describe '.backend' do
+    specify do
+      c = Class.new(Esse::Index)
+      Gem::Deprecate.skip_during do
+        expect(c.backend).to be_an_instance_of(Esse::Deprecations::IndexBackendDelegator)
+      end
+    end
+  end
+
+  describe '.elasticsearch' do
+    specify do
+      c = Class.new(Esse::Index)
+      Gem::Deprecate.skip_during do
+        expect(c.elasticsearch).to be_an_instance_of(Esse::Deprecations::IndexBackendDelegator)
+      end
+    end
+  end
 end
