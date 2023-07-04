@@ -4,7 +4,7 @@ require 'spec_helper'
 
 # rubocop:disable convention:RSpec/FilePath
 RSpec.describe Esse::Repository, 'deprecations' do
-  describe '.type_name'  do
+  describe '.type_name' do
     before do
       stub_index(:comments) do
         repository :comment, const: true
@@ -66,6 +66,25 @@ RSpec.describe Esse::Repository, 'deprecations' do
       Gem::Deprecate.skip_during do
         expect(CommentsIndex::Comment.elasticsearch).to be_an_instance_of(Esse::Deprecations::RepositoryBackendDelegator)
       end
+    end
+  end
+
+  describe '.serializer' do
+    before do
+      stub_index(:comments) do
+        repository :comment, const: true
+      end
+    end
+
+    specify do
+      expect(CommentsIndex::Comment).to receive(:document).and_call_original
+      expect {
+        Gem::Deprecate.skip_during do
+          CommentsIndex::Comment.serializer do |object, **_ctx|
+            { id: object.id, name: object.name }
+          end
+        end
+      }.to change { CommentsIndex::Comment.instance_variable_get(:@document_proc) }.from(nil).to(an_instance_of(Proc))
     end
   end
 end

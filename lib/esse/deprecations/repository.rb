@@ -16,6 +16,12 @@ module Esse
         index.mappings(*args, &block)
       end
 
+      def serializer(*args, **kwargs, &block)
+        warning("#{self}.serializer", "#{self}.document", 2023, 12)
+
+        document(*args, **kwargs, &block)
+      end
+
       def elasticsearch
         Esse::Deprecations::RepositoryBackendDelegator.new(:elasticsearch, self)
       end

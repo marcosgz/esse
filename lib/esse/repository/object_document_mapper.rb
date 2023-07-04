@@ -37,7 +37,6 @@ module Esse
           raise ArgumentError, msg
         end
       end
-      alias serializer document # @TODO Move to deprecations
 
       def coerce_to_document(value)
         case value
