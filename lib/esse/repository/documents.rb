@@ -6,10 +6,6 @@ module Esse
       def import(**kwargs)
         index.import(repo_name, **kwargs)
       end
-
-      def import!(**kwargs)
-        index.import!(repo_name, **kwargs)
-      end
     end
 
     extend ClassMethods
