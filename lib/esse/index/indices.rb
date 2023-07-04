@@ -9,11 +9,11 @@ module Esse
 
       # Creates index and applies mappings and settings.
       #
-      #   UsersIndex.create_index # creates index named `<prefix_>users_<suffix|index_version|timestamp>`
+      #   UsersIndex.create_index # creates index named `<cluster.index_prefix>users<index_suffix>`
       #
       # @param options [Hash] Options hash
       # @option options [Boolean] :alias Update `index_name` alias along with the new index
-      # @option options [String] :suffix The index suffix. Defaults to the `IndexClass#index_version` or
+      # @option options [String] :suffix The index suffix. Defaults to the `IndexClass#index_suffix` or
       #   `Esse.timestamp`. Suffixed index names might be used for zero-downtime mapping change.
       # @option arguments [String] :wait_for_active_shards Set the number of active shards
       #    to wait for before the operation returns.
@@ -40,7 +40,7 @@ module Esse
 
       # Deletes, creates and imports data to the index. Performs zero-downtime index resetting.
       #
-      # @option options [String, nil] :suffix The index suffix. Defaults to the index_version.
+      # @option options [String, nil] :suffix The index suffix. Defaults to the index_suffix.
       #   A uniq index name will be generated if one index already exist with the given alias.
       # @option options [Time] :timeout Explicit operation timeout
       # @raise [Esse::Transport::ServerError]
@@ -48,7 +48,7 @@ module Esse
       # @return [Hash] the elasticsearch response
       #
       # @see https://www.elastic.co/guide/en/elasticsearch/reference/master/indices-open-close.html
-      def reset_index(suffix: index_version, import: true, reindex: false, **options)
+      def reset_index(suffix: index_suffix, import: true, reindex: false, **options)
         existing = []
         suffix ||= Esse.timestamp
         suffix = Esse.timestamp while index_exist?(suffix: suffix).tap { |exist| existing << suffix if exist }
@@ -80,7 +80,7 @@ module Esse
 
       # Deletes an existing index.
       #
-      #   UsersIndex.delete_index # deletes `<prefix_>users<_suffix|_index_version|_timestamp>` index
+      #   UsersIndex.delete_index # deletes `<cluster.index_prefix>users<index_suffix>` index
       #
       # @param suffix [String, nil] The index suffix Use nil if you want to delete the current index.
       # @raise [Esse::Transport::NotFoundError] when index does not exists

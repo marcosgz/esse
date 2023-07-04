@@ -28,7 +28,7 @@ module Esse
         Creates index and applies mapping and settings for the given classes.
 
         Indices are created with the following naming convention:
-        <cluster.index_prefix>_<index_class.index_name>_<index_class.index_version>.
+        <cluster.index_prefix>_<index_class.index_name>_<index_class.index_suffix>.
       DESC
       option :suffix, type: :string, default: nil, aliases: '-s', desc: 'Suffix to append to index name'
       option :alias, type: :boolean, default: false, aliases: '-a', desc: 'Update alias after create index'

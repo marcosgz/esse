@@ -51,7 +51,7 @@ class ApplicationIndex < Esse::Index
 end
 
 class GeosIndex < ApplicationIndex
-  self.index_version = 'v1'
+  self.index_suffix = 'v1'
 
   settings do
     {

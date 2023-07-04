@@ -143,16 +143,16 @@ RSpec.describe Esse::Index do
     end
   end
 
-  describe '.index_version' do
+  describe '.index_suffix' do
     before { stub_index(:users) }
 
     it 'does not have a default value' do
-      expect(UsersIndex.index_version).to eq(nil)
+      expect(UsersIndex.index_suffix).to eq(nil)
     end
 
-    it 'allows to modify the index_version value' do
-      UsersIndex.index_version = 'v1'
-      expect(UsersIndex.index_version).to eq('v1')
+    it 'allows to modify the index_suffix value' do
+      UsersIndex.index_suffix = 'v1'
+      expect(UsersIndex.index_suffix).to eq('v1')
     end
   end
 

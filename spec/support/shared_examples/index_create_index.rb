@@ -29,9 +29,9 @@ RSpec.shared_examples 'index.create_index' do
     end
   end
 
-  it 'uses the index_version suffix when defined' do
+  it 'uses the index_suffix suffix when defined' do
     es_client do |client, _conf, cluster|
-      GeosIndex.index_version = 'v2'
+      GeosIndex.index_suffix = 'v2'
       expect {
         GeosIndex.create_index
       }.to change { GeosIndex.indices_pointing_to_alias }.from([]).to(["#{GeosIndex.index_name}_v2"])

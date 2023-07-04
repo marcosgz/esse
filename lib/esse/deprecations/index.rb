@@ -15,6 +15,16 @@ module Esse
       end
       deprecate :type_hash, :repo_hash, 2023, 12
 
+      def index_version
+        index_suffix
+      end
+      deprecate :index_version, :index_suffix, 2023, 12
+
+      def index_version=(value)
+        self.index_suffix = value
+      end
+      deprecate :index_version=, :index_suffix=, 2023, 12
+
       def elasticsearch
         Esse::Deprecations::IndexBackendDelegator.new(:elasticsearch, self)
       end

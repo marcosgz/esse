@@ -33,6 +33,29 @@ RSpec.describe 'deprecations' do
     end
   end
 
+  describe 'Esse::Index.index_version' do
+    let(:index) { Class.new(Esse::Index) }
+    specify do
+      expect(index).to receive(:index_suffix).once.and_return('v1')
+      Gem::Deprecate.skip_during do
+        expect(index.index_version).to eq('v1')
+      end
+    end
+  end
+
+  describe 'Esse::Index.index_version=' do
+    let(:index) { Class.new(Esse::Index) }
+
+    specify do
+      expect(index).to receive(:index_suffix=).once.with('v1').and_call_original
+      Gem::Deprecate.skip_during do
+        index.index_version = 'v1'
+      end
+
+      expect(index.index_suffix).to eq('v1')
+    end
+  end
+
   describe '.backend' do
     specify do
       c = Class.new(Esse::Index)
