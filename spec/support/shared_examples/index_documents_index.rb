@@ -106,7 +106,7 @@ RSpec.shared_examples 'index.index' do |doc_type: false|
     end
   end
 
-  it 'indexes the document using the instance of Esse::Serializer' do |example|
+  it 'indexes the document using the instance of Esse::Document' do |example|
     es_client do |client, _conf, cluster|
       VenuesIndex.create_index(alias: true)
 

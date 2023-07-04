@@ -5,7 +5,7 @@ require 'ostruct'
 
 RSpec.describe Esse::Repository do
   describe '.serialize' do
-    context 'without a serializer definition' do
+    context 'without a document definition' do
       before { stub_index(:dummies) { repository(:dummy) } }
 
       specify do
@@ -13,19 +13,19 @@ RSpec.describe Esse::Repository do
           DummiesIndex::Dummy.serialize(double)
         }.to raise_error(
           NotImplementedError,
-          'there is no "dummy" serializer defined for the "DummiesIndex" index',
+          'there is no "dummy" document defined for the "DummiesIndex" index',
         )
       end
     end
 
-    context 'with a serializer definition' do
+    context 'with a document definition' do
       let(:dummy) { double(id: 1) }
       let(:optionals) { { name: 'dummy' } }
 
       before do
         stub_index(:dummies) do
           repository(:dummy) do
-            serializer do |entry, **context|
+            document do |entry, **context|
               {
                 _id: entry.id,
               }.merge(context)
@@ -61,7 +61,7 @@ RSpec.describe Esse::Repository do
               end
             end
 
-            serializer do |entry|
+            document do |entry|
               {
                 _id: entry.id,
                 name: entry.name,
@@ -102,7 +102,7 @@ RSpec.describe Esse::Repository do
               end
             end
 
-            serializer do |entry, **context|
+            document do |entry, **context|
               {
                 _id: entry.id,
                 name: (context[:uppercase] ? entry.name.upcase : entry.name),
@@ -139,7 +139,7 @@ RSpec.describe Esse::Repository do
         )
       end
 
-      it 'yields serialized objects with serializer scope' do
+      it 'yields serialized objects with document scope' do
         expected_data = []
         expect {
           StatesIndex::State.each_serialized_batch(uppercase: true) { |hash| expected_data << hash }
@@ -171,7 +171,7 @@ RSpec.describe Esse::Repository do
               end
             end
 
-            serializer do |entry|
+            document do |entry|
               {
                 _id: entry.id,
                 name: entry.name,
@@ -209,7 +209,7 @@ RSpec.describe Esse::Repository do
               end
             end
 
-            serializer do |entry, **context|
+            document do |entry, **context|
               {
                 _id: entry.id,
                 name: (context[:uppercase] ? entry.name.upcase : entry.name),
@@ -241,38 +241,38 @@ RSpec.describe Esse::Repository do
     end
   end
 
-  describe '.serializer' do
+  describe '.document' do
     specify do
       klass = nil
       expect {
         klass = Class.new(Esse::Index) do
           repository :foo do
-            serializer do
+            document do
             end
           end
         end
       }.not_to raise_error
-      expect(klass.repo(:foo).instance_variable_get(:@serializer_proc)).to be_a_kind_of(Proc)
+      expect(klass.repo(:foo).instance_variable_get(:@document_proc)).to be_a_kind_of(Proc)
     end
 
     specify do
       expect {
         Class.new(Esse::Index) do
           repository :foo do
-            serializer
+            document
           end
         end
-      }.to raise_error(ArgumentError, "nil is not a valid serializer. The serializer should inherit from Esse::Serializer or respond to `to_h'")
+      }.to raise_error(ArgumentError, "nil is not a valid document. The document should inherit from Esse::Document or respond to `to_h'")
     end
 
     specify do
       expect {
         Class.new(Esse::Index) do
           repository :foo do
-            serializer :invalid
+            document :invalid
           end
         end
-      }.to raise_error(ArgumentError, ":invalid is not a valid serializer. The serializer should inherit from Esse::Serializer or respond to `to_h'")
+      }.to raise_error(ArgumentError, ":invalid is not a valid document. The document should inherit from Esse::Document or respond to `to_h'")
     end
 
     specify do
@@ -280,14 +280,14 @@ RSpec.describe Esse::Repository do
       expect {
         klass = Class.new(Esse::Index) do
           repository :foo do
-            serializer(Class.new {
+            document(Class.new {
               def as_json
               end
             })
           end
         end
       }.not_to raise_error
-      expect(klass.repo(:foo).instance_variable_get(:@serializer_proc)).to be_a_kind_of(Proc)
+      expect(klass.repo(:foo).instance_variable_get(:@document_proc)).to be_a_kind_of(Proc)
     end
 
     specify do
@@ -295,14 +295,14 @@ RSpec.describe Esse::Repository do
       expect {
         klass = Class.new(Esse::Index) do
           repository :foo do
-            serializer(Class.new {
+            document(Class.new {
               def to_h
               end
             })
           end
         end
       }.not_to raise_error
-      expect(klass.repo(:foo).instance_variable_get(:@serializer_proc)).to be_a_kind_of(Proc)
+      expect(klass.repo(:foo).instance_variable_get(:@document_proc)).to be_a_kind_of(Proc)
     end
 
     specify do
@@ -310,14 +310,14 @@ RSpec.describe Esse::Repository do
       expect {
         klass = Class.new(Esse::Index) do
           repository :foo do
-            serializer(Class.new {
+            document(Class.new {
               def call
               end
             })
           end
         end
       }.not_to raise_error
-      expect(klass.repo(:foo).instance_variable_get(:@serializer_proc)).to be_a_kind_of(Proc)
+      expect(klass.repo(:foo).instance_variable_get(:@document_proc)).to be_a_kind_of(Proc)
     end
   end
 
@@ -327,21 +327,21 @@ RSpec.describe Esse::Repository do
     specify do
       expect {
         StatesIndex::State.coerce_to_document(:invalid)
-      }.to raise_error(ArgumentError, ':invalid is not a valid document. The document should be a hash or an instance of Esse::Serializer')
+      }.to raise_error(ArgumentError, ':invalid is not a valid document. The document should be a hash or an instance of Esse::Document')
     end
 
     specify do
       expect {
         StatesIndex::State.coerce_to_document(OpenStruct.new)
-      }.to raise_error(ArgumentError, '#<OpenStruct> is not a valid document. The document should be a hash or an instance of Esse::Serializer')
+      }.to raise_error(ArgumentError, '#<OpenStruct> is not a valid document. The document should be a hash or an instance of Esse::Document')
     end
 
     specify do
       expected_object = nil
       expect {
-        expected_object = StatesIndex::State.coerce_to_document(Esse::Serializer.new(nil))
+        expected_object = StatesIndex::State.coerce_to_document(Esse::Document.new(nil))
       }.not_to raise_error
-      expect(expected_object).to be_a(Esse::Serializer)
+      expect(expected_object).to be_a(Esse::Document)
     end
 
     specify do
@@ -349,7 +349,7 @@ RSpec.describe Esse::Repository do
       expect {
         expected_object = StatesIndex::State.coerce_to_document({id: 1})
       }.not_to raise_error
-      expect(expected_object).to be_a(Esse::HashDocument)
+      expect(expected_object).to be_a(Esse::Document)
     end
 
     specify do

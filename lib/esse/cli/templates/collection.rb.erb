@@ -13,7 +13,7 @@ class <%= @index_name %> < <%= @base_class %>
           break if rows.none?
           offset += 1
           yield(rows)
-          # You may also preload associations here or add metadata useful for the serializer
+          # You may also preload associations here or add metadata useful for the document
           # yield(rows, **preload_associations(rows))
         end
       end

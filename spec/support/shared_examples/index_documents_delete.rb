@@ -69,7 +69,7 @@ RSpec.shared_examples 'index.delete' do |doc_type: false|
     end
   end
 
-  it 'deletes the document using the instance of Esse::Serializer' do |example|
+  it 'deletes the document using the instance of Esse::Document' do |example|
     es_client do |client, _conf, cluster|
       VenuesIndex.create_index(alias: true, suffix: index_suffix)
       VenuesIndex.import(refresh: true, suffix: index_suffix, **params)

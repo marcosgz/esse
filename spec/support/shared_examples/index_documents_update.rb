@@ -75,7 +75,7 @@ RSpec.shared_examples 'index.update' do |doc_type: false|
     end
   end
 
-  it 'updates the document using the instance of Esse::Serializer' do |example|
+  it 'updates the document using the instance of Esse::Document' do |example|
     es_client do |client, _conf, cluster|
       VenuesIndex.create_index(alias: true)
       VenuesIndex.import(refresh: true, **params)

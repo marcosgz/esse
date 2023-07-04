@@ -3,7 +3,7 @@
 RSpec.shared_examples 'index.get with routing' do
   include_context 'with venues index definition'
 
-  it 'returns the document the instance of Esse::Serializer with routing' do
+  it 'returns the document the instance of Esse::Document with routing' do
     es_client do |client, _conf, cluster|
       VenuesIndex.create_index
       VenuesIndex.import(refresh: true, routing: 'geo')

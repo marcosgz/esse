@@ -51,7 +51,7 @@ RSpec.shared_examples 'index.get' do
     end
   end
 
-  it 'returns the document the instance of Esse::Serializer' do
+  it 'returns the document the instance of Esse::Document' do
     es_client do |client, _conf, cluster|
       VenuesIndex.create_index
       VenuesIndex.import(refresh: true)

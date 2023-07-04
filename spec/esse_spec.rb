@@ -81,9 +81,9 @@ RSpec.describe Esse do
     specify { expect(Esse.document?(Class.new.new)).to eq(false) }
     specify { expect(Esse.document?(Class.new(Esse::Index).new)).to eq(false) }
 
-    context 'with a class that inherit Esse::Serializer' do
+    context 'with a class that inherit Esse::Document' do
       let(:doc_class) do
-        Class.new(Esse::Serializer) do
+        Class.new(Esse::Document) do
           def initialize(*)
           end
 

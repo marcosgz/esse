@@ -12,7 +12,7 @@ stack_describe 'elasticsearch', '7.x', 'elasticsearch#scroll' do
             { '_id' => 'ca', 'name' => 'Canada' }
           ]
         end
-        serializer { |geo| Esse::HashDocument.new(geo) }
+        document { |geo| Esse::HashDocument.new(geo) }
       end
     end
   end

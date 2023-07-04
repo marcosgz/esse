@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe Esse::Serializer do
+RSpec.describe Esse::Document do
   let(:serializer) { described_class.new(object, **options) }
   let(:object) { double }
   let(:options) { {} }

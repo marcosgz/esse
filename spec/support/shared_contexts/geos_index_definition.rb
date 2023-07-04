@@ -31,8 +31,8 @@ RSpec.shared_context 'with geos index definition' do
   let(:total_states) { states_batches.flatten.size }
   let(:total_geos) { total_counties + total_states }
 
-  let(:geo_serializer) do
-    Class.new(Esse::Serializer) do
+  let(:geo_document) do
+    Class.new(Esse::Document) do
       def id
         object.id
       end
@@ -46,12 +46,12 @@ RSpec.shared_context 'with geos index definition' do
     end
   end
 
-  let(:state_serializer) do
-    geo_serializer
+  let(:state_document) do
+    geo_document
   end
 
-  let(:county_serializer) do
-    geo_serializer
+  let(:county_document) do
+    geo_document
   end
 
   before do
@@ -60,9 +60,9 @@ RSpec.shared_context 'with geos index definition' do
       state: states_batches,
       county: counties_batches
     }
-    serializers = {
-      state: state_serializer,
-      county: county_serializer
+    documents = {
+      state: state_document,
+      county: county_document
     }
     stub_index(:geos) do
       repository :state do
@@ -72,7 +72,7 @@ RSpec.shared_context 'with geos index definition' do
             block.call(states, **context) unless states.empty?
           end
         end
-        serializer serializers.fetch(:state)
+        document documents.fetch(:state)
       end
       repository :county do
         collection do |**context, &block|
@@ -81,7 +81,7 @@ RSpec.shared_context 'with geos index definition' do
             block.call(counties, **context) unless counties.empty?
           end
         end
-        serializer serializers.fetch(:county)
+        document documents.fetch(:county)
       end
     end
   end

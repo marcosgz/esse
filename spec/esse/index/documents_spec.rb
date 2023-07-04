@@ -21,7 +21,7 @@ RSpec.describe Esse::Index do
             end
           end
 
-          serializer do |entry, **context|
+          document do |entry, **context|
             {
               _id: entry.id,
               name: (context[:uppercase] ? entry.name.upcase : entry.name),
@@ -58,7 +58,7 @@ RSpec.describe Esse::Index do
       )
     end
 
-    it 'yields serialized objects with serializer scope' do
+    it 'yields serialized objects with scope' do
       expected_data = []
       expect {
         StatesIndex.each_serialized_batch(uppercase: true) { |hash| expected_data << hash }
@@ -90,7 +90,7 @@ RSpec.describe Esse::Index do
               block.call(data, labels: labels)
             end
 
-            serializer do |struct, labels:, **_|
+            document do |struct, labels:, **_|
               {
                 _id: struct.id,
                 name: labels[struct.id],
@@ -124,7 +124,7 @@ RSpec.describe Esse::Index do
               block.call([[1, {}], [2, {}]], labels: labels)
             end
 
-            serializer do |datum, labels:, **_|
+            document do |datum, labels:, **_|
               id, _ = datum
               { _id: id, name: labels[id] }
             end
@@ -163,7 +163,7 @@ RSpec.describe Esse::Index do
             end
           end
 
-          serializer do |entry, **context|
+          document do |entry, **context|
             {
               _id: entry.id,
               name: (context[:uppercase] ? entry.name.upcase : entry.name),

@@ -8,7 +8,7 @@ module Esse
       #   UsersIndex.get(id: 1) # { '_id' => 1, ... }
       #   UsersIndex.get(id: 'missing') # raise Esse::Transport::NotFoundError
       #
-      # @param doc [Esse::Serializer] the document to retrieve
+      # @param doc [Esse::Document] the document to retrieve
       # @param options [Hash] Hash of paramenters that will be passed along to elasticsearch request
       # @option [String, Integer] :id The `_id` of the elasticsearch document
       # @option [String, NilClass] :type The type of the document (Optional for elasticsearch >= 7)
@@ -34,7 +34,7 @@ module Esse
       #   UsersIndex.exist?(id: 1) # true
       #   UsersIndex.exist?(id: 'missing') # false
       #
-      # @param doc [Esse::Serializer] the document to retrieve
+      # @param doc [Esse::Document] the document to retrieve
       # @param options [Hash] Hash of paramenters that will be passed along to elasticsearch request
       # @option [String, Integer] :id The `_id` of the elasticsearch document
       # @option [String, NilClass] :type The type of the document (Optional for elasticsearch >= 7)
@@ -77,7 +77,7 @@ module Esse
       #   UsersIndex.delete(id: 1) # true
       #   UsersIndex.delete(id: 'missing') # false
       #
-      # @param doc [Esse::Serializer] the document to retrieve
+      # @param doc [Esse::Document] the document to retrieve
       # @param options [Hash] Hash of paramenters that will be passed along to elasticsearch request
       # @option [String, Integer] :id The `_id` of the elasticsearch document
       # @option [String, NilClass] :type The type of the document (Optional for elasticsearch >= 7)
@@ -160,9 +160,9 @@ module Esse
       #
       # @param options [Hash] Hash of paramenters that will be passed along to elasticsearch request
       # @option [String, nil] :suffix The index suffix. Defaults to the nil.
-      # @option [Array] :index list of serialized documents to be indexed(Optional)
-      # @option [Array] :delete list of serialized documents to be deleted(Optional)
-      # @option [Array] :create list of serialized documents to be created(Optional)
+      # @option [Array<Esse::Document>] :index list of documents to be indexed(Optional)
+      # @option [Array<Esse::Document>] :delete list of documents to be deleted(Optional)
+      # @option [Array<Esse::Document>] :create list of documents to be created(Optional)
       # @option [String, NilClass] :type The type of the document (Optional for elasticsearch >= 7)
       # @return [Array<Esse::Import::RequestBody>] The list of request bodies. @TODO Change this to a Stats object
       #

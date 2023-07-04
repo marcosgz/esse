@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 class <%= @index_name %> < <%= @base_class %>
-  module Serializers
-    class <%= @type.camelize if @type %>Serializer < Esse::Serializer
+  module Documents
+    class <%= @type.camelize if @type %>Document < Esse::Document
       <%- if @cli_options[:active_record] -%>
       delegate :id, to: :object
       <%- else -%>

@@ -24,7 +24,7 @@ RSpec.shared_context 'with venues index definition' do
         collection do |**context, &block|
           block.call(ds, **context) unless ds.empty?
         end
-        serializer do |venue, **context|
+        document do |venue, **context|
           {
             _id: venue[:id],
             name: venue[:name],

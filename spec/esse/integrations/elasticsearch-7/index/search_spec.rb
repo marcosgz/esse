@@ -6,10 +6,7 @@ stack_describe 'elasticsearch', '7.x', 'elasticsearch#search' do
     reset_config!
     stub_index(:geos) do
       repository :country do
-        # collection do |**, &block|
-        #   block.call [{ '_id' => 'us', 'name' => 'United States' }, { '_id' => 'ca', 'name' => 'Canada' }]
-        # end
-        # serializer { |geo| geo }
+
       end
     end
   end

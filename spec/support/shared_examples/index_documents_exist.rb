@@ -57,7 +57,7 @@ RSpec.shared_examples 'index.exist?' do
     end
   end
 
-  it 'checks the document existence using the instance of Esse::Serializer' do
+  it 'checks the document existence using the instance of Esse::Document' do
     es_client do |client, _conf, cluster|
       VenuesIndex.create_index
       VenuesIndex.import(refresh: true)

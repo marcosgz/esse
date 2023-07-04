@@ -97,7 +97,7 @@ class GeosIndex < ApplicationIndex
       end
     end
 
-    serializer do |(state, name), **|
+    document do |(state, name), **|
       {
         name: name,
         routing: state,
@@ -112,7 +112,7 @@ class GeosIndex < ApplicationIndex
       end
     end
 
-    serializer do |(abbr, name), **|
+    document do |(abbr, name), **|
       {
         id: abbr,
         name: name,

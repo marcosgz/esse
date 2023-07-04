@@ -247,13 +247,13 @@ or with multiple datasources as document types:
 As default, the index will be create d with the collection, serializer, settings, mapping directly to the index class. By you can also specify custom arguments to better organize your code by splitting the it into multiple files.
 
 ```bash
-❯  ./exec/esse generate index GeosIndex state city --settings --mappings --serializers --collections                                                                           [ruby-2.6.9p207]
+❯  ./exec/esse generate index GeosIndex state city --settings --mappings --documents --collections
       create  app/indices/geos_index.rb
       create  app/indices/geos_index/templates/settings.json
       create  app/indices/geos_index/templates/mappings.json
-      create  app/indices/geos_index/serializers/state_serializer.rb
+      create  app/indices/geos_index/documents/state_document.rb
       create  app/indices/geos_index/collections/state_collection.rb
-      create  app/indices/geos_index/serializers/city_serializer.rb
+      create  app/indices/geos_index/documents/city_document.rb
       create  app/indices/geos_index/collections/city_collection.rb
 ```
 
