@@ -9,7 +9,12 @@ module Esse
         validate_options!
         indices.each do |index|
           if !index.mapping_single_type?
-            index.repo_hash.values.map(&:document_type).uniq.each do |doc_type|
+            # Elasticsearch 6.x and older have multiple types per index.
+            # This gem supports multiple types per index for backward compatibility, but we recommend to update
+            # your elasticsearch to a at least 7.x version and use a single type per index.
+            #
+            # Note that the repository name will be used as the document type.
+            index.repo_hash.keys.each do |doc_type|
               index.update_mapping(type: doc_type, **options)
             end
           else

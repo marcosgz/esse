@@ -9,7 +9,6 @@ module Esse
       # This methods will be defined using meta programming in the index respository definition
       # @see Esse::Index::Type.repository
       attr_reader :index
-      attr_accessor :document_type # @TODO fixme! The doc type should be per document not per repository
     end
     require_relative 'repository/actions'
     require_relative 'repository/documents'

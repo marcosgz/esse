@@ -6,7 +6,7 @@ module Esse
       extend Esse::Deprecations::Deprecate
 
       def type_name
-        document_type
+        repo_name
       end
       deprecate :type_name, :repo_type, 2023, 12
 

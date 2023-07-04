@@ -204,9 +204,14 @@ module Esse
       def import(*repo_types, context: {}, suffix: nil, **options)
         repo_types = repo_hash.keys if repo_types.empty?
         count = 0
-        repo_hash.values_at(*repo_types).each do |repo|
+        repo_hash.slice(*repo_types).each do |repo_name, repo|
           repo.each_serialized_batch(**(context || {})) do |batch|
-            bulk(type: repo.document_type, index: batch, suffix: suffix, **options)
+            # Elasticsearch 6.x and older have multiple types per index.
+            # This gem supports multiple types per index for backward compatibility, but we recommend to update
+            # your elasticsearch to a at least 7.x version and use a single type per index.
+            #
+            # Note that the repository name will be used as the document type.
+            bulk(type: repo_name, index: batch, suffix: suffix, **options)
             count += batch.size
           end
         end
