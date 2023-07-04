@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Esse
-  class Document #@TODO Rename to Document
+  class Document
     attr_reader :object, :options
 
     def initialize(object, **options)
