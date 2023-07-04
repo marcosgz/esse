@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Esse
-  class Serializer
+  class Serializer #@TODO Rename to Document
     attr_reader :object, :options
 
     def initialize(object, **options)
@@ -36,6 +36,11 @@ module Esse
     def routing?
       !routing.nil?
     end
+
+    # @TODO allow import, index, bulk to accept a suffix to tell which index to use
+    # def index_suffix
+    #   nil
+    # end
 
     # @return [Hash] the document meta
     # @abstract Override this method to return the document meta

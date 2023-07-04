@@ -21,6 +21,8 @@ module Esse
         Reset.new(indices: index_classes, **options.to_h.transform_keys(&:to_sym)).run
       end
 
+      # @TODO Add reindex task to create a new index and import documents from the old index using _reindex API
+
       desc 'create *INDEX_CLASSES', 'Creates indices for the given classes'
       long_desc <<-DESC
         Creates index and applies mapping and settings for the given classes.

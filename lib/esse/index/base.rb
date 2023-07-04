@@ -40,6 +40,7 @@ module Esse
       #   # Using :default cluster
       #   class UsersIndex < Esse::Index
       #   end
+      # @TODO Remove this or add some cache to avoid creating a new class every time
       def Index(source) # rubocop:disable Naming/MethodName
         klass = Class.new(self)
 

@@ -22,6 +22,7 @@ module Esse
       #
       # @yield [RequestBody] A request body instance
       def each_request(max_retries: 3)
+        # @TODO create indexes when by checking all the index suffixes (if mapping is not empty)
         requests = [optimistic_request]
         retry_count = 0
 
