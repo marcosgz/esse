@@ -7,6 +7,9 @@ require_relative '<%= @index_name.demodulize.underscore.to_s %>/collections/<%= 
 require_relative '<%= @index_name.demodulize.underscore.to_s %>/documents/<%= type.underscore %>_document'
 <%- end if @cli_options[:documents] -%>
 class <%= @index_name %> < <%= @base_class %>
+  <%-if @index_cluster_id -%>
+  self.cluster_id = :<%= @index_cluster_id %>
+  <%- end -%>
   <%- if @cli_options[:active_record] -%>
   plugin :active_record
 

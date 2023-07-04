@@ -150,11 +150,12 @@ end
 And on the index you can use the `:il` or `:fl` identifier to specify which cluster you want to use.
 
 ```ruby
-class Illinois::AccountsIndex < Esse::Index(:il)
+class Illinois::AccountsIndex < Esse::Index
+  self.cluster_id = :il
   ...
 end
-class Florida::AccountsIndex < Esse::Index(:fl)
-  ...
+class Florida::AccountsIndex < Esse::Index
+  self.cluster_id = :fl
 end
 ```
 

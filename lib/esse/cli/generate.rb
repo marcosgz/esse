@@ -26,9 +26,7 @@ module Esse
         @index_name = Hstring.new(@index_name)
         @types = types.map { |type| Hstring.new(type) }
         @base_class = base_index_class(*ns_path)
-        if options[:cluster_id]
-          @base_class += format('(:%s)', options[:cluster_id])
-        end
+        @index_cluster_id = options[:cluster_id]
         @cli_options = options
 
         base_dir = Esse.config.indices_directory.join(*ns_path.map { |n| Hstring.new(n).underscore.to_s })
