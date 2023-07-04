@@ -21,8 +21,7 @@ module Esse
       def validate_options!
         validate_indices_option!
 
-        # @TODO Allow multiple suffixes to be specified
-        if @options[:suffix].nil?
+        if @options[:suffix].nil? || @options[:suffix].empty?
           raise InvalidOption.new(<<~END)
             You must specify a suffix to update the aliases.
           END

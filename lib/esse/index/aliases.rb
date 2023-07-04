@@ -24,7 +24,7 @@ module Esse
       # Replaces all existing aliases by the respective suffixed index from argument.
       #
       # @param options [Hash] Hash of paramenters that will be passed along to elasticsearch request
-      # @option [String] :suffix The suffix of the index used for versioning.
+      # @option [Array<String>] :suffix One or more index suffixes to point the alias to.
       # @raise [Esse::Transport::ServerError] in case of failure
       # @return [Hash] the elasticsearch response
       def update_aliases(suffix:, **options)
@@ -35,7 +35,9 @@ module Esse
             *indices_pointing_to_alias.map do |index|
               { remove: { index: index, alias: index_name } }
             end,
-            { add: {index: build_real_index_name(suffix), alias: index_name } }
+            *Array(suffix).map do |value|
+              { add: { index: build_real_index_name(value), alias: index_name } }
+            end,
           ],
         }
         cluster.api.update_aliases(**options)
