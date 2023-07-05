@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Esse
-  class NullDocument < Esse::Serializer
+  class NullDocument < Esse::Document
     def initialize
       @object = nil
       @options = {}

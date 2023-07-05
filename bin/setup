@@ -3,5 +3,5 @@ set -euo pipefail
 IFS=$'\n\t'
 set -vx
 
-find ci -type f \( -iname "Gemfile.elasticsearch-*" ! -iname "*.lock" \) -exec bundle install --gemfile {} \;
-find ci -type f \( -iname "Gemfile.opensearch-*" ! -iname "*.lock" \) -exec bundle install --gemfile {} \;
+find gemfiles -type f \( -iname "Gemfile.elasticsearch-*" ! -iname "*.lock" \) -exec bundle install --gemfile {} \;
+find gemfiles -type f \( -iname "Gemfile.opensearch-*" ! -iname "*.lock" \) -exec bundle install --gemfile {} \;

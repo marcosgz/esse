@@ -36,17 +36,23 @@ RSpec.describe Esse::CLI::Index, type: :cli do
       end
 
       specify do
-        expect(CountiesIndex).to receive(:elasticsearch).at_least(1).and_return(api = double)
-        expect(api).to receive(:update_aliases!).with(suffix: 'foo').and_return(true)
+        expect(CountiesIndex).to receive(:update_aliases).with(suffix: %w[foo]).and_return(true)
         cli_exec(%w[index update_aliases CountiesIndex --suffix=foo])
       end
 
+      specify do
+        expect(CountiesIndex).to receive(:update_aliases).with(suffix: %w[foo bar]).and_return(true)
+        cli_exec(%w[index update_aliases CountiesIndex --suffix=foo --suffix=bar])
+      end
+
+      specify do
+        expect(CountiesIndex).to receive(:update_aliases).with(suffix: %w[foo bar]).and_return(true)
+        cli_exec(%w[index update_aliases CountiesIndex --suffix=foo,bar])
+      end
 
       it 'allows multiple indices' do
-        expect(CountiesIndex).to receive(:elasticsearch).at_least(1).and_return(api1 = double)
-        expect(CitiesIndex).to receive(:elasticsearch).at_least(1).and_return(api2 = double)
-        expect(api1).to receive(:update_aliases!).with(suffix: '123').and_return(true)
-        expect(api2).to receive(:update_aliases!).with(suffix: '123').and_return(true)
+        expect(CountiesIndex).to receive(:update_aliases).with(suffix: %w[123]).and_return(true)
+        expect(CitiesIndex).to receive(:update_aliases).with(suffix: %w[123]).and_return(true)
         cli_exec(%w[index update_aliases CountiesIndex CitiesIndex --suffix=123])
       end
     end

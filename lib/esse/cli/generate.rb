@@ -16,7 +16,7 @@ module Esse
       desc 'index NAME *TYPES', 'Creates a new index'
       option :settings, type: :boolean, default: false, desc: 'Generate settings'
       option :mappings, type: :boolean, default: false, desc: 'Generate mappings'
-      option :serializers, type: :boolean, default: false, desc: 'Generate serializers'
+      option :documents, type: :boolean, default: false, desc: 'Generate documents'
       option :collections, type: :boolean, default: false, desc: 'Generate collections'
       option :active_record, type: :boolean, default: false, desc: 'Generate ActiveRecord models'
       option :cluster_id, type: :string, desc: 'Elasticsearch cluster ID'
@@ -26,9 +26,7 @@ module Esse
         @index_name = Hstring.new(@index_name)
         @types = types.map { |type| Hstring.new(type) }
         @base_class = base_index_class(*ns_path)
-        if options[:cluster_id]
-          @base_class += format('(:%s)', options[:cluster_id])
-        end
+        @index_cluster_id = options[:cluster_id]
         @cli_options = options
 
         base_dir = Esse.config.indices_directory.join(*ns_path.map { |n| Hstring.new(n).underscore.to_s })
@@ -53,10 +51,10 @@ module Esse
         end
 
         if @types.empty?
-          if options[:serializers]
+          if options[:documents]
             template(
-              'templates/serializer.rb.erb',
-              base_dir.join(index_name, 'serializers', 'serializer.rb'),
+              'templates/document.rb.erb',
+              base_dir.join(index_name, 'documents', 'document.rb'),
             )
           end
           if options[:collections] && !options[:active_record]
@@ -70,10 +68,10 @@ module Esse
         @types.each do |type|
           @type = Hstring.new(type).underscore
 
-          if options[:serializers]
+          if options[:documents]
             template(
-              'templates/serializer.rb.erb',
-              base_dir.join(index_name, 'serializers', "#{@type}_serializer.rb"),
+              'templates/document.rb.erb',
+              base_dir.join(index_name, 'documents', "#{@type}_document.rb"),
             )
           end
           if options[:collections] && !options[:active_record]

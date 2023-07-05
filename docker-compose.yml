@@ -1,0 +1,168 @@
+# version: "3.5"
+services:
+  elasticsearch-v1:
+    image: elasticsearch:${DOCKER_ES_V1:-1.7.6}
+    environment:
+      - cluster.name=cluster-elasticsearch-v1
+      - cluster.routing.allocation.disk.threshold_enabled=false
+      - bootstrap.memory_lock=true
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536 # maximum number of open files for the OpenSearch user, set to at least 65536 on modern systems
+        hard: 65536
+    ports:
+      - 9201:9200
+    networks:
+      - esse
+  elasticsearch-v2:
+    image: elasticsearch:${DOCKER_ES_V2:-2.4.6}
+    environment:
+      - cluster.name=cluster-elasticsearch-v2
+      - cluster.routing.allocation.disk.threshold_enabled=false
+      - bootstrap.memory_lock=true
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536 # maximum number of open files for the OpenSearch user, set to at least 65536 on modern systems
+        hard: 65536
+    ports:
+      - 9202:9200
+    networks:
+      - esse
+  elasticsearch-v5:
+    image: docker.elastic.co/elasticsearch/elasticsearch:${DOCKER_ES_V5:-5.6.16}
+    environment:
+      - cluster.name=cluster-elasticsearch-v5
+      - cluster.routing.allocation.disk.threshold_enabled=false
+      - bootstrap.memory_lock=true
+      - xpack.security.enabled=false
+      - xpack.monitoring.collection.interval=-1
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536 # maximum number of open files for the OpenSearch user, set to at least 65536 on modern systems
+        hard: 65536
+    ports:
+      - 9205:9200
+    networks:
+      - esse
+  elasticsearch-v6:
+    image: docker.elastic.co/elasticsearch/elasticsearch:${DOCKER_ES_V6:-6.8.12}
+    environment:
+      - cluster.name=cluster-elasticsearch-v6
+      - cluster.routing.allocation.disk.threshold_enabled=false
+      - bootstrap.memory_lock=true
+      - xpack.security.enabled=false
+      - xpack.license.self_generated.type=basic
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536 # maximum number of open files for the OpenSearch user, set to at least 65536 on modern systems
+        hard: 65536
+    ports:
+      - 9206:9200
+    networks:
+      - esse
+  elasticsearch-v7:
+    image: docker.elastic.co/elasticsearch/elasticsearch:${DOCKER_ES_V7:-7.13.2}
+    environment:
+      - cluster.name=cluster-elasticsearch-v7
+      - cluster.routing.allocation.disk.threshold_enabled=false
+      - bootstrap.memory_lock=true
+      - xpack.security.enabled=false
+      - xpack.license.self_generated.type=basic
+      - action.destructive_requires_name=false
+      - discovery.type=single-node
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536 # maximum number of open files for the OpenSearch user, set to at least 65536 on modern systems
+        hard: 65536
+    ports:
+      - 9207:9200
+    networks:
+      - esse
+  elasticsearch-v8:
+    image: docker.elastic.co/elasticsearch/elasticsearch:${DOCKER_ES_V8:-8.4.2}
+    environment:
+      - cluster.name=cluster-elasticsearch-v8
+      - cluster.routing.allocation.disk.threshold_enabled=false
+      - bootstrap.memory_lock=true
+      - xpack.security.enabled=false
+      - xpack.license.self_generated.type=basic
+      - action.destructive_requires_name=false
+      - discovery.type=single-node
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536 # maximum number of open files for the OpenSearch user, set to at least 65536 on modern systems
+        hard: 65536
+    ports:
+      - 9208:9200
+    networks:
+      - esse
+  opensearch-v1:
+    image: opensearchproject/opensearch:${DOCKER_OS_V1:-1.3.3}
+    environment:
+      - cluster.name=cluster-opensearch-v1
+      - cluster.routing.allocation.disk.threshold_enabled=false
+      - plugins.security.disabled=true
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536 # maximum number of open files for the OpenSearch user, set to at least 65536 on modern systems
+        hard: 65536
+    ports:
+      - 19201:9200
+    networks:
+      - esse
+  opensearch-v2:
+    image: opensearchproject/opensearch:${DOCKER_OS_V2:-2.0.1}
+    environment:
+      - cluster.name=cluster-opensearch-v2
+      - cluster.routing.allocation.disk.threshold_enabled=false
+      - plugins.security.disabled=true
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536 # maximum number of open files for the OpenSearch user, set to at least 65536 on modern systems
+        hard: 65536
+    ports:
+      - 19202:9200
+    networks:
+      - esse
+
+networks:
+  esse:
+    driver: bridge

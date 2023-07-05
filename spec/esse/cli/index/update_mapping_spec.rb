@@ -34,22 +34,18 @@ RSpec.describe Esse::CLI::Index, type: :cli do
       end
 
       specify do
-        expect(CountiesIndex).to receive(:elasticsearch).at_least(1).and_return(api = double)
-        expect(api).to receive(:update_mapping!).and_return(true)
+        expect(CountiesIndex).to receive(:update_mapping).and_return(true)
         cli_exec(%w[index update_mapping CountiesIndex])
       end
 
       specify do
-        expect(CountiesIndex).to receive(:elasticsearch).at_least(1).and_return(api = double)
-        expect(api).to receive(:update_mapping!).with(suffix: 'foo').and_return(true)
+        expect(CountiesIndex).to receive(:update_mapping).with(suffix: 'foo').and_return(true)
         cli_exec(%w[index update_mapping CountiesIndex --suffix=foo])
       end
 
       it 'allows multiple indices' do
-        expect(CountiesIndex).to receive(:elasticsearch).at_least(1).and_return(api1 = double)
-        expect(CitiesIndex).to receive(:elasticsearch).at_least(1).and_return(api2 = double)
-        expect(api1).to receive(:update_mapping!).and_return(true)
-        expect(api2).to receive(:update_mapping!).and_return(true)
+        expect(CountiesIndex).to receive(:update_mapping).and_return(true)
+        expect(CitiesIndex).to receive(:update_mapping).and_return(true)
         cli_exec(%w[index update_mapping CountiesIndex CitiesIndex])
       end
     end
@@ -64,16 +60,14 @@ RSpec.describe Esse::CLI::Index, type: :cli do
       end
 
       specify do
-        expect(GeosIndex).to receive(:elasticsearch).at_least(2).and_return(api = double)
-        expect(api).to receive(:update_mapping!).with(type: 'city').and_return(true)
-        expect(api).to receive(:update_mapping!).with(type: 'county').and_return(true)
+        expect(GeosIndex).to receive(:update_mapping).with(type: 'city').and_return(true)
+        expect(GeosIndex).to receive(:update_mapping).with(type: 'county').and_return(true)
         cli_exec(%w[index update_mapping GeosIndex])
       end
 
       specify do
-        expect(GeosIndex).to receive(:elasticsearch).at_least(2).and_return(api = double)
-        expect(api).to receive(:update_mapping!).with(type: 'city', suffix: 'foo').and_return(true)
-        expect(api).to receive(:update_mapping!).with(type: 'county', suffix: 'foo').and_return(true)
+        expect(GeosIndex).to receive(:update_mapping).with(type: 'city', suffix: 'foo').and_return(true)
+        expect(GeosIndex).to receive(:update_mapping).with(type: 'county', suffix: 'foo').and_return(true)
         cli_exec(%w[index update_mapping GeosIndex --suffix=foo])
       end
     end

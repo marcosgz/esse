@@ -20,14 +20,14 @@ RSpec.describe Esse::CLI::Generate, type: :cli do
       expect_generate(%w[index users user --mappings], expected_filename)
     end
 
-    it 'generates a serializer for each type' do
-      expected_filename = Esse.config.indices_directory.join('users_index/serializers/user_serializer.rb')
+    it 'generates a document for each respository type' do
+      expected_filename = Esse.config.indices_directory.join('users_index/documents/user_document.rb')
 
-      expect_generate(%w[index users user --serializers], expected_filename)
+      expect_generate(%w[index users user --documents], expected_filename)
       expect_contains(expected_filename, <<~CODE
         class UsersIndex < Esse::Index
-          module Serializers
-            class UserSerializer < Esse::Serializer
+          module Documents
+            class UserDocument < Esse::Document
       CODE
       )
     end
@@ -46,14 +46,14 @@ RSpec.describe Esse::CLI::Generate, type: :cli do
       expect_contains(expected_filename, 'class VerOne::UsersIndex < Esse::Index')
     end
 
-    it 'generates a serializer for each type under a namespace' do
-      expected_filename = Esse.config.indices_directory.join('v1/users_index/serializers/user_serializer.rb')
+    it 'generates a document for each repository type under a namespace' do
+      expected_filename = Esse.config.indices_directory.join('v1/users_index/documents/user_document.rb')
 
-      expect_generate(%w[index v1/users user --serializers], expected_filename)
+      expect_generate(%w[index v1/users user --documents], expected_filename)
       expect_contains(expected_filename, <<~CODE
         class V1::UsersIndex < Esse::Index
-          module Serializers
-            class UserSerializer < Esse::Serializer
+          module Documents
+            class UserDocument < Esse::Document
       CODE
       )
     end
@@ -62,7 +62,8 @@ RSpec.describe Esse::CLI::Generate, type: :cli do
       expected_filename = Esse.config.indices_directory.join('users_index.rb')
       expect_generate(%w[index users user --cluster_id=v2], expected_filename)
       expect_contains(expected_filename, <<~CODE
-        class UsersIndex < Esse::Index(:v2)
+        class UsersIndex < Esse::Index
+          self.cluster_id = :v2
       CODE
       )
     end

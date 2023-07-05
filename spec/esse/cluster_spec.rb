@@ -5,7 +5,7 @@ require 'spec_helper'
 RSpec.describe Esse::Cluster do
   let(:model) { described_class.new(id: :v1) }
 
-  describe '.id' do
+  describe '#id' do
     context do
       let(:model) { described_class.new(id: :v1) }
 
@@ -37,7 +37,7 @@ RSpec.describe Esse::Cluster do
     end
   end
 
-  describe '.assign' do
+  describe '#assign' do
     let(:model) { described_class.new(id: :v1) }
 
     specify do
@@ -69,9 +69,39 @@ RSpec.describe Esse::Cluster do
       expect { model.assign(wait_for_status: 'yellow') }.not_to raise_error
       expect(model.wait_for_status).to eq('yellow')
     end
+
+    specify do
+      expect(model.readonly?).to eq(false)
+      expect { model.assign(readonly: true) }.not_to raise_error
+      expect(model.readonly?).to eq(true)
+    end
   end
 
-  describe '.wait_for_status' do
+  describe '#readonly?' do
+    it { expect(model.readonly?).to eq(false) }
+
+    it 'allows overwriting default value' do
+      model.readonly = true
+      expect(model.readonly?).to eq(true)
+    end
+  end
+
+  describe '#throw_error_when_readonly!' do
+    it 'raises an error when the cluster is readonly' do
+      model.readonly = true
+      expect {
+        model.throw_error_when_readonly!
+      }.to raise_error(Esse::Transport::ReadonlyClusterError)
+    end
+
+    it 'does not raise an error when the cluster is not readonly' do
+      expect {
+        model.throw_error_when_readonly!
+      }.not_to raise_error
+    end
+  end
+
+  describe '#wait_for_status' do
     it { expect(model.wait_for_status).to eq(nil) }
 
     it 'sets the value for wait_for_status' do
@@ -80,31 +110,31 @@ RSpec.describe Esse::Cluster do
     end
   end
 
-  describe '.wait_for_status!' do
-    let(:client) { double }
+  describe '#wait_for_status!' do
+    let(:api) { instance_double(Esse::Transport) }
 
-    before { model.client = client }
+    before do
+      allow(model).to receive(:api).and_return(api)
+    end
 
     it 'checks for the cluster health using the given status' do
-      expect(client).to receive(:cluster).and_return(cluster_api = double)
-      expect(cluster_api).to receive(:health).with(wait_for_status: 'green').and_return(:ok)
+      expect(api).to receive(:health).with(wait_for_status: 'green').and_return(:ok)
       expect(model.wait_for_status!(status: 'green')).to eq(:ok)
     end
 
     it 'checks for the cluster health using the status from config' do
-      expect(client).to receive(:cluster).and_return(cluster_api = double)
-      expect(cluster_api).to receive(:health).with(wait_for_status: 'yellow').and_return(:ok)
+      expect(api).to receive(:health).with(wait_for_status: 'yellow').and_return(:ok)
       model.wait_for_status = :yellow
       expect(model.wait_for_status!).to eq(:ok)
     end
 
     it 'does not sends any request to elasticsearch when wait for status is not defined' do
-      expect(client).not_to receive(:cluster)
+      expect(api).not_to receive(:health)
       expect(model.wait_for_status!).to eq(nil)
     end
   end
 
-  describe '.settings' do
+  describe '#settings' do
     it { expect(model.settings).to eq({}) }
 
     it 'allows overwriting default value' do
@@ -113,7 +143,7 @@ RSpec.describe Esse::Cluster do
     end
   end
 
-  describe '.index_prefix' do
+  describe '#index_prefix' do
     it { expect(model.index_prefix).to eq nil }
 
     it 'allows overwriting default value' do
@@ -122,7 +152,7 @@ RSpec.describe Esse::Cluster do
     end
   end
 
-  describe '.client=', service_type: :elasticsearch do
+  describe '#client=', service_type: :elasticsearch do
     it { expect(model).to respond_to(:'client=') }
 
     it 'defines a connection from hash' do
@@ -143,7 +173,7 @@ RSpec.describe Esse::Cluster do
     end
   end
 
-  describe '.client=', service_type: :opensearch do
+  describe '#client=', service_type: :opensearch do
     it { expect(model).to respond_to(:'client=') }
 
     it 'defines a connection from hash' do
@@ -164,13 +194,18 @@ RSpec.describe Esse::Cluster do
     end
   end
 
-  describe '.client', service_type: :elasticsearch do
+  describe '#client', service_type: :elasticsearch do
     it { expect(model).to respond_to(:client) }
 
     it 'retuns an instance of elasticsearch as default' do
       expect(model.instance_variable_get(:@client)).to eq(nil)
-      expect(model.client).to be_an_instance_of(Elasticsearch::Transport::Client)
-      expect(model.instance_variable_get(:@client)).to be_an_instance_of(Elasticsearch::Transport::Client)
+      if defined? Elasticsearch::Transport::Client
+        expect(model.client).to be_an_instance_of(Elasticsearch::Transport::Client)
+        expect(model.instance_variable_get(:@client)).to be_an_instance_of(Elasticsearch::Transport::Client)
+      else # Elasticsearch-ruby >= 8.0
+        expect(model.client).to be_an_instance_of(Elasticsearch::Client)
+        expect(model.instance_variable_get(:@client)).to be_an_instance_of(Elasticsearch::Client)
+      end
     end
 
     it 'store connection using default key' do
@@ -182,7 +217,7 @@ RSpec.describe Esse::Cluster do
     end
   end
 
-  describe '.client', service_type: :opensearch do
+  describe '#client', service_type: :opensearch do
     it { expect(model).to respond_to(:client) }
 
     it 'retuns an instance of elasticsearch as default' do
@@ -200,79 +235,95 @@ RSpec.describe Esse::Cluster do
     end
   end
 
-  describe '.info' do
+  describe '#info' do
     subject { model.info }
 
-    specify do
-      body = elasticsearch_response_fixture(file: 'info', version: '1.x', assigns: { version__number: version = '1.7.6' })
-      stub_es_request(:get, '/', res: { body: body })
-      expect(subject).to eq(
-        distribution: 'elasticsearch',
-        version: version,
-      )
+    context 'with elasticsearch 1.x', es_version: '1.x' do
+      specify do
+        body = elasticsearch_response_fixture(file: 'info', version: '1.x', assigns: { version__number: version = '1.7.6' })
+        stub_es_request(:get, '/', res: { body: body })
+        expect(subject).to eq(
+          distribution: 'elasticsearch',
+          version: version,
+        )
+      end
     end
 
-    specify do
-      body = elasticsearch_response_fixture(file: 'info', version: '2.x', assigns: { version__number: version = '2.0.0' })
-      stub_es_request(:get, '/', res: { body: body })
-      expect(subject).to eq(
-        distribution: 'elasticsearch',
-        version: version,
-      )
+    context 'with elasticsearch 2.x', es_version: '2.x' do
+      specify do
+        body = elasticsearch_response_fixture(file: 'info', version: '2.x', assigns: { version__number: version = '2.0.0' })
+        stub_es_request(:get, '/', res: { body: body })
+        expect(subject).to eq(
+          distribution: 'elasticsearch',
+          version: version,
+        )
+      end
     end
 
-    specify do
-      body = elasticsearch_response_fixture(file: 'info', version: '5.x', assigns: { version__number: version = '5.0.0' })
-      stub_es_request(:get, '/', res: { body: body })
-      expect(subject).to eq(
-        distribution: 'elasticsearch',
-        version: version,
-      )
+    context 'with elasticsearch 5.x', es_version: '5.x' do
+      specify do
+        body = elasticsearch_response_fixture(file: 'info', version: '5.x', assigns: { version__number: version = '5.0.0' })
+        stub_es_request(:get, '/', res: { body: body })
+        expect(subject).to eq(
+          distribution: 'elasticsearch',
+          version: version,
+        )
+      end
     end
 
-    specify do
-      body = elasticsearch_response_fixture(file: 'info', version: '6.x', assigns: { version__number: version = '6.0.0' })
-      stub_es_request(:get, '/', res: { body: body })
-      expect(subject).to eq(
-        distribution: 'elasticsearch',
-        version: version,
-      )
+    context 'with elasticsearch 6.x', es_version: '6.x' do
+      specify do
+        body = elasticsearch_response_fixture(file: 'info', version: '6.x', assigns: { version__number: version = '6.0.0' })
+        stub_es_request(:get, '/', res: { body: body })
+        expect(subject).to eq(
+          distribution: 'elasticsearch',
+          version: version,
+        )
+      end
     end
 
-    specify do
-      body = elasticsearch_response_fixture(file: 'info', version: '7.x', assigns: { version__number: version = '7.0.0' })
-      stub_es_request(:get, '/', res: { body: body })
-      expect(subject).to eq(
-        distribution: 'elasticsearch',
-        version: version,
-      )
+    context 'with elasticsearch 7.x', es_version: '7.x' do
+      specify do
+        body = elasticsearch_response_fixture(file: 'info', version: '7.x', assigns: { version__number: version = '7.0.0' })
+        stub_es_request(:get, '/', res: { body: body })
+        expect(subject).to eq(
+          distribution: 'elasticsearch',
+          version: version,
+        )
+      end
     end
 
-    specify do
-      body = elasticsearch_response_fixture(file: 'info', version: '8.x', assigns: { version__number: version = '8.0.0' })
-      stub_es_request(:get, '/', res: { body: body })
-      expect(subject).to eq(
-        distribution: 'elasticsearch',
-        version: version,
-      )
+    context 'with elasticsearch 8.x', es_version: '8.x' do
+      specify do
+        body = elasticsearch_response_fixture(file: 'info', version: '8.x', assigns: { version__number: version = '8.0.0' })
+        stub_es_request(:get, '/', res: { body: body })
+        expect(subject).to eq(
+          distribution: 'elasticsearch',
+          version: version,
+        )
+      end
     end
 
-    specify do
-      body = elasticsearch_response_fixture(file: 'info', version: '1.x', distribution: 'opensearch', assigns: { version__number: version = '1.0.0' })
-      stub_es_request(:get, '/', res: { body: body })
-      expect(subject).to eq(
-        distribution: 'opensearch',
-        version: version,
-      )
+    context 'with opensearch 1.x', es_version: '1.x', distribution: 'opensearch' do
+      specify do
+        body = elasticsearch_response_fixture(file: 'info', version: '1.x', distribution: 'opensearch', assigns: { version__number: version = '1.0.0' })
+        stub_es_request(:get, '/', res: { body: body })
+        expect(subject).to eq(
+          distribution: 'opensearch',
+          version: version,
+        )
+      end
     end
 
-    specify do
-      body = elasticsearch_response_fixture(file: 'info', version: '2.x', distribution: 'opensearch', assigns: { version__number: version = '2.0.0' })
-      stub_es_request(:get, '/', res: { body: body })
-      expect(subject).to eq(
-        distribution: 'opensearch',
-        version: version,
-      )
+    context 'with opensearch 2.x', es_version: '2.x', distribution: 'opensearch' do
+      specify do
+        body = elasticsearch_response_fixture(file: 'info', version: '2.x', distribution: 'opensearch', assigns: { version__number: version = '2.0.0' })
+        stub_es_request(:get, '/', res: { body: body })
+        expect(subject).to eq(
+          distribution: 'opensearch',
+          version: version,
+        )
+      end
     end
   end
 
@@ -287,8 +338,8 @@ RSpec.describe Esse::Cluster do
   end
 
   describe '#api' do
-    it 'returns an instance of Esse::ClientProxy' do
-      expect(model.api).to be_an_instance_of(Esse::ClientProxy)
+    it 'returns an instance of Esse::Transport' do
+      expect(model.api).to be_an_instance_of(Esse::Transport)
     end
   end
 

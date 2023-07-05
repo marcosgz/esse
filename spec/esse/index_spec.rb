@@ -18,22 +18,54 @@ RSpec.describe Esse::Index do
     end
   end
 
-  it 'allows overwrite elasticearch client from index model' do
-    c = Class.new(Esse::Index)
-    c.cluster_id = :v2
-    expect(c.cluster.client).to eq(client2)
+  describe '.cluster' do
+    it 'allows overwrite elasticearch client from index model' do
+      c = Class.new(Esse::Index)
+      c.cluster_id = :v2
+      expect(c.cluster.client).to eq(client2)
+      expect(c.cluster_id).to eq(:v2)
+    end
+
+    it 'returns an index subclass with default elasticsearch client' do
+      c = Class.new(Esse::Index)
+      expect(c.cluster.client).to eq(client1)
+      expect(c.superclass).to eq(Esse::Index)
+      expect(c.cluster_id).to eq(:default)
+    end
+
+    it 'returns an index subclass with a v2 elasticsearch client' do
+      c = Class.new(Esse::Index) { self.cluster_id = :v2 }
+      expect(c.cluster.client).to eq(client2)
+      expect(c.superclass).to eq(Esse::Index)
+      expect(c.cluster_id).to eq(:v2)
+    end
   end
 
-  it 'returns an index subclass with default elasticsearch client' do
-    c = Class.new(Esse::Index)
-    expect(c.cluster.client).to eq(client1)
-    expect(c.superclass).to eq(Esse::Index)
-  end
+  describe '.cluster_id=' do
+    it 'allows to overwrite the cluster_id' do
+      c = Class.new(Esse::Index)
+      c.cluster_id = :v2
+      expect(c.cluster_id).to eq(:v2)
+    end
 
-  it 'returns an index subclass with a v2 elasticsearch client' do
-    c = Esse::Index(:v2)
-    expect(c.cluster.client).to eq(client2)
-    expect(c.superclass).to eq(Esse::Index)
+    it 'coerces the cluster_id to a symbol' do
+      c = Class.new(Esse::Index)
+      c.cluster_id = 'v2'
+      expect(c.cluster_id).to eq(:v2)
+    end
+
+    it 'resets the cluster by setting the cluster_id to nil' do
+      c = Class.new(Esse::Index)
+      c.cluster_id = :v2
+      expect(c.cluster_id).to eq(:v2)
+      c.cluster_id = nil
+      expect(c.cluster_id).to eq(:default)
+    end
+
+    it 'raises an error when the given cluster_id is not defined' do
+      c = Class.new(Esse::Index)
+      expect { c.cluster_id = :v3 }.to raise_error(ArgumentError, /We could not resolve the index cluster using the argument :v3/)
+    end
   end
 
   describe '.descendants' do
@@ -111,16 +143,16 @@ RSpec.describe Esse::Index do
     end
   end
 
-  describe '.index_version' do
+  describe '.index_suffix' do
     before { stub_index(:users) }
 
     it 'does not have a default value' do
-      expect(UsersIndex.index_version).to eq(nil)
+      expect(UsersIndex.index_suffix).to eq(nil)
     end
 
-    it 'allows to modify the index_version value' do
-      UsersIndex.index_version = 'v1'
-      expect(UsersIndex.index_version).to eq('v1')
+    it 'allows to modify the index_suffix value' do
+      UsersIndex.index_suffix = 'v1'
+      expect(UsersIndex.index_suffix).to eq('v1')
     end
   end
 
@@ -284,20 +316,7 @@ RSpec.describe Esse::Index do
 
       c = Class.new(Esse::Index)
       expect(c.repo_hash).to eq({})
-    end
-  end
-
-  describe '.backend' do
-    specify do
-      c = Class.new(Esse::Index)
-      expect(c.backend).to be_an_instance_of(Esse::Backend::Index)
-    end
-  end
-
-  describe '.elasticsearch' do
-    specify do
-      c = Class.new(Esse::Index)
-      expect(c.elasticsearch).to be_an_instance_of(Esse::Backend::Index)
+      Esse::Index.repo_hash = {}
     end
   end
 

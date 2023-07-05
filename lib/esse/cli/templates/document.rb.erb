@@ -1,0 +1,34 @@
+# frozen_string_literal: true
+
+class <%= @index_name %> < <%= @base_class %>
+  module Documents
+    class <%= @type.camelize if @type %>Document < Esse::Document
+      <%- if @cli_options[:active_record] -%>
+      delegate :id, to: :object
+      <%- else -%>
+      def id
+        object.id
+      end
+      <%- end -%>
+
+      def source
+        {
+          name: object.name,
+          <%- if @type -%>
+          type: "<%= @type %>",
+          <%- end -%>
+          <%- if @cli_options[:active_record] -%>
+          created_at: object.created_at,
+          updated_at: object.updated_at,
+          <%- end -%>
+        }
+      end
+      <%- if @type && defined?(Elasticsearch::VERSION) && Elasticsearch::VERSION <= '5' -%>
+
+      def type
+        '<%= @type %>'
+      end
+      <%- end -%>
+    end
+  end
+end

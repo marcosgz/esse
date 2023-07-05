@@ -22,26 +22,31 @@ module Esse
       #
       # @yield [RequestBody] A request body instance
       def each_request(max_retries: 3)
+        # @TODO create indexes when by checking all the index suffixes (if mapping is not empty)
         requests = [optimistic_request]
         retry_count = 0
 
         begin
           requests.each do |request|
-            yield(request) if request.body?
+            next unless request.body?
+            resp = yield request
+            if resp&.[]('errors')
+              raise resp&.fetch('items', [])&.select { |item| item.values.first['error'] }&.join("\n")
+            end
           end
-        rescue Faraday::TimeoutError, Esse::Backend::RequestTimeoutError => e
+        rescue Faraday::TimeoutError, Esse::Transport::RequestTimeoutError => e
           retry_count += 1
-          raise Esse::Backend::RequestTimeoutError.new(e.message) if retry_count >= max_retries
+          raise Esse::Transport::RequestTimeoutError.new(e.message) if retry_count >= max_retries
           wait_interval = (retry_count**4) + 15 + (rand(10) * (retry_count + 1))
           Esse.logger.warn "Timeout error, retrying in #{wait_interval} seconds"
           sleep(wait_interval)
           retry
-        rescue Esse::Backend::RequestEntityTooLargeError => e
+        rescue Esse::Transport::RequestEntityTooLargeError => e
           retry_count += 1
           raise e if retry_count > 1 # only retry once on this error
           requests = balance_requests_size(e)
           Esse.logger.warn <<~MSG
-            Request entity too large, retrying with a bulk with: #{requests.map(&:bytesize).join(" + ")}.
+            Request entity too large, retrying with a bulk with: #{requests.map(&:bytesize).join(' + ')}.
             Note that this cause performance degradation, consider adjusting the batch_size of the index or increasing the bulk size.
           MSG
           retry
@@ -51,7 +56,7 @@ module Esse
       private
 
       def valid_doc?(doc)
-        doc && doc.is_a?(Esse::Serializer) && doc.id
+        Esse.document?(doc)
       end
 
       def optimistic_request
@@ -90,7 +95,6 @@ module Esse
           raise err
         end
       end
-
     end
   end
 end

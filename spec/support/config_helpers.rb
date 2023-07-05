@@ -11,7 +11,8 @@ module ConfigHelpers
           number_of_shards: 1,
           number_of_replicas: 0,
         },
-        mappings: {}
+        mappings: {},
+        readonly: false,
       },
     },
   }.freeze
@@ -33,7 +34,7 @@ module ConfigHelpers
   def with_cluster_config(id: :default, **opts, &block)
     with_config { |c|
       c.cluster(id).assign(opts)
-      block.call if block
+      block&.call
     }
   end
 end

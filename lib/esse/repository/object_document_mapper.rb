@@ -9,63 +9,63 @@ module Esse
       # Convert ruby object to json. Arguments will be same of passed through the
       # collection. It's allowed a block or a class with the `to_h` instance method.
       # Example with block
-      #   serializer do |model, **context|
+      #   document do |model, **context|
       #     {
       #       id: model.id,
       #       admin: context[:is_admin],
       #     }
       #   end
-      # Example with serializer class
-      #   serializer UserSerializer
-      def serializer(klass = nil, &block)
-        if @serializer_proc
-          raise ArgumentError, format('Serializer for %p already defined', repo_name)
+      # Example with document class
+      #   document UserDocument
+      def document(klass = nil, &block)
+        if @document_proc
+          raise ArgumentError, format('Document for %p already defined', repo_name)
         end
 
         if block
-          @serializer_proc = ->(model, **kwargs) { coerce_to_document(block.call(model, **kwargs)) }
-        elsif klass.is_a?(Class) && klass <= Esse::Serializer
-          @serializer_proc = ->(model, **kwargs) { klass.new(model, **kwargs) }
+          @document_proc = ->(model, **kwargs) { coerce_to_document(block.call(model, **kwargs)) }
+        elsif klass.is_a?(Class) && klass <= Esse::Document
+          @document_proc = ->(model, **kwargs) { klass.new(model, **kwargs) }
         elsif klass.is_a?(Class) && klass.instance_methods.include?(:to_h)
-          @serializer_proc = ->(model, **kwargs) { coerce_to_document(klass.new(model, **kwargs).to_h) }
+          @document_proc = ->(model, **kwargs) { coerce_to_document(klass.new(model, **kwargs).to_h) }
         elsif klass.is_a?(Class) && klass.instance_methods.include?(:as_json) # backward compatibility
-          @serializer_proc = ->(model, **kwargs) { coerce_to_document(klass.new(model, **kwargs).as_json) }
+          @document_proc = ->(model, **kwargs) { coerce_to_document(klass.new(model, **kwargs).as_json) }
         elsif klass.is_a?(Class) && klass.instance_methods.include?(:call)
-          @serializer_proc = ->(model, **kwargs) { coerce_to_document(klass.new(model, **kwargs).call) }
+          @document_proc = ->(model, **kwargs) { coerce_to_document(klass.new(model, **kwargs).call) }
         else
-          msg = format("%<arg>p is not a valid serializer. The serializer should inherit from Esse::Serializer or respond to `to_h'", arg: klass)
+          msg = format("%<arg>p is not a valid document. The document should inherit from Esse::Document or respond to `to_h'", arg: klass)
           raise ArgumentError, msg
         end
       end
 
       def coerce_to_document(value)
         case value
-        when Esse::Serializer
+        when Esse::Document
           value
         when Hash
           Esse::HashDocument.new(value)
         when NilClass, FalseClass
           Esse::NullDocument.new
         else
-          raise ArgumentError, format('%<arg>p is not a valid document. The document should be a hash or an instance of Esse::Serializer', arg: value)
+          raise ArgumentError, format('%<arg>p is not a valid document. The document should be a hash or an instance of Esse::Document', arg: value)
         end
       end
 
-      # Convert ruby object to json by using the serializer of the given document type.
+      # Convert ruby object to json by using the document of the given document type.
       # @param [Object] model The ruby object
       # @param [Hash] kwargs The context
       # @return [Esse::Document] The serialized document
       def serialize(model, **kwargs)
-        if @serializer_proc.nil?
-          raise NotImplementedError, format('there is no %<t>p serializer defined for the %<k>p index', t: repo_name, k: index.to_s)
+        if @document_proc.nil?
+          raise NotImplementedError, format('there is no %<t>p document defined for the %<k>p index', t: repo_name, k: index.to_s)
         end
 
-        @serializer_proc.call(model, **kwargs)
+        @document_proc.call(model, **kwargs)
       end
 
       # Used to define the source of data. A block is required. And its
       # content should yield an array of each object that should be serialized.
-      # The list of arguments will be passed throught the serializer method.
+      # The list of arguments will be passed throught the document method.
       #
       # Example:
       #   collection AdminStore

@@ -11,64 +11,89 @@ fi
 
 shift; shift;
 
-unset DOCKER_IMAGE
-unset SERVICE_TYPE
 unset ESSE_URL
+unset BUNDLE_GEMFILE
+unset STACK_VERSION
+
+# sudo sysctl -w vm.max_map_count=262144;
 
 case "${service_name}-${service_version}" in
   elasticsearch-v1)
     export STACK_VERSION=1.7.6
-    export DOCKER_IMAGE=elasticsearch
-    export PORT=9201
-    export COM_PORT=9301
+    export DOCKER_ES_V1=${STACK_VERSION}
     export ESSE_URL=http://localhost:9201
+    export BUNDLE_GEMFILE=gemfiles/Gemfile.elasticsearch-1.x
+    docker-compose up -d elasticsearch-v1
     ;;
   elasticsearch-v2)
-    export STACK_VERSION=2.3.1
-    export DOCKER_IMAGE=elasticsearch
-    export PORT=9202
-    export COM_PORT=9302
+    export STACK_VERSION=2.4.6
+    export DOCKER_ES_V2=${STACK_VERSION}
     export ESSE_URL=http://localhost:9202
+    export BUNDLE_GEMFILE=gemfiles/Gemfile.elasticsearch-2.x
+    # docker-compose up -d elasticsearch-v2
     ;;
   elasticsearch-v5)
     export STACK_VERSION=5.6.16
-    export PORT=9205
-    export COM_PORT=9305
+    export DOCKER_ES_V5=${STACK_VERSION}
     export ESSE_URL=http://localhost:9205
+    export BUNDLE_GEMFILE=gemfiles/Gemfile.elasticsearch-5.x
+    # docker-compose up -d elasticsearch-v5
     ;;
   elasticsearch-v6)
     export STACK_VERSION=6.8.16
-    export PORT=9206
-    export COM_PORT=9306
-    export ESSE_URL=http://localhost:9205
+    export DOCKER_ES_V6=${STACK_VERSION}
+    export ESSE_URL=http://localhost:9206
+    export BUNDLE_GEMFILE=gemfiles/Gemfile.elasticsearch-6.x
+    # docker-compose up -d elasticsearch-v6
     ;;
   elasticsearch-v7)
     export STACK_VERSION=7.13.2
-    export PORT=9207
-    export COM_PORT=9307
-    export ESSE_URL="http://localhost:9207"
+    export DOCKER_ES_V7=${STACK_VERSION}
+    export ESSE_URL=http://localhost:9207
+    export BUNDLE_GEMFILE=gemfiles/Gemfile.elasticsearch-7.x
+    # docker-compose up -d elasticsearch-v7
     ;;
   elasticsearch-v8)
-    export STACK_VERSION=8.2.1
-    export PORT=9208
-    export COM_PORT=9308
+    export STACK_VERSION=8.4.2
+    export DOCKER_ES_V8=${STACK_VERSION}
     export ESSE_URL=http://localhost:9208
+    export BUNDLE_GEMFILE=gemfiles/Gemfile.elasticsearch-8.x
+    # docker-compose up -d elasticsearch-v8
     ;;
   opensearch-v1)
     export STACK_VERSION=1.3.3
-    export DOCKER_IMAGE=opensearchproject/opensearch
-    export SERVICE_TYPE=opensearch
-    export PORT=19201
-    export COM_PORT=19301
+    export DOCKER_OS_V1=${STACK_VERSION}
     export ESSE_URL=http://localhost:19201
+    export BUNDLE_GEMFILE=gemfiles/Gemfile.opensearch-1.x
+    # docker-compose up -d opensearch-v1
     ;;
   opensearch-v2)
     export STACK_VERSION=2.0.1
-    export DOCKER_IMAGE=opensearchproject/opensearch
-    export SERVICE_TYPE=opensearch
-    export PORT=19202
-    export COM_PORT=19302
+    export DOCKER_OS_V2=${STACK_VERSION}
     export ESSE_URL=http://localhost:19202
+    export BUNDLE_GEMFILE=gemfiles/Gemfile.opensearch-2.x
+    # docker-compose up -d opensearch-v2
+    ;;
+  elasticsearch-all)
+    es_versions=('v1' 'v2' 'v5' 'v6' 'v7' 'v8')
+    for es_version in "${es_versions[@]}"; do
+      echo "Running $0 elasticsearch ${es_version} $@"
+      ./$0 "elasticsearch" $es_version $@
+    done
+    exit 0
+    ;;
+  opensearch-all)
+    os_versions=('v1' 'v2')
+    for os_version in "${os_versions[@]}"; do
+      echo "Running $0 opensearch ${os_version}"
+      ./$0 "opensearch" ${os_version} $@
+    done
+    exit 0
+    ;;
+  all-all)
+    ./$0 "elasticsearch" "all" $@
+    ./$0 "opensearch" "all" $@
+    exit 0
     ;;
   *)
     echo -e "\033[31;1mERROR:\033[0m Unknown service type [${service_name}] and/or version [${service_version}]"

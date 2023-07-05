@@ -24,7 +24,7 @@ module Esse
 
             repository :#{name} do
               # collection ...
-              # serializer ...
+              # document ...
             end
         MSG
       end
@@ -48,7 +48,6 @@ module Esse
 
         repo_class.send(:define_singleton_method, :index) { index }
         repo_class.send(:define_singleton_method, :repo_name) { repo_name.to_s }
-        repo_class.document_type = (kwargs[:document_type] || repo_name).to_s
 
         plugins.each do |mod|
           next unless mod.const_defined?(:RepositoryClassMethods, false)

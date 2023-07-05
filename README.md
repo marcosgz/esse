@@ -150,11 +150,12 @@ end
 And on the index you can use the `:il` or `:fl` identifier to specify which cluster you want to use.
 
 ```ruby
-class Illinois::AccountsIndex < Esse::Index(:il)
+class Illinois::AccountsIndex < Esse::Index
+  self.cluster_id = :il
   ...
 end
-class Florida::AccountsIndex < Esse::Index(:fl)
-  ...
+class Florida::AccountsIndex < Esse::Index
+  self.cluster_id = :fl
 end
 ```
 
@@ -227,33 +228,33 @@ Options:
 Generate an index with the following command:
 
 ```bash
-$ esse generate index <IndexName> <*doc_type>
+❯ esse generate index <IndexName> <*doc_type>
 ```
 
 List of types are optional. If not specified, the index will be created with definition on Index level with the `"default"` as type. Example:
 
 ```bash
-$ bundle exec esse generate index GeosIndex                                                                                                                                        [ruby-2.6.9p207]
+❯ bundle exec esse generate index GeosIndex
       create  app/indices/geos_index.rb
 ```
 
 or with multiple datasources as document types:
 
 ```bash
-$ bundle exec esse generate index GeosIndex state city
+❯ bundle exec esse generate index GeosIndex state city
       create  app/indices/geos_index.rb
 ```
 
 As default, the index will be create d with the collection, serializer, settings, mapping directly to the index class. By you can also specify custom arguments to better organize your code by splitting the it into multiple files.
 
 ```bash
-$ ./exec/esse generate index GeosIndex state city --settings --mappings --serializers --collections                                                                           [ruby-2.6.9p207]
+❯  ./exec/esse generate index GeosIndex state city --settings --mappings --documents --collections
       create  app/indices/geos_index.rb
       create  app/indices/geos_index/templates/settings.json
       create  app/indices/geos_index/templates/mappings.json
-      create  app/indices/geos_index/serializers/state_serializer.rb
+      create  app/indices/geos_index/documents/state_document.rb
       create  app/indices/geos_index/collections/state_collection.rb
-      create  app/indices/geos_index/serializers/city_serializer.rb
+      create  app/indices/geos_index/documents/city_document.rb
       create  app/indices/geos_index/collections/city_collection.rb
 ```
 
@@ -262,7 +263,7 @@ $ ./exec/esse generate index GeosIndex state city --settings --mappings --serial
 There are several commands to manage indices. The following commands are available:
 
 ```bash
-$ bundle exec esse index                                                                                                                                                           [ruby-2.6.9p207]
+❯ bundle exec esse index                                                                                                                                                           [ruby-2.6.9p207]
 Commands:
   esse index close *INDEX_CLASS                         # Close an index (keep the data on disk, but deny operations with the index).
   esse index create *INDEX_CLASSES                      # Creates indices for the given classes
@@ -357,28 +358,56 @@ Using index classes as arguments:
 
 ## Development
 
-After checking out the repo, run `bin/setup` to install dependencies. The command will dependencies of all `./ci/Gemfile.*`. You can use `./ci/setup.sh` combined different environment variables script to start the elasticsearch or opensearch service using docker in different combination. The `./bin/run` will do it for you.
+After checking out the repo, run `bin/setup` to install dependencies. The command will dependencies of all `./gemfiles/Gemfile.*`.
+
+You can use `docker-compose` to start elasticsearch and opensearch services.
 
 ```bash
-./bin/run elasticsearch v7 ./ci/setup.sh # Start elasticsearch 7.x
+❯ docker-compose up -d
 ```
 
-Run console for an interactive prompt that will allow you to experiment.
+```bash
+❯ docker-compose ps
+NAME                      COMMAND                  SERVICE             STATUS              PORTS
+esse-elasticsearch-v1-1   "/docker-entrypoint.…"   elasticsearch-v1    running             9300/tcp, 0.0.0.0:9201->9200/tcp, :::9201->9200/tcp
+esse-elasticsearch-v2-1   "/docker-entrypoint.…"   elasticsearch-v2    running             9300/tcp, 0.0.0.0:9202->9200/tcp, :::9202->9200/tcp
+esse-elasticsearch-v5-1   "/bin/bash bin/es-do…"   elasticsearch-v5    running             9300/tcp, 0.0.0.0:9205->9200/tcp, :::9205->9200/tcp
+esse-elasticsearch-v6-1   "/usr/local/bin/dock…"   elasticsearch-v6    running             9300/tcp, 0.0.0.0:9206->9200/tcp, :::9206->9200/tcp
+esse-elasticsearch-v7-1   "/bin/tini -- /usr/l…"   elasticsearch-v7    running             9300/tcp, 0.0.0.0:9207->9200/tcp, :::9207->9200/tcp
+esse-elasticsearch-v8-1   "/bin/tini -- /usr/l…"   elasticsearch-v8    running             9300/tcp, 0.0.0.0:9208->9200/tcp, :::9208->9200/tcp
+esse-opensearch-v1-1      "./opensearch-docker…"   opensearch-v1       running             9300/tcp, 9600/tcp, 9650/tcp, 0.0.0.0:19201->9200/tcp, :::19201->9200/tcp
+esse-opensearch-v2-1      "./opensearch-docker…"   opensearch-v2       running             9300/tcp, 9600/tcp, 9650/tcp, 0.0.0.0:19202->9200/tcp, :::19202->9200/tcp
+```
+As you can see each elasticsearch or opensearch version is binded to a different port.
+
+Tests and console uses the `ESSE_URL` along with `STACK_VERSION` and `BUNDLE_GEMFILE` to determine which elasticsearch/opensearch and Gemfile with the official ruby client to use:
 
 ```bash
-./bin/run elasticsearch v7 ./bin/console
+❯ export ESSE_URL=http://localhost:9201
+❯ export STACK_VERSION=7.13.2
+❯ export BUNDLE_GEMFILE=gemfiles/Gemfile.v7
 ```
 
-You can use the `./bin/run` script to run specs for some specific elasticsearch version. Tests are using the `ESSE_URL` environment variable and the run script will automatically set the correct elasticsearch version.
+But we have `bin/run` script to simplify this process. It will automatically set the required envionment variables according to the given arguments.
 
 ```bash
-./bin/run elasticsearch v7 bundle exec --gemfile ci/Gemfile.elasticsearch-7.x rspec # Run rspec tests for elasticsearch 7.x
+❯ bin/run elasticsearch v7 ./bin/console
+> ENV.values_at('ESSE_URL', 'STACK_VERSION', 'BUNDLE_GEMFILE')
+=> ["http://localhost:9207", "7.13.2", "gemfiles/Gemfile.elasticsearch-7.x"]
+> Esse.config.cluster.api.health.fetch('cluster_name')
+=> "cluster-elasticsearch-v7"
+```
+
+And to run the tests:
+
+```bash
+❯ bin/run elasticsearch v7 bundle exec rspec
 ```
 
 If you don't have elasticsearch running and want to ignore integratino tests, you can use the `STUB_STACK=<distribution>-<version>` environment variable to stup the test suite for a specific elasticsearch version. Note that all examples with `:es_version` meta data will be skipped.
 
 ```bash
-STUB_STACK=elasticsearch-7.0.3 bundle exec --gemfile ci/Gemfile.elasticsearch-7.x rspec
+❯ STUB_STACK=elasticsearch-7.0.3 bundle exec --gemfile gemfiles/Gemfile.elasticsearch-7.x rspec
 ```
 
 ## Contributing

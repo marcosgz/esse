@@ -3,13 +3,13 @@
 module Esse
   module Search
     class Query
-      attr_reader :client_proxy, :definition
+      attr_reader :transport, :definition
 
-      # @param client_proxy [Esse::ClientProxy] The client proxy to use for the query
+      # @param transport [Esse::Transport] The client proxy to use for the query
       # @param indices [<Array<Esse::Index, String>] The class of the index to search or the index name
       # @param definition [Hash] The options to pass to the search.
-      def initialize(client_proxy, *indices, suffix: nil, **definition, &_block)
-        @client_proxy = client_proxy
+      def initialize(transport, *indices, suffix: nil, **definition, &_block)
+        @transport = transport
         @definition = definition
         @definition[:index] = indices.map do |index|
           if index.is_a?(Class) && index < Esse::Index
@@ -48,8 +48,8 @@ module Esse
         end
       ensure
         begin
-          client_proxy.clear_scroll(body: {scroll_id: scroll_id}) if scroll_id
-        rescue Esse::Backend::NotFoundError
+          transport.clear_scroll(body: {scroll_id: scroll_id}) if scroll_id
+        rescue Esse::Transport::NotFoundError
         end
       end
 
@@ -60,7 +60,7 @@ module Esse
         Esse::Events.instrument('elasticsearch.execute_search_query') do |payload|
           payload[:query] = self
           begin
-            resp = Response.new(self, client_proxy.search(**definition, **execution_options))
+            resp = Response.new(self, transport.search(**definition, **execution_options))
           rescue => e
             err = e
           end
@@ -77,7 +77,7 @@ module Esse
         Esse::Events.instrument('elasticsearch.execute_search_query') do |payload|
           payload[:query] = self
           begin
-            resp = Response.new(self, client_proxy.scroll(scroll: scroll, body: { scroll_id: scroll_id }))
+            resp = Response.new(self, transport.scroll(scroll: scroll, body: { scroll_id: scroll_id }))
           rescue => e
             err = e
           end

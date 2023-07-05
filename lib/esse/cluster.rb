@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
 require_relative 'cluster_engine'
-require_relative 'client_proxy'
+require_relative 'transport'
 
 module Esse
   class Cluster
-    ATTRIBUTES = %i[index_prefix settings mappings client wait_for_status].freeze
+    ATTRIBUTES = %i[index_prefix settings mappings client wait_for_status readonly].freeze
     WAIT_FOR_STATUSES = %w[green yellow red].freeze
 
     # The index prefix. For example an index named UsersIndex.
@@ -28,12 +28,17 @@ module Esse
     #   wait_for_status: green
     attr_accessor :wait_for_status
 
+    # Disable all writes from the application to the underlying Elasticsearch instance while keeping the
+    # application running and handling search requests.
+    attr_writer :readonly
+
     attr_reader :id
 
     def initialize(id:, **options)
       @id = id.to_sym
       @settings = {}
       @mappings = {}
+      @readonly = false
       assign(options)
     end
 
@@ -61,6 +66,17 @@ module Esse
       end
     end
 
+    # @return [Boolean] Return true if the cluster is readonly
+    def readonly?
+      !!@readonly
+    end
+
+    # @raise [Esse::Transport::ReadonlyClusterError] if the cluster is readonly
+    # @return [void]
+    def throw_error_when_readonly!
+      raise Esse::Transport::ReadonlyClusterError if readonly?
+    end
+
     # Define the elasticsearch client connection
     # @param es_client [Elasticsearch::Client, OpenSearch::Client, Hash] an instance of elasticsearch/api client or an hash
     #   with the settings that will be used to initialize the Client
@@ -85,10 +101,14 @@ module Esse
       format('#<Esse::Cluster %<attrs>s>', attrs: attrs.join(' '))
     end
 
-    def wait_for_status!(status: wait_for_status)
+    # Wait until cluster is in a specific state
+    #
+    # @option [String] :status Wait until cluster is in a specific state (options: green, yellow, red)
+    # @option [String] :index Limit the information returned to a specific index
+    def wait_for_status!(status: wait_for_status, **kwargs)
       return unless WAIT_FOR_STATUSES.include?(status.to_s)
 
-      client.cluster.health(wait_for_status: status.to_s)
+      api.health(**kwargs, wait_for_status: status.to_s)
     end
 
     # @idea Change this to use the response from `GET /`
@@ -121,9 +141,9 @@ module Esse
 
     # Return the proxy object used to perform low level actions on the elasticsearch cluster through the official api client
     #
-    # @return [Esse::ClientProxy] The cluster api instance
+    # @return [Esse::Transport] The cluster api instance
     def api
-      Esse::ClientProxy.new(self)
+      Esse::Transport.new(self)
     end
   end
 end

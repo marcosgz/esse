@@ -21,12 +21,14 @@ module Esse
         Reset.new(indices: index_classes, **options.to_h.transform_keys(&:to_sym)).run
       end
 
+      # @TODO Add reindex task to create a new index and import documents from the old index using _reindex API
+
       desc 'create *INDEX_CLASSES', 'Creates indices for the given classes'
       long_desc <<-DESC
         Creates index and applies mapping and settings for the given classes.
 
         Indices are created with the following naming convention:
-        <cluster.index_prefix>_<index_class.index_name>_<index_class.index_version>.
+        <cluster.index_prefix>_<index_class.index_name>_<index_class.index_suffix>.
       DESC
       option :suffix, type: :string, default: nil, aliases: '-s', desc: 'Suffix to append to index name'
       option :alias, type: :boolean, default: false, aliases: '-a', desc: 'Update alias after create index'
@@ -42,11 +44,14 @@ module Esse
         Delete.new(indices: index_classes, **options.to_h.transform_keys(&:to_sym)).run
       end
 
-      desc 'update_aliases *INDEX_CLASS', 'Replaces all existing aliases by the given suffix'
-      option :suffix, type: :string, aliases: '-s', desc: 'Suffix to append to index name'
+      desc 'update_aliases *INDEX_CLASS', 'Replaces all existing aliases by the given suffix/suffixes'
+      option :suffix, type: :string, aliases: '-s', repeatable: true, desc: 'Suffix to append to index name'
       def update_aliases(*index_classes)
         require_relative 'index/update_aliases'
-        UpdateAliases.new(indices: index_classes, **options.to_h.transform_keys(&:to_sym)).run
+
+        kwargs = options.to_h.transform_keys(&:to_sym)
+        kwargs[:suffix] = (kwargs[:suffix] || []).flat_map { |s| s.split(',') }.uniq
+        UpdateAliases.new(indices: index_classes, **kwargs).run
       end
 
       desc 'update_settings *INDEX_CLASS', 'Closes the index for read/write operations, updates the index settings, and open it again'

@@ -31,17 +31,20 @@ module Esse
       end
 
       def index_prefix=(value)
-        return @index_prefix = nil if value == false
+        if value == false
+          @index_prefix = nil
+          return
+        end
 
         @index_prefix = Hstring.new(value.to_s).underscore.presence
       end
 
-      def index_version=(value)
-        @index_version = Hstring.new(value.to_s).underscore.presence
+      def index_suffix=(value)
+        @index_suffix = Hstring.new(value.to_s).underscore.presence
       end
 
-      def index_version
-        @index_version
+      def index_suffix
+        @index_suffix
       end
 
       def uname
@@ -90,6 +93,12 @@ module Esse
 
       def normalized_name
         Hstring.new(name).underscore.tr('/', '_').sub(/_(index)$/, '')
+      end
+
+      def build_real_index_name(suffix = nil)
+        suffix = Hstring.new(suffix).underscore.presence || index_suffix || Esse.timestamp
+
+        index_name(suffix: suffix)
       end
     end
 

@@ -30,29 +30,24 @@ RSpec.describe Esse::CLI::Index, type: :cli do
       end
 
       specify do
-        expect(CountiesIndex).to receive(:elasticsearch).at_least(1).and_return(api = double)
-        expect(api).to receive(:reset_index!).and_return(true)
+        expect(CountiesIndex).to receive(:reset_index).and_return(true)
         cli_exec(%w[index reset CountiesIndex])
       end
 
       specify do
-        expect(CountiesIndex).to receive(:elasticsearch).at_least(1).and_return(api = double)
-        expect(api).to receive(:reset_index!).with(suffix: 'foo', import: true).and_return(true)
+        expect(CountiesIndex).to receive(:reset_index).with(suffix: 'foo', import: true).and_return(true)
         cli_exec(%w[index reset CountiesIndex --suffix=foo])
       end
 
       it 'allows multiple indices' do
-        expect(CountiesIndex).to receive(:elasticsearch).at_least(1).and_return(api1 = double)
-        expect(CitiesIndex).to receive(:elasticsearch).at_least(1).and_return(api2 = double)
-        expect(api1).to receive(:reset_index!).and_return(true)
-        expect(api2).to receive(:reset_index!).and_return(true)
+        expect(CountiesIndex).to receive(:reset_index).and_return(true)
+        expect(CitiesIndex).to receive(:reset_index).and_return(true)
         cli_exec(%w[index reset CountiesIndex CitiesIndex])
       end
 
       it 'allows to reset all indices at once using "all" wildcard' do
         expect(Esse::Index).to receive(:descendants).at_least(1).and_return([CountiesIndex])
-        expect(CountiesIndex).to receive(:elasticsearch).at_least(1).and_return(api = double)
-        expect(api).to receive(:reset_index!).and_return(true)
+        expect(CountiesIndex).to receive(:reset_index).and_return(true)
         cli_exec(%w[index reset all])
       end
     end

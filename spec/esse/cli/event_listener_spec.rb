@@ -64,8 +64,8 @@ RSpec.describe Esse::CLI::EventListener do
       it 'prints message' do
         expect { subject }.to output(<<~MSG).to_stdout
           [#{formatted_runtime(1.32)}] Successfuly updated aliases:
-                    -> Index #{colorize("index_name_123", :bold)} removed from alias #{colorize("index_name", :bold)}
-                    -> Index #{colorize("index_name_456", :bold)} added to alias #{colorize("index_name", :bold)}
+                    -> Index #{colorize('index_name_123', :bold)} removed from alias #{colorize('index_name', :bold)}
+                    -> Index #{colorize('index_name_456', :bold)} added to alias #{colorize('index_name', :bold)}
         MSG
       end
     end
@@ -87,9 +87,9 @@ RSpec.describe Esse::CLI::EventListener do
       it 'prints message' do
         expect { subject }.to output(<<~MSG).to_stdout
           [#{formatted_runtime(1.32)}] Successfuly updated aliases:
-                    -> Index #{colorize("index_name_123", :bold)} removed from alias #{colorize("index_name", :bold)}
-                    -> Index #{colorize("index_name_456", :bold)} removed from alias #{colorize("index_name", :bold)}
-                    -> Index #{colorize("index_name_789", :bold)} added to alias #{colorize("index_name", :bold)}
+                    -> Index #{colorize('index_name_123', :bold)} removed from alias #{colorize('index_name', :bold)}
+                    -> Index #{colorize('index_name_456', :bold)} removed from alias #{colorize('index_name', :bold)}
+                    -> Index #{colorize('index_name_789', :bold)} added to alias #{colorize('index_name', :bold)}
         MSG
       end
     end
@@ -110,7 +110,7 @@ RSpec.describe Esse::CLI::EventListener do
         runtime: 1.32,
         wait_interval: wait_interval,
         request: {
-          index: "index_name",
+          index: 'index_name',
           body_stats: body_stats
         }
       }
@@ -131,7 +131,7 @@ RSpec.describe Esse::CLI::EventListener do
       end
     end
 
-    context "with wait_interval > 0.0" do
+    context 'with wait_interval > 0.0' do
       let(:wait_interval) { 1.0 }
 
       it 'prints message' do
@@ -139,14 +139,14 @@ RSpec.describe Esse::CLI::EventListener do
       end
     end
 
-    context "with document type" do
+    context 'with document type' do
       let(:payload) do
         {
           runtime: 1.32,
           wait_interval: 0.0,
           request: {
-            index: "index_name",
-            type: "document_type",
+            index: 'index_name',
+            type: 'document_type',
             body_stats: [],
           }
         }
@@ -168,7 +168,7 @@ RSpec.describe Esse::CLI::EventListener do
 
       it 'prints message' do
         expect { subject }.to output(<<~MSG).to_stdout
-          [#{formatted_runtime(1.32)}] Bulk index #{colorize("index_name", :bold)}: #{colorize("delete", :bold)}: 10 docs.
+          [#{formatted_runtime(1.32)}] Bulk index #{colorize('index_name', :bold)}: #{colorize('delete', :bold)}: 10 docs.
         MSG
       end
     end
@@ -184,7 +184,7 @@ RSpec.describe Esse::CLI::EventListener do
 
       it 'prints message' do
         expect { subject }.to output(<<~MSG).to_stdout
-          [#{formatted_runtime(1.32)}] Bulk index #{colorize("index_name", :bold)}: #{colorize("index", :bold)}: 20 docs.
+          [#{formatted_runtime(1.32)}] Bulk index #{colorize('index_name', :bold)}: #{colorize('index', :bold)}: 20 docs.
         MSG
       end
     end
@@ -200,7 +200,7 @@ RSpec.describe Esse::CLI::EventListener do
 
       it 'prints message' do
         expect { subject }.to output(<<~MSG).to_stdout
-          [#{formatted_runtime(1.32)}] Bulk index #{colorize("index_name", :bold)}: #{colorize("create", :bold)}: 5 docs.
+          [#{formatted_runtime(1.32)}] Bulk index #{colorize('index_name', :bold)}: #{colorize('create', :bold)}: 5 docs.
         MSG
       end
     end
@@ -216,7 +216,7 @@ RSpec.describe Esse::CLI::EventListener do
 
       it 'prints message' do
         expect { subject }.to output(<<~MSG).to_stdout
-          [#{formatted_runtime(1.32)}] Bulk index #{colorize("index_name", :bold)}: #{colorize("create", :bold)}: 10 docs, #{colorize("delete", :bold)}: 15 docs, #{colorize("index", :bold)}: 20 docs.
+          [#{formatted_runtime(1.32)}] Bulk index #{colorize('index_name', :bold)}: #{colorize('create', :bold)}: 10 docs, #{colorize('delete', :bold)}: 15 docs, #{colorize('index', :bold)}: 20 docs.
         MSG
       end
     end

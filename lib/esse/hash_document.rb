@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Esse
-  class HashDocument < Esse::Serializer
+  class HashDocument < Esse::Document
     META_KEYS = %i[_id _type _routing routing].freeze
 
     def initialize(object)

@@ -8,7 +8,7 @@ module Esse
       def run
         validate_options!
         indices.each do |index|
-          index.elasticsearch.update_aliases!(**options)
+          index.update_aliases(**options)
         end
       end
 
@@ -21,7 +21,7 @@ module Esse
       def validate_options!
         validate_indices_option!
 
-        if @options[:suffix].nil?
+        if @options[:suffix].nil? || @options[:suffix].empty?
           raise InvalidOption.new(<<~END)
             You must specify a suffix to update the aliases.
           END

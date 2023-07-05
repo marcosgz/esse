@@ -5,7 +5,7 @@ module Esse
   require_relative 'cluster'
   require_relative 'primitives'
   require_relative 'collection'
-  require_relative 'serializer'
+  require_relative 'document'
   require_relative 'hash_document'
   require_relative 'null_document'
   require_relative 'repository'
@@ -15,8 +15,6 @@ module Esse
   require_relative 'template_loader'
   require_relative 'import/request_body'
   require_relative 'import/bulk'
-  require_relative 'backend/index'
-  require_relative 'backend/repository_backend'
   require_relative 'version'
   require_relative 'logging'
   require_relative 'events'
@@ -84,5 +82,11 @@ module Esse
       require(path.expand_path.to_s)
     end
     true
+  end
+
+  def self.document?(object)
+    return false unless object
+
+    !!(object.is_a?(Esse::Document) && object.id)
   end
 end

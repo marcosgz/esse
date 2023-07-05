@@ -51,7 +51,7 @@ class ApplicationIndex < Esse::Index
 end
 
 class GeosIndex < ApplicationIndex
-  self.index_version = 'v1'
+  self.index_suffix = 'v1'
 
   settings do
     {
@@ -79,10 +79,10 @@ class GeosIndex < ApplicationIndex
       },
       properties: {
         name: {
-          type: "keyword",
+          type: 'keyword',
           fields: {
             analyzed: {
-              type: "text",
+              type: 'text',
             }
           }
         }
@@ -90,31 +90,35 @@ class GeosIndex < ApplicationIndex
     }
   end
 
-  collection :state do |**, &block|
-    US_STATES.each_slice(3) do |chunk|
-      block.call chunk
+  repository :state do
+    collection do |**, &block|
+      US_STATES.each_slice(3) do |chunk|
+        block.call chunk
+      end
+    end
+
+    document do |(state, name), **|
+      {
+        name: name,
+        routing: state,
+      }
     end
   end
 
-  collection :city do |**, &block|
-    IL_CITIES.each_slice(3) do |chunk|
-      block.call chunk.map { |city| ['IL', city] }
+  repository :city do
+    collection do |**, &block|
+      IL_CITIES.each_slice(3) do |chunk|
+        block.call chunk.map { |city| ['IL', city] }
+      end
     end
-  end
 
-  serializer :state do |(abbr, name), **|
-    {
-      id: abbr,
-      name: name,
-      routing: abbr,
-    }
-  end
-
-  serializer :city do |(state, name), **|
-    {
-      name: name,
-      routing: state,
-    }
+    document do |(abbr, name), **|
+      {
+        id: abbr,
+        name: name,
+        routing: abbr,
+      }
+    end
   end
 end
 

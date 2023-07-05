@@ -13,7 +13,7 @@ RSpec.describe Esse::Logging do
     it { expect(Esse).to respond_to(:logger=) }
 
     it 'sets the logger' do
-      expected = Logger.new(STDOUT)
+      expected = Logger.new($stdout)
       expect {
         Esse.logger = expected
       }.to change { Esse.logger }

@@ -4,9 +4,12 @@
 require_relative '<%= @index_name.demodulize.underscore.to_s %>/collections/<%= type.underscore %>_collection'
 <%- end if @cli_options[:collections] && !@cli_options[:active_record] -%>
 <%- @types.each do |type| -%>
-require_relative '<%= @index_name.demodulize.underscore.to_s %>/serializers/<%= type.underscore %>_serializer'
-<%- end if @cli_options[:serializers] -%>
+require_relative '<%= @index_name.demodulize.underscore.to_s %>/documents/<%= type.underscore %>_document'
+<%- end if @cli_options[:documents] -%>
 class <%= @index_name %> < <%= @base_class %>
+  <%-if @index_cluster_id -%>
+  self.cluster_id = :<%= @index_cluster_id %>
+  <%- end -%>
   <%- if @cli_options[:active_record] -%>
   plugin :active_record
 
@@ -25,16 +28,16 @@ class <%= @index_name %> < <%= @base_class %>
     end
   end
   <%- end -%>
-  <%- if @cli_options[:serializers] -%>
-  serializer Serializers::Serializer
+  <%- if @cli_options[:documents] -%>
+  document Documents::Document
   <%- else -%>
-  serializer do |object, **_context|
+  document do |object, **_context|
     {
       id: object.id,
       name: object.name,
     }
   end
-  <%- end # if @cli_options[:serializers] -%>
+  <%- end # if @cli_options[:documents] -%>
   <%- end # /@types.empty?-%>
 
   <%- @types.each do |type| -%>
@@ -52,10 +55,10 @@ class <%= @index_name %> < <%= @base_class %>
       end
     end
     <%- end -%>
-    <%- if @cli_options[:serializers] -%>
-    serializer Serializers::<%= type.camelize %>Serializer
+    <%- if @cli_options[:documents] -%>
+    document Documents::<%= type.camelize %>Document
     <%- else -%>
-    serializer do |<%= type.underscore %>, **_context|
+    document do |<%= type.underscore %>, **_context|
       {
         id: <%= type.underscore %>.id,
         name: <%= @index_name.underscore %>.name,

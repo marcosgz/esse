@@ -30,23 +30,18 @@ RSpec.describe Esse::CLI::Index, type: :cli do
       end
 
       specify do
-        expect(CountiesIndex).to receive(:elasticsearch).at_least(1).and_return(api = double)
-        expect(api).to receive(:close!).and_return(true)
+        expect(CountiesIndex).to receive(:close).and_return(true)
         cli_exec(%w[index close CountiesIndex])
       end
 
       specify do
-        expect(CountiesIndex).to receive(:elasticsearch).at_least(1).and_return(api = double)
-        expect(api).to receive(:close!).with(suffix: 'foo').and_return(true)
+        expect(CountiesIndex).to receive(:close).with(suffix: 'foo').and_return(true)
         cli_exec(%w[index close CountiesIndex --suffix=foo])
       end
 
-
       it 'allows multiple indices' do
-        expect(CountiesIndex).to receive(:elasticsearch).at_least(1).and_return(api1 = double)
-        expect(CitiesIndex).to receive(:elasticsearch).at_least(1).and_return(api2 = double)
-        expect(api1).to receive(:close!).and_return(true)
-        expect(api2).to receive(:close!).and_return(true)
+        expect(CountiesIndex).to receive(:close).and_return(true)
+        expect(CitiesIndex).to receive(:close).and_return(true)
         cli_exec(%w[index close CountiesIndex CitiesIndex])
       end
     end
