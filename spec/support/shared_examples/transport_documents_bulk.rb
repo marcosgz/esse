@@ -1,9 +1,21 @@
 # frozen_string_literal: true
 
 RSpec.shared_examples 'transport#bulk' do
+  let(:index_suffix) { SecureRandom.hex(8) }
+
+  it 'raises an Esse::Transport::ReadonlyClusterError exception when the cluster is readonly' do
+    es_client do |client, _conf, cluster|
+      expect(client).not_to receive(:perform_request)
+      cluster.readonly = true
+      expect {
+        cluster.api.bulk(index: "#{cluster.index_prefix}_readonly", body: [])
+      }.to raise_error(Esse::Transport::ReadonlyClusterError)
+    end
+  end
+
   it 'indexes documents in bulk mode using a String as the payload' do
     es_client do |_client, _conf, cluster|
-      index_name = "#{cluster.index_prefix}_dummies_#{SecureRandom.hex(8)}}"
+      index_name = "#{cluster.index_prefix}_dummies_#{index_suffix}"
       cluster.api.create_index(index: index_name, body: {
         settings: { number_of_shards: 1, number_of_replicas: 0 },
       })
@@ -29,7 +41,7 @@ RSpec.shared_examples 'transport#bulk' do
 
   it 'indexes documents in bulk mode using an Array as the payload' do
     es_client do |_client, _conf, cluster|
-      index_name = "#{cluster.index_prefix}_dummies_#{SecureRandom.hex(8)}}"
+      index_name = "#{cluster.index_prefix}_dummies_#{index_suffix}"
       cluster.api.create_index(index: index_name, body: {
         settings: { number_of_shards: 1, number_of_replicas: 0 },
       })
@@ -55,7 +67,7 @@ RSpec.shared_examples 'transport#bulk' do
 
   it 'indexes documents in bulk mode using array with hash :data as the payload' do
     es_client do |_client, _conf, cluster|
-      index_name = "#{cluster.index_prefix}_dummies_#{SecureRandom.hex(8)}}"
+      index_name = "#{cluster.index_prefix}_dummies_#{index_suffix}"
       cluster.api.create_index(index: index_name, body: {
         settings: { number_of_shards: 1, number_of_replicas: 0 },
       })
@@ -78,7 +90,7 @@ RSpec.shared_examples 'transport#bulk' do
 
   it 'creates an index when the index does not exist along with bulk indexing' do
     es_client do |_client, _conf, cluster|
-      index_name = "#{cluster.index_prefix}_dummies_#{SecureRandom.hex(8)}}"
+      index_name = "#{cluster.index_prefix}_dummies_#{index_suffix}"
 
       resp = nil
       expect {
@@ -93,7 +105,7 @@ RSpec.shared_examples 'transport#bulk' do
 
   it 'raises an error when performing bulk with an empty payload' do
     es_client do |_client, _conf, cluster|
-      index_name = "#{cluster.index_prefix}_dummies_#{SecureRandom.hex(8)}}"
+      index_name = "#{cluster.index_prefix}_dummies_#{index_suffix}"
 
       expect {
         cluster.api.bulk(index: index_name, body: [])

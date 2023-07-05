@@ -11,6 +11,16 @@ RSpec.shared_examples 'index.update' do |doc_type: false|
   end
   let(:index_suffix) { SecureRandom.hex(8) }
 
+  it 'raises an Esse::Transport::ReadonlyClusterError exception when the cluster is readonly' do
+    es_client do |client, _conf, cluster|
+      expect(client).not_to receive(:perform_request)
+      cluster.readonly = true
+      expect {
+        VenuesIndex.update(id: 1, body: { doc: { name: 'New Name' } }, **params)
+      }.to raise_error(Esse::Transport::ReadonlyClusterError)
+    end
+  end
+
   it 'raises an Esse::Transport::ServerError exception when api throws an error' do
     es_client do |client, _conf, cluster|
       expect {

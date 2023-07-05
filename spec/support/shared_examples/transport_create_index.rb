@@ -9,6 +9,17 @@ RSpec.shared_examples 'transport#create_index' do
       }
     }
   end
+
+  it 'raises an Esse::Transport::ReadonlyClusterError exception when the cluster is readonly' do
+    es_client do |client, _conf, cluster|
+      expect(client).not_to receive(:perform_request)
+      cluster.readonly = true
+      expect {
+        cluster.api.create_index(index: "#{cluster.index_prefix}_readonly", body: body)
+      }.to raise_error(Esse::Transport::ReadonlyClusterError)
+    end
+  end
+
   it 'creates a new index with defined settings' do
     es_client do |client, _conf, cluster|
       index_name = "#{cluster.index_prefix}_dummies"
@@ -25,7 +36,7 @@ RSpec.shared_examples 'transport#create_index' do
   end
 
   it 'creates a new index and wait for configured global status' do
-    es_client do |client, _conf, cluster|
+    es_client do |_client, _conf, cluster|
       index_name = "#{cluster.index_prefix}_dummies"
       expect(cluster).to receive(:wait_for_status!).with(
         status: (cluster.wait_for_status = 'green'),
@@ -41,7 +52,7 @@ RSpec.shared_examples 'transport#create_index' do
   end
 
   it 'creates a new index and wait for given status' do
-    es_client do |client, _conf, cluster|
+    es_client do |_client, _conf, cluster|
       index_name = "#{cluster.index_prefix}_dummies"
       expect(cluster).to receive(:wait_for_status!).with(
         status: 'green',
@@ -57,7 +68,7 @@ RSpec.shared_examples 'transport#create_index' do
   end
 
   it 'raises an exeption when api throws an error' do
-    es_client do |client, _conf, cluster|
+    es_client do |_client, _conf, cluster|
       index_name = "#{cluster.index_prefix}_dummies"
       cluster.api.create_index(index: index_name, body: body)
 

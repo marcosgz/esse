@@ -49,6 +49,7 @@ module Esse
       #
       # @see https://www.elastic.co/guide/en/elasticsearch/reference/master/indices-open-close.html
       def reset_index(suffix: index_suffix, import: true, reindex: false, **options)
+        cluster.throw_error_when_readonly!
         existing = []
         suffix ||= Esse.timestamp
         suffix = Esse.timestamp while index_exist?(suffix: suffix).tap { |exist| existing << suffix if exist }

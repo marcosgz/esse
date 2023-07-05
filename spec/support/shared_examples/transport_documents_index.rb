@@ -5,6 +5,16 @@ RSpec.shared_examples 'transport#index' do |doc_type: false|
     doc_type ? { type: 'geo' } : {}
   end
 
+  it 'raises an Esse::Transport::ReadonlyClusterError exception when the cluster is readonly' do
+    es_client do |client, _conf, cluster|
+      expect(client).not_to receive(:perform_request)
+      cluster.readonly = true
+      expect {
+        cluster.api.index(index: "#{cluster.index_prefix}_readonly", id: 1, body: { name: 'Illinois', pk: 1 }, **params)
+      }.to raise_error(Esse::Transport::ReadonlyClusterError)
+    end
+  end
+
   it 'indexes a document' do
     es_client do |_client, _conf, cluster|
       index_name = "#{cluster.index_prefix}_dummies_#{SecureRandom.hex(8)}}"

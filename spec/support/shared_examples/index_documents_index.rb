@@ -10,6 +10,16 @@ RSpec.shared_examples 'index.index' do |doc_type: false|
     doc_type ? { _type: 'venue' } : {}
   end
 
+  it 'raises an Esse::Transport::ReadonlyClusterError exception when the cluster is readonly' do
+    es_client do |client, _conf, cluster|
+      expect(client).not_to receive(:perform_request)
+      cluster.readonly = true
+      expect {
+        VenuesIndex.index(id: 1, body: { name: 'New Name' }, **params)
+      }.to raise_error(Esse::Transport::ReadonlyClusterError)
+    end
+  end
+
   it 'raises ArgumentError when the :id is not provided' do
     es_client do |client, _conf, cluster|
       expect {

@@ -54,4 +54,15 @@ RSpec.shared_examples 'index.count' do |doc_type: false|
       expect(resp).to eq(1)
     end
   end
+
+  it 'does not raise Esse::Transport::ReadonlyClusterError error when the cluster is readonly' do
+    es_client do |_client, _conf, cluster|
+      VenuesIndex.create_index
+
+      cluster.readonly = true
+      expect {
+        VenuesIndex.count
+      }.not_to raise_error
+    end
+  end
 end

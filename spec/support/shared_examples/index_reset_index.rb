@@ -5,6 +5,16 @@ RSpec.shared_examples 'index.reset_index' do
 
   let(:index_suffix) { SecureRandom.hex(8) }
 
+  it 'raises an Esse::Transport::ReadonlyClusterError exception when the cluster is readonly' do
+    es_client do |client, _conf, cluster|
+      expect(client).not_to receive(:perform_request)
+      cluster.readonly = true
+      expect {
+        GeosIndex.reset_index(suffix: index_suffix, import: false)
+      }.to raise_error(Esse::Transport::ReadonlyClusterError)
+    end
+  end
+
   it 'creates a new index, import data and put the alias' do
     es_client do |client, _conf, cluster|
       expect {

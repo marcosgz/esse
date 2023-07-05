@@ -3,6 +3,16 @@
 RSpec.shared_examples 'index.create_index' do
   include_context 'with geos index definition'
 
+  it 'raises an Esse::Transport::ReadonlyClusterError exception when the cluster is readonly' do
+    es_client do |client, _conf, cluster|
+      expect(client).not_to receive(:perform_request)
+      cluster.readonly = true
+      expect {
+        GeosIndex.create_index(suffix: '2022')
+      }.to raise_error(Esse::Transport::ReadonlyClusterError)
+    end
+  end
+
   it 'creates a suffixed index and adds the alias' do
     es_client do |client, _conf, cluster|
       expect {

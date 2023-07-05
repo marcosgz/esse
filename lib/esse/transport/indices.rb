@@ -16,6 +16,8 @@ module Esse
       #
       # @see https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-create-index.html
       def create_index(index:, wait_for_status: nil, **options)
+        throw_error_when_readonly!
+
         Esse::Events.instrument('elasticsearch.create_index') do |payload|
           payload[:request] = opts = options.merge(index: index)
           payload[:response] = response = coerce_exception { client.indices.create(**opts) }
@@ -60,6 +62,8 @@ module Esse
       #
       # @see https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-delete-index.html
       def delete_index(index:, wait_for_status: nil, **options)
+        throw_error_when_readonly!
+
         Esse::Events.instrument('elasticsearch.delete_index') do |payload|
           payload[:request] = opts = options.merge(index: index)
           payload[:response] = response = coerce_exception { client.indices.delete(**opts) }
@@ -88,6 +92,8 @@ module Esse
       #
       # @see https://www.elastic.co/guide/en/elasticsearch/reference/master/indices-open-open.html
       def open(index:, **options)
+        throw_error_when_readonly!
+
         Esse::Events.instrument('elasticsearch.open') do |payload|
           payload[:request] = attributes = options.merge(index: index)
           payload[:response] = coerce_exception { client.indices.open(**attributes) }
@@ -109,6 +115,8 @@ module Esse
       #
       # @see https://www.elastic.co/guide/en/elasticsearch/reference/master/indices-open-close.html
       def close(index:, **options)
+        throw_error_when_readonly!
+
         Esse::Events.instrument('elasticsearch.close') do |payload|
           payload[:request] = attributes = options.merge(index: index)
           payload[:response] = coerce_exception { client.indices.close(**attributes) }
@@ -125,6 +133,8 @@ module Esse
       #
       # @see https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-refresh.html
       def refresh(index:, **options)
+        throw_error_when_readonly!
+
         Esse::Events.instrument('elasticsearch.refresh') do |payload|
           payload[:request] = attributes = options.merge(index: index)
           payload[:response] = coerce_exception { client.indices.refresh(**attributes) }
@@ -145,6 +155,8 @@ module Esse
       #
       # @see https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-put-mapping.html
       def update_mapping(index:, body:, **options)
+        throw_error_when_readonly!
+
         Esse::Events.instrument('elasticsearch.update_mapping') do |payload|
           payload[:request] = opts = options.merge(index: index, body: body)
           payload[:response] = coerce_exception { client.indices.put_mapping(**opts) }
@@ -166,6 +178,8 @@ module Esse
       #
       # @see https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-update-settings.html
       def update_settings(index:, body:, **options)
+        throw_error_when_readonly!
+
         Esse::Events.instrument('elasticsearch.update_settings') do |payload|
           payload[:request] = opts = options.merge(index: index, body: body)
           payload[:response] = coerce_exception { client.indices.put_settings(**opts) }

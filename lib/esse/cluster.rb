@@ -5,7 +5,7 @@ require_relative 'transport'
 
 module Esse
   class Cluster
-    ATTRIBUTES = %i[index_prefix settings mappings client wait_for_status].freeze
+    ATTRIBUTES = %i[index_prefix settings mappings client wait_for_status readonly].freeze
     WAIT_FOR_STATUSES = %w[green yellow red].freeze
 
     # The index prefix. For example an index named UsersIndex.
@@ -28,12 +28,17 @@ module Esse
     #   wait_for_status: green
     attr_accessor :wait_for_status
 
+    # Disable all writes from the application to the underlying Elasticsearch instance while keeping the
+    # application running and handling search requests.
+    attr_writer :readonly
+
     attr_reader :id
 
     def initialize(id:, **options)
       @id = id.to_sym
       @settings = {}
       @mappings = {}
+      @readonly = false
       assign(options)
     end
 
@@ -59,6 +64,17 @@ module Esse
           Please install elasticsearch or opensearch-ruby gem.
         ERROR
       end
+    end
+
+    # @return [Boolean] Return true if the cluster is readonly
+    def readonly?
+      !!@readonly
+    end
+
+    # @raise [Esse::Transport::ReadonlyClusterError] if the cluster is readonly
+    # @return [void]
+    def throw_error_when_readonly!
+      raise Esse::Transport::ReadonlyClusterError if readonly?
     end
 
     # Define the elasticsearch client connection

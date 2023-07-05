@@ -74,4 +74,15 @@ RSpec.shared_examples 'index.exist?' do
       expect(resp).to eq(false)
     end
   end
+
+  it 'does not raise Esse::Transport::ReadonlyClusterError error when the cluster is readonly' do
+    es_client do |_client, _conf, cluster|
+      VenuesIndex.create_index
+
+      cluster.readonly = true
+      expect {
+        VenuesIndex.exist?(id: 1)
+      }.not_to raise_error
+    end
+  end
 end

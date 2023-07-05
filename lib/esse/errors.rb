@@ -8,6 +8,13 @@ module Esse
   class Transport
     class ServerError < ::Esse::Error; end
 
+    # exception to raise when the cluster is readonly
+    class ReadonlyClusterError < ::Esse::Error
+      def initialize
+        super('You cannot perform this operation on a readonly cluster')
+      end
+    end
+
     ES_TRANSPORT_ERRORS = {
       'MultipleChoices' => 'MultipleChoicesError', # 300
       'MovedPermanently' => 'MovedPermanentlyError', # 301

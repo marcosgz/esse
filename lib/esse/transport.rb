@@ -10,7 +10,7 @@ module Esse
 
     extend Forwardable
 
-    def_delegators :@cluster, :client
+    def_delegators :@cluster, :client, :throw_error_when_readonly!
 
     attr_reader :cluster
 

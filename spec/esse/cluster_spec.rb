@@ -5,7 +5,7 @@ require 'spec_helper'
 RSpec.describe Esse::Cluster do
   let(:model) { described_class.new(id: :v1) }
 
-  describe '.id' do
+  describe '#id' do
     context do
       let(:model) { described_class.new(id: :v1) }
 
@@ -37,7 +37,7 @@ RSpec.describe Esse::Cluster do
     end
   end
 
-  describe '.assign' do
+  describe '#assign' do
     let(:model) { described_class.new(id: :v1) }
 
     specify do
@@ -69,9 +69,39 @@ RSpec.describe Esse::Cluster do
       expect { model.assign(wait_for_status: 'yellow') }.not_to raise_error
       expect(model.wait_for_status).to eq('yellow')
     end
+
+    specify do
+      expect(model.readonly?).to eq(false)
+      expect { model.assign(readonly: true) }.not_to raise_error
+      expect(model.readonly?).to eq(true)
+    end
   end
 
-  describe '.wait_for_status' do
+  describe '#readonly?' do
+    it { expect(model.readonly?).to eq(false) }
+
+    it 'allows overwriting default value' do
+      model.readonly = true
+      expect(model.readonly?).to eq(true)
+    end
+  end
+
+  describe '#throw_error_when_readonly!' do
+    it 'raises an error when the cluster is readonly' do
+      model.readonly = true
+      expect {
+        model.throw_error_when_readonly!
+      }.to raise_error(Esse::Transport::ReadonlyClusterError)
+    end
+
+    it 'does not raise an error when the cluster is not readonly' do
+      expect {
+        model.throw_error_when_readonly!
+      }.not_to raise_error
+    end
+  end
+
+  describe '#wait_for_status' do
     it { expect(model.wait_for_status).to eq(nil) }
 
     it 'sets the value for wait_for_status' do
@@ -80,7 +110,7 @@ RSpec.describe Esse::Cluster do
     end
   end
 
-  describe '.wait_for_status!' do
+  describe '#wait_for_status!' do
     let(:api) { instance_double(Esse::Transport) }
 
     before do
@@ -104,7 +134,7 @@ RSpec.describe Esse::Cluster do
     end
   end
 
-  describe '.settings' do
+  describe '#settings' do
     it { expect(model.settings).to eq({}) }
 
     it 'allows overwriting default value' do
@@ -113,7 +143,7 @@ RSpec.describe Esse::Cluster do
     end
   end
 
-  describe '.index_prefix' do
+  describe '#index_prefix' do
     it { expect(model.index_prefix).to eq nil }
 
     it 'allows overwriting default value' do
@@ -122,7 +152,7 @@ RSpec.describe Esse::Cluster do
     end
   end
 
-  describe '.client=', service_type: :elasticsearch do
+  describe '#client=', service_type: :elasticsearch do
     it { expect(model).to respond_to(:'client=') }
 
     it 'defines a connection from hash' do
@@ -143,7 +173,7 @@ RSpec.describe Esse::Cluster do
     end
   end
 
-  describe '.client=', service_type: :opensearch do
+  describe '#client=', service_type: :opensearch do
     it { expect(model).to respond_to(:'client=') }
 
     it 'defines a connection from hash' do
@@ -164,7 +194,7 @@ RSpec.describe Esse::Cluster do
     end
   end
 
-  describe '.client', service_type: :elasticsearch do
+  describe '#client', service_type: :elasticsearch do
     it { expect(model).to respond_to(:client) }
 
     it 'retuns an instance of elasticsearch as default' do
@@ -187,7 +217,7 @@ RSpec.describe Esse::Cluster do
     end
   end
 
-  describe '.client', service_type: :opensearch do
+  describe '#client', service_type: :opensearch do
     it { expect(model).to respond_to(:client) }
 
     it 'retuns an instance of elasticsearch as default' do
@@ -205,7 +235,7 @@ RSpec.describe Esse::Cluster do
     end
   end
 
-  describe '.info' do
+  describe '#info' do
     subject { model.info }
 
     context 'with elasticsearch 1.x', es_version: '1.x' do

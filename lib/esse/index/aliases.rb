@@ -28,6 +28,7 @@ module Esse
       # @raise [Esse::Transport::ServerError] in case of failure
       # @return [Hash] the elasticsearch response
       def update_aliases(suffix:, **options)
+        cluster.throw_error_when_readonly!
         raise(ArgumentError, 'index suffix cannot be nil') if suffix.nil?
 
         options[:body] = {

@@ -3,6 +3,16 @@
 RSpec.shared_examples 'index.import' do
   include_context 'with venues index definition'
 
+  it 'raises an Esse::Transport::ReadonlyClusterError exception when the cluster is readonly' do
+    es_client do |client, _conf, cluster|
+      expect(client).not_to receive(:perform_request)
+      cluster.readonly = true
+      expect {
+        VenuesIndex.import(refresh: true)
+      }.to raise_error(Esse::Transport::ReadonlyClusterError)
+    end
+  end
+
   it 'loads the data from repository and indexes to the aliased index' do
     es_client do |client, _conf, cluster|
       VenuesIndex.create_index(alias: true)

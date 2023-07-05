@@ -98,6 +98,8 @@ module Esse
       #
       # @see https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-delete.html
       def delete(id:, index:, **options)
+        throw_error_when_readonly!
+
         Esse::Events.instrument('elasticsearch.delete') do |payload|
           payload[:request] = opts = options.merge(id: id, index: index)
           payload[:response] = coerce_exception { client.delete(**opts) }
@@ -126,6 +128,8 @@ module Esse
       # @see https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-update.html
       #
       def update(id:, index:, body:, **options)
+        throw_error_when_readonly!
+
         Esse::Events.instrument('elasticsearch.update') do |payload|
           payload[:request] = opts = options.merge(id: id, index: index, body: body)
           payload[:response] = coerce_exception { client.update(**opts) }
@@ -152,6 +156,8 @@ module Esse
       #
       # @see https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-index_.html
       def index(id:, index:, body:, **options)
+        throw_error_when_readonly!
+
         Esse::Events.instrument('elasticsearch.index') do |payload|
           payload[:request] = opts = options.merge(id: id, index: index, body: body)
           payload[:response] = coerce_exception { client.index(**opts) }
@@ -177,6 +183,8 @@ module Esse
       #
       # @see https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-bulk.html
       def bulk(body:, **options)
+        throw_error_when_readonly!
+
         Esse::Events.instrument('elasticsearch.bulk') do |payload|
           payload[:request] = opts = options.merge(body: body)
           payload[:response] = response = coerce_exception { client.bulk(**opts) }

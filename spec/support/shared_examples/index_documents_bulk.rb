@@ -15,6 +15,16 @@ RSpec.shared_examples 'index.bulk' do |doc_type: false|
     end
   end
 
+  it 'raises an Esse::Transport::ReadonlyClusterError exception when the cluster is readonly' do
+    es_client do |client, _conf, cluster|
+      expect(client).not_to receive(:perform_request)
+      cluster.readonly = true
+      expect {
+        VenuesIndex.bulk(index: documents)
+      }.to raise_error(Esse::Transport::ReadonlyClusterError)
+    end
+  end
+
   it 'indexes a batch of documents to the aliased index' do
     es_client do |client, _conf, cluster|
       VenuesIndex.create_index(alias: true)
