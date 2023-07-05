@@ -5,9 +5,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        ruby: [2.6.9, 2.7.7, 3.0.3, 3.1.2, 3.2.2]
         include:
-          - ruby: 2.6.9
-            gemfile: gemfiles/Gemfile.elasticsearch-1.x
+          - gemfile: gemfiles/Gemfile.elasticsearch-1.x
             stack: elasticsearch:1.7.6
             stack_version: "1.7.6"
     runs-on: ubuntu-latest

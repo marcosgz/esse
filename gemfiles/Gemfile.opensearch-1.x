@@ -2,6 +2,6 @@
 
 source 'https://rubygems.org'
 
-gem 'opensearch-ruby', '~> 1..0'
+gem 'opensearch-ruby', '~> 1.0'
 
 gemspec path: '..'
