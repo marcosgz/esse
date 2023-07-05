@@ -10,11 +10,21 @@ jobs:
           - gemfile: gemfiles/Gemfile.elasticsearch-1.x
             stack: elasticsearch:1.7.6
             stack_version: "1.7.6"
+            allow_failure: true
+          - gemfile: gemfiles/Gemfile.elasticsearch-2.x
+            stack: elasticsearch:2.4.6
+            stack_version: "2.4.6"
+            allow_failure: true
+          - gemfile: gemfiles/Gemfile.elasticsearch-7.x
+            stack: elasticsearch:7.13.2
+            stack_version: "7.13.2"
+            allow_failure: false
     runs-on: ubuntu-latest
     env:
       BUNDLE_GEMFILE: ${{ matrix.gemfile }}
       STACK_VERSION: ${{ matrix.stack_version }}
       ESSE_URL: http://localhost:9200
+    continue-on-error: ${{ matrix.allow_failure }}
     steps:
       - uses: actions/checkout@v3
       - name: Configure sysctl limits
