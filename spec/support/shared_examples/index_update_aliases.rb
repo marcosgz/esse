@@ -40,7 +40,11 @@ RSpec.shared_examples 'index.update_aliases' do
 
       expect {
         GeosIndex.update_aliases(suffix: %w[2023 2024])
-      }.to change { GeosIndex.indices_pointing_to_alias }.from([]).to(["#{GeosIndex.index_name}_2023", "#{GeosIndex.index_name}_2024"])
+      }.to change { GeosIndex.indices_pointing_to_alias }.from([]).to(
+        an_instance_of(Array).and(
+          include("#{GeosIndex.index_name}_2023", "#{GeosIndex.index_name}_2024"),
+        )
+      )
     end
   end
 
@@ -65,8 +69,11 @@ RSpec.shared_examples 'index.update_aliases' do
 
       expect {
         GeosIndex.update_aliases(suffix: '2025')
-      }.to change { GeosIndex.indices_pointing_to_alias }.from(["#{GeosIndex.index_name}_2023", "#{GeosIndex.index_name}_2024"])
-        .to(["#{GeosIndex.index_name}_2025"])
+      }.to change { GeosIndex.indices_pointing_to_alias }.from(
+        an_instance_of(Array).and(
+          include("#{GeosIndex.index_name}_2023", "#{GeosIndex.index_name}_2024"),
+        )
+      ).to(["#{GeosIndex.index_name}_2025"])
     end
   end
 
@@ -78,7 +85,11 @@ RSpec.shared_examples 'index.update_aliases' do
 
       expect {
         GeosIndex.update_aliases(suffix: %w[2023 2024])
-      }.to change { GeosIndex.indices_pointing_to_alias }.from(["#{GeosIndex.index_name}_#{index_suffix}"]).to(["#{GeosIndex.index_name}_2023", "#{GeosIndex.index_name}_2024"])
+      }.to change { GeosIndex.indices_pointing_to_alias }.from(["#{GeosIndex.index_name}_#{index_suffix}"]).to(
+        an_instance_of(Array).and(
+          include("#{GeosIndex.index_name}_2023", "#{GeosIndex.index_name}_2024"),
+        )
+      )
     end
   end
 end

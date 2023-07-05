@@ -93,10 +93,11 @@ module Esse
     end
 
     def inspect
-      attrs = ([:id] + ATTRIBUTES - [:client]).map do |method|
+      attrs = ([:id] + ATTRIBUTES - [:client, :readonly]).map do |method|
         value = public_send(method)
         format('%<k>s=%<v>p', k: method, v: value) if value
       end.compact
+      attrs << 'readonly=true' if readonly?
       attrs << format('client=%p', @client)
       format('#<Esse::Cluster %<attrs>s>', attrs: attrs.join(' '))
     end
@@ -105,7 +106,8 @@ module Esse
     #
     # @option [String] :status Wait until cluster is in a specific state (options: green, yellow, red)
     # @option [String] :index Limit the information returned to a specific index
-    def wait_for_status!(status: wait_for_status, **kwargs)
+    def wait_for_status!(status: nil, **kwargs)
+      status ||= wait_for_status
       return unless WAIT_FOR_STATUSES.include?(status.to_s)
 
       api.health(**kwargs, wait_for_status: status.to_s)

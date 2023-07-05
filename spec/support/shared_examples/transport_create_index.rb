@@ -39,7 +39,7 @@ RSpec.shared_examples 'transport#create_index' do
     es_client do |_client, _conf, cluster|
       index_name = "#{cluster.index_prefix}_dummies"
       expect(cluster).to receive(:wait_for_status!).with(
-        status: (cluster.wait_for_status = 'green'),
+        status: nil,
         index: index_name,
       ).and_call_original
       resp = nil

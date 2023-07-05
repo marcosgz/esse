@@ -156,7 +156,7 @@ RSpec.describe Esse::Cluster do
     it { expect(model).to respond_to(:'client=') }
 
     it 'defines a connection from hash' do
-      expect(Elasticsearch::Client).to receive(:new).with(hosts: []).and_return(client = double)
+      expect(Elasticsearch::Client).to receive(:new).with({hosts: []}).and_return(client = double)
 
       expect {
         model.client = { hosts: [] }
