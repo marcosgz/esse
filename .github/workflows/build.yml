@@ -1,0 +1,39 @@
+name: build
+on: [push, pull_request]
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - ruby: 2.6.9
+            gemfile: gemfiles/Gemfile.elasticsearch-1.x
+            stack: elasticsearch:1.7.6
+            stack_version: "1.7.6"
+    runs-on: ubuntu-latest
+    env:
+      BUNDLE_GEMFILE: ${{ matrix.gemfile }}
+      STACK_VERSION: ${{ matrix.stack_version }}
+      ESSE_URL: http://localhost:9200
+    steps:
+      - uses: actions/checkout@v3
+      - name: Configure sysctl limits
+        run: |
+          sudo swapoff -a
+          sudo sysctl -w vm.swappiness=1
+          sudo sysctl -w fs.file-max=262144
+          sudo sysctl -w vm.max_map_count=262144
+      - uses: marcosgz/oe-search@v1
+        with:
+          stack: ${{ matrix.stack }}
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          bundler-cache: true
+      - name: Install dependencies
+        run: |
+          gem install bundler
+          bundle install --jobs 4 --retry 3
+      - name: Run tests
+        run: |
+          bundle exec rspec
