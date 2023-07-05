@@ -9,9 +9,9 @@ module Esse
         validate_options!
         indices.each do |index|
           if (repo = @options[:repo])
-            index.elasticsearch.import!(repo, **options)
+            index.import(repo, **options)
           else
-            index.elasticsearch.import!(**options)
+            index.import(**options)
           end
         end
       end

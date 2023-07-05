@@ -70,7 +70,7 @@ module Esse
 
       # Checks the index existance. Returns true or false
       #
-      #   UsersIndex.elasticsearch.index_exist? #=> true
+      #   UsersIndex.index_exist? #=> true
       #
       # @param options [Hash] Options hash
       # @option options [String, nil] :suffix The index suffix

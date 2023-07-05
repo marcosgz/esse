@@ -10,15 +10,15 @@ stack_describe 'elasticsearch', '1.x', 'elasticsearch index exist' do
   describe '.index_exist?' do
     context 'when index does not exists' do
       specify do
-        es_client { expect(DummiesIndex.elasticsearch.index_exist?).to eq(false) }
+        es_client { expect(DummiesIndex.index_exist?).to eq(false) }
       end
     end
 
     context 'when index exists' do
       specify do
         es_client do
-          DummiesIndex.elasticsearch.create_index!
-          expect(DummiesIndex.elasticsearch.index_exist?).to eq(true)
+          DummiesIndex.create_index
+          expect(DummiesIndex.index_exist?).to eq(true)
         end
       end
     end
