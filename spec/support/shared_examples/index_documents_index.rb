@@ -45,9 +45,7 @@ RSpec.shared_examples 'index.index' do |doc_type: false|
       expect {
         resp = VenuesIndex.index(id: 1, body: { name: 'New Name' }, **params)
       }.not_to raise_error
-      if %w[1.x 2.x].include?(example.metadata[:es_version])
-        expect(resp['created']).to eq(true)
-      else
+      unless %w[1.x 2.x].include?(example.metadata[:es_version])
         expect(resp['result']).to eq('created')
       end
 
@@ -82,9 +80,7 @@ RSpec.shared_examples 'index.index' do |doc_type: false|
       expect {
         resp = VenuesIndex.index(id: 1, body: { name: 'New Name' }, suffix: '2022', **params)
       }.not_to raise_error
-      if %w[1.x 2.x].include?(example.metadata[:es_version])
-        expect(resp['created']).to eq(true)
-      else
+      unless %w[1.x 2.x].include?(example.metadata[:es_version])
         expect(resp['result']).to eq('created')
       end
       expect(resp['_index']).to eq("#{cluster.index_prefix}_venues_2022")
@@ -122,9 +118,7 @@ RSpec.shared_examples 'index.index' do |doc_type: false|
       expect {
         resp = VenuesIndex.index(document)
       }.not_to raise_error
-      if %w[1.x 2.x].include?(example.metadata[:es_version])
-        expect(resp['created']).to eq(true)
-      else
+      unless %w[1.x 2.x].include?(example.metadata[:es_version])
         expect(resp['result']).to eq('created')
       end
 

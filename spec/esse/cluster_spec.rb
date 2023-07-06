@@ -238,7 +238,7 @@ RSpec.describe Esse::Cluster do
   describe '#info' do
     subject { model.info }
 
-    context 'with elasticsearch 1.x', es_version: '1.x' do
+    context 'with elasticsearch 1.x', es_version: '1.x', distribution: 'elasticsearch' do
       specify do
         body = elasticsearch_response_fixture(file: 'info', version: '1.x', assigns: { version__number: version = '1.7.6' })
         stub_es_request(:get, '/', res: { body: body })
@@ -249,7 +249,7 @@ RSpec.describe Esse::Cluster do
       end
     end
 
-    context 'with elasticsearch 2.x', es_version: '2.x' do
+    context 'with elasticsearch 2.x', es_version: '2.x', distribution: 'elasticsearch' do
       specify do
         body = elasticsearch_response_fixture(file: 'info', version: '2.x', assigns: { version__number: version = '2.0.0' })
         stub_es_request(:get, '/', res: { body: body })
@@ -260,7 +260,7 @@ RSpec.describe Esse::Cluster do
       end
     end
 
-    context 'with elasticsearch 5.x', es_version: '5.x' do
+    context 'with elasticsearch 5.x', es_version: '5.x', distribution: 'elasticsearch' do
       specify do
         body = elasticsearch_response_fixture(file: 'info', version: '5.x', assigns: { version__number: version = '5.0.0' })
         stub_es_request(:get, '/', res: { body: body })
@@ -271,7 +271,7 @@ RSpec.describe Esse::Cluster do
       end
     end
 
-    context 'with elasticsearch 6.x', es_version: '6.x' do
+    context 'with elasticsearch 6.x', es_version: '6.x', distribution: 'elasticsearch' do
       specify do
         body = elasticsearch_response_fixture(file: 'info', version: '6.x', assigns: { version__number: version = '6.0.0' })
         stub_es_request(:get, '/', res: { body: body })
@@ -282,7 +282,7 @@ RSpec.describe Esse::Cluster do
       end
     end
 
-    context 'with elasticsearch 7.x', es_version: '7.x' do
+    context 'with elasticsearch 7.x', es_version: '7.x', distribution: 'elasticsearch' do
       specify do
         body = elasticsearch_response_fixture(file: 'info', version: '7.x', assigns: { version__number: version = '7.0.0' })
         stub_es_request(:get, '/', res: { body: body })
@@ -293,7 +293,7 @@ RSpec.describe Esse::Cluster do
       end
     end
 
-    context 'with elasticsearch 8.x', es_version: '8.x' do
+    context 'with elasticsearch 8.x', es_version: '8.x', distribution: 'elasticsearch' do
       specify do
         body = elasticsearch_response_fixture(file: 'info', version: '8.x', assigns: { version__number: version = '8.0.0' })
         stub_es_request(:get, '/', res: { body: body })
