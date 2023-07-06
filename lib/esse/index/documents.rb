@@ -25,7 +25,7 @@ module Esse
         end
         require_kwargs!(options, :id)
         options[:index] = index_name(suffix: suffix)
-        options.delete(:type) unless cluster.document_type?
+        cluster.may_update_type!(options)
         cluster.api.get(**options)
       end
 
@@ -48,7 +48,7 @@ module Esse
         end
         require_kwargs!(options, :id)
         options[:index] = index_name(suffix: suffix)
-        options.delete(:type) unless cluster.document_type?
+        cluster.may_update_type!(options)
         cluster.api.exist?(**options)
       end
 
@@ -67,8 +67,9 @@ module Esse
       def count(type: nil, suffix: nil, **options)
         params = {
           index: index_name(suffix: suffix),
+          type: type,
         }
-        params[:type] = type if cluster.document_type?
+        cluster.may_update_type!(params)
         cluster.api.count(**options, **params)['count']
       end
 
@@ -85,12 +86,6 @@ module Esse
       # @raise [Esse::Transport::NotFoundError] when the doc does not exist
       #
       # @see https://www.elastic.co/guide/en/elasticsearch/reference/7.5/docs-delete.html
-      # def delete(id:, type: nil, suffix: nil, **options)
-      #   params = {
-      #     index: index_name(suffix: suffix),
-      #     id: id,
-      #   }
-      #   params[:type] = type if cluster.document_type?
       def delete(doc = nil, suffix: nil, **options)
         if document?(doc)
           options[:id] = doc.id
@@ -99,7 +94,7 @@ module Esse
         end
         require_kwargs!(options, :id)
         options[:index] = index_name(suffix: suffix)
-        options.delete(:type) unless cluster.document_type?
+        cluster.may_update_type!(options)
         cluster.api.delete(**options)
       end
 
@@ -125,7 +120,7 @@ module Esse
         end
         require_kwargs!(options, :id, :body)
         options[:index] = index_name(suffix: suffix)
-        options.delete(:type) unless cluster.document_type?
+        cluster.may_update_type!(options)
         cluster.api.update(**options)
       end
 
@@ -151,7 +146,7 @@ module Esse
         end
         require_kwargs!(options, :id, :body)
         options[:index] = index_name(suffix: suffix)
-        options.delete(:type) unless cluster.document_type?
+        cluster.may_update_type!(options)
         cluster.api.index(**options)
       end
 
@@ -172,11 +167,13 @@ module Esse
       def bulk(index: nil, delete: nil, create: nil, type: nil, suffix: nil, **options)
         definition = {
           index: index_name(suffix: suffix),
+          type: type,
         }.merge(options)
-        definition[:type] = type if cluster.document_type?
+        cluster.may_update_type!(definition)
 
         # @TODO Wrap the return in a some other Stats object with more information
         Esse::Import::Bulk.new(
+          **definition.slice(:type),
           index: index,
           delete: delete,
           create: create,
@@ -212,8 +209,8 @@ module Esse
             #
             # Note that the repository name will be used as the document type.
             # mapping_default_type
-            kwargs = { index: batch, suffix: suffix, **options }
-            kwargs[:type] = repo_name if cluster.document_type?
+            kwargs = { index: batch, suffix: suffix, type: repo_name, **options }
+            cluster.may_update_type!(kwargs)
             bulk(**kwargs)
             count += batch.size
           end

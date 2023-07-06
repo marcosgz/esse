@@ -113,12 +113,13 @@ module Esse
       api.health(**kwargs, wait_for_status: status.to_s)
     end
 
-    # @idea Change this to use the response from `GET /`
-    def document_type?
-      return false if engine.mapping_single_type?
-
-      (defined?(OpenSearch::VERSION) && OpenSearch::VERSION < '2') || \
-        (defined?(Elasticsearch::VERSION) && Elasticsearch::VERSION < '7')
+    # @return [void]
+    def may_update_type!(hash, key: :type)
+      if (single_type = engine.mapping_default_type)
+        hash[key] = single_type
+        return
+      end
+      hash.delete(key) if engine.mapping_single_type?
     end
 
     def info

@@ -1,15 +1,21 @@
 module Esse
   module Import
     class Bulk
-      def initialize(index: nil, delete: nil, create: nil)
+      def initialize(type: nil, index: nil, delete: nil, create: nil)
         @index = Array(index).select(&method(:valid_doc?)).reject(&:ignore_on_index?).map do |doc|
-          { index: doc.to_bulk }
+          value = doc.to_bulk
+          value[:_type] ||= type if type
+          { index: value }
         end
         @create = Array(create).select(&method(:valid_doc?)).reject(&:ignore_on_index?).map do |doc|
-          { create: doc.to_bulk }
+          value = doc.to_bulk
+          value[:_type] ||= type if type
+          { create: value }
         end
         @delete = Array(delete).select(&method(:valid_doc?)).reject(&:ignore_on_delete?).map do |doc|
-          { delete: doc.to_bulk(data: false) }
+          value = doc.to_bulk(data: false)
+          value[:_type] ||= type if type
+          { delete: value }
         end
       end
 
