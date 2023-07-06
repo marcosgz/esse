@@ -115,7 +115,7 @@ module Esse
 
     # @idea Change this to use the response from `GET /`
     def document_type?
-      defined?(OpenSearch::VERSION) || \
+      (defined?(OpenSearch::VERSION) && OpenSearch::VERSION < '2') || \
         (defined?(Elasticsearch::VERSION) && Elasticsearch::VERSION < '7')
     end
 
