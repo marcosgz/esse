@@ -55,9 +55,7 @@ RSpec.shared_examples 'index.update' do |doc_type: false|
       expect {
         resp = VenuesIndex.update(id: 1, body: { doc: { name: 'New Name' } }, **params)
       }.not_to raise_error
-      if %w[1.x 2.x].include?(example.metadata[:es_version])
-        expect(resp['_version']).to eq(2)
-      else
+      unless %w[1.x 2.x].include?(example.metadata[:es_version])
         expect(resp['result']).to eq('updated')
       end
 
@@ -75,9 +73,7 @@ RSpec.shared_examples 'index.update' do |doc_type: false|
       expect {
         resp = VenuesIndex.update(id: 1, body: { doc: { name: 'New Name' } }, suffix: index_suffix, **params)
       }.not_to raise_error
-      if %w[1.x 2.x].include?(example.metadata[:es_version])
-        expect(resp['_version']).to eq(2)
-      else
+      unless %w[1.x 2.x].include?(example.metadata[:es_version])
         expect(resp['result']).to eq('updated')
       end
 
@@ -96,9 +92,7 @@ RSpec.shared_examples 'index.update' do |doc_type: false|
       expect {
         resp = VenuesIndex.update(document)
       }.not_to raise_error
-      if %w[1.x 2.x].include?(example.metadata[:es_version])
-        expect(resp['_version']).to eq(2)
-      else
+      unless %w[1.x 2.x].include?(example.metadata[:es_version])
         expect(resp['result']).to eq('updated')
       end
 

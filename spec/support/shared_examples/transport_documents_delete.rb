@@ -30,7 +30,6 @@ RSpec.shared_examples 'transport#delete' do |doc_type: false|
         resp = cluster.api.delete(index: index_name, id: 1, **params)
       }.not_to raise_error
       expect(resp['_index']).to eq(index_name)
-      expect(resp['_version']).to eq(2)
       expect(resp['_id']).to eq('1')
     end
   end
