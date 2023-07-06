@@ -115,6 +115,8 @@ module Esse
 
     # @idea Change this to use the response from `GET /`
     def document_type?
+      return false if engine.mapping_single_type?
+
       (defined?(OpenSearch::VERSION) && OpenSearch::VERSION < '2') || \
         (defined?(Elasticsearch::VERSION) && Elasticsearch::VERSION < '7')
     end
@@ -130,8 +132,9 @@ module Esse
     end
 
     def engine
-      ClusterEngine.new(**info)
+      @engine ||=ClusterEngine.new(**info)
     end
+    alias_method :warm_up!, :engine
 
     # Build a search query for the given indices
     #

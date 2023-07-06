@@ -13,6 +13,7 @@ RSpec.shared_examples 'index.update' do |doc_type: false|
 
   it 'raises an Esse::Transport::ReadonlyClusterError exception when the cluster is readonly' do
     es_client do |client, _conf, cluster|
+      cluster.warm_up!
       expect(client).not_to receive(:perform_request)
       cluster.readonly = true
       expect {

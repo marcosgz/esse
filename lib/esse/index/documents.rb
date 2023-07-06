@@ -211,7 +211,10 @@ module Esse
             # your elasticsearch to a at least 7.x version and use a single type per index.
             #
             # Note that the repository name will be used as the document type.
-            bulk(type: repo_name, index: batch, suffix: suffix, **options)
+            # mapping_default_type
+            kwargs = { index: batch, suffix: suffix, **options }
+            kwargs[:type] = repo_name if cluster.document_type?
+            bulk(**kwargs)
             count += batch.size
           end
         end
