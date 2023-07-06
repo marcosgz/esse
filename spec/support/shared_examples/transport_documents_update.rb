@@ -7,6 +7,7 @@ RSpec.shared_examples 'transport#update' do |doc_type: false|
 
   it 'raises an Esse::Transport::ReadonlyClusterError exception when the cluster is readonly' do
     es_client do |client, _conf, cluster|
+      cluster.warm_up!
       expect(client).not_to receive(:perform_request)
       cluster.readonly = true
       expect {
@@ -26,7 +27,7 @@ RSpec.shared_examples 'transport#update' do |doc_type: false|
       cluster.api.create_index(index: index_name, body: {
         settings: { number_of_shards: 1, number_of_replicas: 0 },
       })
-      cluster.api.index(index: index_name, id: 1, body: { name: 'Illinois', pk: 1 }, **params)
+      cluster.api.index(index: index_name, id: 1, body: { name: 'Illinois', pk: 1 }, refresh: true, **params)
 
       resp = nil
       expect {

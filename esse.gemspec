@@ -43,7 +43,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'dotenv'
   spec.add_development_dependency 'pry'
   spec.add_development_dependency 'rake', '~> 12.3'
-  spec.add_development_dependency 'rspec', '~> 3.0'
+  spec.add_development_dependency 'rspec', '~> 3.12'
   spec.add_development_dependency 'webmock', '~> 3.14'
   spec.add_development_dependency 'yard', '~> 0.9.20'
   spec.add_development_dependency 'standard', '~> 1.3'
