@@ -90,3 +90,17 @@ Loading configuration file: config/esse.rb
 ```
 
 For more information about the index class, check out the [Index](wiki/Index) page.
+
+After editing the index class, you can create the index in the elasticsearch/opensearch cluster and start indexing the data. There are several ways to do that. But the easiest way is to use the `index reset` command from the CLI tool:
+
+```bash
+❯ esse index reset PostsIndex
+```
+
+Reset will create the index with the defined settings and mappings, and then it will start indexing data using the bulk API, and finally, it will point the alias to the created index name. I recommend checking out the [CLI](wiki/CLI) page for more information about the CLI tool.
+
+## More information
+
+In the [wiki](wiki) you can find more information about the gem and how to use it. If you have any questions, feel free to open an issue or contact me on [twitter](https://twitter.com/marcosgz).
+
+<!-- I also recommend checking out the [example rails app](https://github.com/marcosgz/esse-rails-example) that uses esse-rails -->
