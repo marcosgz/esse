@@ -61,7 +61,6 @@ You can use the CLI tool to generate the configuration file:
 
 ```bash
 ❯ esse install
-      create  config/esse.rb
 ```
 
 The gem automatically loads the configuration file from the above locations. Make sure you require application dependencies in the configuration file if you need to access them in your index classes.
@@ -85,8 +84,6 @@ Now you need to create an index class. You can use the CLI tool to generate the 
 
 ```bash
 ❯ esse generate index PostsIndex
-Loading configuration file: config/esse.rb
-      create  app/indices/posts_index.rb
 ```
 
 For more information about the index class, check out the [Index](wiki/Index) page.
