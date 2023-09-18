@@ -32,20 +32,20 @@ Bellow is an image that shows the main components and how they interact with eac
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'elasticsearch' # or gem 'opensearch' with specific version according to your elasticsearch/opensearch cluster
+gem 'elasticsearch' # or gem 'opensearch' with specific version according to your needs
 gem 'esse'
 ```
 
 And then execute:
 
 ```bash
-$ bundle install
+❯ bundle install
 ```
 
 Or install it yourself as:
 
 ```bash
-$ gem install esse
+❯ gem install esse
 ```
 
 ## Usage
