@@ -52,22 +52,16 @@ Or install it yourself as:
 ## Usage
 
 ### Configuration
-To get started, you need to create the configuration file with the elasticsearch/opensearch cluster connection information. The location if this file can be:
-
-* Essefile
-* config/esse.rb
-* config/initializers/esse.rb
-
-You can use the CLI tool to generate the configuration file:
+To get started, you need to create the configuration file with the elasticsearch/opensearch cluster connection information. You can use the CLI tool to generate the configuration file:
 
 ```bash
 ❯ esse install
 ```
 
-The gem automatically loads the configuration file from the above locations. Make sure you require application dependencies in the configuration file if you need to access them in your index classes.
+The CLI generates the configuration file in the `config/esse.rb` directory. Make sure you require application dependencies in the configuration file if you need to access them in your index classes.
 
 ```ruby
-require_relative "../environment" unless defined?(Rails) # Are you using Rails? check out esse-rails gem ;)
+require_relative "../environment" unless defined?(Rails)
 
 Esse.configure do |config|
   conf.cluster(:default) do |cluster|
@@ -77,7 +71,6 @@ end
 ```
 
 For more information about the configuration options, check out the [Configuration](wiki/Configuration) page.
-
 
 ### Index
 
@@ -102,3 +95,12 @@ Reset will create the index with the defined settings and mappings, and then it 
 In the [wiki](wiki) you can find more information about the gem and how to use it. If you have any questions, feel free to open an issue or contact me on [twitter](https://twitter.com/marcosgz).
 
 <!-- I also recommend checking out the [example rails app](https://github.com/marcosgz/esse-rails-example) that uses esse-rails -->
+
+## Contributing
+
+Bug reports and pull requests are welcome on GitHub at https://github.com/marcosgz/esse.
+
+
+## License
+
+The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
