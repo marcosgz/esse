@@ -22,6 +22,7 @@ The main idea of the gem is to be compatible with any type of datasource. It mea
 
 This architecture provides a powerful ETL (Extract, Transform, Load) solution for your elasticsearch/opensearch indices.
 
+![image1](https://github.com/marcosgz/esse/assets/18994/7d77c2a3-f71e-4a92-bc19-68690f8206dc)
 
 And to help you to build and interact with the index, the gem provides a CLI tool called `esse`. You can use it to generate index boilerplate, and to interact with index operations and elasticsearch/opensearch cluster
 
