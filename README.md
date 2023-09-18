@@ -18,7 +18,7 @@ The main idea of the gem is to be compatible with any type of datasource. It mea
 
 * **Index**: The index is the main component. It's responsible for defining the index settings, mappings, and other index-level configurations. It also provides a DSL to define the next two components.
 * **Repository**: The repository is responsible for loading the data. One index may have more than one repo. Each repo must implement a collection. Collection is an Enumerable that iterate over the data in chunks. It may receive a given context for filtering the data that can be used in the next component.
-* **Document**: Each repo's collection must have a respective Document. The document is responsible for defining the document itself. It's a simple Ruby object that can be used to define the document id, routing, index group, doc attributes.
+* **Document**: Each repo's collection must have a respective Document. The document is responsible for defining the document itself. It's a simple Ruby object that can be used to define the document id, routing, doc attributes.
 
 This architecture provides a powerful ETL (Extract, Transform, Load) solution for your elasticsearch/opensearch indices.
 
