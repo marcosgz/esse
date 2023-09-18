@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-<%- @types.each do |type| -%>
+<%- @repos.each do |type| -%>
 require_relative '<%= @index_name.demodulize.underscore.to_s %>/collections/<%= type.underscore %>_collection'
 <%- end if @cli_options[:collections] && !@cli_options[:active_record] -%>
-<%- @types.each do |type| -%>
+<%- @repos.each do |type| -%>
 require_relative '<%= @index_name.demodulize.underscore.to_s %>/documents/<%= type.underscore %>_document'
 <%- end if @cli_options[:documents] -%>
 class <%= @index_name %> < <%= @base_class %>
@@ -14,33 +14,36 @@ class <%= @index_name %> < <%= @base_class %>
   plugin :active_record
 
   <%- end -%>
-  <%- if @types.empty? -%>
-  <%- if @cli_options[:active_record] -%>
-  collection ::<%= @index_name.camelize %>.all
-  <%- elsif @cli_options[:collections] -%>
-  collection Collections::Collection
-  <%- else -%>
-  collection do |**context, &block|
-    query = <%= @index_name.camelize.sub(/Index$/, '') %>.all
-    query = query.where(id: context[:id]) if context[:id]
-    query.find_in_batches(batch_size: 1_000) do |batch|
-      block.call(batch)
+  <%- if @repos.empty? -%>
+  repository :default do
+    <%- if @cli_options[:active_record] -%>
+    collection ::<%= @index_name.camelize %>.all
+    <%- elsif @cli_options[:collections] -%>
+    collection Collections::Collection
+    <%- else -%>
+    collection do |**context, &block|
+      query = <%= @index_name.camelize.sub(/Index$/, '') %>.all
+      query = query.where(id: context[:id]) if context[:id]
+      query.find_in_batches(batch_size: 1_000) do |batch|
+        block.call(batch, **context)
+      end
     end
-  end
-  <%- end -%>
-  <%- if @cli_options[:documents] -%>
-  document Documents::Document
-  <%- else -%>
-  document do |object, **_context|
-    {
-      id: object.id,
-      name: object.name,
-    }
-  end
-  <%- end # if @cli_options[:documents] -%>
-  <%- end # /@types.empty?-%>
+    <%- end -%>
 
-  <%- @types.each do |type| -%>
+    <%- if @cli_options[:documents] -%>
+    document Documents::Document
+    <%- else -%>
+    document do |object, **_context|
+      {
+        id: object.id,
+        name: object.name,
+      }
+    end
+    <%- end # if @cli_options[:documents] -%>
+  end
+  <%- end # /@repos.empty?-%>
+  <%- @repos.each do |type| -%>
+
   repository :<%= type.underscore %> do
     <%- if @cli_options[:active_record] -%>
     collection ::<%= type.camelize %>.all
@@ -51,7 +54,7 @@ class <%= @index_name %> < <%= @base_class %>
       query = <%= type.camelize %>.all
       query = query.where(id: context[:id]) if context[:id]
       query.find_in_batches(batch_size: 1_000) do |batch|
-        block.call(batch)
+        block.call(batch, **context)
       end
     end
     <%- end -%>
@@ -66,6 +69,5 @@ class <%= @index_name %> < <%= @base_class %>
     end
     <%- end -%>
   end
-
-  <%- end #@types.each do |type| -%>
+  <%- end #@repos.each do |type| -%>
 end

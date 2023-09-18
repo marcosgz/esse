@@ -2,10 +2,10 @@
 
 class <%= @index_name %> < <%= @base_class %>
   module Collections
-    class <%= @type.camelize if @type %>Collection < Esse::Collection
-      <%- if @type -%>
-      # @yield [Array<<%= @type.camelize %>>]
-      # @see <%= @index_name %>::<%= @type.camelize %>#collection
+    class <%= @repo.camelize if @repo %>Collection < Esse::Collection
+      <%- if @repo -%>
+      # @yield [Array<<%= @repo.camelize %>>]
+      # @see <%= @index_name %>::<%= @repo.camelize %>#collection
       <%- end -%>
       def each
         offset = 0

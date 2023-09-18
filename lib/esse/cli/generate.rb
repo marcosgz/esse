@@ -20,11 +20,11 @@ module Esse
       option :collections, type: :boolean, default: false, desc: 'Generate collections'
       option :active_record, type: :boolean, default: false, desc: 'Generate ActiveRecord models'
       option :cluster_id, type: :string, desc: 'Elasticsearch cluster ID'
-      def index(name, *types)
+      def index(name, *repos)
         ns_path = name.split(NAMESPACE_PATTERN_RE).tap(&:pop)
         @index_name = Hstring.new(name.to_s).modulize.sub(/Index$/, '') + 'Index'
         @index_name = Hstring.new(@index_name)
-        @types = types.map { |type| Hstring.new(type) }
+        @repos = repos.map { |repo| Hstring.new(repo) }
         @base_class = base_index_class(*ns_path)
         @index_cluster_id = options[:cluster_id]
         @cli_options = options
@@ -50,7 +50,7 @@ module Esse
           )
         end
 
-        if @types.empty?
+        if @repos.empty?
           if options[:documents]
             template(
               'templates/document.rb.erb',
@@ -65,19 +65,19 @@ module Esse
           end
         end
 
-        @types.each do |type|
-          @type = Hstring.new(type).underscore
+        @repos.each do |type|
+          @repo = Hstring.new(type).underscore
 
           if options[:documents]
             template(
               'templates/document.rb.erb',
-              base_dir.join(index_name, 'documents', "#{@type}_document.rb"),
+              base_dir.join(index_name, 'documents', "#{@repo}_document.rb"),
             )
           end
           if options[:collections] && !options[:active_record]
             template(
               'templates/collection.rb.erb',
-              base_dir.join(index_name, 'collections', "#{@type}_collection.rb"),
+              base_dir.join(index_name, 'collections', "#{@repo}_collection.rb"),
             )
           end
         end
