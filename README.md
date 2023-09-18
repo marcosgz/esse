@@ -70,7 +70,7 @@ Esse.configure do |config|
 end
 ```
 
-For more information about the configuration options, check out the [Configuration](wiki/Configuration) page.
+For more information about the configuration options, check out the [Configuration](https://github.com/marcosgz/esse/wiki/Configuration) page.
 
 ### Index
 
@@ -80,7 +80,7 @@ Now you need to create an index class. You can use the CLI tool to generate the 
 ❯ esse generate index PostsIndex
 ```
 
-For more information about the index class, check out the [Index](wiki/Index) page.
+For more information about the index class, check out the [Index](https://github.com/marcosgz/esse/wiki/Index) page.
 
 After editing the index class, you can create the index in the elasticsearch/opensearch cluster and start indexing the data. There are several ways to do that. But the easiest way is to use the `index reset` command from the CLI tool:
 
@@ -88,7 +88,7 @@ After editing the index class, you can create the index in the elasticsearch/ope
 ❯ esse index reset PostsIndex
 ```
 
-Reset will create the index with the defined settings and mappings, and then it will start indexing data using the bulk API, and finally, it will point the alias to the created index name. I recommend checking out the [CLI](wiki/CLI) page for more information about the CLI tool.
+Reset will create the index with the defined settings and mappings, and then it will start indexing data using the bulk API, and finally, it will point the alias to the created index name. I recommend checking out the [CLI](https://github.com/marcosgz/esse/wiki/CLI) page for more information about the CLI tool.
 
 ## More information
 
