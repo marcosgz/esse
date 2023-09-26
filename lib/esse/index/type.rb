@@ -37,7 +37,7 @@ module Esse
 
       def repository(repo_name, *_args, **kwargs, &block)
         repo_class = Class.new(Esse::Repository)
-        kwargs[:const] ||= true # TODO Change this to false to avoid collisions with application classes
+        kwargs[:const] = true unless kwargs.key?(:const) # TODO Change this to false to avoid collisions with application classes
         kwargs[:lazy_evaluate] ||= false
 
         if kwargs[:const]

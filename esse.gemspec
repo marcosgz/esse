@@ -13,7 +13,7 @@ Gem::Specification.new do |spec|
   spec.description = 'With all elegance of Ruby and ElasticSearch flexibility this gem brings to you the best of both ' \
                      'worlds. Provides a solid architecture allowing to easily Extract, Transform, Enrich and Load ' \
                      'data from any data source into ElasticSearch/OpenSearch and also to search it. It is framework-agnostic, ' \
-                     'which means you can use it with any Ruby framework or even without any framework at all.' \
+                     'which means you can use it with any Ruby framework or even without any framework at all.'
   spec.homepage = 'https://github.com/marcosgz/esse'
   spec.license = 'MIT'
   spec.required_ruby_version = Gem::Requirement.new('>= 2.3.0')
