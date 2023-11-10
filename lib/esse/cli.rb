@@ -32,6 +32,7 @@ module Esse
       def initialize(*)
         super
 
+        after_initialize
         load_app_config(options[:require])
         setup_listeners if !options[:silent] && Esse.config.cli_event_listeners?
       end
@@ -70,6 +71,10 @@ module Esse
       end
 
       private
+
+      def after_initialize
+        # esse plugins may override this method
+      end
 
       def setup_listeners
         Esse::Events.__bus__.events.keys.grep(/^elasticsearch/).each do |event_name|
