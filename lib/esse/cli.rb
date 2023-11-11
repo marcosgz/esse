@@ -6,6 +6,7 @@ require_relative 'primitives/output'
 require_relative 'cli/index'
 require_relative 'cli/generate'
 require_relative 'cli/event_listener'
+require_relative 'cli/extensions_loader'
 
 module Esse
   module CLI
