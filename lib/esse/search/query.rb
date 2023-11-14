@@ -11,7 +11,11 @@ module Esse
       def initialize(transport, *indices, suffix: nil, **definition, &_block)
         @transport = transport
         @definition = definition
-        @definition[:index] = indices.map do |index|
+        @definition[:index] = self.class.normalize_indices(*indices, suffix: suffix)
+      end
+
+      def self.normalize_indices(*indices, suffix: nil)
+        indices.map do |index|
           if index.is_a?(Class) && index < Esse::Index
             index.index_name(suffix: suffix)
           elsif index.is_a?(String) || index.is_a?(Symbol)

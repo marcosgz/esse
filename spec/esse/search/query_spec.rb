@@ -3,6 +3,15 @@
 require 'spec_helper'
 
 RSpec.describe Esse::Search::Query do
+  describe '.normalize_indices' do
+    it 'returns an array of index names' do
+      expect(described_class.normalize_indices('events')).to eq(['events'])
+      expect(described_class.normalize_indices('events', 'venues')).to eq(['events', 'venues'])
+      expect(described_class.normalize_indices(EventsIndex)).to eq(['events'])
+      expect(described_class.normalize_indices(EventsIndex, VenuesIndex)).to eq(['events', 'venues'])
+    end
+  end
+
   describe '#definition' do
     before do
       stub_index(:events)
