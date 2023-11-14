@@ -4,6 +4,12 @@ require_relative 'cluster_engine'
 require_relative 'transport'
 
 module Esse
+  class << self
+    extend Forwardable
+
+    def_delegators :config, :cluster
+  end
+
   class Cluster
     ATTRIBUTES = %i[index_prefix settings mappings client wait_for_status readonly].freeze
     WAIT_FOR_STATUSES = %w[green yellow red].freeze
@@ -133,7 +139,7 @@ module Esse
     end
 
     def engine
-      @engine ||=ClusterEngine.new(**info)
+      @engine ||= ClusterEngine.new(**info)
     end
     alias_method :warm_up!, :engine
 

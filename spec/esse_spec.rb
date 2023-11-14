@@ -14,6 +14,15 @@ RSpec.describe Esse do
     it { expect { described_class.config(&:to_s) }.not_to raise_error }
   end
 
+  describe '.cluster' do
+    it { expect(described_class).to respond_to(:cluster) }
+
+    it 'delegates to Esse::Config#cluster' do
+      expect(described_class.config).to receive(:cluster).and_call_original
+      described_class.cluster
+    end
+  end
+
   describe '.timestamp' do
     it { expect(Esse.timestamp).to be_kind_of(String) }
   end
