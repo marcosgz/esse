@@ -13,7 +13,7 @@ module Esse
       def initialize(transport, *indices, suffix: nil, **definition, &_block)
         @transport = transport
         @definition = definition
-        @definition[:index] = self.class.normalize_indices(*indices, suffix: suffix) if indices.any?
+        @definition[:index] = self.class.normalize_indices(*indices, suffix: suffix) if indices.size > 0
       end
 
       def self.normalize_indices(*indices, suffix: nil)
