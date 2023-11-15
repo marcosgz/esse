@@ -4,11 +4,29 @@ require 'spec_helper'
 
 RSpec.describe Esse::Search::Query do
   describe '.normalize_indices' do
-    it 'returns an array of index names' do
-      expect(described_class.normalize_indices('events')).to eq(['events'])
-      expect(described_class.normalize_indices('events', 'venues')).to eq(['events', 'venues'])
-      expect(described_class.normalize_indices(EventsIndex)).to eq(['events'])
-      expect(described_class.normalize_indices(EventsIndex, VenuesIndex)).to eq(['events', 'venues'])
+    context 'when the argument is a string' do
+      it 'returns a string with names' do
+        expect(described_class.normalize_indices('events')).to eq('events')
+        expect(described_class.normalize_indices('events', 'venues')).to eq('events,venues')
+      end
+    end
+
+    context 'when the argument is a symbol' do
+      it 'returns a string with names' do
+        expect(described_class.normalize_indices(:events)).to eq('events')
+        expect(described_class.normalize_indices(:events, :venues)).to eq('events,venues')
+      end
+    end
+
+    context 'when the argument is Esse::Index' do
+      before do
+        stub_index(:events)
+        stub_index(:venues)
+      end
+      it 'returns a string with names' do
+        expect(described_class.normalize_indices(EventsIndex)).to eq('events')
+        expect(described_class.normalize_indices(EventsIndex, VenuesIndex)).to eq('events,venues')
+      end
     end
   end
 

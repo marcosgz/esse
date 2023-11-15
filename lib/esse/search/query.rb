@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 
+require_relative 'query/dsl'
 module Esse
   module Search
     class Query
+      include DSL
       attr_reader :transport, :definition
 
       # @param transport [Esse::Transport] The client proxy to use for the query
@@ -11,7 +13,7 @@ module Esse
       def initialize(transport, *indices, suffix: nil, **definition, &_block)
         @transport = transport
         @definition = definition
-        @definition[:index] = self.class.normalize_indices(*indices, suffix: suffix)
+        @definition[:index] = self.class.normalize_indices(*indices, suffix: suffix) if indices.any?
       end
 
       def self.normalize_indices(*indices, suffix: nil)
@@ -95,14 +97,6 @@ module Esse
 
       def reset!
         @response = nil
-      end
-
-      def raw_limit_value
-        definition.dig(:body, :size) || definition.dig(:body, 'size') || definition.dig(:size) || definition.dig('size')
-      end
-
-      def raw_offset_value
-        definition.dig(:body, :from) || definition.dig(:body, 'from') || definition.dig(:from) || definition.dig('from')
       end
     end
   end
