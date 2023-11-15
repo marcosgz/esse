@@ -212,6 +212,45 @@ RSpec.describe Esse::Search::Query, 'dsl' do
     end
   end
 
+  describe '#mutate' do
+    let(:query) { described_class.new(Class.new(Esse::Index), **params) }
+    let(:params) { {} }
+
+    it 'returns a new query' do
+      expect { query.send(:mutate) }.not_to change { query.definition }
+      expect(query.send(:mutate)).to be_a(described_class)
+    end
+
+    it 'yields the definition' do
+      expect { |b| query.send(:mutate, &b) }.to yield_with_args(query.definition)
+    end
+
+    it 'allows to mutate the definition' do
+      expect(query.send(:mutate) { |d| d[:foo] = :bar }.definition).to eq(foo: :bar)
+    end
+
+    it 'allows to mutate other instance variables' do
+      expect(query.send(:mutate) { @foo = :bar }.instance_variable_get(:@foo)).to eq(:bar)
+    end
+
+    it 'does not lost existing instance variables' do
+      query.instance_variable_set(:@foo, :bar)
+      expect(query.send(:mutate) { @baz = :qux }.instance_variable_get(:@foo)).to eq(:bar)
+      expect(query.instance_variable_get(:@foo)).to eq(:bar)
+    end
+
+    it 'deep clones the definition' do
+      query.instance_variable_set(:@definition, { foo: { bar: :baz } })
+      expect(query.send(:mutate) { |d| d[:foo][:bar] = :qux }.definition).to eq(foo: { bar: :qux })
+      expect(query.definition).to eq(foo: { bar: :baz })
+    end
+
+    it 'resets the @response instance variable' do
+      query.instance_variable_set(:@response, :foo)
+      expect(query.send(:mutate).instance_variable_get(:@response)).to eq(nil)
+    end
+  end
+
   describe '#offset' do
     let(:query) { described_class.new(Class.new(Esse::Index), **params) }
     let(:params) { {} }

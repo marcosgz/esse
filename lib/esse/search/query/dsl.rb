@@ -40,16 +40,12 @@ module Esse
 
         private
 
-        def mutate
+        def mutate(&block)
           relation = clone
-          if block_given? && (new_query = yield(relation.definition)).is_a?(Hash)
-            relation.instance_variable_set(:@definition, new_query)
-          end
+          relation.send(:reset!)
+          relation.instance_variable_set(:@definition, HashUtils.deep_dup(definition))
+          relation.instance_exec(relation.definition, &block) if block
           relation
-        end
-
-        def clone
-          self.class.new(transport, **HashUtils.deep_dup(definition))
         end
 
         def raw_limit_value
