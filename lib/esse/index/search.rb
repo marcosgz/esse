@@ -6,6 +6,13 @@ module Esse
       # @param query_or_payload [String,Hash] The search request definition or query in the Lucene query string syntax
       # @param kwargs [Hash] The options to pass to the search.
       def search(*args, &block)
+        kwargs = extract_search_options!(args)
+        cluster.search(self, **kwargs, &block)
+      end
+
+      private
+
+      def extract_search_options!(args)
         query_or_payload = args.shift
         kwargs = args.last.is_a?(Hash) ? args.pop : {}
 
@@ -18,7 +25,7 @@ module Esse
         elsif query_or_payload.is_a?(String)
           kwargs[:q] = query_or_payload
         end
-        cluster.search(self, **kwargs, &block)
+        kwargs
       end
     end
 

@@ -6,6 +6,17 @@ module Esse
   module HashUtils
     module_function
 
+    def deep_dup(hash)
+      hash.each_with_object({}) do |(key, value), result|
+        result[key] = \
+          if value.is_a?(Hash)
+            deep_dup(value)
+          else
+            value
+          end
+      end
+    end
+
     def deep_transform_keys(hash, &block)
       hash.each_with_object({}) do |(key, value), result|
         result[yield(key)] = \

@@ -1,7 +1,7 @@
 PATH
   remote: ..
   specs:
-    esse (0.2.2)
+    esse (0.2.4)
       multi_json
       thor (>= 0.19)
 
@@ -79,7 +79,7 @@ GEM
     standard (1.16.1)
       rubocop (= 1.35.1)
       rubocop-performance (= 1.14.3)
-    thor (1.2.2)
+    thor (1.3.0)
     unicode-display_width (2.3.0)
     webmock (3.18.1)
       addressable (>= 2.8.0)
@@ -108,4 +108,4 @@ DEPENDENCIES
   yard (~> 0.9.20)
 
 BUNDLED WITH
-   2.3.21
+   2.3.22
