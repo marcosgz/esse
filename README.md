@@ -7,10 +7,12 @@
 
 This gem is a Ruby simple and extremely flexible client for ElasticSearch and OpenSearch based on official clients such as [elasticsearch-ruby](https://github.com/elastic/elasticsearch-ruby) and [opensearch-ruby](https://github.com/opensearch-project/opensearch-ruby). It's a pure Ruby implementation, framework agnostic, and due to its modular design, it's easy to extend and adapt to your needs. Esse extensions are available as separate gems. A few examples:
 
+- [esse-pagy](https://github.com/marcosgz/esse-pagy) - Pagy pagination support
 - [esse-kaminari](https://github.com/marcosgz/esse-kaminari) - Kaminari pagination support
 - [esse-rails](https://github.com/marcosgz/esse-rails) - Ruby on Rails integration
 - [esse-active_record](https://github.com/marcosgz/esse-active_record) - ActiveRecord integration
 - **WIP** [esse-sequel](https://github.com/marcosgz/esse-sequel) - Sequel integration
+- [esse-rspec](https://github.com/marcosgz/esse-rspec) - RSpec helpers and matchers
 
 ## Components
 
