@@ -2,6 +2,10 @@
 
 module Esse
   class Error < StandardError
+    def eql?(other)
+      other.is_a?(self.class) && other.message == message
+    end
+    alias_method :==, :eql?
   end
 
   # @todo Rename this
