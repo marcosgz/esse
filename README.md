@@ -9,6 +9,7 @@ This gem is a Ruby simple and extremely flexible client for ElasticSearch and Op
 
 - [esse-pagy](https://github.com/marcosgz/esse-pagy) - Pagy pagination support
 - [esse-kaminari](https://github.com/marcosgz/esse-kaminari) - Kaminari pagination support
+- [esse-will_paginate](https://github.com/marcosgz/esse-will_paginate) - WillPaginate pagination support
 - [esse-rails](https://github.com/marcosgz/esse-rails) - Ruby on Rails integration
 - [esse-active_record](https://github.com/marcosgz/esse-active_record) - ActiveRecord integration
 - **WIP** [esse-sequel](https://github.com/marcosgz/esse-sequel) - Sequel integration
