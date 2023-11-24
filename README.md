@@ -95,7 +95,7 @@ Reset will create the index with the defined settings and mappings, and then it 
 
 ## More information
 
-In the [wiki](wiki) you can find more information about the gem and how to use it. If you have any questions, feel free to open an issue or contact me on [twitter](https://twitter.com/marcosgz).
+In the [wiki](https://github.com/marcosgz/esse/wiki) you can find more information about the gem and how to use it. If you have any questions, feel free to open an issue or contact me on [twitter](https://twitter.com/marcosgz).
 
 <!-- I also recommend checking out the [example rails app](https://github.com/marcosgz/esse-rails-example) that uses esse-rails -->
 
