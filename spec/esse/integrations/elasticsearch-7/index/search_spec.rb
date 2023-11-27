@@ -6,7 +6,6 @@ stack_describe 'elasticsearch', '7.x', 'elasticsearch#search' do
     reset_config!
     stub_index(:geos) do
       repository :country do
-
       end
     end
   end

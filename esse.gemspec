@@ -9,7 +9,7 @@ Gem::Specification.new do |spec|
   spec.authors = ['Marcos G. Zimmermann']
   spec.email = ['mgzmaster@gmail.com']
 
-  spec.summary = %[Pure Ruby and framework-agnostic ElasticSearch/OpenSearch toolkit for building indexers and searchers]
+  spec.summary = %(Pure Ruby and framework-agnostic ElasticSearch/OpenSearch toolkit for building indexers and searchers)
   spec.description = 'With all elegance of Ruby and ElasticSearch flexibility this gem brings to you the best of both ' \
                      'worlds. Provides a solid architecture allowing to easily Extract, Transform, Enrich and Load ' \
                      'data from any data source into ElasticSearch/OpenSearch and also to search it. It is framework-agnostic, ' \

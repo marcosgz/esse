@@ -109,9 +109,9 @@ RSpec.describe Esse::CLI::EventListener do
       {
         runtime: 1.32,
         wait_interval: wait_interval,
+        body_stats: body_stats,
         request: {
           index: 'index_name',
-          body_stats: body_stats
         }
       }
     end
@@ -144,10 +144,10 @@ RSpec.describe Esse::CLI::EventListener do
         {
           runtime: 1.32,
           wait_interval: 0.0,
+          body_stats: {},
           request: {
             index: 'index_name',
             type: 'document_type',
-            body_stats: [],
           }
         }
       end

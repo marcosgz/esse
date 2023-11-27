@@ -90,7 +90,7 @@ module Esse
           type: (event[:request][:type] ? " for type #{colorize(event[:request][:type], :bold)}" : ''),
           wait_interval: (event[:wait_interval].nonzero? ? " (wait interval #{event[:wait_interval]}s)" : ''),
           newline: false,)
-        stats = event[:request][:body_stats].select { |_, v| v.nonzero? }.map do |type, count|
+        stats = event[:body_stats].select { |_, v| v.nonzero? }.map do |type, count|
           "#{colorize(type, :bold)}: #{count} docs"
         end
         print_message(stats.join(', ') + '.')
