@@ -14,6 +14,7 @@ This gem is a Ruby simple and extremely flexible client for ElasticSearch and Op
 - [esse-active_record](https://github.com/marcosgz/esse-active_record) - ActiveRecord integration
 - **WIP** [esse-sequel](https://github.com/marcosgz/esse-sequel) - Sequel integration
 - [esse-rspec](https://github.com/marcosgz/esse-rspec) - RSpec helpers and matchers
+- [esse-jbuilder](https://github.com/marcosgz/esse-jbuilder) - Build Search requests using Jbuilder templates
 
 ## Components
 
