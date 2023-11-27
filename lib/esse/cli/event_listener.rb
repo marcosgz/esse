@@ -63,7 +63,7 @@ module Esse
       end
 
       def elasticsearch_update_aliases(event)
-        actions = event[:request][:body][:actions]
+        actions = event[:request].dig(:body, :actions) || []
         removed = actions.select { |a| a.key?(:remove) }
         added = actions.select { |a| a.key?(:add) }
         print_message '[%<runtime>s] Successfuly updated aliases:',

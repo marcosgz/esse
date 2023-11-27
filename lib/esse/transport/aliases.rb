@@ -25,7 +25,7 @@ module Esse
         throw_error_when_readonly!
 
         Esse::Events.instrument('elasticsearch.update_aliases') do |payload|
-          payload[:request] = options
+          payload[:request] = options.merge(body: body)
           payload[:response] = coerce_exception { client.indices.update_aliases(**options, body: body) }
         end
       end
