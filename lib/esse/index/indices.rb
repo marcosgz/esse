@@ -50,9 +50,14 @@ module Esse
       # @see https://www.elastic.co/guide/en/elasticsearch/reference/master/indices-open-close.html
       def reset_index(suffix: index_suffix, optimize: true, import: true, reindex: false, **options)
         cluster.throw_error_when_readonly!
-        existing = []
-        suffix ||= Esse.timestamp
-        suffix = Esse.timestamp while index_exist?(suffix: suffix).tap { |exist| existing << suffix if exist }
+
+        remove_root_in_use_index_named = nil
+        if index_name == index_name(suffix: suffix) && index_exist?(suffix: suffix)
+          remove_root_in_use_index_named = index_name
+          suffix = Esse.timestamp
+        elsif suffix.nil? || index_exist?(suffix: suffix)
+          suffix = Esse.timestamp
+        end
 
         if optimize
           definition = [settings_hash, mappings_hash].reduce(&:merge)
@@ -73,11 +78,15 @@ module Esse
         elsif reindex && (_from = indices_pointing_to_alias).any?
           # @TODO: Reindex using the reindex API
         end
+
         if optimize && number_of_replicas != new_number_of_replicas || refresh_interval != new_refresh_interval
           update_settings(suffix: suffix)
         end
+
+        cluster.api.delete_index(index: remove_root_in_use_index_named) if remove_root_in_use_index_named
+
         update_aliases(suffix: suffix)
-        existing.each { |s| delete_index!(**options, suffix: s) }
+
         true
       end
 
