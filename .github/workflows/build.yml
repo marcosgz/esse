@@ -109,7 +109,7 @@ jobs:
           bundler-cache: true
       - name: Install dependencies
         run: |
-          gem install bundler
+          gem install bundler:2.3.22
           bundle install --jobs 4 --retry 3
       - name: Wait for service
         uses: cygnetdigital/wait_for_response@v2.0.0
