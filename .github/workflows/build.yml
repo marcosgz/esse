@@ -6,17 +6,17 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - ruby: 2.6.9
+          - ruby: 2.6.10
             gemfile: gemfiles/Gemfile.elasticsearch-1.x
             stack: elasticsearch:1.7.6
             stack_version: "1.7.6"
             allow_failure: true
-          - ruby: 2.6.9
+          - ruby: 2.6.10
             gemfile: gemfiles/Gemfile.elasticsearch-2.x
             stack: elasticsearch:2.4.6
             stack_version: "2.4.6"
             allow_failure: true
-          - ruby: 2.6.9
+          - ruby: 2.6.10
             gemfile: gemfiles/Gemfile.elasticsearch-5.x
             stack: elasticsearch:5.6.16
             stack_version: "5.6.16"
@@ -31,32 +31,37 @@ jobs:
             stack: elasticsearch:7.13.2
             stack_version: "7.13.2"
             allow_failure: false
-          - ruby: 3.0.3
+          - ruby: 3.0.7
             gemfile: gemfiles/Gemfile.elasticsearch-7.x
             stack: elasticsearch:7.13.2
             stack_version: "7.13.2"
             allow_failure: false
-          - ruby: 3.1.2
+          - ruby: 3.1.6
             gemfile: gemfiles/Gemfile.elasticsearch-7.x
             stack: elasticsearch:7.13.2
             stack_version: "7.13.2"
             allow_failure: false
-          - ruby: 3.2.2
+          - ruby: 3.2.4
             gemfile: gemfiles/Gemfile.elasticsearch-7.x
             stack: elasticsearch:7.13.2
             stack_version: "7.13.2"
             allow_failure: false
-          - ruby: 3.0.3
+          - ruby: 3.3.3
+            gemfile: gemfiles/Gemfile.elasticsearch-7.x
+            stack: elasticsearch:7.13.2
+            stack_version: "7.13.2"
+            allow_failure: false
+          - ruby: 3.0.7
             gemfile: gemfiles/Gemfile.elasticsearch-8.x
             stack: elasticsearch:8.4.2
             stack_version: "8.4.2"
             allow_failure: false
-          - ruby: 3.1.2
+          - ruby: 3.1.6
             gemfile: gemfiles/Gemfile.elasticsearch-8.x
             stack: elasticsearch:8.4.2
             stack_version: "8.4.2"
             allow_failure: false
-          - ruby: 3.2.2
+          - ruby: 3.2.4
             gemfile: gemfiles/Gemfile.elasticsearch-8.x
             stack: elasticsearch:8.4.2
             stack_version: "8.4.2"
@@ -71,7 +76,12 @@ jobs:
             stack: opensearch:2.0.1
             stack_version: "2.0.1"
             allow_failure: false
-          - ruby: 3.2.2
+          - ruby: 3.2.4
+            gemfile: gemfiles/Gemfile.opensearch-2.x
+            stack: opensearch:2.1.0
+            stack_version: "2.1.0"
+            allow_failure: false
+          - ruby: 3.3.3
             gemfile: gemfiles/Gemfile.opensearch-2.x
             stack: opensearch:2.1.0
             stack_version: "2.1.0"
@@ -99,7 +109,7 @@ jobs:
           bundler-cache: true
       - name: Install dependencies
         run: |
-          gem install bundler
+          gem install bundler:2.3.22
           bundle install --jobs 4 --retry 3
       - name: Wait for service
         uses: cygnetdigital/wait_for_response@v2.0.0
