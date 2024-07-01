@@ -51,13 +51,8 @@ module Esse
       def reset_index(suffix: index_suffix, optimize: true, import: true, reindex: false, **options)
         cluster.throw_error_when_readonly!
 
-        remove_root_in_use_index_named = nil
-        if index_name == index_name(suffix: suffix) && index_exist?(suffix: suffix)
-          remove_root_in_use_index_named = index_name
-          suffix = Esse.timestamp
-        elsif suffix.nil? || index_exist?(suffix: suffix)
-          suffix = Esse.timestamp
-        end
+        suffix ||= Esse.timestamp
+        suffix = Esse.timestamp while index_exist?(suffix: suffix)
 
         if optimize
           definition = [settings_hash, mappings_hash].reduce(&:merge)
@@ -82,8 +77,6 @@ module Esse
         if optimize && number_of_replicas != new_number_of_replicas || refresh_interval != new_refresh_interval
           update_settings(suffix: suffix)
         end
-
-        cluster.api.delete_index(index: remove_root_in_use_index_named) if remove_root_in_use_index_named
 
         update_aliases(suffix: suffix)
 
