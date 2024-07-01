@@ -26,10 +26,10 @@ module Esse
       #
       # @see http://www.elasticsearch.org/blog/changing-mapping-with-zero-downtime/
       # @see Esse::Transport#create_index
-      def create_index(suffix: nil, **options)
+      def create_index(suffix: nil, body: nil, **options)
         options = CREATE_INDEX_RESERVED_KEYWORDS.merge(options)
         name = build_real_index_name(suffix)
-        definition = [settings_hash, mappings_hash].reduce(&:merge)
+        definition = body || [settings_hash, mappings_hash].reduce(&:merge)
 
         if options.delete(:alias) && name != index_name
           definition[:aliases] = { index_name => {} }
@@ -48,13 +48,23 @@ module Esse
       # @return [Hash] the elasticsearch response
       #
       # @see https://www.elastic.co/guide/en/elasticsearch/reference/master/indices-open-close.html
-      def reset_index(suffix: index_suffix, import: true, reindex: false, **options)
+      def reset_index(suffix: index_suffix, optimize: true, import: true, reindex: false, **options)
         cluster.throw_error_when_readonly!
-        existing = []
-        suffix ||= Esse.timestamp
-        suffix = Esse.timestamp while index_exist?(suffix: suffix).tap { |exist| existing << suffix if exist }
 
-        create_index(**options, suffix: suffix, alias: false)
+        suffix ||= Esse.timestamp
+        suffix = Esse.timestamp while index_exist?(suffix: suffix)
+
+        if optimize
+          definition = [settings_hash, mappings_hash].reduce(&:merge)
+          number_of_replicas = definition.dig(Esse::SETTING_ROOT_KEY, :index, :number_of_replicas)
+          refresh_interval = definition.dig(Esse::SETTING_ROOT_KEY, :index, :refresh_interval)
+          new_number_of_replicas = ((definition[Esse::SETTING_ROOT_KEY] ||= {})[:index] ||= {})[:number_of_replicas] = 0
+          new_refresh_interval = ((definition[Esse::SETTING_ROOT_KEY] ||= {})[:index] ||= {})[:refresh_interval] = '-1'
+          create_index(**options, suffix: suffix, alias: false, body: definition)
+        else
+          create_index(**options, suffix: suffix, alias: false)
+        end
+
         if index_exist? && aliases.none?
           cluster.api.delete_index(index: index_name)
         end
@@ -63,8 +73,13 @@ module Esse
         elsif reindex && (_from = indices_pointing_to_alias).any?
           # @TODO: Reindex using the reindex API
         end
+
+        if optimize && number_of_replicas != new_number_of_replicas || refresh_interval != new_refresh_interval
+          update_settings(suffix: suffix)
+        end
+
         update_aliases(suffix: suffix)
-        existing.each { |_s| delete_index!(**options, suffix: suffix) }
+
         true
       end
 

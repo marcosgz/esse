@@ -199,13 +199,15 @@ RSpec.describe Esse::Cluster do
 
     it 'retuns an instance of elasticsearch as default' do
       expect(model.instance_variable_get(:@client)).to eq(nil)
-      if defined? Elasticsearch::Transport::Client
-        expect(model.client).to be_an_instance_of(Elasticsearch::Transport::Client)
-        expect(model.instance_variable_get(:@client)).to be_an_instance_of(Elasticsearch::Transport::Client)
-      else # Elasticsearch-ruby >= 8.0
-        expect(model.client).to be_an_instance_of(Elasticsearch::Client)
-        expect(model.instance_variable_get(:@client)).to be_an_instance_of(Elasticsearch::Client)
+      classes = []
+      if defined? Elasticsearch::Client # Elasticsearch-ruby >= 8.0
+        classes << Elasticsearch::Client
       end
+      if defined? Elasticsearch::Transport::Client
+        classes << Elasticsearch::Transport::Client
+      end
+      expect(classes).to include(model.client.class)
+      expect(model.client).to be(model.instance_variable_get(:@client))
     end
 
     it 'store connection using default key' do
