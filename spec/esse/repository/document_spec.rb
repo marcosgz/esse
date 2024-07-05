@@ -368,4 +368,114 @@ RSpec.describe Esse::Repository do
       expect(expected_object).to be_a(Esse::NullDocument)
     end
   end
+
+  describe '.lazy_document_attributes' do
+    let(:repo) do
+      Class.new(Esse::Repository) do
+      end
+    end
+
+    it 'returns a empty hash' do
+      expect(repo.lazy_document_attributes).to eq({})
+    end
+
+    it 'is a frozen hash' do
+      expect(repo.lazy_document_attributes).to be_frozen
+    end
+  end
+
+  describe '.lazy_document_attribute?' do
+    let(:repo) do
+      Class.new(Esse::Repository) do
+      end
+    end
+
+    it 'returns false' do
+      expect(repo.lazy_document_attribute?(:foo)).to eq(false)
+    end
+
+    context 'with a lazy attribute' do
+      let(:repo) do
+        Class.new(Esse::Repository) do
+          lazy_document_attribute(:foo) { 'bar' }
+        end
+      end
+
+      it 'returns true for both symbol and string' do
+        expect(repo.lazy_document_attribute?(:foo)).to eq(true)
+        expect(repo.lazy_document_attribute?('foo')).to eq(true)
+        expect(repo.lazy_document_attribute?(:bar)).to eq(false)
+      end
+    end
+  end
+
+  describe '.lazy_document_attribute' do
+    context 'without a block and class' do
+      let(:repo) do
+        Class.new(Esse::Repository)
+      end
+
+      it 'raises an error' do
+        expect {
+          repo.lazy_document_attribute(:foo)
+        }.to raise_error(ArgumentError, 'A block or a class that responds to `call` is required to define a lazy document attribute')
+        expect(repo.lazy_document_attributes).to be_empty
+      end
+    end
+
+    context 'with a block' do
+      let(:repo) do
+        Class.new(Esse::Repository) do
+          lazy_document_attribute(:foo) { 'bar' }
+        end
+      end
+
+      it 'defines a lazy attribute' do
+        expect(repo.lazy_document_attributes["foo"]).to be_a(Proc)
+        expect(repo.lazy_document_attribute?(:foo)).to eq(true)
+      end
+    end
+
+    context 'with a class that does not respond to `call`' do
+      let(:repo) do
+        Class.new(Esse::Repository) do
+          lazy_document_attribute(:foo, Object)
+        end
+      end
+
+      it 'raises an error' do
+        expect {
+          repo.lazy_document_attributes
+        }.to raise_error(ArgumentError, 'Object is not a valid lazy document attribute. Class should inherit from Esse::DocumentLazyAttribute or respond to `call`')
+      end
+    end
+
+    context 'with a class that responds to `call`' do
+      let(:repo) do
+        Class.new(Esse::Repository) do
+          lazy_document_attribute(:foo, Class.new { def call; end })
+        end
+      end
+
+      it 'defines a lazy attribute' do
+        expect(repo.lazy_document_attributes["foo"]).to be_a(Proc)
+        expect(repo.lazy_document_attribute?(:foo)).to eq(true)
+        expect(repo.lazy_document_attributes).to be_frozen
+      end
+    end
+
+    context 'with a class that inherits from Esse::DocumentLazyAttribute' do
+      let(:repo) do
+        Class.new(Esse::Repository) do
+          lazy_document_attribute(:foo, Class.new(Esse::DocumentLazyAttribute))
+        end
+      end
+
+      it 'defines a lazy attribute' do
+        expect(repo.lazy_document_attributes["foo"]).to be_a(Proc)
+        expect(repo.lazy_document_attribute?(:foo)).to eq(true)
+        expect(repo.lazy_document_attributes).to be_frozen
+      end
+    end
+  end
 end

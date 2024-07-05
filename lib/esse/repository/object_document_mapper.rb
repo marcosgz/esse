@@ -6,8 +6,8 @@ module Esse
   # @see ObjectDocumentMapper
   class Repository
     module ClassMethods
-      # Convert ruby object to json. Arguments will be same of passed through the
-      # collection. It's allowed a block or a class with the `to_h` instance method.
+      # Define the document type that will be used to serialize the data.
+      # Arguments will be same of passed through the collection. It's allowed a block or a class with the `to_h` instance method.
       # Example with block
       #   document do |model, **context|
       #     {
@@ -149,6 +149,35 @@ module Esse
             docs.each { |document| yielder.yield(document) }
           end
         end
+      end
+
+      def lazy_document_attributes
+        @lazy_document_attributes ||= {}.freeze
+      end
+
+      def lazy_document_attribute?(attr_name)
+        lazy_document_attributes.key?(attr_name.to_s)
+      end
+
+      def lazy_document_attribute(attr_name, klass = nil, &block)
+        if lazy_document_attribute?(attr_name)
+          raise ArgumentError, format('Attribute %<attr>p is already defined as a lazy document attribute', attr: attr_name)
+        end
+
+        @lazy_document_attributes = lazy_document_attributes.dup
+        if block
+          @lazy_document_attributes[attr_name.to_s] = block
+        elsif klass.is_a?(Class) && klass <= Esse::DocumentLazyAttribute
+          @lazy_document_attributes[attr_name.to_s] = ->(ids) { klass.new.call(ids) }
+        elsif klass.is_a?(Class) && klass.instance_methods.include?(:call)
+          @lazy_document_attributes[attr_name.to_s] = ->(ids) { klass.new.call(ids) }
+        elsif klass.nil?
+          raise ArgumentError, format('A block or a class that responds to `call` is required to define a lazy document attribute')
+        else
+          raise ArgumentError, format('%<arg>p is not a valid lazy document attribute. Class should inherit from Esse::DocumentLazyAttribute or respond to `call`', arg: klass)
+        end
+      ensure
+        @lazy_document_attributes&.freeze
       end
     end
 
