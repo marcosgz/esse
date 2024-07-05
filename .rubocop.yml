@@ -36,3 +36,6 @@ Style/StringLiterals:
 
 Style/StringLiteralsInInterpolation:
   EnforcedStyle: single_quotes
+
+RSpec/ExampleLength:
+  Max: 20

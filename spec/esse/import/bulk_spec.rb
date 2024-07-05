@@ -7,7 +7,7 @@ RSpec.describe Esse::Import::Bulk do
     let(:index) { [Esse::HashDocument.new(id: 1, source: { foo: 'bar' })] }
     let(:create) { [Esse::HashDocument.new(id: 2, source: { foo: 'bar' })] }
     let(:delete) { [Esse::HashDocument.new(id: 3, source: { foo: 'bar' })] }
-    let(:bulk) { Esse::Import::Bulk.new(index: index, create: create, delete: delete) }
+    let(:bulk) { described_class.new(index: index, create: create, delete: delete) }
 
     it 'yields a request body instance' do
       expect { |b| bulk.each_request(&b) }.to yield_with_args(Esse::Import::RequestBodyAsJson)
@@ -18,7 +18,7 @@ RSpec.describe Esse::Import::Bulk do
       expect(Esse.logger).to receive(:warn).with(an_instance_of(String)).twice
       retries = 0
       expect {
-        bulk.each_request(max_retries: 3) { |request|
+        bulk.each_request(max_retries: 3, last_retry_in_small_chunks: false) { |request|
           retries += 1
           raise Faraday::TimeoutError
         }
@@ -31,7 +31,7 @@ RSpec.describe Esse::Import::Bulk do
       expect(Esse.logger).to receive(:warn).with(an_instance_of(String)).twice
       retries = 0
       expect {
-        bulk.each_request(max_retries: 3) { |request|
+        bulk.each_request(max_retries: 3, last_retry_in_small_chunks: false) { |request|
           retries += 1
           raise Esse::Transport::RequestTimeoutError
         }
@@ -46,6 +46,29 @@ RSpec.describe Esse::Import::Bulk do
 
       it 'does not yield a request body instance' do
         expect { |b| bulk.each_request(&b) }.not_to yield_control
+      end
+    end
+
+    context 'when on last retry and last_retry_in_small_chunks is true' do
+      let(:index) do
+        %w[foo bar baz].each_with_index.map { |name, idx| Esse::HashDocument.new(id: idx + 10, source: { name: name }) }
+      end
+      let(:create) do
+        %w[foo bar baz].each_with_index.map { |name, idx| Esse::HashDocument.new(id: idx + 20, source: { name: name }) }
+      end
+      let(:delete) do
+        %w[foo bar baz].each_with_index.map { |name, idx| Esse::HashDocument.new(id: idx + 30, source: { name: name }) }
+      end
+      let(:bulk) { described_class.new(index: index, create: create, delete: delete) }
+
+      it 'retries in small chunks' do
+        expect(bulk).to receive(:sleep).with(an_instance_of(Integer)).exactly(3).times
+        requests = []
+        bulk.each_request(last_retry_in_small_chunks: true) { |request|
+          requests << request
+          raise Faraday::TimeoutError if [1, 2, 3].include?(requests.size)
+        }
+        expect(requests.size).to eq(3 + index.size + create.size + delete.size)
       end
     end
 
