@@ -22,12 +22,12 @@ module Esse
       # Return an array of RequestBody instances
       #
       # In case of timeout error, will retry with an exponential backoff using the following formula:
-      #  wait_interval = (retry_count**4) + 15 + (rand(10) * (retry_count + 1)) seconds. It will retry up to max_retries times that is default 3.
+      #  wait_interval = (retry_count**4) + 15 + (rand(10) * (retry_count + 1)) seconds. It will retry up to max_retries times that is default 4.
       #
       # Too large bulk requests will be split into multiple requests with only one attempt.
       #
       # @yield [RequestBody] A request body instance
-      def each_request(max_retries: 3)
+      def each_request(max_retries: 4, last_retry_in_small_chunks: true)
         # @TODO create indexes when by checking all the index suffixes (if mapping is not empty)
         requests = [optimistic_request]
         retry_count = 0
@@ -43,6 +43,8 @@ module Esse
         rescue Faraday::TimeoutError, Esse::Transport::RequestTimeoutError => e
           retry_count += 1
           raise Esse::Transport::RequestTimeoutError.new(e.message) if retry_count >= max_retries
+          # Timeout error may be caused by a too large request, so we split the requests in small chunks as a last attempt
+          requests = requests_in_small_chunks if last_retry_in_small_chunks && max_retries > 2 && retry_count == max_retries - 2
           wait_interval = (retry_count**4) + 15 + (rand(10) * (retry_count + 1))
           Esse.logger.warn "Timeout error, retrying in #{wait_interval} seconds"
           sleep(wait_interval)
@@ -71,6 +73,18 @@ module Esse
         request.create = @create
         request.index = @index
         request
+      end
+
+      def requests_in_small_chunks(chunk_size: 1)
+        arr = []
+        @delete.each_slice(chunk_size) { |slice| arr << Import::RequestBodyAsJson.new.tap { |r| r.delete = slice } }
+        @create.each_slice(chunk_size) { |slice| arr << Import::RequestBodyAsJson.new.tap { |r| r.create = slice } }
+        @index.each_slice(chunk_size) { |slice| arr << Import::RequestBodyAsJson.new.tap { |r| r.index = slice } }
+        Esse.logger.warn <<~MSG
+          Retrying the last request in small chunks of #{chunk_size} documents.
+          This is a last resort to avoid timeout errors, consider increasing the bulk size or reducing the batch size.
+        MSG
+        arr
       end
 
       # @return [Array<RequestBody>]
