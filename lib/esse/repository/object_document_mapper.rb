@@ -159,18 +159,29 @@ module Esse
         lazy_document_attributes.key?(attr_name.to_s)
       end
 
-      def lazy_document_attribute(attr_name, klass = nil, &block)
+      def lazy_document_attribute(attr_name, klass = nil, **kwargs, &block)
         if lazy_document_attribute?(attr_name)
           raise ArgumentError, format('Attribute %<attr>p is already defined as a lazy document attribute', attr: attr_name)
         end
 
         @lazy_document_attributes = lazy_document_attributes.dup
         if block
-          @lazy_document_attributes[attr_name.to_s] = block
+          klass = Class.new(Esse::DocumentLazyAttribute)
+          klass.define_singleton_method(:call, &block)
+          @lazy_document_attributes[attr_name.to_s] = ->(arr) do
+            headers = Esse::LazyDocumentHeader.coerce_each(arr)
+            klass.new(**kwargs).call(headers) if headers.any?
+          end
         elsif klass.is_a?(Class) && klass <= Esse::DocumentLazyAttribute
-          @lazy_document_attributes[attr_name.to_s] = ->(ids) { klass.new.call(ids) }
+          @lazy_document_attributes[attr_name.to_s] = ->(arr) do
+            headers = Esse::LazyDocumentHeader.coerce_each(arr)
+            klass.new(**kwargs).call(headers) if headers.any?
+          end
         elsif klass.is_a?(Class) && klass.instance_methods.include?(:call)
-          @lazy_document_attributes[attr_name.to_s] = ->(ids) { klass.new.call(ids) }
+          @lazy_document_attributes[attr_name.to_s] = ->(arr) do
+            headers = Esse::LazyDocumentHeader.coerce_each(arr)
+            klass.new(**kwargs).call(headers) if headers.any?
+          end
         elsif klass.nil?
           raise ArgumentError, format('A block or a class that responds to `call` is required to define a lazy document attribute')
         else

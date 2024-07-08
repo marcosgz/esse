@@ -210,9 +210,12 @@ module Esse
             #
             # Note that the repository name will be used as the document type.
             # mapping_default_type
-            kwargs = { index: batch, suffix: suffix, type: repo_name, **options }
+            kwargs = { suffix: suffix, type: repo_name, **options }
             cluster.may_update_type!(kwargs)
-            bulk(**kwargs)
+            bulk(**kwargs, index: batch)
+            # repo.bulk_update_data_for_lazy_attributes(batch) do |data|
+            #   bulk(**kwargs, update: data)
+            # end
             count += batch.size
           end
         end

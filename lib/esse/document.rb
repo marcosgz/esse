@@ -66,10 +66,8 @@ module Esse
     end
 
     def to_bulk(data: true)
-      { _id: id }.tap do |h|
-        h[:data] = source&.to_h if data
-        h[:_type] = type if type
-        h[:routing] = routing if routing?
+      doc_header.tap do |h|
+        h[:data] = source if data
         h.merge!(meta)
       end
     end
@@ -86,6 +84,13 @@ module Esse
       other.is_a?(self.class) && (
         id == other.id && type == other.type && routing == other.routing && meta == other.meta && source == other.source
       )
+    end
+
+    def doc_header
+      { _id: id }.tap do |h|
+        h[:_type] = type if type
+        h[:_routing] = routing if routing?
+      end
     end
   end
 end
