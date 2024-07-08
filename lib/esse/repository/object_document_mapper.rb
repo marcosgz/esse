@@ -168,20 +168,11 @@ module Esse
         if block
           klass = Class.new(Esse::DocumentLazyAttribute)
           klass.define_singleton_method(:call, &block)
-          @lazy_document_attributes[attr_name.to_s] = ->(arr) do
-            headers = Esse::LazyDocumentHeader.coerce_each(arr)
-            klass.new(**kwargs).call(headers) if headers.any?
-          end
+          @lazy_document_attributes[attr_name.to_s] = [klass, kwargs]
         elsif klass.is_a?(Class) && klass <= Esse::DocumentLazyAttribute
-          @lazy_document_attributes[attr_name.to_s] = ->(arr) do
-            headers = Esse::LazyDocumentHeader.coerce_each(arr)
-            klass.new(**kwargs).call(headers) if headers.any?
-          end
+          @lazy_document_attributes[attr_name.to_s] = [klass, kwargs]
         elsif klass.is_a?(Class) && klass.instance_methods.include?(:call)
-          @lazy_document_attributes[attr_name.to_s] = ->(arr) do
-            headers = Esse::LazyDocumentHeader.coerce_each(arr)
-            klass.new(**kwargs).call(headers) if headers.any?
-          end
+          @lazy_document_attributes[attr_name.to_s] = [klass, kwargs]
         elsif klass.nil?
           raise ArgumentError, format('A block or a class that responds to `call` is required to define a lazy document attribute')
         else

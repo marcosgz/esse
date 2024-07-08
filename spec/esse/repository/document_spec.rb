@@ -431,7 +431,10 @@ RSpec.describe Esse::Repository do
       end
 
       it 'defines a lazy attribute' do
-        expect(repo.lazy_document_attributes["foo"]).to be_a(Proc)
+        expect(repo.lazy_document_attributes["foo"]).to match_array([
+          be < Esse::DocumentLazyAttribute,
+          {},
+        ])
         expect(repo.lazy_document_attribute?(:foo)).to eq(true)
       end
     end
@@ -453,12 +456,24 @@ RSpec.describe Esse::Repository do
     context 'with a class that responds to `call`' do
       let(:repo) do
         Class.new(Esse::Repository) do
-          lazy_document_attribute(:foo, Class.new { def call; end })
+          lazy_document_attribute(:foo, TheFooParser)
         end
       end
 
+      before do
+        klass = Class.new { def call; end }
+        Object.const_set(:TheFooParser, klass)
+      end
+
+      after do
+        Object.send(:remove_const, :TheFooParser)
+      end
+
       it 'defines a lazy attribute' do
-        expect(repo.lazy_document_attributes["foo"]).to be_a(Proc)
+        expect(repo.lazy_document_attributes["foo"]).to match_array([
+          TheFooParser,
+          {},
+        ])
         expect(repo.lazy_document_attribute?(:foo)).to eq(true)
         expect(repo.lazy_document_attributes).to be_frozen
       end
@@ -472,7 +487,27 @@ RSpec.describe Esse::Repository do
       end
 
       it 'defines a lazy attribute' do
-        expect(repo.lazy_document_attributes["foo"]).to be_a(Proc)
+        expect(repo.lazy_document_attributes["foo"]).to match_array([
+          be < Esse::DocumentLazyAttribute,
+          {},
+        ])
+        expect(repo.lazy_document_attribute?(:foo)).to eq(true)
+        expect(repo.lazy_document_attributes).to be_frozen
+      end
+    end
+
+    context 'when passing extra options' do
+      let(:repo) do
+        Class.new(Esse::Repository) do
+          lazy_document_attribute(:foo, Class.new(Esse::DocumentLazyAttribute), bar: 'baz')
+        end
+      end
+
+      it 'defines a lazy attribute' do
+        expect(repo.lazy_document_attributes["foo"]).to match_array([
+          be < Esse::DocumentLazyAttribute,
+          { bar: 'baz' },
+        ])
         expect(repo.lazy_document_attribute?(:foo)).to eq(true)
         expect(repo.lazy_document_attributes).to be_frozen
       end
