@@ -7,7 +7,8 @@ RSpec.describe Esse::Import::Bulk do
     let(:index) { [Esse::HashDocument.new(id: 1, source: { foo: 'bar' })] }
     let(:create) { [Esse::HashDocument.new(id: 2, source: { foo: 'bar' })] }
     let(:delete) { [Esse::HashDocument.new(id: 3, source: { foo: 'bar' })] }
-    let(:bulk) { described_class.new(index: index, create: create, delete: delete) }
+    let(:update) { [Esse::HashDocument.new(id: 4, source: { foo: 'bar' })] }
+    let(:bulk) { described_class.new(index: index, create: create, delete: delete, update: update) }
 
     it 'yields a request body instance' do
       expect { |b| bulk.each_request(&b) }.to yield_with_args(Esse::Import::RequestBodyAsJson)
@@ -43,6 +44,7 @@ RSpec.describe Esse::Import::Bulk do
       let(:index) { [] }
       let(:create) { [] }
       let(:delete) { [] }
+      let(:update) { [] }
 
       it 'does not yield a request body instance' do
         expect { |b| bulk.each_request(&b) }.not_to yield_control
@@ -76,6 +78,7 @@ RSpec.describe Esse::Import::Bulk do
       let(:index) { [Esse::HashDocument.new(id: 1, source: { name: 'Aaa' * 30 })] }
       let(:create) { [Esse::HashDocument.new(id: 2, source: { name: 'Bbbb' * 100 })] }
       let(:delete) { [Esse::HashDocument.new(id: 3, source: { name: 'Ccc' * 30 })] }
+      let(:update) { [Esse::HashDocument.new(id: 4, source: { name: 'Dddd' * 30 })] }
 
       it 'adjusts body into multiple requests on Esse::Transport::RequestEntityTooLargeError' do
         bulk_size = 500 # 500 bytes
@@ -91,12 +94,20 @@ RSpec.describe Esse::Import::Bulk do
         expect(requests[1]).to be_an_instance_of(Esse::Import::RequestBodyRaw)
         expect(requests[2]).to be_an_instance_of(Esse::Import::RequestBodyRaw)
 
-        expect(requests[1].body).to eq(
-          "{\"delete\":{\"_id\":3}}\n{\"create\":{\"_id\":2}}\n{\"id\":2,\"source\":{\"name\":\"#{'Bbbb' * 100}\"}}\n"
-        )
-        expect(requests[2].body).to eq(
-          "{\"index\":{\"_id\":1}}\n{\"id\":1,\"source\":{\"name\":\"#{'Aaa' * 30}\"}}\n"
-        )
+        expect(requests[1].body).to eq([
+          %[{"create":{"_id":2}}],
+          %[{"id":2,"source":{"name":"#{'Bbbb' * 100}"}}],
+          nil
+        ].join("\n"))
+
+        expect(requests[2].body).to eq([
+          %[{"index":{"_id":1}}],
+          %[{"id":1,"source":{"name":"#{'Aaa' * 30}"}}],
+          %[{"update":{"_id":4}}],
+          %[{"id":4,"source":{"name":"#{'Dddd' * 30}"}}],
+          %[{"delete":{"_id":3}}],
+          nil
+        ].join("\n"))
       end
 
       it 'discard documents that are larger than the bulk size' do
@@ -114,10 +125,10 @@ RSpec.describe Esse::Import::Bulk do
         expect(requests[2]).to be_an_instance_of(Esse::Import::RequestBodyRaw)
 
         expect(requests[1].body).to eq(
-          "{\"delete\":{\"_id\":3}}\n"
+          "{\"index\":{\"_id\":1}}\n{\"id\":1,\"source\":{\"name\":\"#{'Aaa' * 30}\"}}\n"
         )
         expect(requests[2].body).to eq(
-          "{\"index\":{\"_id\":1}}\n{\"id\":1,\"source\":{\"name\":\"#{'Aaa' * 30}\"}}\n"
+          "{\"delete\":{\"_id\":3}}\n"
         )
       end
     end

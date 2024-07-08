@@ -164,7 +164,7 @@ module Esse
       # @see https://www.elastic.co/guide/en/elasticsearch/reference/7.5/docs-bulk.html
       # @see https://github.com/elastic/elasticsearch-ruby/blob/main/elasticsearch-api/lib/elasticsearch/api/utils.rb
       # @see https://github.com/elastic/elasticsearch-ruby/blob/main/elasticsearch-api/lib/elasticsearch/api/actions/bulk.rb
-      def bulk(index: nil, delete: nil, create: nil, type: nil, suffix: nil, **options)
+      def bulk(create: nil, delete: nil, index: nil, update: nil, type: nil, suffix: nil, **options)
         definition = {
           index: index_name(suffix: suffix),
           type: type,
@@ -174,9 +174,10 @@ module Esse
         # @TODO Wrap the return in a some other Stats object with more information
         Esse::Import::Bulk.new(
           **definition.slice(:type),
-          index: index,
-          delete: delete,
           create: create,
+          delete: delete,
+          index: index,
+          update: update,
         ).each_request do |request_body|
           cluster.api.bulk(**definition, body: request_body.body) do |event_payload|
             event_payload[:body_stats] = request_body.stats
