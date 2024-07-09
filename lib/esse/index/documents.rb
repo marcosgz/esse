@@ -214,11 +214,9 @@ module Esse
             cluster.may_update_type!(kwargs)
 
             doc_attrs = {eager: [], lazy: []}
-            # @TODO Implement this
-            if (_expected = eager_include_document_attributes) != false
-              Esse.logger.warn('eager_include_document_attributes is not implemented yet')
-              # allowed = repo.lazy_document_attributes.keys
-              # doc_attrs[:eager] = (expected == true) ? allowed : Array(expected).map(&:to_s) & allowed
+            if (expected = eager_include_document_attributes) != false
+              allowed = repo.lazy_document_attributes.keys
+              doc_attrs[:eager] = (expected == true) ? allowed : Array(expected).map(&:to_s) & allowed
             end
             if (expected = lazy_update_document_attributes) != false
               allowed = repo.lazy_document_attributes.keys
@@ -226,10 +224,22 @@ module Esse
               doc_attrs[:lazy] -= doc_attrs[:eager]
             end
 
+            doc_attrs[:eager].each do |attr_name|
+              partial_docs = repo.documents_for_lazy_attribute(attr_name, *batch.reject(&:ignore_on_index?))
+              next if partial_docs.empty?
+
+              partial_docs.each do |part_doc|
+                doc = batch.find { |d| part_doc.id == d.id && part_doc.type == d.type && part_doc.routing == d.routing }
+                next unless doc
+
+                doc.send(:__add_lazy_data_to_source__, part_doc.source)
+              end
+            end
+
             bulk(**kwargs, index: batch)
 
             doc_attrs[:lazy].each do |attr_name|
-              partial_docs = repo.documents_for_lazy_attribute(attr_name, *batch)
+              partial_docs = repo.documents_for_lazy_attribute(attr_name, *batch.reject(&:ignore_on_index?))
               next if partial_docs.empty?
 
               bulk(**kwargs, update: partial_docs)

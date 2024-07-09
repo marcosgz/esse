@@ -68,9 +68,9 @@ module Esse
     def to_bulk(data: true, operation: nil)
       doc_header.tap do |h|
         if data && operation == :update
-          h[:data] = { doc: source }
+          h[:data] = { doc: source_with_lazy_attributes }
         elsif data
-          h[:data] = source
+          h[:data] = source_with_lazy_attributes
         end
         h.merge!(meta)
       end
@@ -95,6 +95,30 @@ module Esse
         h[:_type] = type if type
         h[:_routing] = routing if routing?
       end
+    end
+
+    def inspect
+      attributes = %i[id routing source].map do |attr|
+        value = send(attr)
+        "#{attr}: #{value.inspect}" if value
+      end.compact.join(', ')
+      "#<#{self.class.name || 'Esse::Document'} #{attributes}>"
+    end
+
+    protected
+
+    def source_with_lazy_attributes
+      return source unless @__lazy_source_data__
+
+      @__lazy_source_data__.merge(source)
+    end
+
+    # api private
+    def __add_lazy_data_to_source__(hash)
+      return hash unless hash.is_a?(Hash)
+
+      @__lazy_source_data__ ||= {}
+      @__lazy_source_data__.merge!(hash)
     end
   end
 end
