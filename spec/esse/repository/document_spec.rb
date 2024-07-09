@@ -513,4 +513,22 @@ RSpec.describe Esse::Repository do
       end
     end
   end
+
+  describe '.fetch_lazy_document_attribute' do
+    let(:repo) do
+      Class.new(Esse::Repository) do
+        lazy_document_attribute(:foo) { 'bar' }
+      end
+    end
+
+    it 'returns a lazy attribute' do
+      expect(repo.fetch_lazy_document_attribute(:foo)).to be_a_kind_of(Esse::DocumentLazyAttribute)
+    end
+
+    it 'raises an error when the attribute is not defined' do
+      expect {
+        repo.fetch_lazy_document_attribute(:bar)
+      }.to raise_error(ArgumentError, 'Attribute :bar is not defined as a lazy document attribute')
+    end
+  end
 end

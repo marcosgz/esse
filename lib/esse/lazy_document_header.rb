@@ -60,5 +60,14 @@ module Esse
     def routing
       @attributes[:_routing]
     end
+
+    def to_doc(source = {})
+      HashDocument.new(source.merge(@attributes))
+    end
+
+    def eql?(other)
+      self.class == other.class && @attributes == other.instance_variable_get(:@attributes)
+    end
+    alias_method :==, :eql?
   end
 end

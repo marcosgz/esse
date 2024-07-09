@@ -159,6 +159,13 @@ module Esse
         lazy_document_attributes.key?(attr_name.to_s)
       end
 
+      def fetch_lazy_document_attribute(attr_name)
+        klass, kwargs = lazy_document_attributes.fetch(attr_name.to_s)
+        klass.new(**kwargs)
+      rescue KeyError
+        raise ArgumentError, format('Attribute %<attr>p is not defined as a lazy document attribute', attr: attr_name)
+      end
+
       def lazy_document_attribute(attr_name, klass = nil, **kwargs, &block)
         if lazy_document_attribute?(attr_name)
           raise ArgumentError, format('Attribute %<attr>p is already defined as a lazy document attribute', attr: attr_name)
@@ -166,8 +173,9 @@ module Esse
 
         @lazy_document_attributes = lazy_document_attributes.dup
         if block
-          klass = Class.new(Esse::DocumentLazyAttribute)
-          klass.define_singleton_method(:call, &block)
+          klass = Class.new(Esse::DocumentLazyAttribute) do
+            define_method(:call, &block)
+          end
           @lazy_document_attributes[attr_name.to_s] = [klass, kwargs]
         elsif klass.is_a?(Class) && klass <= Esse::DocumentLazyAttribute
           @lazy_document_attributes[attr_name.to_s] = [klass, kwargs]

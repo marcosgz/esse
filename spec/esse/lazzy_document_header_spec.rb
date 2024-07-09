@@ -170,4 +170,20 @@ RSpec.describe Esse::LazyDocumentHeader do
       expect(described_class.coerce_each([nil, {_id: 1}, {}]).size).to eq(1)
     end
   end
+
+  describe '#to_doc' do
+    it { expect(doc).to respond_to :to_doc }
+
+    it 'returns a HashDocument instance' do
+      expect(doc.to_doc).to be_a(Esse::HashDocument)
+    end
+
+    it 'returns a HashDocument instance with the object as source' do
+      expect(doc.to_doc.source).to eq(object)
+    end
+
+    it 'returns a HashDocument instance with the object as source and the given source' do
+      expect(doc.to_doc(foo: 'bar').source).to eq(object.merge(foo: 'bar'))
+    end
+  end
 end

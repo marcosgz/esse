@@ -5,8 +5,9 @@ require 'dotenv/load'
 require 'esse'
 require 'pry'
 require 'awesome_print'
+require 'elasticsearch'
 
-Esse.config.clusters.client = { url: ENV.fetch('ESSE_URL', ENV.fetch('ELASTICSEARCH_URL', 'http://localhost:9200')) }
+Esse.config.clusters.client = Elasticsearch::Client.new url: ENV.fetch('ESSE_URL', ENV.fetch('ELASTICSEARCH_URL', 'http://localhost:9200'))
 Esse.config.clusters.index_prefix = 'esse_console'
 
 US_STATES = {
@@ -64,7 +65,7 @@ class GeosIndex < ApplicationIndex
           autocomplete: {
             type: 'custom',
             tokenizer: 'standard',
-            filter: %w[lowercase asciifolding]
+            filter: %w[lowercase asciifolding]\
           },
         },
       }
@@ -99,6 +100,7 @@ class GeosIndex < ApplicationIndex
 
     document do |(state, name), **|
       {
+        _id: state.downcase,
         name: name,
         routing: state,
       }
@@ -114,7 +116,7 @@ class GeosIndex < ApplicationIndex
 
     document do |(abbr, name), **|
       {
-        id: abbr,
+        _id: abbr,
         name: name,
         routing: abbr,
       }
