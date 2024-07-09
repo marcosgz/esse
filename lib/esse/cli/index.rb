@@ -88,9 +88,20 @@ module Esse
       option :suffix, type: :string, default: nil, aliases: '-s', desc: 'Suffix to append to index name'
       option :context, type: :hash, default: {}, required: true, desc: 'List of options to pass to the index class'
       option :repo, type: :string, default: nil, alias: '-r', desc: 'Repository to use for import'
+      option :eager_include_document_attributes, type: :string, default: nil, desc: 'Comma separated list of lazy document attributes to include to the bulk index request'
+      option :lazy_update_document_attributes, type: :string, default: nil, desc: 'Comma separated list of lazy document attributes to bulk update after the bulk index request'
       def import(*index_classes)
         require_relative 'index/import'
-        Import.new(indices: index_classes, **HashUtils.deep_transform_keys(options.to_h, &:to_sym)).run
+        opts = HashUtils.deep_transform_keys(options.to_h, &:to_sym)
+        opts.delete(:lazy_update_document_attributes) if opts[:lazy_update_document_attributes] == 'false'
+        opts.delete(:eager_include_document_attributes) if opts[:eager_include_document_attributes] == 'false'
+        if (val = opts[:eager_include_document_attributes])
+          opts[:eager_include_document_attributes] = (val == 'true') ? true : val.split(',')
+        end
+        if (val = opts[:lazy_update_document_attributes])
+          opts[:lazy_update_document_attributes] = (val == 'true') ? true : val.split(',')
+        end
+        Import.new(indices: index_classes, **opts).run
       end
     end
   end
