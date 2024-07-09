@@ -199,7 +199,7 @@ module Esse
       # @option [Hash] :context The collection context. This value will be passed as argument to the collection
       #   May be SQL condition or any other filter you have defined on the collection.
       # @return [Numeric] The number of documents imported
-      def import(*repo_types, context: {}, suffix: nil, **options)
+      def import(*repo_types, context: {}, eager_include_document_attributes: false, lazy_update_document_attributes: false, suffix: nil, **options)
         repo_types = repo_hash.keys if repo_types.empty?
         count = 0
         repo_hash.slice(*repo_types).each do |repo_name, repo|
@@ -212,10 +212,29 @@ module Esse
             # mapping_default_type
             kwargs = { suffix: suffix, type: repo_name, **options }
             cluster.may_update_type!(kwargs)
+
+            doc_attrs = {eager: [], lazy: []}
+            # @TODO Implement this
+            if (_expected = eager_include_document_attributes) != false
+              Esse.logger.warn('eager_include_document_attributes is not implemented yet')
+              # allowed = repo.lazy_document_attributes.keys
+              # doc_attrs[:eager] = (expected == true) ? allowed : Array(expected).map(&:to_s) & allowed
+            end
+            if (expected = lazy_update_document_attributes) != false
+              allowed = repo.lazy_document_attributes.keys
+              doc_attrs[:lazy] = (expected == true) ? allowed : Array(expected).map(&:to_s) & allowed
+              doc_attrs[:lazy] -= doc_attrs[:eager]
+            end
+
             bulk(**kwargs, index: batch)
-            # repo.bulk_update_data_for_lazy_attributes(batch) do |data|
-            #   bulk(**kwargs, update: data)
-            # end
+
+            doc_attrs[:lazy].each do |attr_name|
+              partial_docs = repo.documents_for_lazy_attribute(attr_name, *batch)
+              next if partial_docs.empty?
+
+              bulk(**kwargs, update: partial_docs)
+            end
+
             count += batch.size
           end
         end

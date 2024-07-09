@@ -100,6 +100,12 @@ RSpec.describe Esse::Document do
       it { is_expected.to eq(_id: 1, _type: 'foo', _routing: 'bar', timeout: 10) }
     end
 
+    context 'with operation: :update' do
+      subject { document.to_bulk(data: true, operation: :update) }
+
+      it { is_expected.to eq(_id: 1, _type: 'foo', _routing: 'bar', timeout: 10, data: { doc: { foo: 'bar' } }) }
+    end
+
     context 'when document does not have a routing' do
       it 'should not include the routing' do
         allow(document).to receive(:routing).and_return(nil)

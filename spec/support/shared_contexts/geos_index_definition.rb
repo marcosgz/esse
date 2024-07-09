@@ -82,6 +82,12 @@ RSpec.shared_context 'with geos index definition' do
           end
         end
         document documents.fetch(:county)
+        lazy_document_attribute :country do |docs|
+          docs.map { |doc| [doc, 'US'] }.to_h
+        end
+        lazy_document_attribute :cities do |docs|
+          docs.map { |doc| [doc, []] }.to_h
+        end
       end
     end
   end

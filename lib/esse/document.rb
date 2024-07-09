@@ -65,9 +65,13 @@ module Esse
       end
     end
 
-    def to_bulk(data: true)
+    def to_bulk(data: true, operation: nil)
       doc_header.tap do |h|
-        h[:data] = source if data
+        if data && operation == :update
+          h[:data] = { doc: source }
+        elsif data
+          h[:data] = source
+        end
         h.merge!(meta)
       end
     end

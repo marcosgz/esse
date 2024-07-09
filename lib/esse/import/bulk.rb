@@ -13,7 +13,7 @@ module Esse
           { create: value }
         end
         @update = Array(update).select(&method(:valid_doc?)).reject(&:ignore_on_index?).map do |doc|
-          value = doc.to_bulk
+          value = doc.to_bulk(operation: :update)
           value[:_type] ||= type if type
           { update: value }
         end
