@@ -205,15 +205,9 @@ module Esse
 
         repo_hash.slice(*repo_types).each do |repo_name, repo|
           doc_attrs = {eager: [], lazy: []}
-          if (expected = eager_include_document_attributes) != false
-            allowed = repo.lazy_document_attributes.keys
-            doc_attrs[:eager] = (expected == true) ? allowed : Array(expected).map(&:to_s) & allowed
-          end
-          if (expected = lazy_update_document_attributes) != false
-            allowed = repo.lazy_document_attributes.keys
-            doc_attrs[:lazy] = (expected == true) ? allowed : Array(expected).map(&:to_s) & allowed
-            doc_attrs[:lazy] -= doc_attrs[:eager]
-          end
+          doc_attrs[:eager] = repo.lazy_document_attribute_names(eager_include_document_attributes)
+          doc_attrs[:lazy] = repo.lazy_document_attribute_names(lazy_update_document_attributes)
+          doc_attrs[:lazy] -= doc_attrs[:eager]
 
           repo.each_serialized_batch(**(context || {})) do |batch|
             # Elasticsearch 6.x and older have multiple types per index.
@@ -226,14 +220,9 @@ module Esse
             cluster.may_update_type!(kwargs)
 
             doc_attrs[:eager].each do |attr_name|
-              partial_docs = repo.documents_for_lazy_attribute(attr_name, *batch.reject(&:ignore_on_index?))
-              next if partial_docs.empty?
-
-              partial_docs.each do |part_doc|
-                doc = batch.find { |d| part_doc.id == d.id && part_doc.type == d.type && part_doc.routing == d.routing }
-                next unless doc
-
-                doc.send(:__add_lazy_data_to_source__, part_doc.source)
+              repo.retrieve_lazy_attribute_values(attr_name, *batch.reject(&:ignore_on_index?)).each do |doc_header, value|
+                doc = batch.find { |d| doc_header.id == d.id && doc_header.type == d.type && doc_header.routing == d.routing }
+                doc&.mutate(attr_name) { value }
               end
             end
 

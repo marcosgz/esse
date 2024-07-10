@@ -15,6 +15,12 @@ module Esse
       end
 
       def documents_for_lazy_attribute(name, *ids_or_doc_headers)
+        retrieve_lazy_attribute_values(name, *ids_or_doc_headers).map do |doc_header, datum|
+          doc_header.to_doc(name => datum)
+        end
+      end
+
+      def retrieve_lazy_attribute_values(name, *ids_or_doc_headers)
         unless lazy_document_attribute?(name)
           raise ArgumentError, <<~MSG
             The attribute `#{name}` is not defined as a lazy document attribute.
@@ -26,17 +32,16 @@ module Esse
         docs = LazyDocumentHeader.coerce_each(ids_or_doc_headers)
         return [] if docs.empty?
 
-        arr = []
         result = fetch_lazy_document_attribute(name).call(docs)
         return [] unless result.is_a?(Hash)
 
-        result.each do |key, datum|
-          doc = docs.find { |d| d == key || d.id == key }
-          next unless doc
-
-          arr << doc.to_doc(name => datum)
+        result.each_with_object({}) do |(key, value), memo|
+          if key.is_a?(LazyDocumentHeader) && (doc = docs.find { |d| d == key || d.id == key.id })
+            memo[doc] = value
+          elsif (doc = docs.find { |d| d.id == key })
+            memo[doc] = value
+          end
         end
-        arr
       end
     end
 

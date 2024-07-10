@@ -172,4 +172,24 @@ RSpec.describe Esse::Document do
       end
     end
   end
+
+  describe '#mutate' do
+    let(:document_class) do
+      Class.new(described_class) do
+        def source
+          { foo: 'foo' }
+        end
+      end
+    end
+
+    let(:document) { document_class.new(object, **options) }
+
+    it 'adds the given value to the :mutated_source' do
+      expect {
+        document.mutate(:bar) { 'bar' }
+      }.not_to change(document, :source)
+
+      expect(document.send(:mutated_source)).to eq(foo: 'foo', bar: 'bar')
+    end
+  end
 end

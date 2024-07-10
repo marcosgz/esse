@@ -38,31 +38,6 @@ module Esse
         end
       end
 
-      def coerce_to_document(value)
-        case value
-        when Esse::Document
-          value
-        when Hash
-          Esse::HashDocument.new(value)
-        when NilClass, FalseClass
-          Esse::NullDocument.new
-        else
-          raise ArgumentError, format('%<arg>p is not a valid document. The document should be a hash or an instance of Esse::Document', arg: value)
-        end
-      end
-
-      # Convert ruby object to json by using the document of the given document type.
-      # @param [Object] model The ruby object
-      # @param [Hash] kwargs The context
-      # @return [Esse::Document] The serialized document
-      def serialize(model, **kwargs)
-        if @document_proc.nil?
-          raise NotImplementedError, format('there is no %<t>p document defined for the %<k>p index', t: repo_name, k: index.to_s)
-        end
-
-        @document_proc.call(model, **kwargs)
-      end
-
       # Used to define the source of data. A block is required. And its
       # content should yield an array of each object that should be serialized.
       # The list of arguments will be passed throught the document method.
@@ -94,6 +69,61 @@ module Esse
         @collection_proc = collection_klass || block
       end
 
+      # Wrap collection data into serialized batches
+      #
+      # @param [Hash] kwargs The context
+      # @return [Enumerator] The enumerator
+      # @yield [Array, **context] serialized collection and the optional context from the collection
+      def each_serialized_batch(**kwargs)
+        each_batch(**kwargs) do |*args|
+          batch, collection_context = args
+          collection_context ||= {}
+          entries = [*batch].map { |entry| serialize(entry, **collection_context) }.compact
+          yield entries, **kwargs
+        end
+      end
+
+      # Wrap collection data into serialized documents
+      #
+      # Example:
+      #    GeosIndex.documents(id: 1).first
+      #
+      # @return [Enumerator] All serialized entries
+      def documents(**kwargs)
+        Enumerator.new do |yielder|
+          each_serialized_batch(**kwargs) do |docs, **_collection_kargs|
+            docs.each { |document| yielder.yield(document) }
+          end
+        end
+      end
+
+      # Convert ruby object to json by using the document of the given document type.
+      # @param [Object] model The ruby object
+      # @param [Hash] kwargs The context
+      # @return [Esse::Document] The serialized document
+      def serialize(model, **kwargs)
+        if @document_proc.nil?
+          raise NotImplementedError, format('there is no %<t>p document defined for the %<k>p index', t: repo_name, k: index.to_s)
+        end
+
+        @document_proc.call(model, **kwargs)
+      end
+
+      protected
+
+      def coerce_to_document(value)
+        case value
+        when Esse::Document
+          value
+        when Hash
+          Esse::HashDocument.new(value)
+        when NilClass, FalseClass
+          Esse::NullDocument.new
+        else
+          raise ArgumentError, format('%<arg>p is not a valid document. The document should be a hash or an instance of Esse::Document', arg: value)
+        end
+      end
+
       # Used to fetch all batch of data defined on the collection model.
       # Arguments can be anything. They will just be passed through the block.
       # Useful when the collection depends on scope or any other conditions
@@ -121,34 +151,6 @@ module Esse
         end
       rescue LocalJumpError
         raise(SyntaxError, 'block must be explicitly declared in the collection definition')
-      end
-
-      # Wrap collection data into serialized batches
-      #
-      # @param [Hash] kwargs The context
-      # @return [Enumerator] The enumerator
-      # @yield [Array, **context] serialized collection and the optional context from the collection
-      def each_serialized_batch(**kwargs)
-        each_batch(**kwargs) do |*args|
-          batch, collection_context = args
-          collection_context ||= {}
-          entries = [*batch].map { |entry| serialize(entry, **collection_context) }.compact
-          yield entries, **kwargs
-        end
-      end
-
-      # Wrap collection data into serialized documents
-      #
-      # Example:
-      #    GeosIndex.documents(id: 1).first
-      #
-      # @return [Enumerator] All serialized entries
-      def documents(**kwargs)
-        Enumerator.new do |yielder|
-          each_serialized_batch(**kwargs) do |docs, **_collection_kargs|
-            docs.each { |document| yielder.yield(document) }
-          end
-        end
       end
     end
 

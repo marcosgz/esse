@@ -326,20 +326,20 @@ RSpec.describe Esse::Repository do
 
     specify do
       expect {
-        StatesIndex::State.coerce_to_document(:invalid)
+        StatesIndex::State.send(:coerce_to_document, :invalid)
       }.to raise_error(ArgumentError, ':invalid is not a valid document. The document should be a hash or an instance of Esse::Document')
     end
 
     specify do
       expect {
-        StatesIndex::State.coerce_to_document(OpenStruct.new)
+        StatesIndex::State.send(:coerce_to_document, OpenStruct.new)
       }.to raise_error(ArgumentError, '#<OpenStruct> is not a valid document. The document should be a hash or an instance of Esse::Document')
     end
 
     specify do
       expected_object = nil
       expect {
-        expected_object = StatesIndex::State.coerce_to_document(Esse::Document.new(nil))
+        expected_object = StatesIndex::State.send(:coerce_to_document, Esse::Document.new(nil))
       }.not_to raise_error
       expect(expected_object).to be_a(Esse::Document)
     end
@@ -347,7 +347,7 @@ RSpec.describe Esse::Repository do
     specify do
       expected_object = nil
       expect {
-        expected_object = StatesIndex::State.coerce_to_document({id: 1})
+        expected_object = StatesIndex::State.send(:coerce_to_document, {id: 1})
       }.not_to raise_error
       expect(expected_object).to be_a(Esse::Document)
     end
@@ -355,7 +355,7 @@ RSpec.describe Esse::Repository do
     specify do
       expected_object = nil
       expect {
-        expected_object = StatesIndex::State.coerce_to_document(nil)
+        expected_object = StatesIndex::State.send(:coerce_to_document, nil)
       }.not_to raise_error
       expect(expected_object).to be_a(Esse::NullDocument)
     end
@@ -363,7 +363,7 @@ RSpec.describe Esse::Repository do
     specify do
       expected_object = nil
       expect {
-        expected_object = StatesIndex::State.coerce_to_document(false)
+        expected_object = StatesIndex::State.send(:coerce_to_document, false)
       }.not_to raise_error
       expect(expected_object).to be_a(Esse::NullDocument)
     end

@@ -56,7 +56,7 @@ module Esse
 
     # @return [Hash] the document data
     def to_h
-      source.merge(
+      mutated_source.merge(
         _id: id,
       ).tap do |hash|
         hash[:_type] = type if type
@@ -68,9 +68,9 @@ module Esse
     def to_bulk(data: true, operation: nil)
       doc_header.tap do |h|
         if data && operation == :update
-          h[:data] = { doc: source_with_lazy_attributes }
+          h[:data] = { doc: mutated_source }
         elsif data
-          h[:data] = source_with_lazy_attributes
+          h[:data] = mutated_source
         end
         h.merge!(meta)
       end
@@ -105,20 +105,18 @@ module Esse
       "#<#{self.class.name || 'Esse::Document'} #{attributes}>"
     end
 
-    protected
-
-    def source_with_lazy_attributes
-      return source unless @__lazy_source_data__
-
-      @__lazy_source_data__.merge(source)
+    def mutate(key)
+      @__mutations__ ||= {}
+      @__mutations__[key] = yield
+      instance_variable_set(:@__mutated_source__, nil)
     end
 
-    # api private
-    def __add_lazy_data_to_source__(hash)
-      return hash unless hash.is_a?(Hash)
+    protected
 
-      @__lazy_source_data__ ||= {}
-      @__lazy_source_data__.merge!(hash)
+    def mutated_source
+      return source unless @__mutations__
+
+      @__mutated_source__ ||= source.merge(@__mutations__)
     end
   end
 end
