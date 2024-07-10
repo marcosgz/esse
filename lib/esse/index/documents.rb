@@ -202,7 +202,19 @@ module Esse
       def import(*repo_types, context: {}, eager_include_document_attributes: false, lazy_update_document_attributes: false, suffix: nil, **options)
         repo_types = repo_hash.keys if repo_types.empty?
         count = 0
+
         repo_hash.slice(*repo_types).each do |repo_name, repo|
+          doc_attrs = {eager: [], lazy: []}
+          if (expected = eager_include_document_attributes) != false
+            allowed = repo.lazy_document_attributes.keys
+            doc_attrs[:eager] = (expected == true) ? allowed : Array(expected).map(&:to_s) & allowed
+          end
+          if (expected = lazy_update_document_attributes) != false
+            allowed = repo.lazy_document_attributes.keys
+            doc_attrs[:lazy] = (expected == true) ? allowed : Array(expected).map(&:to_s) & allowed
+            doc_attrs[:lazy] -= doc_attrs[:eager]
+          end
+
           repo.each_serialized_batch(**(context || {})) do |batch|
             # Elasticsearch 6.x and older have multiple types per index.
             # This gem supports multiple types per index for backward compatibility, but we recommend to update
@@ -212,17 +224,6 @@ module Esse
             # mapping_default_type
             kwargs = { suffix: suffix, type: repo_name, **options }
             cluster.may_update_type!(kwargs)
-
-            doc_attrs = {eager: [], lazy: []}
-            if (expected = eager_include_document_attributes) != false
-              allowed = repo.lazy_document_attributes.keys
-              doc_attrs[:eager] = (expected == true) ? allowed : Array(expected).map(&:to_s) & allowed
-            end
-            if (expected = lazy_update_document_attributes) != false
-              allowed = repo.lazy_document_attributes.keys
-              doc_attrs[:lazy] = (expected == true) ? allowed : Array(expected).map(&:to_s) & allowed
-              doc_attrs[:lazy] -= doc_attrs[:eager]
-            end
 
             doc_attrs[:eager].each do |attr_name|
               partial_docs = repo.documents_for_lazy_attribute(attr_name, *batch.reject(&:ignore_on_index?))

@@ -128,12 +128,12 @@ module Esse
       # @param [Hash] kwargs The context
       # @return [Enumerator] The enumerator
       # @yield [Array, **context] serialized collection and the optional context from the collection
-      def each_serialized_batch(**kwargs, &block)
+      def each_serialized_batch(**kwargs)
         each_batch(**kwargs) do |*args|
           batch, collection_context = args
           collection_context ||= {}
           entries = [*batch].map { |entry| serialize(entry, **collection_context) }.compact
-          block.call(entries, **kwargs)
+          yield entries, **kwargs
         end
       end
 
