@@ -227,7 +227,7 @@ module Esse
                 doc = batch.find { |d| part_doc.id == d.id && part_doc.type == d.type && part_doc.routing == d.routing }
                 next unless doc
 
-                doc.send(:__add_lazy_data_to_source__, part_doc.source)
+                part_doc.source.each { |k, v| doc.mutate(k) { v } }
               end
             end
 
