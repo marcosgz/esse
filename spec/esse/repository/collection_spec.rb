@@ -72,7 +72,7 @@ RSpec.describe Esse::Repository do
 
       specify do
         expect {
-          UsersIndex::User.each_batch { |batch| puts batch }
+          UsersIndex::User.send(:each_batch) { |batch| puts batch }
         }.to raise_error(NotImplementedError, 'there is no "user" collection defined for the "UsersIndex" index')
       end
     end
@@ -88,7 +88,7 @@ RSpec.describe Esse::Repository do
       end
 
       it 'does not raise any exception' do
-        expect { |b| UsersIndex::User.each_batch(&b) }.not_to yield_control
+        expect { |b| UsersIndex::User.send(:each_batch, &b) }.not_to yield_control
       end
     end
 
@@ -107,7 +107,7 @@ RSpec.describe Esse::Repository do
 
       it 'yields each block with arguments' do
         o = { active: true }
-        expect { |b| UsersIndex::User.each_batch(**o, &b) }.to yield_successive_args([[1], o], [[2], o], [[3], o])
+        expect { |b| UsersIndex::User.send(:each_batch, **o, &b) }.to yield_successive_args([[1], o], [[2], o], [[3], o])
       end
     end
 
@@ -123,7 +123,7 @@ RSpec.describe Esse::Repository do
       it 'yields each block with arguments' do
         f = { active: true }
         o = { repo: (1..6), batch_size: 2 }.merge(f)
-        expect { |b| GeosIndex::City.each_batch(**o, &b) }.to yield_successive_args([[1, 2], f], [[3, 4], f], [[5, 6], f])
+        expect { |b| GeosIndex::City.send(:each_batch, **o, &b) }.to yield_successive_args([[1, 2], f], [[3, 4], f], [[5, 6], f])
       end
     end
   end

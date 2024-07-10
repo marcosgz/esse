@@ -81,35 +81,6 @@ module Esse
         @collection_proc = collection_klass || block
       end
 
-      # Used to fetch all batch of data defined on the collection model.
-      # Arguments can be anything. They will just be passed through the block.
-      # Useful when the collection depends on scope or any other conditions
-      #
-      # Example:
-      #   each_batch(active: true) do |data, **_collection_opts|
-      #     puts data.size
-      #   end
-      #
-      # @todo Remove *args. It should only support keyword arguments
-      #
-      # @param [Hash] kwargs The context
-      # @param [Proc] block The block that will be used to iterate over the collection.
-      # @return [void]
-      def each_batch(*args, **kwargs, &block)
-        if @collection_proc.nil?
-          raise NotImplementedError, format('there is no %<t>p collection defined for the %<k>p index', t: repo_name, k: index.to_s)
-        end
-
-        case @collection_proc
-        when Class
-          @collection_proc.new(*args, **kwargs).each(&block)
-        else
-          @collection_proc.call(*args, **kwargs, &block)
-        end
-      rescue LocalJumpError
-        raise(SyntaxError, 'block must be explicitly declared in the collection definition')
-      end
-
       # Wrap collection data into serialized batches
       #
       # @param [Hash] kwargs The context
@@ -151,6 +122,35 @@ module Esse
         else
           raise ArgumentError, format('%<arg>p is not a valid document. The document should be a hash or an instance of Esse::Document', arg: value)
         end
+      end
+
+      # Used to fetch all batch of data defined on the collection model.
+      # Arguments can be anything. They will just be passed through the block.
+      # Useful when the collection depends on scope or any other conditions
+      #
+      # Example:
+      #   each_batch(active: true) do |data, **_collection_opts|
+      #     puts data.size
+      #   end
+      #
+      # @todo Remove *args. It should only support keyword arguments
+      #
+      # @param [Hash] kwargs The context
+      # @param [Proc] block The block that will be used to iterate over the collection.
+      # @return [void]
+      def each_batch(*args, **kwargs, &block)
+        if @collection_proc.nil?
+          raise NotImplementedError, format('there is no %<t>p collection defined for the %<k>p index', t: repo_name, k: index.to_s)
+        end
+
+        case @collection_proc
+        when Class
+          @collection_proc.new(*args, **kwargs).each(&block)
+        else
+          @collection_proc.call(*args, **kwargs, &block)
+        end
+      rescue LocalJumpError
+        raise(SyntaxError, 'block must be explicitly declared in the collection definition')
       end
     end
 
