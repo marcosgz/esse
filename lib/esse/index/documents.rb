@@ -220,10 +220,7 @@ module Esse
             cluster.may_update_type!(kwargs)
 
             doc_attrs[:eager].each do |attr_name|
-              result = repo.retrieve_lazy_attribute_values(attr_name, *batch.reject(&:ignore_on_index?))
-              next if result.empty?
-
-              result.each do |doc_header, value|
+              repo.retrieve_lazy_attribute_values(attr_name, *batch.reject(&:ignore_on_index?)).each do |doc_header, value|
                 doc = batch.find { |d| doc_header.id == d.id && doc_header.type == d.type && doc_header.routing == d.routing }
                 doc&.mutate(attr_name) { value }
               end
