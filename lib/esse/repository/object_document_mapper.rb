@@ -38,19 +38,6 @@ module Esse
         end
       end
 
-      def coerce_to_document(value)
-        case value
-        when Esse::Document
-          value
-        when Hash
-          Esse::HashDocument.new(value)
-        when NilClass, FalseClass
-          Esse::NullDocument.new
-        else
-          raise ArgumentError, format('%<arg>p is not a valid document. The document should be a hash or an instance of Esse::Document', arg: value)
-        end
-      end
-
       # Convert ruby object to json by using the document of the given document type.
       # @param [Object] model The ruby object
       # @param [Hash] kwargs The context
@@ -148,6 +135,21 @@ module Esse
           each_serialized_batch(**kwargs) do |docs, **_collection_kargs|
             docs.each { |document| yielder.yield(document) }
           end
+        end
+      end
+
+      protected
+
+      def coerce_to_document(value)
+        case value
+        when Esse::Document
+          value
+        when Hash
+          Esse::HashDocument.new(value)
+        when NilClass, FalseClass
+          Esse::NullDocument.new
+        else
+          raise ArgumentError, format('%<arg>p is not a valid document. The document should be a hash or an instance of Esse::Document', arg: value)
         end
       end
     end
