@@ -97,6 +97,18 @@ module Esse
         end
       end
 
+      # Convert ruby object to json by using the document of the given document type.
+      # @param [Object] model The ruby object
+      # @param [Hash] kwargs The context
+      # @return [Esse::Document] The serialized document
+      def serialize(model, **kwargs)
+        if @document_proc.nil?
+          raise NotImplementedError, format('there is no %<t>p document defined for the %<k>p index', t: repo_name, k: index.to_s)
+        end
+
+        @document_proc.call(model, **kwargs)
+      end
+
       protected
 
       def coerce_to_document(value)
@@ -110,18 +122,6 @@ module Esse
         else
           raise ArgumentError, format('%<arg>p is not a valid document. The document should be a hash or an instance of Esse::Document', arg: value)
         end
-      end
-
-            # Convert ruby object to json by using the document of the given document type.
-      # @param [Object] model The ruby object
-      # @param [Hash] kwargs The context
-      # @return [Esse::Document] The serialized document
-      def serialize(model, **kwargs)
-        if @document_proc.nil?
-          raise NotImplementedError, format('there is no %<t>p document defined for the %<k>p index', t: repo_name, k: index.to_s)
-        end
-
-        @document_proc.call(model, **kwargs)
       end
 
       # Used to fetch all batch of data defined on the collection model.
