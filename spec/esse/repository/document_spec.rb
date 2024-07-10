@@ -10,7 +10,7 @@ RSpec.describe Esse::Repository do
 
       specify do
         expect {
-          DummiesIndex::Dummy.serialize(double)
+          DummiesIndex::Dummy.send(:serialize, double)
         }.to raise_error(
           NotImplementedError,
           'there is no "dummy" document defined for the "DummiesIndex" index',
@@ -35,7 +35,7 @@ RSpec.describe Esse::Repository do
       end
 
       specify do
-        expect(DummiesIndex::Dummy.serialize(dummy, **optionals)).to eq(
+        expect(DummiesIndex::Dummy.send(:serialize, dummy, **optionals)).to eq(
           Esse::HashDocument.new(
             _id: 1,
             name: 'dummy',
