@@ -1,7 +1,7 @@
 module Esse
   module Import
     class Bulk
-      def initialize(type: nil, index: nil, delete: nil, create: nil)
+      def initialize(type: nil, index: nil, delete: nil, create: nil, update: nil)
         @index = Array(index).select(&method(:valid_doc?)).reject(&:ignore_on_index?).map do |doc|
           value = doc.to_bulk
           value[:_type] ||= type if type
@@ -11,6 +11,11 @@ module Esse
           value = doc.to_bulk
           value[:_type] ||= type if type
           { create: value }
+        end
+        @update = Array(update).select(&method(:valid_doc?)).reject(&:ignore_on_index?).map do |doc|
+          value = doc.to_bulk(operation: :update)
+          value[:_type] ||= type if type
+          { update: value }
         end
         @delete = Array(delete).select(&method(:valid_doc?)).reject(&:ignore_on_delete?).map do |doc|
           value = doc.to_bulk(data: false)
@@ -69,17 +74,19 @@ module Esse
 
       def optimistic_request
         request = Import::RequestBodyAsJson.new
-        request.delete = @delete
         request.create = @create
         request.index = @index
+        request.update = @update
+        request.delete = @delete
         request
       end
 
       def requests_in_small_chunks(chunk_size: 1)
         arr = []
-        @delete.each_slice(chunk_size) { |slice| arr << Import::RequestBodyAsJson.new.tap { |r| r.delete = slice } }
         @create.each_slice(chunk_size) { |slice| arr << Import::RequestBodyAsJson.new.tap { |r| r.create = slice } }
         @index.each_slice(chunk_size) { |slice| arr << Import::RequestBodyAsJson.new.tap { |r| r.index = slice } }
+        @update.each_slice(chunk_size) { |slice| arr << Import::RequestBodyAsJson.new.tap { |r| r.update = slice } }
+        @delete.each_slice(chunk_size) { |slice| arr << Import::RequestBodyAsJson.new.tap { |r| r.delete = slice } }
         Esse.logger.warn <<~MSG
           Retrying the last request in small chunks of #{chunk_size} documents.
           This is a last resort to avoid timeout errors, consider increasing the bulk size or reducing the batch size.
@@ -90,7 +97,7 @@ module Esse
       # @return [Array<RequestBody>]
       def balance_requests_size(err)
         if (bulk_size = err.message.scan(/exceeded.(\d+).bytes/).dig(0, 0).to_i) > 0
-          requests = (@delete + @create + @index).each_with_object([Import::RequestBodyRaw.new]) do |as_json, result|
+          requests = (@create + @index + @update + @delete).each_with_object([Import::RequestBodyRaw.new]) do |as_json, result|
             operation, meta = as_json.to_a.first
             meta = meta.dup
             data = meta.delete(:data)

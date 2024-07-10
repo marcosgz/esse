@@ -6,8 +6,8 @@ module Esse
   # @see ObjectDocumentMapper
   class Repository
     module ClassMethods
-      # Convert ruby object to json. Arguments will be same of passed through the
-      # collection. It's allowed a block or a class with the `to_h` instance method.
+      # Define the document type that will be used to serialize the data.
+      # Arguments will be same of passed through the collection. It's allowed a block or a class with the `to_h` instance method.
       # Example with block
       #   document do |model, **context|
       #     {
@@ -128,12 +128,12 @@ module Esse
       # @param [Hash] kwargs The context
       # @return [Enumerator] The enumerator
       # @yield [Array, **context] serialized collection and the optional context from the collection
-      def each_serialized_batch(**kwargs, &block)
+      def each_serialized_batch(**kwargs)
         each_batch(**kwargs) do |*args|
           batch, collection_context = args
           collection_context ||= {}
           entries = [*batch].map { |entry| serialize(entry, **collection_context) }.compact
-          block.call(entries, **kwargs)
+          yield entries, **kwargs
         end
       end
 

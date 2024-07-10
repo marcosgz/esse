@@ -13,5 +13,6 @@ module Esse
     require_relative 'repository/actions'
     require_relative 'repository/documents'
     require_relative 'repository/object_document_mapper'
+    require_relative 'repository/lazy_document_attributes'
   end
 end

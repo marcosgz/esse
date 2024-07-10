@@ -5,7 +5,7 @@ module Esse
 
       def initialize(body:)
         @body = body # body may be String or Array<Hash>
-        @stats = { index: 0, create: 0, delete: 0 }
+        @stats = { index: 0, create: 0, delete: 0, update: 0 }
       end
 
       def body?
@@ -44,6 +44,11 @@ module Esse
       def index=(docs)
         @body += docs
         @stats[:index] += docs.size
+      end
+
+      def update=(docs)
+        @body += docs
+        @stats[:update] += docs.size
       end
 
       def create=(docs)
