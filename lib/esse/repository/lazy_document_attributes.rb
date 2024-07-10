@@ -8,6 +8,17 @@ module Esse
         @lazy_document_attributes ||= {}.freeze
       end
 
+      def lazy_document_attribute_names(all = true)
+        case all
+        when false
+          []
+        when true
+          lazy_document_attributes.keys
+        else
+          Array(all).map(&:to_s) & lazy_document_attributes.keys
+        end
+      end
+
       def lazy_document_attribute?(attr_name)
         lazy_document_attributes.key?(attr_name.to_s)
       end

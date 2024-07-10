@@ -3,6 +3,43 @@
 require 'spec_helper'
 
 RSpec.describe Esse::Repository do
+  describe '.lazy_document_attribute_names' do
+    let(:repo) do
+      Class.new(Esse::Repository) do
+        lazy_document_attribute(:foo) { |_docs| {} }
+        lazy_document_attribute(:bar) { |_docs| {} }
+      end
+    end
+
+    it 'returns all the lazy document attribute names as default' do
+      expect(repo.lazy_document_attribute_names).to eq(%w[foo bar])
+    end
+
+    it 'returns an empty array when no lazy document attributes are defined' do
+      expect(Class.new(Esse::Repository).lazy_document_attribute_names).to eq([])
+    end
+
+    it 'returs all the lazy document attribute names when passing true' do
+      expect(repo.lazy_document_attribute_names(true)).to eq(%w[foo bar])
+    end
+
+    it 'returns an empty array when passing false' do
+      expect(repo.lazy_document_attribute_names(false)).to eq([])
+    end
+
+    it 'returns an array of lazy document attribute names when passing an array of names' do
+      expect(repo.lazy_document_attribute_names(%w[foo])).to eq(%w[foo])
+    end
+
+    it 'returns an array of lazy document attribute names when passing a single name' do
+      expect(repo.lazy_document_attribute_names('foo')).to eq(%w[foo])
+    end
+
+    it 'returns an array of lazy document attribute names when passing a single name as symbol' do
+      expect(repo.lazy_document_attribute_names(:foo)).to eq(%w[foo])
+    end
+  end
+
   describe '.documents_for_lazy_attribute' do
     context 'when the attribute is not defined' do
       let(:repo) { Class.new(Esse::Repository) }

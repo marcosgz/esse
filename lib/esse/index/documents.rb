@@ -205,15 +205,9 @@ module Esse
 
         repo_hash.slice(*repo_types).each do |repo_name, repo|
           doc_attrs = {eager: [], lazy: []}
-          if (expected = eager_include_document_attributes) != false
-            allowed = repo.lazy_document_attributes.keys
-            doc_attrs[:eager] = (expected == true) ? allowed : Array(expected).map(&:to_s) & allowed
-          end
-          if (expected = lazy_update_document_attributes) != false
-            allowed = repo.lazy_document_attributes.keys
-            doc_attrs[:lazy] = (expected == true) ? allowed : Array(expected).map(&:to_s) & allowed
-            doc_attrs[:lazy] -= doc_attrs[:eager]
-          end
+          doc_attrs[:eager] = repo.lazy_document_attribute_names(eager_include_document_attributes)
+          doc_attrs[:lazy] = repo.lazy_document_attribute_names(lazy_update_document_attributes)
+          doc_attrs[:lazy] -= doc_attrs[:eager]
 
           repo.each_serialized_batch(**(context || {})) do |batch|
             # Elasticsearch 6.x and older have multiple types per index.
