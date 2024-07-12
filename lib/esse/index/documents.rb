@@ -220,7 +220,7 @@ module Esse
             cluster.may_update_type!(kwargs)
 
             doc_attrs[:eager].each do |attr_name|
-              repo.retrieve_lazy_attribute_values(attr_name, *batch.reject(&:ignore_on_index?)).each do |doc_header, value|
+              repo.retrieve_lazy_attribute_values(attr_name, batch.reject(&:ignore_on_index?)).each do |doc_header, value|
                 doc = batch.find { |d| doc_header.id == d.id && doc_header.type == d.type && doc_header.routing == d.routing }
                 doc&.mutate(attr_name) { value }
               end
@@ -229,7 +229,7 @@ module Esse
             bulk(**kwargs, index: batch)
 
             doc_attrs[:lazy].each do |attr_name|
-              partial_docs = repo.documents_for_lazy_attribute(attr_name, *batch.reject(&:ignore_on_index?))
+              partial_docs = repo.documents_for_lazy_attribute(attr_name, batch.reject(&:ignore_on_index?))
               next if partial_docs.empty?
 
               bulk(**kwargs, update: partial_docs)

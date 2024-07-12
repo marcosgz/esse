@@ -59,7 +59,7 @@ RSpec.describe Esse::Repository do
       end
 
       it 'returns an empty array when no ids are provided' do
-        expect(repo.documents_for_lazy_attribute(:city_names)).to eq([])
+        expect(repo.documents_for_lazy_attribute(:city_names, nil)).to eq([])
       end
 
       it 'returns an empty array when no ids are found' do
@@ -80,7 +80,7 @@ RSpec.describe Esse::Repository do
       end
 
       it 'returns an empty array when no ids are provided' do
-        expect(repo.documents_for_lazy_attribute(:city_names)).to eq([])
+        expect(repo.documents_for_lazy_attribute(:city_names, nil)).to eq([])
       end
 
       it 'returns an empty array when no ids are found' do
@@ -115,7 +115,7 @@ RSpec.describe Esse::Repository do
       end
 
       it 'returns an empty array when no ids are provided' do
-        expect(repo.documents_for_lazy_attribute(:city_names)).to eq([])
+        expect(repo.documents_for_lazy_attribute(:city_names, nil)).to eq([])
       end
 
       it 'returns an empty array when no ids are found' do
@@ -137,7 +137,7 @@ RSpec.describe Esse::Repository do
       end
 
       it 'do not include duplicate documents' do
-        docs = repo.documents_for_lazy_attribute(:city_names, '2', '2', Esse::LazyDocumentHeader.coerce(id: '2'))
+        docs = repo.documents_for_lazy_attribute(:city_names, ['2', '2', Esse::LazyDocumentHeader.coerce(id: '2')])
         expect(docs).to eq([
           Esse::HashDocument.new(_id: '2', city_names: 'London')
         ])
@@ -159,7 +159,7 @@ RSpec.describe Esse::Repository do
       end
 
       it 'returns an array of documents that match with the provided ids' do
-        docs = repo.documents_for_lazy_attribute(:city_names, '2', '3', '4')
+        docs = repo.documents_for_lazy_attribute(:city_names, ['2', '3', '4'])
         expect(docs).to eq([
           Esse::HashDocument.new(_id: '2', city_names: 'London'),
           Esse::HashDocument.new(_id: '3', city_names: nil),

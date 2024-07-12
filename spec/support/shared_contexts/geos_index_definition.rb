@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# rubocop:disable RSpec/MultipleMemoizedHelpers
 RSpec.shared_context 'with geos index definition' do
   let(:states_batches) do
     [
@@ -92,3 +93,4 @@ RSpec.shared_context 'with geos index definition' do
     end
   end
 end
+# rubocop:enable RSpec/MultipleMemoizedHelpers

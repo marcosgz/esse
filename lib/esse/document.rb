@@ -93,7 +93,7 @@ module Esse
     def doc_header
       { _id: id }.tap do |h|
         h[:_type] = type if type
-        h[:_routing] = routing if routing?
+        h[:routing] = routing if routing?
       end
     end
 
