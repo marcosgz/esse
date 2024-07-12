@@ -210,7 +210,7 @@ module Esse
           doc_attrs[:lazy] -= doc_attrs[:eager]
 
           context ||= {}
-          context[:attributes] = doc_attrs[:eager] if doc_attrs[:eager].any?
+          context[:lazy_attributes] = doc_attrs[:eager] if doc_attrs[:eager].any?
           repo.each_serialized_batch(**context) do |batch|
             # Elasticsearch 6.x and older have multiple types per index.
             # This gem supports multiple types per index for backward compatibility, but we recommend to update
