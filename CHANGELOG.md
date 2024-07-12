@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 * fix bulk indexing routing issue
 * add `attributes:` to the `Esse::Repository.each_serialized_batch` to preload `lazy_document_attributes`
 * Stop stringifying the `lazy_document_attributes` attribute name
+* The `Esse::Repository.update_documents_attribute` was not working when calling with a single hash as document
 
 ## 0.3.0 - 2024-07-10
 * Extend bulk indexing API to support `update`.
