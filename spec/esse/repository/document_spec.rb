@@ -153,6 +153,40 @@ RSpec.describe Esse::Repository do
         )
       end
     end
+
+    context 'with lazy_load_attributes' do
+      include_context 'with stories index definition'
+
+      it 'yields serialized objects with lazy attributes when passing attributes: true' do
+        expected_data = []
+        expect {
+          StoriesIndex::Story.each_serialized_batch(attributes: true) do |batch|
+            expected_data.push(*batch)
+          end
+        }.not_to raise_error
+        expect(expected_data.select { |doc| doc.to_h.key?(:tags) && doc.to_h.key?(:tags_count) }).not_to be_empty
+      end
+
+      it 'yields serialized objects without lazy attributes when passing attributes: false' do
+        expected_data = []
+        expect {
+          StoriesIndex::Story.each_serialized_batch(attributes: false) do |batch|
+            expected_data.push(*batch)
+          end
+        }.not_to raise_error
+        expect(expected_data.select { |doc| doc.to_h.key?(:tags) || doc.to_h.key?(:tags_count) }).to be_empty
+      end
+
+      it 'yields serialized objects with lazy attributes when passing specific attributes' do
+        expected_data = []
+        expect {
+          StoriesIndex::Story.each_serialized_batch(attributes: %i[tags]) do |batch|
+            expected_data.push(*batch)
+          end
+        }.not_to raise_error
+        expect(expected_data.select { |doc| doc.to_h.key?(:tags) && !doc.to_h.key?(:tags_count) }).not_to be_empty
+      end
+    end
   end
 
   describe '.documents' do
@@ -391,7 +425,7 @@ RSpec.describe Esse::Repository do
     end
 
     it 'returns false' do
-      expect(repo.lazy_document_attribute?(:foo)).to eq(false)
+      expect(repo.send(:lazy_document_attribute?, :foo)).to eq(false)
     end
 
     context 'with a lazy attribute' do
@@ -401,10 +435,10 @@ RSpec.describe Esse::Repository do
         end
       end
 
-      it 'returns true for both symbol and string' do
-        expect(repo.lazy_document_attribute?(:foo)).to eq(true)
-        expect(repo.lazy_document_attribute?('foo')).to eq(true)
-        expect(repo.lazy_document_attribute?(:bar)).to eq(false)
+      it 'returns attribute as it is defined' do
+        expect(repo.send(:lazy_document_attribute?, :foo)).to eq(true)
+        expect(repo.send(:lazy_document_attribute?, 'foo')).to eq(false)
+        expect(repo.send(:lazy_document_attribute?, :bar)).to eq(false)
       end
     end
   end
@@ -431,11 +465,11 @@ RSpec.describe Esse::Repository do
       end
 
       it 'defines a lazy attribute' do
-        expect(repo.lazy_document_attributes["foo"]).to match_array([
+        expect(repo.lazy_document_attributes[:foo]).to match_array([
           be < Esse::DocumentLazyAttribute,
           {},
         ])
-        expect(repo.lazy_document_attribute?(:foo)).to eq(true)
+        expect(repo.send(:lazy_document_attribute?, :foo)).to eq(true)
       end
     end
 
@@ -470,11 +504,11 @@ RSpec.describe Esse::Repository do
       end
 
       it 'defines a lazy attribute' do
-        expect(repo.lazy_document_attributes["foo"]).to match_array([
+        expect(repo.lazy_document_attributes[:foo]).to match_array([
           TheFooParser,
           {},
         ])
-        expect(repo.lazy_document_attribute?(:foo)).to eq(true)
+        expect(repo.send(:lazy_document_attribute?, :foo)).to eq(true)
         expect(repo.lazy_document_attributes).to be_frozen
       end
     end
@@ -487,11 +521,11 @@ RSpec.describe Esse::Repository do
       end
 
       it 'defines a lazy attribute' do
-        expect(repo.lazy_document_attributes["foo"]).to match_array([
+        expect(repo.lazy_document_attributes[:foo]).to match_array([
           be < Esse::DocumentLazyAttribute,
           {},
         ])
-        expect(repo.lazy_document_attribute?(:foo)).to eq(true)
+        expect(repo.send(:lazy_document_attribute?, :foo)).to eq(true)
         expect(repo.lazy_document_attributes).to be_frozen
       end
     end
@@ -504,11 +538,11 @@ RSpec.describe Esse::Repository do
       end
 
       it 'defines a lazy attribute' do
-        expect(repo.lazy_document_attributes["foo"]).to match_array([
+        expect(repo.lazy_document_attributes[:foo]).to match_array([
           be < Esse::DocumentLazyAttribute,
           { bar: 'baz' },
         ])
-        expect(repo.lazy_document_attribute?(:foo)).to eq(true)
+        expect(repo.send(:lazy_document_attribute?, :foo)).to eq(true)
         expect(repo.lazy_document_attributes).to be_frozen
       end
     end

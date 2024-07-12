@@ -102,6 +102,7 @@ module Esse
         value = send(attr)
         "#{attr}: #{value.inspect}" if value
       end.compact.join(', ')
+      attributes << " mutations: #{@__mutations__.inspect}" if @__mutations__
       "#<#{self.class.name || 'Esse::Document'} #{attributes}>"
     end
 

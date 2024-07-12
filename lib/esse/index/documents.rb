@@ -209,7 +209,9 @@ module Esse
           doc_attrs[:lazy] = repo.lazy_document_attribute_names(lazy_update_document_attributes)
           doc_attrs[:lazy] -= doc_attrs[:eager]
 
-          repo.each_serialized_batch(**(context || {})) do |batch|
+          context ||= {}
+          context[:attributes] = doc_attrs[:eager] if doc_attrs[:eager].any?
+          repo.each_serialized_batch(**context) do |batch|
             # Elasticsearch 6.x and older have multiple types per index.
             # This gem supports multiple types per index for backward compatibility, but we recommend to update
             # your elasticsearch to a at least 7.x version and use a single type per index.
@@ -218,13 +220,6 @@ module Esse
             # mapping_default_type
             kwargs = { suffix: suffix, type: repo_name, **options }
             cluster.may_update_type!(kwargs)
-
-            doc_attrs[:eager].each do |attr_name|
-              repo.retrieve_lazy_attribute_values(attr_name, batch.reject(&:ignore_on_index?)).each do |doc_header, value|
-                doc = batch.find { |d| doc_header.id == d.id && doc_header.type == d.type && doc_header.routing == d.routing }
-                doc&.mutate(attr_name) { value }
-              end
-            end
 
             bulk(**kwargs, index: batch)
 

@@ -54,6 +54,11 @@ RSpec.shared_context 'with stories index definition' do
             [doc, ds.find { |s| s[:id] == doc.id.to_i }&.[](:tags) || []]
           end.to_h
         end
+        lazy_document_attribute :tags_count do |docs|
+          docs.map do |doc|
+            [doc, (ds.find { |s| s[:id] == doc.id.to_i }&.[](:tags) || []).size]
+          end.to_h
+        end
       end
     end
   end
