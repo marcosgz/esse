@@ -146,7 +146,7 @@ RSpec.shared_examples 'repository.import' do
   context 'when the document routing is set' do
     include_context 'with stories index definition'
 
-    it 'indexes the data and bulk updates all the document routing' do
+    it 'indexes the data and bulk updates all the document routing' do |example|
       es_client do |client, _conf, cluster|
         StoriesIndex.create_index(alias: true)
 
@@ -162,7 +162,9 @@ RSpec.shared_examples 'repository.import' do
         doc = StoriesIndex.get(id: '1001', routing: 'nyt')
         expect(doc.dig('_source', 'publication')).to eq('nyt')
         expect(doc.dig('_source', 'tags')).to be(nil)
-        expect(doc.dig('_routing')).to eq('nyt')
+        unless %w[1.x].include?(example.metadata[:es_version])
+          expect(doc.dig('_routing')).to eq('nyt')
+        end
       end
     end
 
