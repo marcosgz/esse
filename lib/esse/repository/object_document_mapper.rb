@@ -74,11 +74,21 @@ module Esse
       # @param [Hash] kwargs The context
       # @return [Enumerator] The enumerator
       # @yield [Array, **context] serialized collection and the optional context from the collection
-      def each_serialized_batch(**kwargs)
+      def each_serialized_batch(lazy_attributes: false, **kwargs)
         each_batch(**kwargs) do |*args|
           batch, collection_context = args
           collection_context ||= {}
           entries = [*batch].map { |entry| serialize(entry, **collection_context) }.compact
+          if lazy_attributes
+            attrs = lazy_attributes.is_a?(Array) ? lazy_attributes : lazy_document_attribute_names(lazy_attributes)
+            attrs.each do |attr_name|
+              retrieve_lazy_attribute_values(attr_name, entries).each do |doc_header, value|
+                doc = entries.find { |d| doc_header.id.to_s == d.id.to_s && doc_header.type == d.type && doc_header.routing == d.routing }
+                doc&.mutate(attr_name) { value }
+              end
+            end
+          end
+
           yield entries, **kwargs
         end
       end

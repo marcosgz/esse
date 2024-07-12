@@ -4,7 +4,7 @@ module Esse
   class LazyDocumentHeader
     def self.coerce_each(values)
       arr = []
-      Array(values).map do |value|
+      Esse::ArrayUtils.wrap(values).map do |value|
         instance = coerce(value)
         arr << instance if instance&.valid?
       end
@@ -24,7 +24,7 @@ module Esse
           when :_id, :id, '_id', 'id'
             :_id
           when :_routing, :routing, '_routing', 'routing'
-            :_routing
+            :routing
           when :_type, :type, '_type', 'type'
             :_type
           else
@@ -58,7 +58,7 @@ module Esse
     end
 
     def routing
-      @attributes[:_routing]
+      @attributes[:routing]
     end
 
     def to_doc(source = {})

@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    esse (0.3.1)
+    esse (0.3.2)
       multi_json
       thor (>= 0.19)
 

@@ -63,7 +63,7 @@ RSpec.describe Esse::LazyDocumentHeader do
     end
 
     context 'when _routing is present' do
-      let(:object) { { _routing: 'foo' } }
+      let(:object) { { routing: 'foo' } }
 
       it 'returns the _routing' do
         expect(doc.routing).to eq('foo')
@@ -94,8 +94,8 @@ RSpec.describe Esse::LazyDocumentHeader do
       end
     end
 
-    context 'when _routing is present' do
-      let(:object) { { _routing: 'foo' } }
+    context 'when routing is present' do
+      let(:object) { { routing: 'foo' } }
 
       it 'returns the object' do
         expect(doc.to_h).to eq(object)
@@ -164,6 +164,10 @@ RSpec.describe Esse::LazyDocumentHeader do
 
     it 'returns an array with a LazyDocumentHeader instance' do
       expect(described_class.coerce_each([{_id: 1}])).to all(be_a(described_class))
+    end
+
+    it 'returns an array with a LazyDocumentHeader instance with the given Hash' do
+      expect(described_class.coerce_each(_id: 1)).to all(be_a(described_class))
     end
 
     it 'removes invalid instances' do

@@ -93,7 +93,7 @@ module Esse
     def doc_header
       { _id: id }.tap do |h|
         h[:_type] = type if type
-        h[:_routing] = routing if routing?
+        h[:routing] = routing if routing?
       end
     end
 
@@ -102,6 +102,7 @@ module Esse
         value = send(attr)
         "#{attr}: #{value.inspect}" if value
       end.compact.join(', ')
+      attributes << " mutations: #{@__mutations__.inspect}" if @__mutations__
       "#<#{self.class.name || 'Esse::Document'} #{attributes}>"
     end
 

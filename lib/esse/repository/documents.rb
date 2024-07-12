@@ -7,20 +7,20 @@ module Esse
         index.import(repo_name, **kwargs)
       end
 
-      def update_documents_attribute(name, *ids_or_doc_headers, **kwargs)
-        batch = documents_for_lazy_attribute(name, *ids_or_doc_headers)
+      def update_documents_attribute(name, ids_or_doc_headers = [], kwargs = {})
+        batch = documents_for_lazy_attribute(name, ids_or_doc_headers)
         return if batch.empty?
 
-        index.bulk(**kwargs, update: batch)
+        index.bulk(**kwargs.transform_keys(&:to_sym), update: batch)
       end
 
-      def documents_for_lazy_attribute(name, *ids_or_doc_headers)
-        retrieve_lazy_attribute_values(name, *ids_or_doc_headers).map do |doc_header, datum|
+      def documents_for_lazy_attribute(name, ids_or_doc_headers)
+        retrieve_lazy_attribute_values(name, ids_or_doc_headers).map do |doc_header, datum|
           doc_header.to_doc(name => datum)
         end
       end
 
-      def retrieve_lazy_attribute_values(name, *ids_or_doc_headers)
+      def retrieve_lazy_attribute_values(name, ids_or_doc_headers)
         unless lazy_document_attribute?(name)
           raise ArgumentError, <<~MSG
             The attribute `#{name}` is not defined as a lazy document attribute.

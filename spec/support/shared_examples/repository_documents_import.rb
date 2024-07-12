@@ -142,4 +142,48 @@ RSpec.shared_examples 'repository.import' do
       end
     end
   end
+
+  context 'when the document routing is set' do
+    include_context 'with stories index definition'
+
+    it 'indexes the data and bulk updates all the document routing' do |example|
+      es_client do |client, _conf, cluster|
+        StoriesIndex.create_index(alias: true)
+
+        resp = nil
+        expect {
+          resp = StoriesIndex::Story.import
+        }.not_to raise_error
+        expect(resp).to eq(stories.size)
+
+        StoriesIndex.refresh
+        expect(StoriesIndex.count).to eq(stories.size)
+
+        doc = StoriesIndex.get(id: '1001', routing: 'nyt')
+        expect(doc.dig('_source', 'publication')).to eq('nyt')
+        expect(doc.dig('_source', 'tags')).to be(nil)
+        unless %w[1.x].include?(example.metadata[:es_version])
+          expect(doc.dig('_routing')).to eq('nyt')
+        end
+      end
+    end
+
+    it 'lazy update the document tags attribute' do
+      es_client do |client, _conf, cluster|
+        StoriesIndex.create_index(alias: true)
+
+        resp = nil
+        expect {
+          resp = StoriesIndex::Story.import(lazy_update_document_attributes: %i[tags])
+        }.not_to raise_error
+        expect(resp).to eq(stories.size)
+
+        StoriesIndex.refresh
+        expect(StoriesIndex.count).to eq(stories.size)
+
+        doc = StoriesIndex.get(id: '1001', routing: 'nyt')
+        expect(doc.dig('_source', 'tags')).to eq(%w[news politics])
+      end
+    end
+  end
 end
