@@ -16,6 +16,7 @@ module Esse
       DESC
       option :suffix, type: :string, default: nil, aliases: '-s', desc: 'Suffix to append to index name'
       option :import, type: :boolean, default: true, desc: 'Import documents before point alias to the new index'
+      option :optimize, type: :boolean, default: true, desc: 'Optimize index before import documents by disabling refresh_interval and setting number_of_replicas to 0'
       def reset(*index_classes)
         require_relative 'index/reset'
         Reset.new(indices: index_classes, **options.to_h.transform_keys(&:to_sym)).run

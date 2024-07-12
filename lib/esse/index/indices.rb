@@ -76,6 +76,7 @@ module Esse
 
         if optimize && number_of_replicas != new_number_of_replicas || refresh_interval != new_refresh_interval
           update_settings(suffix: suffix)
+          refresh(suffix: suffix)
         end
 
         update_aliases(suffix: suffix)

@@ -35,7 +35,7 @@ RSpec.describe Esse::CLI::Index, type: :cli do
       end
 
       specify do
-        expect(CountiesIndex).to receive(:reset_index).with(suffix: 'foo', import: true).and_return(true)
+        expect(CountiesIndex).to receive(:reset_index).with(suffix: 'foo', import: true, optimize: true).and_return(true)
         cli_exec(%w[index reset CountiesIndex --suffix=foo])
       end
 
@@ -49,6 +49,11 @@ RSpec.describe Esse::CLI::Index, type: :cli do
         expect(Esse::Index).to receive(:descendants).at_least(1).and_return([CountiesIndex])
         expect(CountiesIndex).to receive(:reset_index).and_return(true)
         cli_exec(%w[index reset all])
+      end
+
+      specify do
+        expect(CountiesIndex).to receive(:reset_index).with(import: true, optimize: false).and_return(true)
+        cli_exec(%w[index reset CountiesIndex --no-optimize])
       end
     end
   end
