@@ -8,11 +8,16 @@ module Esse
         esse-active_record
         esse-sequel
         esse-kaminari
+        esse-pagy
+        esse-will_paginate
+        esse-jbuilder
+        esse-redis_storage
+        esse-async_indexing
       ].freeze
 
       def self.load!
         GEMS.each do |gem_name|
-          require gem_name
+          Kernel.require(gem_name)
         rescue LoadError
           # do nothing
         end
