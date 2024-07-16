@@ -15,6 +15,8 @@ This gem is a Ruby simple and extremely flexible client for ElasticSearch and Op
 - **WIP** [esse-sequel](https://github.com/marcosgz/esse-sequel) - Sequel integration
 - [esse-rspec](https://github.com/marcosgz/esse-rspec) - RSpec helpers and matchers
 - [esse-jbuilder](https://github.com/marcosgz/esse-jbuilder) - Build Search requests using Jbuilder templates
+- [esse-redis_storage](https://github.com/marcosgz/esse-redis_storage) - Add-on for the esse gem to be used with Redis as a storage backend
+- [esse-async_indexing](https://github.com/marcosgz/esse-async_indexing) - Esse extension to allow async indexing using Faktory or Sidekiq.
 
 ## Components
 
