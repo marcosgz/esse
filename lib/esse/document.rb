@@ -100,7 +100,10 @@ module Esse
     def inspect
       attributes = %i[id routing source].map do |attr|
         value = send(attr)
-        "#{attr}: #{value.inspect}" if value
+        next unless value
+        "#{attr}: #{value.inspect}"
+      rescue
+        nil
       end.compact.join(', ')
       attributes << " mutations: #{@__mutations__.inspect}" if @__mutations__
       "#<#{self.class.name || 'Esse::Document'} #{attributes}>"
