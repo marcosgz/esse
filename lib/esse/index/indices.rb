@@ -54,7 +54,7 @@ module Esse
         suffix ||= Esse.timestamp
         suffix = Esse.timestamp while index_exist?(suffix: suffix)
 
-        if optimize
+        if optimize && import
           definition = [settings_hash, mappings_hash].reduce(&:merge)
           number_of_replicas = definition.dig(Esse::SETTING_ROOT_KEY, :index, :number_of_replicas)
           refresh_interval = definition.dig(Esse::SETTING_ROOT_KEY, :index, :refresh_interval)
@@ -74,7 +74,7 @@ module Esse
           # @TODO: Reindex using the reindex API
         end
 
-        if optimize && number_of_replicas != new_number_of_replicas || refresh_interval != new_refresh_interval
+        if optimize && import && number_of_replicas != new_number_of_replicas || refresh_interval != new_refresh_interval
           update_settings(suffix: suffix)
           refresh(suffix: suffix)
         end
