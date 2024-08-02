@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
-RSpec.shared_examples 'transport#reindex' do
+RSpec.shared_examples 'transport#reindex' do |doc_type: false|
+  let(:params) do
+    doc_type ? { type: 'geo' } : {}
+  end
   let(:body) do
     {
       settings: {
@@ -18,7 +21,7 @@ RSpec.shared_examples 'transport#reindex' do
       expect(client).not_to receive(:perform_request)
       cluster.readonly = true
       expect {
-        cluster.api.reindex(body: { source: { index: "#{cluster.index_prefix}_ro_from" }, dest: { index: "#{cluster.index_prefix}_ro_to" } })
+        cluster.api.reindex(**params, body: { source: { index: "#{cluster.index_prefix}_ro_from" }, dest: { index: "#{cluster.index_prefix}_ro_to" } })
       }.to raise_error(Esse::Transport::ReadonlyClusterError)
     end
   end
@@ -26,7 +29,7 @@ RSpec.shared_examples 'transport#reindex' do
   it 'raises an #<Esse::Transport::NotFoundError exception when the source index does not exist' do
     es_client do |_client, _conf, cluster|
       expect {
-        cluster.api.reindex(body: { source: { index: "#{cluster.index_prefix}_non_existent_index" }, dest: { index: "#{cluster.index_prefix}_to" } })
+        cluster.api.reindex(**params, body: { source: { index: "#{cluster.index_prefix}_non_existent_index" }, dest: { index: "#{cluster.index_prefix}_to" } })
       }.to raise_error(Esse::Transport::NotFoundError)
     end
   end
@@ -38,15 +41,15 @@ RSpec.shared_examples 'transport#reindex' do
         dest_index = "#{cluster.index_prefix}_reindex_to"
         cluster.api.create_index(index: source_index, body: body)
         cluster.api.create_index(index: dest_index, body: body)
-        cluster.api.index(index: source_index, id: 1, body: { title: 'foo' }, refresh: true)
+        cluster.api.index(**params, index: source_index, id: 1, body: { title: 'foo' }, refresh: true)
 
         resp = nil
         expect {
-          resp = cluster.api.reindex(body: { source: { index: source_index }, dest: { index: dest_index } }, refresh: true)
+          resp = cluster.api.reindex(**params, body: { source: { index: source_index }, dest: { index: dest_index } }, refresh: true)
         }.not_to raise_error
         expect(resp['total']).to eq(1)
 
-        resp = cluster.api.get(index: dest_index, id: 1, _source: false)
+        resp = cluster.api.get(**params, index: dest_index, id: 1, _source: false)
         expect(resp['found']).to eq(true)
       end
     end
