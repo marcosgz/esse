@@ -48,7 +48,7 @@ module Esse
       # @return [Hash] the elasticsearch response
       #
       # @see https://www.elastic.co/guide/en/elasticsearch/reference/master/indices-open-close.html
-      def reset_index(suffix: index_suffix, settings: nil, optimize: true, import: true, reindex: false, **options)
+      def reset_index(suffix: index_suffix, settings: nil, optimize: true, import: true, reindex: false, refresh: nil, **options)
         cluster.throw_error_when_readonly!
 
         suffix ||= Esse.timestamp
@@ -69,9 +69,11 @@ module Esse
           cluster.api.delete_index(index: index_name)
         end
         if import
-          import(**options, suffix: suffix)
-        elsif reindex && (_from = indices_pointing_to_alias).any?
-          # @TODO: Reindex using the reindex API
+          import(**options, suffix: suffix, refresh: refresh)
+        elsif reindex && (source_indexes = indices_pointing_to_alias).any?
+          source_indexes.each do |from|
+            cluster.api.reindex(**options, body: { source: { index: from }, dest: { index: index_name(suffix: suffix) } }, refresh: refresh)
+          end
         end
 
         if optimize && import && number_of_replicas != new_number_of_replicas || refresh_interval != new_refresh_interval
