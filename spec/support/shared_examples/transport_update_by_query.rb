@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.shared_examples 'transport#reindex' do |doc_type: false|
+RSpec.shared_examples 'transport#update_by_query'  do |doc_type: false|
   let(:params) do
     doc_type ? { type: 'geo' } : {}
   end
@@ -21,7 +21,7 @@ RSpec.shared_examples 'transport#reindex' do |doc_type: false|
       expect(client).not_to receive(:perform_request)
       cluster.readonly = true
       expect {
-        cluster.api.reindex(**params, body: { source: { index: "#{cluster.index_prefix}_ro_from" }, dest: { index: "#{cluster.index_prefix}_ro_to" } })
+        cluster.api.update_by_query(**params, index: "#{cluster.index_prefix}_redonly", body: { script: { source: 'ctx._source.title = "foo"' } }, q: '*')
       }.to raise_error(Esse::Transport::ReadonlyClusterError)
     end
   end
@@ -29,28 +29,24 @@ RSpec.shared_examples 'transport#reindex' do |doc_type: false|
   it 'raises an #<Esse::Transport::NotFoundError exception when the source index does not exist' do
     es_client do |_client, _conf, cluster|
       expect {
-        cluster.api.reindex(**params, body: { source: { index: "#{cluster.index_prefix}_non_existent_index" }, dest: { index: "#{cluster.index_prefix}_to" } })
+        cluster.api.update_by_query(**params, index: "#{cluster.index_prefix}_non_existent_index", body: { script: { source: 'ctx._source.title = "foo"' }, query: { match_all: {} } })
       }.to raise_error(Esse::Transport::NotFoundError)
     end
   end
 
-  context 'when the source index exists' do
+  context 'when the index exists' do
     it 'reindexes the source index to the destination index' do
       es_client do |client, _conf, cluster|
-        source_index = "#{cluster.index_prefix}_reindex_from"
-        dest_index = "#{cluster.index_prefix}_reindex_to"
-        cluster.api.create_index(index: source_index, body: body)
-        cluster.api.create_index(index: dest_index, body: body)
-        cluster.api.index(**params, index: source_index, id: 1, body: { title: 'foo' }, refresh: true)
+        index_name = "#{cluster.index_prefix}_update_by_query"
+        cluster.api.create_index(index: index_name, body: body)
+        cluster.api.index(**params, index: index_name, id: 1, body: { title: 'old title' }, refresh: true)
 
         resp = nil
         expect {
-          resp = cluster.api.reindex(**params, body: { source: { index: source_index }, dest: { index: dest_index } }, refresh: true)
+          resp = cluster.api.update_by_query(**params, index: index_name, body: { script: { source: 'ctx._source.title = "new title"' }, query: { match_all: {} } })
         }.not_to raise_error
         expect(resp['total']).to eq(1)
-
-        resp = cluster.api.get(**params, index: dest_index, id: 1, _source: false)
-        expect(resp['found']).to eq(true)
+        expect(resp['updated']).to eq(1)
       end
     end
   end

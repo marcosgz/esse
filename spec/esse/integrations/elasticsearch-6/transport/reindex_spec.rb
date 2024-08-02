@@ -4,5 +4,5 @@ require 'spec_helper'
 require 'support/shared_examples/transport_reindex'
 
 stack_describe 'elasticsearch', '6.x', Esse::Transport, '#reindex' do
-  include_examples 'transport#reindex'
+  include_examples 'transport#reindex', doc_type: true
 end
