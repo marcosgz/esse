@@ -24,6 +24,8 @@ RSpec.describe Esse::CLI::Index, type: :cli do
     end
 
     context 'with a valid index name' do
+      let(:defaults) { { import: true, optimize: true, reindex: false } }
+
       before do
         stub_index(:counties)
         stub_index(:cities)
@@ -35,7 +37,7 @@ RSpec.describe Esse::CLI::Index, type: :cli do
       end
 
       specify do
-        expect(CountiesIndex).to receive(:reset_index).with(suffix: 'foo', import: true, optimize: true).and_return(true)
+        expect(CountiesIndex).to receive(:reset_index).with(**defaults, suffix: 'foo').and_return(true)
         cli_exec(%w[index reset CountiesIndex --suffix=foo])
       end
 
@@ -51,14 +53,31 @@ RSpec.describe Esse::CLI::Index, type: :cli do
         cli_exec(%w[index reset all])
       end
 
-      specify do
-        expect(CountiesIndex).to receive(:reset_index).with(import: true, optimize: false).and_return(true)
+      it 'allows to pass --no-import' do
+        expect(CountiesIndex).to receive(:reset_index).with(**defaults, optimize: false).and_return(true)
         cli_exec(%w[index reset CountiesIndex --no-optimize])
       end
 
       it 'allows to pass --settings as a hash with imploded values' do
-        expect(CountiesIndex).to receive(:reset_index).with(import: true,  optimize: true, settings: { 'index.refresh_interval': '-1' }).and_return(true)
+        expect(CountiesIndex).to receive(:reset_index).with(**defaults, settings: { 'index.refresh_interval': '-1' }).and_return(true)
         cli_exec(%w[index reset CountiesIndex --settings=index.refresh_interval:-1])
+      end
+
+      it 'raises an error if --import and --reindex are used together' do
+        expect {
+          cli_exec(%w[index reset CountiesIndex --reindex])
+        }.to raise_error(ArgumentError, 'You cannot use --import and --reindex together')
+      end
+
+      it 'raises an error if --import and --reindex are used together' do
+        expect {
+          cli_exec(%w[index reset CountiesIndex --import --reindex])
+        }.to raise_error(ArgumentError, 'You cannot use --import and --reindex together')
+      end
+
+      it 'forwards the --reindex option to the index class' do
+        expect(CountiesIndex).to receive(:reset_index).with(**defaults, import: false, reindex: true).and_return(true)
+        cli_exec(%w[index reset CountiesIndex --reindex --no-import])
       end
     end
   end

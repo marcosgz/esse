@@ -16,15 +16,17 @@ module Esse
       DESC
       option :suffix, type: :string, default: nil, aliases: '-s', desc: 'Suffix to append to index name'
       option :import, type: :boolean, default: true, desc: 'Import documents before point alias to the new index'
+      option :reindex, type: :boolean, default: false, desc: 'Use _reindex API to import documents from the old index to the new index'
       option :optimize, type: :boolean, default: true, desc: 'Optimize index before import documents by disabling refresh_interval and setting number_of_replicas to 0'
       option :settings, type: :hash, default: nil, desc: 'List of settings to pass to the index class. Example: --settings=refresh_interval:1s,number_of_replicas:0'
       def reset(*index_classes)
         require_relative 'index/reset'
         opts = HashUtils.deep_transform_keys(options.to_h, &:to_sym)
+        if opts[:import] && opts[:reindex]
+          raise ArgumentError, 'You cannot use --import and --reindex together'
+        end
         Reset.new(indices: index_classes, **opts).run
       end
-
-      # @TODO Add reindex task to create a new index and import documents from the old index using _reindex API
 
       desc 'create *INDEX_CLASSES', 'Creates indices for the given classes'
       long_desc <<-DESC
