@@ -71,6 +71,8 @@ module Esse
         if import
           import(**options, suffix: suffix, refresh: refresh)
         elsif reindex && (source_indexes = indices_pointing_to_alias).any?
+          reindex_kwargs = reindex.is_a?(Hash) ? reindex : {}
+          reindex_kwargs[:wait_for_completion] = true unless reindex_kwargs.key?(:wait_for_completion)
           source_indexes.each do |from|
             cluster.api.reindex(**options, body: { source: { index: from }, dest: { index: index_name(suffix: suffix) } }, refresh: refresh)
           end
