@@ -95,6 +95,13 @@ module Esse
         end
         print_message(stats.join(', ') + '.')
       end
+
+      def elasticsearch_reindex(event)
+        print_message '[%<runtime>s] Reindex from %<from>s to %<to>s successfuly completed',
+          from: colorize(event[:request].dig(:body, :source, :index), :bold),
+          to: colorize(event[:request].dig(:body, :dest, :index), :bold),
+          runtime: formatted_runtime(event[:runtime])
+      end
     end
   end
 end

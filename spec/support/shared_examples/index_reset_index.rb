@@ -52,4 +52,36 @@ RSpec.shared_examples 'index.reset_index' do
       expect(GeosIndex.index_exist?(suffix: index_suffix)).to eq(true)
     end
   end
+
+  context 'when the old index has data' do
+    it 'import data from the old index to the new index' do
+      es_client do |client, _conf, cluster|
+        GeosIndex.create_index(alias: true, suffix: '2021')
+        expect {
+          GeosIndex.reset_index(suffix: index_suffix, import: true)
+        }.not_to raise_error
+
+        expect(GeosIndex.indices_pointing_to_alias).to eq(["#{GeosIndex.index_name}_#{index_suffix}"])
+        expect(GeosIndex.index_exist?(suffix: '2021')).to eq(true)
+        expect(GeosIndex.index_exist?(suffix: index_suffix)).to eq(true)
+        expect(GeosIndex.count).to be_positive
+      end
+    end
+
+    it 'reindex data from the old index to the new index' do
+      es_client do |client, _conf, cluster|
+        GeosIndex.create_index(alias: true, suffix: '2021')
+        GeosIndex.import(refresh: true)
+
+        expect {
+          GeosIndex.reset_index(suffix: index_suffix, import: false, reindex: true, refresh: true)
+        }.not_to raise_error
+
+        expect(GeosIndex.indices_pointing_to_alias).to eq(["#{GeosIndex.index_name}_#{index_suffix}"])
+        expect(GeosIndex.index_exist?(suffix: '2021')).to eq(true)
+        expect(GeosIndex.index_exist?(suffix: index_suffix)).to eq(true)
+        expect(GeosIndex.count).to be_positive
+      end
+    end
+  end
 end

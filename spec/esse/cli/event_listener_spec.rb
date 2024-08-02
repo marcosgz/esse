@@ -222,6 +222,36 @@ RSpec.describe Esse::CLI::EventListener do
     end
   end
 
+  describe '.elasticsearch_reindex' do
+    subject do
+      described_class['elasticsearch.reindex'].call(event)
+    end
+
+    let(:event_id) { 'elasticsearch.reindex' }
+
+    let(:event) do
+      Esse::Events::Event.new(event_id, payload)
+    end
+
+    let(:payload) do
+      {
+        runtime: 1.32,
+        request: {
+          body: {
+            source: { index: 'source_index' },
+            dest: { index: 'dest_index' },
+          }
+        }
+      }
+    end
+
+    it 'prints message' do
+      expect { subject }.to output(<<~MSG).to_stdout
+        [#{formatted_runtime(1.32)}] Reindex from #{colorize('source_index', :bold)} to #{colorize('dest_index', :bold)} successfuly completed
+      MSG
+    end
+  end
+
   def colorize(*args)
     Esse::Output.colorize(*args)
   end
