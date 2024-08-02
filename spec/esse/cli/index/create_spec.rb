@@ -49,6 +49,11 @@ RSpec.describe Esse::CLI::Index, type: :cli do
         expect(CitiesIndex).to receive(:create_index).with(alias: false).and_return(true)
         cli_exec(%w[index create CountiesIndex CitiesIndex])
       end
+
+      it 'allows to pass --settings as a hash with imploded values' do
+        expect(CountiesIndex).to receive(:create_index).with(alias: false, settings: { 'index.refresh_interval': '1s' }).and_return(true)
+        cli_exec(%w[index create CountiesIndex --settings=index.refresh_interval:1s])
+      end
     end
   end
 end

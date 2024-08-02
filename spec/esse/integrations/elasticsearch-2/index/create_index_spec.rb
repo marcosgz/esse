@@ -11,8 +11,10 @@ stack_describe 'elasticsearch', '2.x', Esse::Index, '.create_index' do
       stub_index(:dummies) do
         settings do
           {
-            number_of_shards: 1,
-            number_of_replicas: 0,
+            index: {
+              number_of_shards: 1,
+              number_of_replicas: 0,
+            }
           }
         end
         mappings do

@@ -8,8 +8,10 @@ module ConfigHelpers
         client: { url: ENV.fetch('ESSE_URL', ENV.fetch('ELASTICSEARCH_URL', 'http://localhost:9200')) },
         index_prefix: 'esse_test',
         settings: {
-          number_of_shards: 1,
-          number_of_replicas: 0,
+          index: {
+            number_of_shards: 1,
+            number_of_replicas: 0,
+          }
         },
         mappings: {},
         readonly: false,

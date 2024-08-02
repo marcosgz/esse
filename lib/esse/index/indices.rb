@@ -26,10 +26,10 @@ module Esse
       #
       # @see http://www.elasticsearch.org/blog/changing-mapping-with-zero-downtime/
       # @see Esse::Transport#create_index
-      def create_index(suffix: nil, body: nil, **options)
+      def create_index(suffix: nil, body: nil, settings: nil, **options)
         options = CREATE_INDEX_RESERVED_KEYWORDS.merge(options)
         name = build_real_index_name(suffix)
-        definition = body || [settings_hash, mappings_hash].reduce(&:merge)
+        definition = body || [settings_hash(settings: settings), mappings_hash].reduce(&:merge)
 
         if options.delete(:alias) && name != index_name
           definition[:aliases] = { index_name => {} }
@@ -48,21 +48,21 @@ module Esse
       # @return [Hash] the elasticsearch response
       #
       # @see https://www.elastic.co/guide/en/elasticsearch/reference/master/indices-open-close.html
-      def reset_index(suffix: index_suffix, optimize: true, import: true, reindex: false, **options)
+      def reset_index(suffix: index_suffix, settings: nil, optimize: true, import: true, reindex: false, **options)
         cluster.throw_error_when_readonly!
 
         suffix ||= Esse.timestamp
         suffix = Esse.timestamp while index_exist?(suffix: suffix)
 
         if optimize && import
-          definition = [settings_hash, mappings_hash].reduce(&:merge)
+          definition = [settings_hash(settings: settings), mappings_hash].reduce(&:merge)
           number_of_replicas = definition.dig(Esse::SETTING_ROOT_KEY, :index, :number_of_replicas)
           refresh_interval = definition.dig(Esse::SETTING_ROOT_KEY, :index, :refresh_interval)
           new_number_of_replicas = ((definition[Esse::SETTING_ROOT_KEY] ||= {})[:index] ||= {})[:number_of_replicas] = 0
           new_refresh_interval = ((definition[Esse::SETTING_ROOT_KEY] ||= {})[:index] ||= {})[:refresh_interval] = '-1'
           create_index(**options, suffix: suffix, alias: false, body: definition)
         else
-          create_index(**options, suffix: suffix, alias: false)
+          create_index(**options, suffix: suffix, alias: false, settings: settings)
         end
 
         if index_exist? && aliases.none?
@@ -75,7 +75,7 @@ module Esse
         end
 
         if optimize && import && number_of_replicas != new_number_of_replicas || refresh_interval != new_refresh_interval
-          update_settings(suffix: suffix)
+          update_settings(suffix: suffix, settings: settings)
           refresh(suffix: suffix)
         end
 
@@ -152,16 +152,17 @@ module Esse
       #
       # @param :suffix [String, nil] :suffix The index suffix
       # @see Esse::Transport#update_settings
-      def update_settings(suffix: nil, **options)
+      def update_settings(suffix: nil, settings: nil, **options)
         response = nil
 
-        settings = HashUtils.deep_transform_keys(settings_hash.fetch(Esse::SETTING_ROOT_KEY), &:to_s)
+        settings = HashUtils.deep_transform_keys(settings_hash(settings: settings).fetch(Esse::SETTING_ROOT_KEY), &:to_sym)
         if options[:body]
-          settings = settings.merge(HashUtils.deep_transform_keys(options.delete(:body), &:to_s))
+          body = HashUtils.deep_transform_keys(options.delete(:body), &:to_sym)
+          settings = HashUtils.deep_merge(settings, body)
         end
-        settings.delete('number_of_shards') # Can't change number of shards for an index
-        settings['index']&.delete('number_of_shards')
-        analysis = settings.delete('analysis')
+        settings.delete(:number_of_shards) # Can't change number of shards for an index
+        settings[:index]&.delete(:number_of_shards)
+        analysis = settings.delete(:analysis)
 
         if settings.any?
           response = cluster.api.update_settings(index: index_name(suffix: suffix), body: settings, **options)

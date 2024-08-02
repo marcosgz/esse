@@ -53,7 +53,7 @@ RSpec.shared_examples 'index.delete_index' do
   it 'deletes the index created with root naming' do
     es_client do |client, _conf, cluster|
       cluster.api.create_index(index: VenuesIndex.index_name, body: {
-        settings: { number_of_shards: 1, number_of_replicas: 0 },
+        settings: { index: { number_of_shards: 1, number_of_replicas: 0 } },
       })
 
       resp = nil

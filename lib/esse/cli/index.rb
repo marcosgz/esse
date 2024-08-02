@@ -17,9 +17,11 @@ module Esse
       option :suffix, type: :string, default: nil, aliases: '-s', desc: 'Suffix to append to index name'
       option :import, type: :boolean, default: true, desc: 'Import documents before point alias to the new index'
       option :optimize, type: :boolean, default: true, desc: 'Optimize index before import documents by disabling refresh_interval and setting number_of_replicas to 0'
+      option :settings, type: :hash, default: nil, desc: 'List of settings to pass to the index class. Example: --settings=refresh_interval:1s,number_of_replicas:0'
       def reset(*index_classes)
         require_relative 'index/reset'
-        Reset.new(indices: index_classes, **options.to_h.transform_keys(&:to_sym)).run
+        opts = HashUtils.deep_transform_keys(options.to_h, &:to_sym)
+        Reset.new(indices: index_classes, **opts).run
       end
 
       # @TODO Add reindex task to create a new index and import documents from the old index using _reindex API
@@ -33,9 +35,11 @@ module Esse
       DESC
       option :suffix, type: :string, default: nil, aliases: '-s', desc: 'Suffix to append to index name'
       option :alias, type: :boolean, default: false, aliases: '-a', desc: 'Update alias after create index'
+      option :settings, type: :hash, default: nil, desc: 'List of settings to pass to the index class. Example: --settings=index.refresh_interval:-1,index.number_of_replicas:0'
       def create(*index_classes)
         require_relative 'index/create'
-        Create.new(indices: index_classes, **options.to_h.transform_keys(&:to_sym)).run
+        opts = HashUtils.deep_transform_keys(options.to_h, &:to_sym)
+        Create.new(indices: index_classes, **opts).run
       end
 
       desc 'delete *INDEX_CLASSES', 'Deletes indices for the given classes'
@@ -58,9 +62,11 @@ module Esse
       desc 'update_settings *INDEX_CLASS', 'Closes the index for read/write operations, updates the index settings, and open it again'
       option :suffix, type: :string, default: nil, aliases: '-s', desc: 'Suffix to append to index name'
       option :type, type: :string, default: nil, aliases: '-t', desc: 'Document Type to update mapping for'
+      option :settings, type: :hash, default: nil, desc: 'List of settings to pass to the index class. Example: --settings=index.refresh_interval:-1,index.number_of_replicas:0'
       def update_settings(*index_classes)
         require_relative 'index/update_settings'
-        UpdateSettings.new(indices: index_classes, **options.to_h.transform_keys(&:to_sym)).run
+        opts = HashUtils.deep_transform_keys(options.to_h, &:to_sym)
+        UpdateSettings.new(indices: index_classes, **opts).run
       end
 
       desc 'update_mapping *INDEX_CLASS', 'Create or update a mapping'
@@ -89,8 +95,8 @@ module Esse
       option :suffix, type: :string, default: nil, aliases: '-s', desc: 'Suffix to append to index name'
       option :context, type: :hash, default: {}, required: true, desc: 'List of options to pass to the index class'
       option :repo, type: :string, default: nil, alias: '-r', desc: 'Repository to use for import'
-      option :eager_include_document_attributes, type: :string, default: nil, desc: 'Comma separated list of lazy document attributes to include to the bulk index request'
-      option :lazy_update_document_attributes, type: :string, default: nil, desc: 'Comma separated list of lazy document attributes to bulk update after the bulk index request'
+      option :eager_include_document_attributes, type: :string, default: nil, desc: 'Comma separated list of lazy document attributes to include to the bulk index request. Or pass `true` to include all lazy attributes'
+      option :lazy_update_document_attributes, type: :string, default: nil, desc: 'Comma separated list of lazy document attributes to bulk update after the bulk index request Or pass `true` to include all lazy attributes'
       def import(*index_classes)
         require_relative 'index/import'
         opts = HashUtils.deep_transform_keys(options.to_h, &:to_sym)

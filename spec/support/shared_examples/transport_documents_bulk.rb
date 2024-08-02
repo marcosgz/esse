@@ -18,7 +18,7 @@ RSpec.shared_examples 'transport#bulk' do
     es_client do |_client, _conf, cluster|
       index_name = "#{cluster.index_prefix}_dummies_#{index_suffix}"
       cluster.api.create_index(index: index_name, body: {
-        settings: { number_of_shards: 1, number_of_replicas: 0 },
+        settings: { index: { number_of_shards: 1, number_of_replicas: 0 } },
       })
 
       payload = <<~PAYLOAD
@@ -44,7 +44,7 @@ RSpec.shared_examples 'transport#bulk' do
     es_client do |_client, _conf, cluster|
       index_name = "#{cluster.index_prefix}_dummies_#{index_suffix}"
       cluster.api.create_index(index: index_name, body: {
-        settings: { number_of_shards: 1, number_of_replicas: 0 },
+        settings: { index: { number_of_shards: 1, number_of_replicas: 0 } },
       })
 
       payload = [
@@ -70,7 +70,7 @@ RSpec.shared_examples 'transport#bulk' do
     es_client do |_client, _conf, cluster|
       index_name = "#{cluster.index_prefix}_dummies_#{index_suffix}"
       cluster.api.create_index(index: index_name, body: {
-        settings: { number_of_shards: 1, number_of_replicas: 0 },
+        settings: { index: { number_of_shards: 1, number_of_replicas: 0 } },
       })
 
       payload = [

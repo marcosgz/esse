@@ -4,9 +4,28 @@ module Esse
   # https://github.com/elastic/elasticsearch-ruby/blob/master/elasticsearch-api/lib/elasticsearch/api/actions/indices/put_settings.rb
   class Index
     module ClassMethods
-      def settings_hash
+      # Elasticsearch supports passing index.* related settings directly in the body of the request.
+      # We are moving it to the index key to make it more explicit and to be the source-of-truth when merging settings.
+      # So the settings `{ number_of_shards: 1 }` will be transformed to `{ index: { number_of_shards: 1 } }`
+      INDEX_SIMPLIFIED_SETTINGS = %i[
+        number_of_shards
+        number_of_replicas
+        refresh_interval
+      ].freeze
+
+      def settings_hash(settings: nil)
         hash = setting.body
-        { Esse::SETTING_ROOT_KEY => (hash.key?(Esse::SETTING_ROOT_KEY) ? hash[Esse::SETTING_ROOT_KEY] : hash) }
+        values = (hash.key?(Esse::SETTING_ROOT_KEY) ? hash[Esse::SETTING_ROOT_KEY] : hash)
+        values = HashUtils.explode_keys(values)
+        if settings.is_a?(Hash)
+          values = HashUtils.deep_merge(values, HashUtils.explode_keys(settings))
+        end
+        INDEX_SIMPLIFIED_SETTINGS.each do |key|
+          next unless values.key?(key)
+
+          (values[:index] ||= {}).merge!(key => values.delete(key))
+        end
+        { Esse::SETTING_ROOT_KEY => values }
       end
 
       # Define /_settings definition by each index.
@@ -18,7 +37,7 @@ module Esse
       #
       #   class UserIndex < Esse::Index
       #     settings {
-      #       number_of_replicas: 4,
+      #       index: { number_of_replicas: 4 }
       #     }
       #   end
       #

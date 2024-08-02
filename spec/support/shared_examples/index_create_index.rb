@@ -51,7 +51,7 @@ RSpec.shared_examples 'index.create_index' do
 
   it 'uses the settings_hash and settings_hash as default definition' do
     es_client do |client, _conf, cluster|
-      expect(GeosIndex).to receive(:settings_hash).and_return({ settings: { number_of_shards: 1 } })
+      expect(GeosIndex).to receive(:settings_hash).and_return({ settings: { index: { number_of_shards: 1 } } })
       expect(GeosIndex).to receive(:mappings_hash).and_return({ mappings: { } })
       allow(Esse).to receive(:timestamp).and_return('20220101')
 
@@ -59,7 +59,7 @@ RSpec.shared_examples 'index.create_index' do
       allow(cluster).to receive(:api).and_return(api)
       expect(api).to receive(:create_index).with(
         index: GeosIndex.index_name(suffix: '20220101'),
-        body: { aliases: { GeosIndex.index_name => {} }, settings: { number_of_shards: 1 }, mappings: { } },
+        body: { aliases: { GeosIndex.index_name => {} }, settings: { index: { number_of_shards: 1 } }, mappings: { } },
       ).and_call_original
 
       expect {

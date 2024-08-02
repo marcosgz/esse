@@ -20,7 +20,7 @@ RSpec.shared_examples 'transport#index' do |doc_type: false|
     es_client do |_client, _conf, cluster|
       index_name = "#{cluster.index_prefix}_dummies_#{SecureRandom.hex(8)}}"
       cluster.api.create_index(index: index_name, body: {
-        settings: { number_of_shards: 1, number_of_replicas: 0 },
+        settings: { index: { number_of_shards: 1, number_of_replicas: 0 } },
       })
       resp = nil
       expect {

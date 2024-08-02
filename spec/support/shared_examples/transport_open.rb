@@ -26,7 +26,7 @@ RSpec.shared_examples 'transport#open' do
     es_client do |client, _conf, cluster|
       index_name = "#{cluster.index_prefix}_dummies_#{index_suffix}"
       cluster.api.create_index(index: index_name, body: {
-        settings: { number_of_shards: 1, number_of_replicas: 0 },
+        settings: { index: { number_of_shards: 1, number_of_replicas: 0 } },
       })
       cluster.wait_for_status!(index: index_name)
       if %w[1.x 2.x].include?(example.metadata[:es_version])
