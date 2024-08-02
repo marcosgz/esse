@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.3.5 - 2024-08-02
+* Add `update_by_query` action to transport and index APIs
+* Reset index using `_reindex` api instead of the traditional collection `import` method
+* Add --settings option to the CLI
+* Lazy document attributes support
+
 ## 0.3.2 - 2024-07-12
 * fix bulk indexing routing issue
 * add `attributes:` to the `Esse::Repository.each_serialized_batch` to preload `lazy_document_attributes`
