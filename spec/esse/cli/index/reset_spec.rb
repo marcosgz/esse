@@ -55,6 +55,11 @@ RSpec.describe Esse::CLI::Index, type: :cli do
         expect(CountiesIndex).to receive(:reset_index).with(import: true, optimize: false).and_return(true)
         cli_exec(%w[index reset CountiesIndex --no-optimize])
       end
+
+      it 'allows to pass --settings as a hash with imploded values' do
+        expect(CountiesIndex).to receive(:reset_index).with(import: true,  optimize: true, settings: { 'index.refresh_interval': '-1' }).and_return(true)
+        cli_exec(%w[index reset CountiesIndex --settings=index.refresh_interval:-1])
+      end
     end
   end
 end

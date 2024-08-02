@@ -10,8 +10,11 @@ module Esse
   #       cluster.index_prefix = 'backend'
   #       cluster.client = Elasticsearch::Client.new
   #       cluster.settings = {
-  #         number_of_shards: 2,
-  #         number_of_replicas: 0
+  #         index: {
+  #           number_of_shards: 2,
+  #           number_of_replicas: 1
+  #         },
+  #         analysis: { ... }
   #       }
   #       cluster.mappings = {
   #         dynamic_templates: [...]

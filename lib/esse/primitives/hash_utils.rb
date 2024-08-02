@@ -47,5 +47,15 @@ module Esse
         end
       end
     end
+
+    def explode_keys(hash, separator = '.')
+      hash.each_with_object({}) do |(key, value), result|
+        is_symbol = key.is_a?(Symbol)
+        keys = key.to_s.split(separator)
+        last_key = keys.pop
+        current = keys.reduce(result) { |memo, k| memo[is_symbol ? k.to_sym : k] ||= {} }
+        current[is_symbol ? last_key.to_sym : last_key] = value
+      end
+    end
   end
 end

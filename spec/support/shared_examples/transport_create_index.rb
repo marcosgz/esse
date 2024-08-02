@@ -4,8 +4,10 @@ RSpec.shared_examples 'transport#create_index' do
   let(:body) do
     {
       settings: {
-        number_of_shards: 1,
-        number_of_replicas: 0
+        index: {
+          number_of_shards: 1,
+          number_of_replicas: 0
+        }
       }
     }
   end
