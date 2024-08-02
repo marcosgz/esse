@@ -56,5 +56,6 @@ module Esse
     register_event 'elasticsearch.exist'
     register_event 'elasticsearch.count'
     register_event 'elasticsearch.get'
+    register_event 'elasticsearch.reindex'
   end
 end
