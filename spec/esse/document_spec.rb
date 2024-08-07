@@ -175,7 +175,7 @@ RSpec.describe Esse::Document do
     context 'when the document includes options' do
       let(:options) { { foo: 'bar' } }
 
-      it { is_expected.to eq(_id: 1, _type: 'foo', routing: 'bar', foo: 'bar') }
+      it { is_expected.to eq(_id: 1, _type: 'foo', routing: 'bar') }
     end
   end
 

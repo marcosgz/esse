@@ -89,7 +89,7 @@ module Esse
             end
           end
 
-          yield entries, **kwargs
+          yield entries, **collection_context
         end
       end
 

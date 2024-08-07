@@ -74,7 +74,7 @@ RSpec.describe Esse::Repository do
       it 'yields serialized objects without arguments' do
         expected_data = []
         expect {
-          StatesIndex::State.each_serialized_batch { |hash| expected_data << hash }
+          StatesIndex::State.each_serialized_batch { |chunk| expected_data << chunk }
         }.not_to raise_error
         expect(expected_data).to match_array(
           [
@@ -115,7 +115,7 @@ RSpec.describe Esse::Repository do
       it 'yields serialized objects without arguments' do
         expected_data = []
         expect {
-          StatesIndex::State.each_serialized_batch { |hash| expected_data << hash }
+          StatesIndex::State.each_serialized_batch { |chunk| expected_data << chunk }
         }.not_to raise_error
         expect(expected_data).to match_array(
           [
@@ -129,7 +129,7 @@ RSpec.describe Esse::Repository do
       it 'yields serialized objects with a collection filter' do
         expected_data = []
         expect {
-          StatesIndex::State.each_serialized_batch(filter: ->(state) { state.id > 2 }) { |hash| expected_data << hash }
+          StatesIndex::State.each_serialized_batch(filter: ->(state) { state.id > 2 }) { |chunk| expected_data << chunk }
         }.not_to raise_error
         expect(expected_data).to match_array(
           [
@@ -142,7 +142,7 @@ RSpec.describe Esse::Repository do
       it 'yields serialized objects with document scope' do
         expected_data = []
         expect {
-          StatesIndex::State.each_serialized_batch(uppercase: true) { |hash| expected_data << hash }
+          StatesIndex::State.each_serialized_batch(uppercase: true) { |chunk| expected_data << chunk }
         }.not_to raise_error
         expect(expected_data).to match_array(
           [
