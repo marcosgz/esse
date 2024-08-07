@@ -101,6 +101,13 @@ RSpec.describe Esse::Repository do
           Esse::LazyDocumentHeader::Document.new(header, source: { city_names: 'London' })
         ])
       end
+
+      it 'returns an array of documents that match with the provided single hash' do
+        docs = repo.documents_for_lazy_attribute(:city_names, {id: '2', admin: true})
+        expect(docs).to eq([
+          Esse::LazyDocumentHeader.new(id: '2', admin: true).to_doc(city_names: 'London')
+        ])
+      end
     end
 
     context 'when the attribute is defined and its result is hash with LazyDocumentHeader as key' do
