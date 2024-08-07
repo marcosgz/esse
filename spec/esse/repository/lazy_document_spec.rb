@@ -90,14 +90,15 @@ RSpec.describe Esse::Repository do
       it 'returns an array of documents that match with the provided ids' do
         docs = repo.documents_for_lazy_attribute(:city_names, '2')
         expect(docs).to eq([
-          Esse::HashDocument.new(_id: '2', city_names: 'London')
+          Esse::LazyDocumentHeader.new(id: '2').to_doc(city_names: 'London')
         ])
       end
 
       it 'returns an array of documents that match with the provided LazyDocumentHeader' do
-        docs = repo.documents_for_lazy_attribute(:city_names, Esse::LazyDocumentHeader.coerce(id: '2'))
+        header = Esse::LazyDocumentHeader.coerce(id: '2')
+        docs = repo.documents_for_lazy_attribute(:city_names, header)
         expect(docs).to eq([
-          Esse::HashDocument.new(_id: '2', city_names: 'London')
+          Esse::LazyDocumentHeader::Document.new(header, source: { city_names: 'London' })
         ])
       end
     end
@@ -107,8 +108,8 @@ RSpec.describe Esse::Repository do
         Class.new(Esse::Repository) do
           lazy_document_attribute :city_names do |docs|
             {
-              Esse::LazyDocumentHeader.coerce(id: '1') => 'Moscow',
-              Esse::LazyDocumentHeader.coerce(id: '2') => 'London',
+              Esse::LazyDocumentHeader.new(id: '1') => 'Moscow',
+              Esse::LazyDocumentHeader.new(id: '2') => 'London',
             }
           end
         end
@@ -125,21 +126,21 @@ RSpec.describe Esse::Repository do
       it 'returns an array of documents that match with the provided ids' do
         docs = repo.documents_for_lazy_attribute(:city_names, '2')
         expect(docs).to eq([
-          Esse::HashDocument.new(_id: '2', city_names: 'London')
+          Esse::LazyDocumentHeader.new(id: '2').to_doc(city_names: 'London')
         ])
       end
 
       it 'returns an array of documents that match with the provided LazyDocumentHeader' do
         docs = repo.documents_for_lazy_attribute(:city_names, Esse::LazyDocumentHeader.coerce(id: '2'))
         expect(docs).to eq([
-          Esse::HashDocument.new(_id: '2', city_names: 'London')
+          Esse::LazyDocumentHeader.new(id: '2').to_doc(city_names: 'London')
         ])
       end
 
       it 'do not include duplicate documents' do
         docs = repo.documents_for_lazy_attribute(:city_names, ['2', '2', Esse::LazyDocumentHeader.coerce(id: '2')])
         expect(docs).to eq([
-          Esse::HashDocument.new(_id: '2', city_names: 'London')
+          Esse::LazyDocumentHeader.new(id: '2').to_doc(city_names: 'London')
         ])
       end
     end
@@ -161,9 +162,9 @@ RSpec.describe Esse::Repository do
       it 'returns an array of documents that match with the provided ids' do
         docs = repo.documents_for_lazy_attribute(:city_names, ['2', '3', '4'])
         expect(docs).to eq([
-          Esse::HashDocument.new(_id: '2', city_names: 'London'),
-          Esse::HashDocument.new(_id: '3', city_names: nil),
-          Esse::HashDocument.new(_id: '4', city_names: ''),
+          Esse::LazyDocumentHeader.new(id: '2').to_doc(city_names: 'London'),
+          Esse::LazyDocumentHeader.new(id: '3').to_doc(city_names: nil),
+          Esse::LazyDocumentHeader.new(id: '4').to_doc(city_names: ''),
         ])
       end
     end
@@ -194,7 +195,7 @@ RSpec.describe Esse::Repository do
     it 'updates the documents' do
       expect(repo.index).to receive(:bulk).with(
         update: [
-          Esse::HashDocument.new(_id: '2', city_names: 'London')
+          Esse::LazyDocumentHeader.new(id: '2').to_doc(city_names: 'London')
         ]
       )
       repo.update_documents_attribute(:city_names, '2')

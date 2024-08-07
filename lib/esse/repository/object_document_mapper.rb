@@ -69,6 +69,15 @@ module Esse
         @collection_proc = collection_klass || block
       end
 
+      # Expose the collection class to let external plugins and extensions to access it.
+      # @return [Class, nil] The collection class
+      # IDEA: When collection is defined as a block, it should setup a class with the block content.
+      def collection_class
+        return unless @collection_proc.is_a?(Class)
+
+        @collection_proc
+      end
+
       # Wrap collection data into serialized batches
       #
       # @param [Hash] kwargs The context
@@ -89,7 +98,7 @@ module Esse
             end
           end
 
-          yield entries, **kwargs
+          yield entries, **collection_context
         end
       end
 

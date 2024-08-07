@@ -3,8 +3,8 @@
 require 'spec_helper'
 
 RSpec.describe Esse::LazyDocumentHeader do
-  let(:doc) { described_class.new(object) }
-  let(:object) { {} }
+  let(:doc) { described_class.new(**object.merge(options)) }
+  let(:object) { { id: nil } }
   let(:options) { {} }
 
   describe '#valid?' do
@@ -14,8 +14,8 @@ RSpec.describe Esse::LazyDocumentHeader do
       expect(doc.valid?).to be_falsey
     end
 
-    context 'when _id is present' do
-      let(:object) { { _id: 1 } }
+    context 'when id is present' do
+      let(:object) { { id: 1 } }
 
       it 'returns true' do
         expect(doc.valid?).to be_truthy
@@ -26,14 +26,10 @@ RSpec.describe Esse::LazyDocumentHeader do
   describe '#id' do
     it { expect(doc).to respond_to :id }
 
-    it 'should raise KeyError' do
-      expect { doc.id }.to raise_error
-    end
+    context 'when id is present' do
+      let(:object) { { id: 1 } }
 
-    context 'when _id is present' do
-      let(:object) { { _id: 1 } }
-
-      it 'returns the _id' do
+      it 'returns the id' do
         expect(doc.id).to eq(1)
       end
     end
@@ -47,9 +43,9 @@ RSpec.describe Esse::LazyDocumentHeader do
     end
 
     context 'when _type is present' do
-      let(:object) { { _type: 'foo' } }
+      let(:object) { { id: 1, type: 'foo' } }
 
-      it 'returns the _type' do
+      it 'returns the type' do
         expect(doc.type).to eq('foo')
       end
     end
@@ -63,7 +59,7 @@ RSpec.describe Esse::LazyDocumentHeader do
     end
 
     context 'when _routing is present' do
-      let(:object) { { routing: 'foo' } }
+      let(:object) { { id: 1, routing: 'foo' } }
 
       it 'returns the _routing' do
         expect(doc.routing).to eq('foo')
@@ -75,30 +71,30 @@ RSpec.describe Esse::LazyDocumentHeader do
     it { expect(doc).to respond_to :to_h }
 
     it 'returns the object' do
-      expect(doc.to_h).to eq(object)
+      expect(doc.to_h).to eq(_id: nil)
     end
 
     context 'when _id is present' do
-      let(:object) { { _id: 1 } }
+      let(:object) { { id: 1 } }
 
       it 'returns the object' do
-        expect(doc.to_h).to eq(object)
+        expect(doc.to_h).to eq(_id: 1)
       end
     end
 
     context 'when _type is present' do
-      let(:object) { { _type: 'foo' } }
+      let(:object) { { id: 2, type: 'foo' } }
 
       it 'returns the object' do
-        expect(doc.to_h).to eq(object)
+        expect(doc.to_h).to eq(_id: 2, _type: 'foo')
       end
     end
 
     context 'when routing is present' do
-      let(:object) { { routing: 'foo' } }
+      let(:object) { { id: 3, routing: 'foo' } }
 
       it 'returns the object' do
-        expect(doc.to_h).to eq(object)
+        expect(doc.to_h).to eq(_id: 3, routing: 'foo')
       end
     end
   end
@@ -111,7 +107,7 @@ RSpec.describe Esse::LazyDocumentHeader do
     end
 
     context 'when value is a LazyDocumentHeader' do
-      let(:object) { described_class.new(_id: 1) }
+      let(:object) { described_class.new(id: 1) }
 
       it 'returns the same instance' do
         expect(described_class.coerce(object)).to eq(object)
@@ -176,18 +172,52 @@ RSpec.describe Esse::LazyDocumentHeader do
   end
 
   describe '#to_doc' do
+    let(:options) { { admin: true } }
+    let(:object) { { id: 1, routing: 'il', type: 'state' } }
+
     it { expect(doc).to respond_to :to_doc }
 
-    it 'returns a HashDocument instance' do
-      expect(doc.to_doc).to be_a(Esse::HashDocument)
+    it 'returns a Esse::Document instance' do
+      expect(doc.to_doc).to be_a(Esse::Document)
     end
 
-    it 'returns a HashDocument instance with the object as source' do
-      expect(doc.to_doc.source).to eq(object)
+    it 'returns a Esse::Document instance with the id' do
+      expect(doc.to_doc.id).to eq(1)
     end
 
-    it 'returns a HashDocument instance with the object as source and the given source' do
-      expect(doc.to_doc(foo: 'bar').source).to eq(object.merge(foo: 'bar'))
+    it 'returns a Esse::Document instance routing' do
+      expect(doc.to_doc.routing).to eq('il')
+    end
+
+    it 'returns a Esse::Document instance with the type' do
+      expect(doc.to_doc.type).to eq('state')
+    end
+
+    it 'returns a Esse::Document instance with the options' do
+      expect(doc.to_doc.options).to eq(admin: true)
+    end
+
+    it 'returns a Esse::Document instance with the object as source and the given source' do
+      new_doc = doc.to_doc(foo: 'bar')
+      expect(new_doc.source).to eq(foo: 'bar')
+      expect(new_doc.object).to eq(doc)
+      expect(new_doc.options).to eq(admin: true)
+    end
+  end
+
+  describe '#options' do
+    it { expect(doc).to respond_to :options }
+
+    it 'returns an empty hash' do
+      expect(doc.options).to eq({})
+    end
+
+    context 'when options are present' do
+      let(:options) { { foo: 'bar' } }
+
+      it 'returns the options' do
+        expect(doc.options).to eq(options)
+      end
     end
   end
 end

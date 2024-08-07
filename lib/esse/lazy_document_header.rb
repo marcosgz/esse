@@ -17,57 +17,67 @@ module Esse
       if value.is_a?(Esse::LazyDocumentHeader)
         value
       elsif value.is_a?(Esse::Document)
-        new(value.doc_header)
+        new(id: value.id, type: value.type, routing: value.routing, **value.options)
       elsif value.is_a?(Hash)
         resp = value.transform_keys do |key|
           case key
           when :_id, :id, '_id', 'id'
-            :_id
+            :id
           when :_routing, :routing, '_routing', 'routing'
             :routing
           when :_type, :type, '_type', 'type'
-            :_type
+            :type
           else
             key.to_sym
           end
         end
-        new(resp)
+        resp[:id] ||= nil
+        new(**resp)
       elsif String === value || Integer === value
-        new(_id: value)
+        new(id: value)
       end
     end
 
-    def initialize(attributes)
-      @attributes = attributes
+    attr_reader :id, :type, :routing, :options
+
+    def initialize(id:, type: nil, routing: nil, **extra_attributes)
+      @id = id
+      @type = type
+      @routing = routing
+      @options = extra_attributes.freeze
     end
 
     def valid?
-      !@attributes[:_id].nil?
+      !id.nil?
     end
 
     def to_h
-      @attributes
-    end
-
-    def id
-      @attributes.fetch(:_id)
-    end
-
-    def type
-      @attributes[:_type]
-    end
-
-    def routing
-      @attributes[:routing]
+      options.merge(_id: id).tap do |hash|
+        hash[:_type] = type if type
+        hash[:routing] = routing if routing
+      end
     end
 
     def to_doc(source = {})
-      HashDocument.new(source.merge(@attributes))
+      Document.new(self, source: source)
     end
 
     def eql?(other)
-      self.class == other.class && @attributes == other.instance_variable_get(:@attributes)
+      self.class == other.class && id == other.id && type == other.type && routing == other.routing
     end
     alias_method :==, :eql?
+
+    class Document < Esse::Document
+      extend Forwardable
+
+      def_delegators :object, :id, :type, :routing, :options
+
+      attr_reader :source
+
+      def initialize(lazy_header, source: {})
+        @source = source
+        super(lazy_header)
+      end
+    end
   end
 end
