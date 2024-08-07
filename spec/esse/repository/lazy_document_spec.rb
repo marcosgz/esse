@@ -207,5 +207,52 @@ RSpec.describe Esse::Repository do
       )
       repo.update_documents_attribute(:city_names, '2')
     end
+
+    it 'updates the documents when passing a LazyDocumentHeader' do
+      header = Esse::LazyDocumentHeader.coerce(id: '2')
+      expect(repo.index).to receive(:bulk).with(
+        update: [
+          Esse::LazyDocumentHeader::Document.new(header, source: { city_names: 'London' })
+        ]
+      )
+      repo.update_documents_attribute(:city_names, header)
+    end
+
+    it 'updates the documents when passing a single hash' do
+      expect(repo.index).to receive(:bulk).with(
+        update: [
+          Esse::LazyDocumentHeader.new(id: '2', admin: true).to_doc(city_names: 'London')
+        ]
+      )
+      repo.update_documents_attribute(:city_names, {id: '2', admin: true})
+    end
+
+    it 'updates the documents when passing an array of ids' do
+      expect(repo.index).to receive(:bulk).with(
+        update: [
+          Esse::LazyDocumentHeader.new(id: '2').to_doc(city_names: 'London')
+        ]
+      )
+      repo.update_documents_attribute(:city_names, ['2'])
+    end
+
+    it 'updates the documents when passing an array of LazyDocumentHeader' do
+      header = Esse::LazyDocumentHeader.coerce(id: '2')
+      expect(repo.index).to receive(:bulk).with(
+        update: [
+          Esse::LazyDocumentHeader::Document.new(header, source: { city_names: 'London' })
+        ]
+      )
+      repo.update_documents_attribute(:city_names, [header])
+    end
+
+    it 'updates the documents when passing an array of hashes' do
+      expect(repo.index).to receive(:bulk).with(
+        update: [
+          Esse::LazyDocumentHeader.new(id: '2').to_doc(city_names: 'London')
+        ]
+      )
+      repo.update_documents_attribute(:city_names, [{id: '2', admin: true}])
+    end
   end
 end
