@@ -24,6 +24,7 @@ RSpec.describe Esse::Repository do
           end
         end
       end
+      expect(klass.repo(:foo).collection_class).to be(nil)
 
       proc = klass.instance_variable_get(:@collection_proc)
       expect { |b| proc.call(&b).to yield_with_args([]) }
@@ -45,6 +46,7 @@ RSpec.describe Esse::Repository do
           collection DummyGeosCollection
         end
       end
+      expect(klass.repo(:foo).collection_class).to be(DummyGeosCollection)
 
       col_proc = klass.repo(:foo).instance_variable_get(:@collection_proc)
       expect(col_proc).to eq(DummyGeosCollection)
