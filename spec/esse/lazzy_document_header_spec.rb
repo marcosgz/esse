@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 RSpec.describe Esse::LazyDocumentHeader do
-  let(:doc) { described_class.new(object.merge(options)) }
+  let(:doc) { described_class.new(**object.merge(options)) }
   let(:object) { { id: nil } }
   let(:options) { {} }
 
