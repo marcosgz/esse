@@ -6,7 +6,7 @@ module Esse
 
     def initialize(object, **options)
       @object = object
-      @options = options
+      @options = options.freeze
     end
 
     # @return [String, Number] the document ID
