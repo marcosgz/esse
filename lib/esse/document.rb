@@ -94,6 +94,7 @@ module Esse
       { _id: id }.tap do |h|
         h[:_type] = type if type
         h[:routing] = routing if routing?
+        h.merge!(options)
       end
     end
 

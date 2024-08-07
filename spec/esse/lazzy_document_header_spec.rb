@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 RSpec.describe Esse::LazyDocumentHeader do
-  let(:doc) { described_class.new(object) }
+  let(:doc) { described_class.new(object.merge(options)) }
   let(:object) { {} }
   let(:options) { {} }
 
@@ -188,6 +188,22 @@ RSpec.describe Esse::LazyDocumentHeader do
 
     it 'returns a HashDocument instance with the object as source and the given source' do
       expect(doc.to_doc(foo: 'bar').source).to eq(object.merge(foo: 'bar'))
+    end
+  end
+
+  describe '#options' do
+    it { expect(doc).to respond_to :options }
+
+    it 'returns an empty hash' do
+      expect(doc.options).to eq({})
+    end
+
+    context 'when options are present' do
+      let(:options) { { foo: 'bar' } }
+
+      it 'returns the options' do
+        expect(doc.options).to eq(options)
+      end
     end
   end
 end

@@ -171,6 +171,12 @@ RSpec.describe Esse::Document do
         expect(document.doc_header).to eq(_id: 1, routing: 'bar')
       end
     end
+
+    context 'when the document includes options' do
+      let(:options) { { foo: 'bar' } }
+
+      it { is_expected.to eq(_id: 1, _type: 'foo', routing: 'bar', foo: 'bar') }
+    end
   end
 
   describe '#mutate' do

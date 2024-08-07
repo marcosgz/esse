@@ -61,6 +61,10 @@ module Esse
       @attributes[:routing]
     end
 
+    def options
+      @attributes.reject { |key, _| %i[_id _type routing].include?(key) }
+    end
+
     def to_doc(source = {})
       HashDocument.new(source.merge(@attributes))
     end
