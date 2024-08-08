@@ -17,7 +17,7 @@ module Esse
       if value.is_a?(Esse::LazyDocumentHeader)
         value
       elsif value.is_a?(Esse::Document)
-        new(id: value.id, type: value.type, routing: value.routing, **value.options)
+        new(**value.options, id: value.id, type: value.type, routing: value.routing)
       elsif value.is_a?(Hash)
         resp = value.transform_keys do |key|
           case key

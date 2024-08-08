@@ -145,6 +145,26 @@ RSpec.describe Esse::LazyDocumentHeader do
         expect(described_class.coerce(object)).to be_a(described_class)
       end
     end
+
+    context 'when value is a document with id in options' do
+      let(:object) do
+        Class.new(Esse::Document) do
+          def options
+            { id: 1 }
+          end
+
+          def id
+            2
+          end
+        end.new(nil)
+      end
+
+      it 'returns a LazyDocumentHeader instance with the proper id' do
+        instance = described_class.coerce(object)
+        expect(instance).to be_a(described_class)
+        expect(instance.id).to eq(2)
+      end
+    end
   end
 
   describe '.coerce_each' do
@@ -172,6 +192,11 @@ RSpec.describe Esse::LazyDocumentHeader do
 
     it 'flattens the array' do
       expect(described_class.coerce_each([[{_id: 1}], {_id: 2}]).size).to eq(2)
+    end
+
+    it 'coerces a list of Esse::Document instances' do
+      list = [Esse::HashDocument.new(_id: 1), Class.new(Esse::HashDocument).new(_id: 2)]
+      expect(described_class.coerce_each(list)).to all(be_a(described_class))
     end
   end
 
