@@ -69,7 +69,9 @@ module Esse
           cluster.api.delete_index(index: index_name)
         end
         if import
-          import(**options, suffix: suffix, refresh: refresh)
+          import_kwargs = import.is_a?(Hash) ? import : {}
+          import_kwargs[:refresh] ||= refresh if refresh
+          import(**options, **import_kwargs, suffix: suffix)
         elsif reindex && (source_indexes = indices_pointing_to_alias).any?
           reindex_kwargs = reindex.is_a?(Hash) ? reindex : {}
           reindex_kwargs[:wait_for_completion] = true unless reindex_kwargs.key?(:wait_for_completion)
