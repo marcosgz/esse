@@ -4,7 +4,7 @@ module Esse
   class LazyDocumentHeader
     def self.coerce_each(values)
       arr = []
-      Esse::ArrayUtils.wrap(values).map do |value|
+      Esse::ArrayUtils.wrap(values).flatten.map do |value|
         instance = coerce(value)
         arr << instance if instance&.valid?
       end

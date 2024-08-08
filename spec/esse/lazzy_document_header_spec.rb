@@ -169,6 +169,10 @@ RSpec.describe Esse::LazyDocumentHeader do
     it 'removes invalid instances' do
       expect(described_class.coerce_each([nil, {_id: 1}, {}]).size).to eq(1)
     end
+
+    it 'flattens the array' do
+      expect(described_class.coerce_each([[{_id: 1}], {_id: 2}]).size).to eq(2)
+    end
   end
 
   describe '#to_doc' do
