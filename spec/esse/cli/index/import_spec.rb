@@ -58,44 +58,59 @@ RSpec.describe Esse::CLI::Index, type: :cli do
         cli_exec(%w[index import CountiesIndex CitiesIndex])
       end
 
-      it 'allows --eager-include-document-attributes as a comma separated list' do
-        expect(CountiesIndex).to receive(:import).with(eager_include_document_attributes: %w[foo bar], context: {}).and_return(true)
-        cli_exec(%w[index import CountiesIndex --eager-include-document-attributes=foo,bar])
+      it 'allows --eager-load-lazy-attributes as a comma separated list' do
+        expect(CountiesIndex).to receive(:import).with(eager_load_lazy_attributes: %w[foo bar], context: {}).and_return(true)
+        cli_exec(%w[index import CountiesIndex --eager-load-lazy-attributes=foo,bar])
       end
 
-      it 'allows --lazy-update-document-attributes as a single value' do
-        expect(CountiesIndex).to receive(:import).with(lazy_update_document_attributes: %w[foo], context: {}).and_return(true)
-        cli_exec(%w[index import CountiesIndex --lazy-update-document-attributes=foo])
+      it 'allows --update-lazy-attributes as a single value' do
+        expect(CountiesIndex).to receive(:import).with(update_lazy_attributes: %w[foo], context: {}).and_return(true)
+        cli_exec(%w[index import CountiesIndex --update-lazy-attributes=foo])
       end
 
-      it 'allows --lazy-update-document-attributes as true' do
-        expect(CountiesIndex).to receive(:import).with(lazy_update_document_attributes: true, context: {}).and_return(true)
-        cli_exec(%w[index import CountiesIndex --lazy-update-document-attributes=true])
+      it 'allows --update-lazy-attributes as true' do
+        expect(CountiesIndex).to receive(:import).with(update_lazy_attributes: true, context: {}).and_return(true)
+        cli_exec(%w[index import CountiesIndex --update-lazy-attributes=true])
       end
 
-      it 'allows --lazy-update-document-attributes as false' do
+      it 'allows --update-lazy-attributes as false' do
         expect(CountiesIndex).to receive(:import).with(context: {}).and_return(true)
-        cli_exec(%w[index import CountiesIndex --lazy-update-document-attributes=false])
+        cli_exec(%w[index import CountiesIndex --update-lazy-attributes=false])
       end
 
-      it 'allows --lazy-update-document-attributes as a comma separated list' do
-        expect(CountiesIndex).to receive(:import).with(lazy_update_document_attributes: %w[foo bar], context: {}).and_return(true)
-        cli_exec(%w[index import CountiesIndex --lazy-update-document-attributes=foo,bar])
+      it 'allows --update-lazy-attributes as a comma separated list' do
+        expect(CountiesIndex).to receive(:import).with(update_lazy_attributes: %w[foo bar], context: {}).and_return(true)
+        cli_exec(%w[index import CountiesIndex --update-lazy-attributes=foo,bar])
       end
 
-      it 'allows --lazy-update-document-attributes as a single value' do
-        expect(CountiesIndex).to receive(:import).with(lazy_update_document_attributes: %w[foo], context: {}).and_return(true)
-        cli_exec(%w[index import CountiesIndex --lazy-update-document-attributes=foo])
+      it 'allows --update-lazy-attributes as a single value' do
+        expect(CountiesIndex).to receive(:import).with(update_lazy_attributes: %w[foo], context: {}).and_return(true)
+        cli_exec(%w[index import CountiesIndex --update-lazy-attributes=foo])
       end
 
-      it 'allows --lazy-update-document-attributes as true' do
-        expect(CountiesIndex).to receive(:import).with(lazy_update_document_attributes: true, context: {}).and_return(true)
-        cli_exec(%w[index import CountiesIndex --lazy-update-document-attributes=true])
+      it 'allows --update-lazy-attributes as true' do
+        expect(CountiesIndex).to receive(:import).with(update_lazy_attributes: true, context: {}).and_return(true)
+        cli_exec(%w[index import CountiesIndex --update-lazy-attributes=true])
       end
 
-      it 'allows --lazy-update-document-attributes as false' do
+      it 'allows --update-lazy-attributes as false' do
         expect(CountiesIndex).to receive(:import).with(context: {}).and_return(true)
-        cli_exec(%w[index import CountiesIndex --lazy-update-document-attributes=false])
+        cli_exec(%w[index import CountiesIndex --update-lazy-attributes=false])
+      end
+
+      it 'allows --preload-lazy-attributes as a comma separated list' do
+        expect(CountiesIndex).to receive(:import).with(preload_lazy_attributes: %w[foo bar], context: {}).and_return(true)
+        cli_exec(%w[index import CountiesIndex --preload-lazy-attributes=foo,bar])
+      end
+
+      it 'allows --preload-lazy-attributes as true' do
+        expect(CountiesIndex).to receive(:import).with(preload_lazy_attributes: true, context: {}).and_return(true)
+        cli_exec(%w[index import CountiesIndex --preload-lazy-attributes=true])
+      end
+
+      it 'allows --preload-lazy-attributes as false' do
+        expect(CountiesIndex).to receive(:import).with(context: {}).and_return(true)
+        cli_exec(%w[index import CountiesIndex --preload-lazy-attributes=false])
       end
     end
   end
