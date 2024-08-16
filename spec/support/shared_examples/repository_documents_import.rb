@@ -63,14 +63,14 @@ RSpec.shared_examples 'repository.import' do
     end
   end
 
-  context 'when the lazy_update_document_attributes is set' do
+  context 'when the update_lazy_attributes is set' do
     it 'indexes the data and bulk updates all the lazy document attributes' do
       es_client do |client, _conf, cluster|
         GeosIndex.create_index(alias: true)
 
         resp = nil
         expect {
-          resp = GeosIndex::County.import(lazy_update_document_attributes: true)
+          resp = GeosIndex::County.import(update_lazy_attributes: true)
         }.not_to raise_error
         expect(resp).to eq(total_counties)
 
@@ -89,7 +89,7 @@ RSpec.shared_examples 'repository.import' do
 
         resp = nil
         expect {
-          resp = GeosIndex::County.import(lazy_update_document_attributes: %i[country])
+          resp = GeosIndex::County.import(update_lazy_attributes: %i[country])
         }.not_to raise_error
         expect(resp).to eq(total_counties)
 
@@ -103,14 +103,14 @@ RSpec.shared_examples 'repository.import' do
     end
   end
 
-  context 'when the eager_include_document_attributes is set' do
+  context 'when the eager_load_lazy_attributes is set' do
     it 'indexes the data and bulk updates all the eager document attributes' do
       es_client do |client, _conf, cluster|
         GeosIndex.create_index(alias: true)
 
         resp = nil
         expect {
-          resp = GeosIndex::County.import(eager_include_document_attributes: true)
+          resp = GeosIndex::County.import(eager_load_lazy_attributes: true)
         }.not_to raise_error
         expect(resp).to eq(total_counties)
 
@@ -129,7 +129,7 @@ RSpec.shared_examples 'repository.import' do
 
         resp = nil
         expect {
-          resp = GeosIndex::County.import(eager_include_document_attributes: %i[country])
+          resp = GeosIndex::County.import(eager_load_lazy_attributes: %i[country])
         }.not_to raise_error
         expect(resp).to eq(total_counties)
 
@@ -174,7 +174,7 @@ RSpec.shared_examples 'repository.import' do
 
         resp = nil
         expect {
-          resp = StoriesIndex::Story.import(lazy_update_document_attributes: %i[tags])
+          resp = StoriesIndex::Story.import(update_lazy_attributes: %i[tags])
         }.not_to raise_error
         expect(resp).to eq(stories.size)
 

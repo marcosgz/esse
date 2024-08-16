@@ -199,14 +199,14 @@ module Esse
       # @option [Hash] :context The collection context. This value will be passed as argument to the collection
       #   May be SQL condition or any other filter you have defined on the collection.
       # @return [Numeric] The number of documents imported
-      def import(*repo_types, context: {}, eager_include_document_attributes: false, lazy_update_document_attributes: false, suffix: nil, **options)
+      def import(*repo_types, context: {}, eager_load_lazy_attributes: false, update_lazy_attributes: false, preload_lazy_attributes: false, suffix: nil, **options)
         repo_types = repo_hash.keys if repo_types.empty?
         count = 0
 
         repo_hash.slice(*repo_types).each do |repo_name, repo|
           doc_attrs = {eager: [], lazy: []}
-          doc_attrs[:eager] = repo.lazy_document_attribute_names(eager_include_document_attributes)
-          doc_attrs[:lazy] = repo.lazy_document_attribute_names(lazy_update_document_attributes)
+          doc_attrs[:eager] = repo.lazy_document_attribute_names(eager_load_lazy_attributes)
+          doc_attrs[:lazy] = repo.lazy_document_attribute_names(update_lazy_attributes)
           doc_attrs[:lazy] -= doc_attrs[:eager]
 
           context ||= {}
