@@ -114,7 +114,7 @@ module Esse
       def update(doc = nil, suffix: nil, **options)
         if document?(doc)
           options[:id] = doc.id
-          options[:body] = { doc: doc.source }
+          options[:body] = { doc: doc.mutated_source }
           options[:type] = doc.type if doc.type?
           options[:routing] = doc.routing if doc.routing?
         end
@@ -140,7 +140,7 @@ module Esse
       def index(doc = nil, suffix: nil, **options)
         if document?(doc)
           options[:id] = doc.id
-          options[:body] = doc.source
+          options[:body] = doc.mutated_source
           options[:type] = doc.type if doc.type?
           options[:routing] = doc.routing if doc.routing?
         end
@@ -198,39 +198,97 @@ module Esse
       # @option [String, nil] :suffix The index suffix. Defaults to the nil.
       # @option [Hash] :context The collection context. This value will be passed as argument to the collection
       #   May be SQL condition or any other filter you have defined on the collection.
+      # @option [Boolean, Array<String>] :eager_load_lazy_attributes A list of lazy document attributes to include to the bulk index request.
+      #   Or pass `true` to include all lazy attributes.
+      # @option [Boolean, Array<String>] :update_lazy_attributes A list of lazy document attributes to bulk update each after the bulk import.
+      #   Or pass `true` to update all lazy attributes.
+      # @option [Boolean, Array<String>] :preload_lazy_attributes A list of lazy document attributes to preload using search API before the bulk import.
+      #   Or pass `true` to preload all lazy attributes.
       # @return [Numeric] The number of documents imported
       def import(*repo_types, context: {}, eager_load_lazy_attributes: false, update_lazy_attributes: false, preload_lazy_attributes: false, suffix: nil, **options)
         repo_types = repo_hash.keys if repo_types.empty?
         count = 0
 
         repo_hash.slice(*repo_types).each do |repo_name, repo|
-          doc_attrs = {eager: [], lazy: []}
-          doc_attrs[:eager] = repo.lazy_document_attribute_names(eager_load_lazy_attributes)
-          doc_attrs[:lazy] = repo.lazy_document_attribute_names(update_lazy_attributes)
-          doc_attrs[:lazy] -= doc_attrs[:eager]
+          # Elasticsearch 6.x and older have multiple types per index.
+          # This gem supports multiple types per index for backward compatibility, but we recommend to update
+          # your elasticsearch to a at least 7.x version and use a single type per index.
+          #
+          # Note that the repository name will be used as the document type.
+          # mapping_default_type
+          bulk_kwargs = { suffix: suffix, type: repo_name, **options }
+          cluster.may_update_type!(bulk_kwargs)
 
+          lazy_attrs_to_eager_load = repo.lazy_document_attribute_names(eager_load_lazy_attributes)
+          lazy_attrs_to_search_preload = repo.lazy_document_attribute_names(preload_lazy_attributes)
+          lazy_attrs_to_update_after = repo.lazy_document_attribute_names(update_lazy_attributes)
+          lazy_attrs_to_update_after -= lazy_attrs_to_eager_load
+          lazy_attrs_to_search_preload -= lazy_attrs_to_eager_load
+
+          # @TODO Refactor this by combining the upcoming code again with repo.each_serialized_batch as it was before:
+          #     context[:lazy_attributes] = lazy_attrs_to_eager_load if lazy_attrs_to_eager_load.any?
+          #     repo.each_serialized_batch(**context) do |batch|
+          #       bulk(**bulk_kwargs, index: batch)
+
+          #       lazy_attrs_to_update_after.each do |attr_name|
+          #         partial_docs = repo.documents_for_lazy_attribute(attr_name, batch.reject(&:ignore_on_index?))
+          #         next if partial_docs.empty?
+
+          #         bulk(**bulk_kwargs, update: partial_docs)
+          #       end
+          #       count += batch.size
+          #     end
           context ||= {}
-          context[:lazy_attributes] = doc_attrs[:eager] if doc_attrs[:eager].any?
-          repo.each_serialized_batch(**context) do |batch|
-            # Elasticsearch 6.x and older have multiple types per index.
-            # This gem supports multiple types per index for backward compatibility, but we recommend to update
-            # your elasticsearch to a at least 7.x version and use a single type per index.
-            #
-            # Note that the repository name will be used as the document type.
-            # mapping_default_type
-            kwargs = { suffix: suffix, type: repo_name, **options }
-            cluster.may_update_type!(kwargs)
+          repo.send(:each_batch, **context) do |*args|
+            batch, collection_context = args
+            collection_context ||= {}
+            entries = [*batch].map { |entry| repo.serialize(entry, **collection_context) }.compact
 
-            bulk(**kwargs, index: batch)
-
-            doc_attrs[:lazy].each do |attr_name|
-              partial_docs = repo.documents_for_lazy_attribute(attr_name, batch.reject(&:ignore_on_index?))
-              next if partial_docs.empty?
-
-              bulk(**kwargs, update: partial_docs)
+            if lazy_attrs_to_eager_load
+              attrs = lazy_attrs_to_eager_load.is_a?(Array) ? lazy_attrs_to_eager_load : repo.lazy_document_attribute_names(lazy_attrs_to_eager_load)
+              attrs.each do |attr_name|
+                repo.retrieve_lazy_attribute_values(attr_name, entries).each do |doc_header, value|
+                  doc = entries.find { |d| doc_header.id.to_s == d.id.to_s && doc_header.type == d.type && doc_header.routing == d.routing }
+                  doc&.mutate(attr_name) { value }
+                end
+              end
             end
 
-            count += batch.size
+            preload_search_result = Hash.new { |h, arr_name| h[arr_name] = {} }
+            if lazy_attrs_to_search_preload.any?
+              hits = repo.index.search(query: {ids: {values: entries.map(&:id)} }, _source: lazy_attrs_to_search_preload).response.hits
+              hits.each do |hit|
+                doc_header = Esse::LazyDocumentHeader.coerce(hit.slice('_id', '_routing')) # TODO Add '_type', when adjusting eql to tread _doc properly
+                next unless doc_header.valid?
+                hit.dig('_source')&.each do |attr_name, attr_value|
+                  real_attr_name = repo.lazy_document_attribute_names(attr_name).first
+                  preload_search_result[real_attr_name][doc_header] = attr_value
+                end
+              end
+              preload_search_result.each do |attr_name, values|
+                values.each do |doc_header, value|
+                  doc = entries.find { |d| doc_header.id.to_s == d.id.to_s && doc_header.type == d.type && doc_header.routing == d.routing }
+                  doc&.mutate(attr_name) { value }
+                end
+              end
+            end
+
+            bulk(**bulk_kwargs, index: entries)
+
+            lazy_attrs_to_update_after.each do |attr_name|
+              preloaded_ids = preload_search_result[attr_name].keys
+              filtered_docs = entries.reject do |doc|
+                doc.ignore_on_index? || preloaded_ids.any? { |d| d.id.to_s == doc.id.to_s && d.type == doc.type && d.routing == doc.routing }
+              end
+              next if filtered_docs.empty?
+
+              partial_docs = repo.documents_for_lazy_attribute(attr_name, filtered_docs)
+              next if partial_docs.empty?
+
+              bulk(**bulk_kwargs, update: partial_docs)
+            end
+
+            count += entries.size
           end
         end
         count

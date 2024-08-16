@@ -115,8 +115,6 @@ module Esse
       instance_variable_set(:@__mutated_source__, nil)
     end
 
-    protected
-
     def mutated_source
       return source unless @__mutations__
 
