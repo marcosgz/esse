@@ -209,6 +209,10 @@ module Esse
         repo_types = repo_hash.keys if repo_types.empty?
         count = 0
 
+        # Backward compatibility while I change plugins using it
+        update_lazy_attributes = options.delete(:lazy_update_document_attributes) if options.key?(:lazy_update_document_attributes)
+        eager_load_lazy_attributes = options.delete(:eager_include_document_attributes) if options.key?(:eager_include_document_attributes)
+
         repo_hash.slice(*repo_types).each do |repo_name, repo|
           # Elasticsearch 6.x and older have multiple types per index.
           # This gem supports multiple types per index for backward compatibility, but we recommend to update
