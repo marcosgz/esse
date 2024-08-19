@@ -294,13 +294,10 @@ module Esse
             collection_context ||= {}
             entries = [*batch].map { |entry| repo.serialize(entry, **collection_context) }.compact
 
-            if lazy_attrs_to_eager_load
-              attrs = lazy_attrs_to_eager_load.is_a?(Array) ? lazy_attrs_to_eager_load : repo.lazy_document_attribute_names(lazy_attrs_to_eager_load)
-              attrs.each do |attr_name|
-                repo.retrieve_lazy_attribute_values(attr_name, entries).each do |doc_header, value|
-                  doc = entries.find { |d| d.eql?(doc_header, match_lazy_doc_header: true) }
-                  doc&.mutate(attr_name) { value }
-                end
+            lazy_attrs_to_eager_load.each do |attr_name|
+              repo.retrieve_lazy_attribute_values(attr_name, entries).each do |doc_header, value|
+                doc = entries.find { |d| d.eql?(doc_header, match_lazy_doc_header: true) }
+                doc&.mutate(attr_name) { value }
               end
             end
 

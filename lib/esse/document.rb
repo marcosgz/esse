@@ -88,7 +88,7 @@ module Esse
       if match_lazy_doc_header && other.is_a?(LazyDocumentHeader)
         other.eql?(self)
       else
-        other.is_a?(self.class) && (
+        other.is_a?(Esse::Document) && (
           id.to_s == other.id.to_s && type == other.type && routing == other.routing && meta == other.meta && source == other.source
         )
       end
