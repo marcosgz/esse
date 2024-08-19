@@ -172,7 +172,7 @@ module Esse
         cluster.may_update_type!(definition)
 
         # @TODO Wrap the return in a some other Stats object with more information
-        Esse::Import::Bulk.new(
+        Esse::Import::Bulk.build_from_documents(
           **definition.slice(:type),
           create: create,
           delete: delete,

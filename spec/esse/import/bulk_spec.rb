@@ -8,7 +8,7 @@ RSpec.describe Esse::Import::Bulk do
     let(:create) { [Esse::HashDocument.new(_id: 2, foo: 'bar')] }
     let(:delete) { [Esse::HashDocument.new(_id: 3, foo: 'bar')] }
     let(:update) { [Esse::HashDocument.new(_id: 4, foo: 'bar')] }
-    let(:bulk) { described_class.new(index: index, create: create, delete: delete, update: update) }
+    let(:bulk) { described_class.build_from_documents(index: index, create: create, delete: delete, update: update) }
 
     it 'yields a request body instance' do
       expect { |b| bulk.each_request(&b) }.to yield_with_args(Esse::Import::RequestBodyAsJson)
@@ -61,7 +61,7 @@ RSpec.describe Esse::Import::Bulk do
       let(:delete) do
         %w[foo bar baz].each_with_index.map { |name, idx| Esse::HashDocument.new(id: idx + 30, name: name) }
       end
-      let(:bulk) { described_class.new(index: index, create: create, delete: delete) }
+      let(:bulk) { described_class.build_from_documents(index: index, create: create, delete: delete) }
 
       it 'retries in small chunks' do
         expect(bulk).to receive(:sleep).with(an_instance_of(Integer)).exactly(3).times

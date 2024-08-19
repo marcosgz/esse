@@ -1,27 +1,35 @@
 module Esse
   module Import
     class Bulk
-      def initialize(type: nil, index: nil, delete: nil, create: nil, update: nil)
-        @index = Array(index).select(&method(:valid_doc?)).reject(&:ignore_on_index?).map do |doc|
+      def self.build_from_documents(type: nil, index: nil, delete: nil, create: nil, update: nil)
+        index = Array(index).select(&Esse.method(:document?)).reject(&:ignore_on_index?).map do |doc|
           value = doc.to_bulk
           value[:_type] ||= type if type
-          { index: value }
+          value
         end
-        @create = Array(create).select(&method(:valid_doc?)).reject(&:ignore_on_index?).map do |doc|
+        create = Array(create).select(&Esse.method(:document?)).reject(&:ignore_on_index?).map do |doc|
           value = doc.to_bulk
           value[:_type] ||= type if type
-          { create: value }
+          value
         end
-        @update = Array(update).select(&method(:valid_doc?)).reject(&:ignore_on_index?).map do |doc|
+        update = Array(update).select(&Esse.method(:document?)).reject(&:ignore_on_index?).map do |doc|
           value = doc.to_bulk(operation: :update)
           value[:_type] ||= type if type
-          { update: value }
+          value
         end
-        @delete = Array(delete).select(&method(:valid_doc?)).reject(&:ignore_on_delete?).map do |doc|
+        delete = Array(delete).select(&Esse.method(:document?)).reject(&:ignore_on_delete?).map do |doc|
           value = doc.to_bulk(data: false)
           value[:_type] ||= type if type
-          { delete: value }
+          value
         end
+        new(index: index, delete: delete, create: create, update: update)
+      end
+
+      def initialize(index: nil, delete: nil, create: nil, update: nil)
+        @index = Esse::ArrayUtils.wrap(index).map { |payload| { index: payload } }
+        @create = Esse::ArrayUtils.wrap(create).map { |payload| { create: payload } }
+        @update = Esse::ArrayUtils.wrap(update).map { |payload| { update: payload } }
+        @delete = Esse::ArrayUtils.wrap(delete).map { |payload| { delete: payload } }
       end
 
       # Return an array of RequestBody instances
@@ -67,10 +75,6 @@ module Esse
       end
 
       private
-
-      def valid_doc?(doc)
-        Esse.document?(doc)
-      end
 
       def optimistic_request
         request = Import::RequestBodyAsJson.new
