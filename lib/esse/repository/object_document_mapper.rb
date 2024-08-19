@@ -92,13 +92,13 @@ module Esse
             attrs = lazy_attributes.is_a?(Array) ? lazy_attributes : lazy_document_attribute_names(lazy_attributes)
             attrs.each do |attr_name|
               retrieve_lazy_attribute_values(attr_name, entries).each do |doc_header, value|
-                doc = entries.find { |d| doc_header.id.to_s == d.id.to_s && doc_header.type == d.type && doc_header.routing == d.routing }
+                doc = entries.find { |d| d.eql?(doc_header, match_lazy_doc_header: true) }
                 doc&.mutate(attr_name) { value }
               end
             end
           end
 
-          yield entries, **collection_context
+          yield entries
         end
       end
 
@@ -110,7 +110,7 @@ module Esse
       # @return [Enumerator] All serialized entries
       def documents(**kwargs)
         Enumerator.new do |yielder|
-          each_serialized_batch(**kwargs) do |docs, **_collection_kargs|
+          each_serialized_batch(**kwargs) do |docs|
             docs.each { |document| yielder.yield(document) }
           end
         end

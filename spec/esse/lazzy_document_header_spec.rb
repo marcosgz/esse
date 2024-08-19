@@ -7,22 +7,6 @@ RSpec.describe Esse::LazyDocumentHeader do
   let(:object) { { id: nil } }
   let(:options) { {} }
 
-  describe '#valid?' do
-    it { expect(doc).to respond_to :valid? }
-
-    it 'returns false' do
-      expect(doc.valid?).to be_falsey
-    end
-
-    context 'when id is present' do
-      let(:object) { { id: 1 } }
-
-      it 'returns true' do
-        expect(doc.valid?).to be_truthy
-      end
-    end
-  end
-
   describe '#id' do
     it { expect(doc).to respond_to :id }
 
@@ -118,7 +102,7 @@ RSpec.describe Esse::LazyDocumentHeader do
       let(:object) { Esse::HashDocument.new(_id: 1) }
 
       it 'returns a LazyDocumentHeader instance' do
-        expect(described_class.coerce(object)).to be_a(described_class)
+        expect(described_class.coerce(object)).to be(object)
       end
     end
 
@@ -161,7 +145,7 @@ RSpec.describe Esse::LazyDocumentHeader do
 
       it 'returns a LazyDocumentHeader instance with the proper id' do
         instance = described_class.coerce(object)
-        expect(instance).to be_a(described_class)
+        expect(instance).to be(instance)
         expect(instance.id).to eq(2)
       end
     end
@@ -194,40 +178,40 @@ RSpec.describe Esse::LazyDocumentHeader do
       expect(described_class.coerce_each([[{_id: 1}], {_id: 2}]).size).to eq(2)
     end
 
-    it 'coerces a list of Esse::Document instances' do
+    it 'return same instances when the given argument is already a Esse::Document' do
       list = [Esse::HashDocument.new(_id: 1), Class.new(Esse::HashDocument).new(_id: 2)]
-      expect(described_class.coerce_each(list)).to all(be_a(described_class))
+      expect(described_class.coerce_each(list)).to all(be_a(Esse::HashDocument))
     end
   end
 
-  describe '#to_doc' do
+  describe '#document_for_partial_update' do
     let(:options) { { admin: true } }
     let(:object) { { id: 1, routing: 'il', type: 'state' } }
 
-    it { expect(doc).to respond_to :to_doc }
+    it { expect(doc).to respond_to :document_for_partial_update }
 
     it 'returns a Esse::Document instance' do
-      expect(doc.to_doc).to be_a(Esse::Document)
+      expect(doc.document_for_partial_update({})).to be_a(Esse::DocumentForPartialUpdate)
     end
 
     it 'returns a Esse::Document instance with the id' do
-      expect(doc.to_doc.id).to eq(1)
+      expect(doc.document_for_partial_update({}).id).to eq(1)
     end
 
     it 'returns a Esse::Document instance routing' do
-      expect(doc.to_doc.routing).to eq('il')
+      expect(doc.document_for_partial_update({}).routing).to eq('il')
     end
 
     it 'returns a Esse::Document instance with the type' do
-      expect(doc.to_doc.type).to eq('state')
+      expect(doc.document_for_partial_update({}).type).to eq('state')
     end
 
     it 'returns a Esse::Document instance with the options' do
-      expect(doc.to_doc.options).to eq(admin: true)
+      expect(doc.document_for_partial_update({}).options).to eq(admin: true)
     end
 
     it 'returns a Esse::Document instance with the object as source and the given source' do
-      new_doc = doc.to_doc(foo: 'bar')
+      new_doc = doc.document_for_partial_update(foo: 'bar')
       expect(new_doc.source).to eq(foo: 'bar')
       expect(new_doc.object).to eq(doc)
       expect(new_doc.options).to eq(admin: true)
@@ -246,6 +230,134 @@ RSpec.describe Esse::LazyDocumentHeader do
 
       it 'returns the options' do
         expect(doc.options).to eq(options)
+      end
+    end
+  end
+
+  describe '#eql?' do
+    specify do
+      same = described_class.new(id: 1)
+      diff = described_class.new(id: 2)
+      expect(described_class.new(id: 1)).to eq(same)
+      expect(described_class.new(id: 1)).not_to eq(diff)
+    end
+
+    specify do
+      same = described_class.new(id: 1)
+      diff = described_class.new(id: 2)
+      expect(described_class.new(id: '1')).to eq(same)
+    end
+
+    specify do
+      same = described_class.new(id: 1, type: 'foo')
+      diff = described_class.new(id: 1, type: 'bar')
+      expect(described_class.new(id: 1, type: 'foo')).to eq(same)
+      expect(described_class.new(id: 1, type: 'foo')).not_to eq(diff)
+    end
+
+    specify do
+      same = described_class.new(id: 1, routing: 'foo')
+      diff = described_class.new(id: 1, routing: 'bar')
+      expect(described_class.new(id: 1, routing: 'foo')).to eq(same)
+      expect(described_class.new(id: 1, routing: 'foo')).not_to eq(diff)
+    end
+
+    specify do
+      same = described_class.new(id: 1, type: 'foo', routing: 'bar')
+      diff = described_class.new(id: 1, type: 'bar', routing: 'foo')
+      expect(described_class.new(id: 1, type: 'foo', routing: 'bar')).to eq(same)
+      expect(described_class.new(id: 1, type: 'foo', routing: 'bar')).not_to eq(diff)
+    end
+
+    context 'when comparing doc type' do
+      specify do
+        expected = described_class.new(id: 1, type: '_doc')
+        expect(described_class.new(id: 1, type: '_doc')).to eq(expected)
+      end
+
+      specify do
+        expected = described_class.new(id: 1, type: '_doc')
+        expect(described_class.new(id: 1, type: 'doc')).to eq(expected)
+      end
+
+      specify do
+        expected = described_class.new(id: 1, type: '_doc')
+        expect(described_class.new(id: 1, type: nil)).to eq(expected)
+      end
+
+      specify do
+        expected = described_class.new(id: 1, type: nil)
+        expect(described_class.new(id: 1, type: '_doc')).to eq(expected)
+      end
+
+      specify do
+        expected = described_class.new(id: 1, type: nil)
+        expect(described_class.new(id: 1, type: 'doc')).to eq(expected)
+      end
+    end
+
+    context 'when comparing with a Esse::Document' do
+      specify do
+        header = described_class.new(id: 1)
+        doc = Esse::HashDocument.new(_id: 1)
+        expect(header).to eq(doc)
+        expect(doc.eql?(header)).to eq(false)
+        expect(doc.eql?(header, match_lazy_doc_header: true)).to eq(true)
+      end
+
+      specify do
+        header = described_class.new(id: 1)
+        doc = Esse::HashDocument.new(_id: 2)
+        expect(header).not_to eq(doc)
+        expect(doc.eql?(header)).to eq(false)
+        expect(doc.eql?(header, match_lazy_doc_header: true)).to eq(false)
+      end
+
+      specify do
+        header = described_class.new(id: 1, type: '_doc')
+        doc = Esse::HashDocument.new(_id: 1)
+        expect(header).to eq(doc)
+        expect(doc.eql?(header)).to eq(false)
+        expect(doc.eql?(header, match_lazy_doc_header: true)).to eq(true)
+      end
+
+      specify do
+        header = described_class.new(id: 1)
+        doc = Esse::HashDocument.new(_id: 1, _type: '_doc')
+        expect(header).to eq(doc)
+        expect(doc.eql?(header)).to eq(false)
+        expect(doc.eql?(header, match_lazy_doc_header: true)).to eq(true)
+      end
+
+      specify do
+        header = described_class.new(id: 1, type: '_doc')
+        doc = Esse::HashDocument.new(_id: 1, _type: 'foo')
+        expect(header).not_to eq(doc)
+        expect(doc.eql?(header)).to eq(false)
+        expect(doc.eql?(header, match_lazy_doc_header: true)).to eq(false)
+      end
+
+      specify do
+        header = described_class.new(id: 1, routing: 'il')
+        doc = Esse::HashDocument.new(_id: 1, _routing: 'il')
+        expect(header).to eq(doc)
+        expect(doc.eql?(header)).to eq(false)
+        expect(doc.eql?(header, match_lazy_doc_header: true)).to eq(true)
+      end
+
+      specify do
+        header = described_class.new(id: 1, routing: 'il')
+        doc = Esse::HashDocument.new(_id: 1, _routing: 'fl')
+        expect(header).not_to eq(doc)
+        expect(doc.eql?(header)).to eq(false)
+      end
+
+      specify do
+        header = described_class.new(id: 1, extra: 'il')
+        doc = Esse::HashDocument.new(_id: 1, extra: 'fl')
+        expect(header).to eq(doc)
+        expect(doc.eql?(header)).to eq(false)
+        expect(doc.eql?(header, match_lazy_doc_header: true)).to eq(true)
       end
     end
   end

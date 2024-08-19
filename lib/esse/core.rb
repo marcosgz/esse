@@ -6,6 +6,7 @@ module Esse
   require_relative 'primitives'
   require_relative 'collection'
   require_relative 'document'
+  require_relative 'document_for_partial_update'
   require_relative 'document_lazy_attribute'
   require_relative 'lazy_document_header'
   require_relative 'hash_document'

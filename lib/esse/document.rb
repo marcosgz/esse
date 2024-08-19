@@ -84,11 +84,16 @@ module Esse
       id.nil?
     end
 
-    def ==(other)
-      other.is_a?(self.class) && (
-        id == other.id && type == other.type && routing == other.routing && meta == other.meta && source == other.source
-      )
+    def eql?(other, match_lazy_doc_header: false)
+      if match_lazy_doc_header && other.is_a?(LazyDocumentHeader)
+        other.eql?(self)
+      else
+        other.is_a?(self.class) && (
+          id.to_s == other.id.to_s && type == other.type && routing == other.routing && meta == other.meta && source == other.source
+        )
+      end
     end
+    alias_method :==, :eql?
 
     def doc_header
       { _id: id }.tap do |h|
@@ -119,6 +124,10 @@ module Esse
       return source unless @__mutations__
 
       @__mutated_source__ ||= source.merge(@__mutations__)
+    end
+
+    def document_for_partial_update(source)
+      DocumentForPartialUpdate.new(self, source: source)
     end
   end
 end

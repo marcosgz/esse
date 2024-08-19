@@ -252,7 +252,7 @@ module Esse
               attrs = lazy_attrs_to_eager_load.is_a?(Array) ? lazy_attrs_to_eager_load : repo.lazy_document_attribute_names(lazy_attrs_to_eager_load)
               attrs.each do |attr_name|
                 repo.retrieve_lazy_attribute_values(attr_name, entries).each do |doc_header, value|
-                  doc = entries.find { |d| doc_header.id.to_s == d.id.to_s && doc_header.type == d.type && doc_header.routing == d.routing }
+                  doc = entries.find { |d| d.eql?(doc_header, match_lazy_doc_header: true) }
                   doc&.mutate(attr_name) { value }
                 end
               end
@@ -262,8 +262,9 @@ module Esse
             if lazy_attrs_to_search_preload.any?
               hits = repo.index.search(query: {ids: {values: entries.map(&:id)} }, _source: lazy_attrs_to_search_preload).response.hits
               hits.each do |hit|
-                doc_header = Esse::LazyDocumentHeader.coerce(hit.slice('_id', '_routing')) # TODO Add '_type', when adjusting eql to tread _doc properly
-                next unless doc_header.valid?
+                doc_header = Esse::LazyDocumentHeader.coerce(hit.slice('_id', '_routing', '_type'))
+                next if doc_header.id.nil?
+
                 hit.dig('_source')&.each do |attr_name, attr_value|
                   real_attr_name = repo.lazy_document_attribute_names(attr_name).first
                   preload_search_result[real_attr_name][doc_header] = attr_value
@@ -271,7 +272,7 @@ module Esse
               end
               preload_search_result.each do |attr_name, values|
                 values.each do |doc_header, value|
-                  doc = entries.find { |d| doc_header.id.to_s == d.id.to_s && doc_header.type == d.type && doc_header.routing == d.routing }
+                  doc = entries.find { |d| d.eql?(doc_header, match_lazy_doc_header: true) }
                   doc&.mutate(attr_name) { value }
                 end
               end
@@ -282,7 +283,7 @@ module Esse
             lazy_attrs_to_update_after.each do |attr_name|
               preloaded_ids = preload_search_result[attr_name].keys
               filtered_docs = entries.reject do |doc|
-                doc.ignore_on_index? || preloaded_ids.any? { |d| d.id.to_s == doc.id.to_s && d.type == doc.type && d.routing == doc.routing }
+                doc.ignore_on_index? || preloaded_ids.any? { |d| doc.eql?(d, match_lazy_doc_header: true) }
               end
               next if filtered_docs.empty?
 
