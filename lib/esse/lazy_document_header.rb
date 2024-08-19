@@ -61,6 +61,13 @@ module Esse
       Esse::DocumentForPartialUpdate.new(self, source: source)
     end
 
+    def doc_header
+      { _id: id }.tap do |hash|
+        hash[:_type] = type if type
+        hash[:routing] = routing if routing
+      end
+    end
+
     def eql?(other, **)
       ACCEPTABLE_CLASSES.any? { |klass| other.is_a?(klass) } &&
         id.to_s == other.id.to_s &&
