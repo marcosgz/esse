@@ -6,8 +6,13 @@ module Esse
     ACCEPTABLE_DOC_TYPES = [nil, '_doc', 'doc'].freeze
 
     def self.coerce_each(values)
+      values = Esse::ArrayUtils.wrap(values)
+      return values if values.all? do |value|
+        ACCEPTABLE_CLASSES.any? { |klass| value.is_a?(klass) }
+      end
+
       arr = []
-      Esse::ArrayUtils.wrap(values).flatten.map do |value|
+      values.flatten.map do |value|
         instance = coerce(value)
         arr << instance if instance && !instance.id.nil?
       end
