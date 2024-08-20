@@ -253,10 +253,10 @@ module Esse
         update_lazy_attributes = options.delete(:lazy_update_document_attributes) if options.key?(:lazy_update_document_attributes)
         eager_load_lazy_attributes = options.delete(:eager_include_document_attributes) if options.key?(:eager_include_document_attributes)
 
-        doc_header_check = ->(doc, hash) do
-          hash['_id'] && hash['_id'].to_s == doc.id.to_s &&
-            hash['_routing'] == doc.routing &&
-            (LazyDocumentHeader::ACCEPTABLE_DOC_TYPES.include?(doc.type) && LazyDocumentHeader::ACCEPTABLE_DOC_TYPES.include?(hash['_type']) || doc.type == hash['_type'])
+        doc_header_check = ->(doc, (id, routing, type)) do
+          id && id.to_s == doc.id.to_s &&
+            routing == doc.routing &&
+            (LazyDocumentHeader::ACCEPTABLE_DOC_TYPES.include?(doc.type) && LazyDocumentHeader::ACCEPTABLE_DOC_TYPES.include?(type) || doc.type == type)
         end
 
         repo_hash.slice(*repo_types).each do |repo_name, repo|
@@ -308,8 +308,8 @@ module Esse
                 search_request[:routing] = routing if routing
                 hits = repo.index.search(**search_request).response.hits
                 hits.each do |hit|
-                  header = hit.slice('_id', '_routing', '_type')
-                  next if header['_id'].nil?
+                  header = [hit['_id'], hit['_routing'], hit['_type']]
+                  next if header[0].nil?
 
                   hit.dig('_source')&.each do |attr_name, attr_value|
                     real_attr_name = repo.lazy_document_attribute_names(attr_name).first
@@ -331,7 +331,7 @@ module Esse
             lazy_attrs_to_update_after.each do |attr_name|
               preloaded_ids = preload_search_result[attr_name].keys
               filtered_docs = entries.reject do |doc|
-                doc.ignore_on_index? || preloaded_ids.any? { |h| doc_header_check.call(doc, h) }
+                doc.ignore_on_index? || preloaded_ids.any? { |header| doc_header_check.call(doc, header) }
               end
               next if filtered_docs.empty?
 
