@@ -249,9 +249,14 @@ module Esse
         repo_types = repo_hash.keys if repo_types.empty?
         count = 0
 
-        # Backward compatibility while I change plugins using it
-        update_lazy_attributes = options.delete(:lazy_update_document_attributes) if options.key?(:lazy_update_document_attributes)
-        eager_load_lazy_attributes = options.delete(:eager_include_document_attributes) if options.key?(:eager_include_document_attributes)
+        if options.key?(:eager_include_document_attributes)
+          warn 'The `eager_include_document_attributes` option is deprecated. Use `eager_load_lazy_attributes` instead.'
+          eager_load_lazy_attributes = options.delete(:eager_include_document_attributes)
+        end
+        if options.key?(:lazy_update_document_attributes)
+          warn 'The `lazy_update_document_attributes` option is deprecated. Use `update_lazy_attributes` instead.'
+          update_lazy_attributes = options.delete(:lazy_update_document_attributes)
+        end
 
         doc_header_check = ->(doc, (id, routing, type)) do
           id && id.to_s == doc.id.to_s &&
@@ -276,7 +281,7 @@ module Esse
           lazy_attrs_to_search_preload -= lazy_attrs_to_eager_load
 
           # @TODO Refactor this by combining the upcoming code again with repo.each_serialized_batch as it was before:
-          #     context[:lazy_attributes] = lazy_attrs_to_eager_load if lazy_attrs_to_eager_load.any?
+          #     context[:eager_load_lazy_attributes] = lazy_attrs_to_eager_load if lazy_attrs_to_eager_load.any?
           #     repo.each_serialized_batch(**context) do |batch|
           #       bulk(**bulk_kwargs, index: batch)
 

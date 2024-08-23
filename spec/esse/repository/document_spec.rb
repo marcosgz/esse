@@ -157,20 +157,20 @@ RSpec.describe Esse::Repository do
     context 'with lazy_load_attributes' do
       include_context 'with stories index definition'
 
-      it 'yields serialized objects with lazy attributes when passing lazy_attributes: true' do
+      it 'yields serialized objects with lazy attributes when passing eager_load_lazy_attributes: true' do
         expected_data = []
         expect {
-          StoriesIndex::Story.each_serialized_batch(lazy_attributes: true) do |batch|
+          StoriesIndex::Story.each_serialized_batch(eager_load_lazy_attributes: true) do |batch|
             expected_data.push(*batch)
           end
         }.not_to raise_error
         expect(expected_data.select { |doc| doc.to_h.key?(:tags) && doc.to_h.key?(:tags_count) }).not_to be_empty
       end
 
-      it 'yields serialized objects without lazy attributes when passing lazy_attributes: false' do
+      it 'yields serialized objects without lazy attributes when passing eager_load_lazy_attributes: false' do
         expected_data = []
         expect {
-          StoriesIndex::Story.each_serialized_batch(lazy_attributes: false) do |batch|
+          StoriesIndex::Story.each_serialized_batch(eager_load_lazy_attributes: false) do |batch|
             expected_data.push(*batch)
           end
         }.not_to raise_error
@@ -180,7 +180,7 @@ RSpec.describe Esse::Repository do
       it 'yields serialized objects with lazy attributes when passing specific attributes' do
         expected_data = []
         expect {
-          StoriesIndex::Story.each_serialized_batch(lazy_attributes: %i[tags]) do |batch|
+          StoriesIndex::Story.each_serialized_batch(eager_load_lazy_attributes: %i[tags]) do |batch|
             expected_data.push(*batch)
           end
         }.not_to raise_error
