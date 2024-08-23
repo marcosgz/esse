@@ -92,4 +92,10 @@ module Esse
 
     !!(object.is_a?(Esse::Document) && object.id)
   end
+
+  def self.document_match_with_header?(document, id, routing, type)
+    id && id.to_s == document.id.to_s &&
+      routing == document.routing &&
+      (LazyDocumentHeader::ACCEPTABLE_DOC_TYPES.include?(document.type) && LazyDocumentHeader::ACCEPTABLE_DOC_TYPES.include?(type) || document.type == type)
+  end
 end

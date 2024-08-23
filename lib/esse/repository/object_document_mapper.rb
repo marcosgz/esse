@@ -83,21 +83,46 @@ module Esse
       # @param [Hash] kwargs The context
       # @return [Enumerator] The enumerator
       # @yield [Array, **context] serialized collection and the optional context from the collection
-      def each_serialized_batch(eager_load_lazy_attributes: false, **kwargs)
+      def each_serialized_batch(eager_load_lazy_attributes: false, preload_lazy_attributes: false, **kwargs)
         if kwargs.key?(:lazy_attributes)
           warn 'The `lazy_attributes` option is deprecated. Use `eager_load_lazy_attributes` instead.'
           eager_load_lazy_attributes = kwargs.delete(:lazy_attributes)
         end
+
+        lazy_attrs_to_eager_load = lazy_document_attribute_names(eager_load_lazy_attributes)
+        lazy_attrs_to_search_preload = lazy_document_attribute_names(preload_lazy_attributes)
+        lazy_attrs_to_search_preload -= lazy_attrs_to_eager_load
+
         each_batch(**kwargs) do |*args|
           batch, collection_context = args
           collection_context ||= {}
           entries = [*batch].map { |entry| serialize(entry, **collection_context) }.compact
-          if eager_load_lazy_attributes
-            attrs = eager_load_lazy_attributes.is_a?(Array) ? eager_load_lazy_attributes : lazy_document_attribute_names(eager_load_lazy_attributes)
-            attrs.each do |attr_name|
-              retrieve_lazy_attribute_values(attr_name, entries).each do |doc_header, value|
-                doc = entries.find { |d| d.eql?(doc_header, match_lazy_doc_header: true) }
-                doc&.mutate(attr_name) { value }
+          lazy_attrs_to_eager_load.each do |attr_name|
+            retrieve_lazy_attribute_values(attr_name, entries).each do |doc_header, value|
+              doc = entries.find { |d| d.eql?(doc_header, match_lazy_doc_header: true) }
+              doc&.mutate(attr_name) { value }
+            end
+          end
+
+          if lazy_attrs_to_search_preload.any?
+            entries.group_by(&:routing).each do |routing, docs|
+              search_request = {
+                query: { ids: { values: docs.map(&:id) } },
+                size: docs.size,
+                _source: lazy_attrs_to_search_preload
+              }
+              search_request[:routing] = routing if routing
+              index.search(**search_request).response.hits.each do |hit|
+                header = [hit['_id'], hit['_routing'], hit['_type']]
+                next if header[0].nil?
+
+                hit.dig('_source')&.each do |attr_name, attr_value|
+                  real_attr_name = lazy_document_attribute_names(attr_name).first
+                  next if real_attr_name.nil?
+
+                  doc = entries.find { |d| Esse.document_match_with_header?(d, *header) }
+                  doc&.mutate(real_attr_name) { attr_value }
+                end
               end
             end
           end

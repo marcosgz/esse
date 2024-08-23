@@ -258,12 +258,6 @@ module Esse
           update_lazy_attributes = options.delete(:lazy_update_document_attributes)
         end
 
-        doc_header_check = ->(doc, (id, routing, type)) do
-          id && id.to_s == doc.id.to_s &&
-            routing == doc.routing &&
-            (LazyDocumentHeader::ACCEPTABLE_DOC_TYPES.include?(doc.type) && LazyDocumentHeader::ACCEPTABLE_DOC_TYPES.include?(type) || doc.type == type)
-        end
-
         repo_hash.slice(*repo_types).each do |repo_name, repo|
           # Elasticsearch 6.x and older have multiple types per index.
           # This gem supports multiple types per index for backward compatibility, but we recommend to update
@@ -274,83 +268,34 @@ module Esse
           bulk_kwargs = { suffix: suffix, type: repo_name, **options }
           cluster.may_update_type!(bulk_kwargs)
 
-          lazy_attrs_to_eager_load = repo.lazy_document_attribute_names(eager_load_lazy_attributes)
-          lazy_attrs_to_search_preload = repo.lazy_document_attribute_names(preload_lazy_attributes)
-          lazy_attrs_to_update_after = repo.lazy_document_attribute_names(update_lazy_attributes)
-          lazy_attrs_to_update_after -= lazy_attrs_to_eager_load
-          lazy_attrs_to_search_preload -= lazy_attrs_to_eager_load
-
-          # @TODO Refactor this by combining the upcoming code again with repo.each_serialized_batch as it was before:
-          #     context[:eager_load_lazy_attributes] = lazy_attrs_to_eager_load if lazy_attrs_to_eager_load.any?
-          #     repo.each_serialized_batch(**context) do |batch|
-          #       bulk(**bulk_kwargs, index: batch)
-
-          #       lazy_attrs_to_update_after.each do |attr_name|
-          #         partial_docs = repo.documents_for_lazy_attribute(attr_name, batch.reject(&:ignore_on_index?))
-          #         next if partial_docs.empty?
-
-          #         bulk(**bulk_kwargs, update: partial_docs)
-          #       end
-          #       count += batch.size
-          #     end
           context ||= {}
-          repo.send(:each_batch, **context) do |*args|
-            batch, collection_context = args
-            collection_context ||= {}
-            entries = [*batch].map { |entry| repo.serialize(entry, **collection_context) }.compact
+          context[:eager_load_lazy_attributes] = eager_load_lazy_attributes
+          context[:preload_lazy_attributes] = preload_lazy_attributes
+          repo.each_serialized_batch(**context) do |batch|
+            bulk(**bulk_kwargs, index: batch)
 
-            lazy_attrs_to_eager_load.each do |attr_name|
-              repo.retrieve_lazy_attribute_values(attr_name, entries).each do |doc_header, value|
-                doc = entries.find { |d| d.eql?(doc_header, match_lazy_doc_header: true) }
-                doc&.mutate(attr_name) { value }
-              end
-            end
-
-            preload_search_result = Hash.new { |h, arr_name| h[arr_name] = {} }
-            if lazy_attrs_to_search_preload.any?
-              entries.group_by(&:routing).each do |routing, docs|
-                search_request = { query: {ids: {values: entries.map(&:id)} }, _source: lazy_attrs_to_search_preload }
-                search_request[:routing] = routing if routing
-                hits = repo.index.search(**search_request).response.hits
-                hits.each do |hit|
-                  header = [hit['_id'], hit['_routing'], hit['_type']]
-                  next if header[0].nil?
-
-                  hit.dig('_source')&.each do |attr_name, attr_value|
-                    real_attr_name = repo.lazy_document_attribute_names(attr_name).first
-                    preload_search_result[real_attr_name][header] = attr_value
-                  end
+            if update_lazy_attributes != false
+              attrs = repo.lazy_document_attribute_names(update_lazy_attributes)
+              attrs -= repo.lazy_document_attribute_names(eager_load_lazy_attributes)
+              update_attrs = attrs.each_with_object(Hash.new { |h, k| h[k] = {} }) do |attr_name, memo|
+                filtered_docs = batch.reject do |doc|
+                  doc.ignore_on_index? || doc.mutations.key?(attr_name)
                 end
-                preload_search_result.each do |attr_name, values|
-                  values.each do |header, value|
-                    doc = entries.find { |d| doc_header_check.call(d, header) }
-                    doc&.mutate(attr_name) { value }
-                  end
+                next if filtered_docs.empty?
+
+                repo.retrieve_lazy_attribute_values(attr_name, filtered_docs).each do |doc, value|
+                  memo[doc.doc_header][attr_name] = value
                 end
               end
-            end
-
-            bulk(**bulk_kwargs, index: entries)
-
-            update_lazy_attrs = Hash.new { |h, k| h[k] = {} }
-            lazy_attrs_to_update_after.each do |attr_name|
-              preloaded_ids = preload_search_result[attr_name].keys
-              filtered_docs = entries.reject do |doc|
-                doc.ignore_on_index? || preloaded_ids.any? { |header| doc_header_check.call(doc, header) }
-              end
-              next if filtered_docs.empty?
-
-              repo.retrieve_lazy_attribute_values(attr_name, filtered_docs).map do |doc, datum|
-                update_lazy_attrs[doc.doc_header][attr_name] = datum
+              if update_attrs.any?
+                bulk_update = update_attrs.map do |header, values|
+                  header.merge(data: {doc: values})
+                end
+                bulk(**bulk_kwargs, update: bulk_update)
               end
             end
-            if update_lazy_attrs.any?
-              bulk_update = update_lazy_attrs.map do |header, values|
-                header.merge(data: {doc: values})
-              end
-              bulk(**bulk_kwargs, update: bulk_update)
-            end
-            count += entries.size
+
+            count += batch.size
           end
         end
         count

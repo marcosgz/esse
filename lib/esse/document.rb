@@ -2,6 +2,8 @@
 
 module Esse
   class Document
+    MUTATIONS_FALLBACK = {}.freeze
+
     attr_reader :object, :options
 
     def initialize(object, **options)
@@ -102,6 +104,10 @@ module Esse
       end
     end
 
+    def document_for_partial_update(source)
+      DocumentForPartialUpdate.new(self, source: source)
+    end
+
     def inspect
       attributes = %i[id routing source].map do |attr|
         value = send(attr)
@@ -120,14 +126,14 @@ module Esse
       instance_variable_set(:@__mutated_source__, nil)
     end
 
+    def mutations
+      @__mutations__ || MUTATIONS_FALLBACK
+    end
+
     def mutated_source
       return source unless @__mutations__
 
       @__mutated_source__ ||= source.merge(@__mutations__)
-    end
-
-    def document_for_partial_update(source)
-      DocumentForPartialUpdate.new(self, source: source)
     end
   end
 end

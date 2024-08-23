@@ -154,7 +154,7 @@ RSpec.describe Esse::Repository do
       end
     end
 
-    context 'with lazy_load_attributes' do
+    context 'with eager_load_lazy_attributes' do
       include_context 'with stories index definition'
 
       it 'yields serialized objects with lazy attributes when passing eager_load_lazy_attributes: true' do
@@ -185,6 +185,62 @@ RSpec.describe Esse::Repository do
           end
         }.not_to raise_error
         expect(expected_data.select { |doc| doc.to_h.key?(:tags) && !doc.to_h.key?(:tags_count) }).not_to be_empty
+      end
+    end
+
+    context 'with preload_lazy_attributes' do
+      include_context 'with stories index definition'
+
+      let(:nyt_hits) do
+        nyt_stories.map do |hash|
+          {
+            '_id' => hash[:id].to_s,
+            '_routing' => 'nyt',
+            '_type' => '_doc',
+            '_source' => {
+              'tags' => hash[:tags],
+              'tags_count' => hash[:tags].size,
+            },
+          }
+        end
+      end
+
+      let(:wsj_hits) do
+        wsj_stories.map do |hash|
+          {
+            '_id' => hash[:id].to_s,
+            '_routing' => 'wsj',
+            '_type' => '_doc',
+            '_source' => {
+              'tags' => hash[:tags],
+              'tags_count' => hash[:tags].size,
+            },
+          }
+        end
+      end
+
+      it 'yields serialized objects with lazy attributes when passing preload_lazy_attributes: true' do
+        expect(StoriesIndex).to receive(:search).with(
+          query: { ids: { values: nyt_stories.map { |hash| hash[:id] } } },
+          size: nyt_stories.size,
+          _source: %i[tags tags_count],
+          routing: 'nyt',
+        ).and_return(double(response: double(hits: nyt_hits)))
+        expect(StoriesIndex).to receive(:search).with(
+          query: { ids: { values: wsj_stories.map { |hash| hash[:id] } } },
+          size: wsj_stories.size,
+          _source: %i[tags tags_count],
+          routing: 'wsj',
+        ).and_return(double(response: double(hits: wsj_hits)))
+        expected_data = []
+        expect {
+          StoriesIndex::Story.each_serialized_batch(preload_lazy_attributes: true) do |batch|
+            expected_data.push(*batch)
+          end
+        }.not_to raise_error
+        expect(expected_data.map(&:mutations)).to all(
+          include(tags: be_a(Array), tags_count: be_a(Integer)),
+        )
       end
     end
   end
