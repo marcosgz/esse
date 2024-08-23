@@ -6,6 +6,7 @@ module Esse
   require_relative 'primitives'
   require_relative 'collection'
   require_relative 'document'
+  require_relative 'document_for_partial_update'
   require_relative 'document_lazy_attribute'
   require_relative 'lazy_document_header'
   require_relative 'hash_document'
@@ -90,5 +91,11 @@ module Esse
     return false unless object
 
     !!(object.is_a?(Esse::Document) && object.id)
+  end
+
+  def self.document_match_with_header?(document, id, routing, type)
+    id && id.to_s == document.id.to_s &&
+      routing == document.routing &&
+      (LazyDocumentHeader::ACCEPTABLE_DOC_TYPES.include?(document.type) && LazyDocumentHeader::ACCEPTABLE_DOC_TYPES.include?(type) || document.type == type)
   end
 end

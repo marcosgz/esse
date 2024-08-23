@@ -24,7 +24,7 @@ module Esse
       # @return [Enumerator] All serialized entries
       def documents(repo_name = nil, **kwargs)
         Enumerator.new do |yielder|
-          each_serialized_batch(repo_name, **kwargs) do |documents, **_collection_kargs|
+          each_serialized_batch(repo_name, **kwargs) do |documents|
             documents.each { |document| yielder.yield(document) }
           end
         end

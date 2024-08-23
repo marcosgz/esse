@@ -16,7 +16,7 @@ module Esse
 
       def documents_for_lazy_attribute(name, ids_or_doc_headers)
         retrieve_lazy_attribute_values(name, ids_or_doc_headers).map do |doc_header, datum|
-          doc_header.to_doc(name => datum)
+          doc_header.document_for_partial_update(name => datum)
         end
       end
 
@@ -36,11 +36,10 @@ module Esse
         return [] unless result.is_a?(Hash)
 
         result.each_with_object({}) do |(key, value), memo|
-          if key.is_a?(LazyDocumentHeader) && (doc = docs.find { |d| d == key || d.id == key.id })
-            memo[doc] = value
-          elsif (doc = docs.find { |d| d.id == key })
-            memo[doc] = value
-          end
+          val = docs.find { |doc| doc.eql?(key, match_lazy_doc_header: true) || doc.id == key }
+          next unless val
+
+          memo[val] = value
         end
       end
     end

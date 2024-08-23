@@ -2,6 +2,8 @@
 
 module Esse
   class Document
+    MUTATIONS_FALLBACK = {}.freeze
+
     attr_reader :object, :options
 
     def initialize(object, **options)
@@ -84,17 +86,26 @@ module Esse
       id.nil?
     end
 
-    def ==(other)
-      other.is_a?(self.class) && (
-        id == other.id && type == other.type && routing == other.routing && meta == other.meta && source == other.source
-      )
+    def eql?(other, match_lazy_doc_header: false)
+      if match_lazy_doc_header
+        other.eql?(self)
+      else
+        other.is_a?(Esse::Document) && (
+          id.to_s == other.id.to_s && type == other.type && routing == other.routing && meta == other.meta
+        )
+      end
     end
+    alias_method :==, :eql?
 
     def doc_header
       { _id: id }.tap do |h|
         h[:_type] = type if type
         h[:routing] = routing if routing?
       end
+    end
+
+    def document_for_partial_update(source)
+      DocumentForPartialUpdate.new(self, source: source)
     end
 
     def inspect
@@ -113,6 +124,10 @@ module Esse
       @__mutations__ ||= {}
       @__mutations__[key] = yield
       instance_variable_set(:@__mutated_source__, nil)
+    end
+
+    def mutations
+      @__mutations__ || MUTATIONS_FALLBACK
     end
 
     def mutated_source

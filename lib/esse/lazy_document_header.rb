@@ -2,11 +2,19 @@
 
 module Esse
   class LazyDocumentHeader
+    ACCEPTABLE_CLASSES = [Esse::LazyDocumentHeader, Esse::Document].freeze
+    ACCEPTABLE_DOC_TYPES = [nil, '_doc', 'doc'].freeze
+
     def self.coerce_each(values)
+      values = Esse::ArrayUtils.wrap(values)
+      return values if values.all? do |value|
+        ACCEPTABLE_CLASSES.any? { |klass| value.is_a?(klass) }
+      end
+
       arr = []
-      Esse::ArrayUtils.wrap(values).flatten.map do |value|
+      values.flatten.map do |value|
         instance = coerce(value)
-        arr << instance if instance&.valid?
+        arr << instance if instance && !instance.id.nil?
       end
       arr
     end
@@ -17,7 +25,7 @@ module Esse
       if value.is_a?(Esse::LazyDocumentHeader)
         value
       elsif value.is_a?(Esse::Document)
-        new(**value.options, id: value.id, type: value.type, routing: value.routing)
+        value
       elsif value.is_a?(Hash)
         resp = value.transform_keys do |key|
           case key
@@ -47,10 +55,6 @@ module Esse
       @options = extra_attributes.freeze
     end
 
-    def valid?
-      !id.nil?
-    end
-
     def to_h
       options.merge(_id: id).tap do |hash|
         hash[:_type] = type if type
@@ -58,26 +62,24 @@ module Esse
       end
     end
 
-    def to_doc(source = {})
-      Document.new(self, source: source)
+    def document_for_partial_update(source)
+      Esse::DocumentForPartialUpdate.new(self, source: source)
     end
 
-    def eql?(other)
-      self.class == other.class && id == other.id && type == other.type && routing == other.routing
-    end
-    alias_method :==, :eql?
-
-    class Document < Esse::Document
-      extend Forwardable
-
-      def_delegators :object, :id, :type, :routing, :options
-
-      attr_reader :source
-
-      def initialize(lazy_header, source: {})
-        @source = source
-        super(lazy_header)
+    def doc_header
+      { _id: id }.tap do |hash|
+        hash[:_type] = type if type
+        hash[:routing] = routing if routing
       end
     end
+
+    def eql?(other, **)
+      ACCEPTABLE_CLASSES.any? { |klass| other.is_a?(klass) } &&
+        id.to_s == other.id.to_s &&
+        routing == other.routing &&
+        ((ACCEPTABLE_DOC_TYPES.include?(type) && ACCEPTABLE_DOC_TYPES.include?(other.type)) || type == other.type)
+    end
+    alias_method :==, :eql?
   end
 end
+

@@ -90,7 +90,7 @@ RSpec.describe Esse::Repository do
       it 'returns an array of documents that match with the provided ids' do
         docs = repo.documents_for_lazy_attribute(:city_names, '2')
         expect(docs).to eq([
-          Esse::LazyDocumentHeader.new(id: '2').to_doc(city_names: 'London')
+          Esse::LazyDocumentHeader.new(id: '2').document_for_partial_update(city_names: 'London')
         ])
       end
 
@@ -98,14 +98,14 @@ RSpec.describe Esse::Repository do
         header = Esse::LazyDocumentHeader.coerce(id: '2')
         docs = repo.documents_for_lazy_attribute(:city_names, header)
         expect(docs).to eq([
-          Esse::LazyDocumentHeader::Document.new(header, source: { city_names: 'London' })
+          Esse::DocumentForPartialUpdate.new(header, source: { city_names: 'London' })
         ])
       end
 
       it 'returns an array of documents that match with the provided single hash' do
         docs = repo.documents_for_lazy_attribute(:city_names, {id: '2', admin: true})
         expect(docs).to eq([
-          Esse::LazyDocumentHeader.new(id: '2', admin: true).to_doc(city_names: 'London')
+          Esse::LazyDocumentHeader.new(id: '2', admin: true).document_for_partial_update(city_names: 'London')
         ])
       end
     end
@@ -133,21 +133,21 @@ RSpec.describe Esse::Repository do
       it 'returns an array of documents that match with the provided ids' do
         docs = repo.documents_for_lazy_attribute(:city_names, '2')
         expect(docs).to eq([
-          Esse::LazyDocumentHeader.new(id: '2').to_doc(city_names: 'London')
+          Esse::LazyDocumentHeader.new(id: '2').document_for_partial_update(city_names: 'London')
         ])
       end
 
       it 'returns an array of documents that match with the provided LazyDocumentHeader' do
         docs = repo.documents_for_lazy_attribute(:city_names, Esse::LazyDocumentHeader.coerce(id: '2'))
         expect(docs).to eq([
-          Esse::LazyDocumentHeader.new(id: '2').to_doc(city_names: 'London')
+          Esse::LazyDocumentHeader.new(id: '2').document_for_partial_update(city_names: 'London')
         ])
       end
 
       it 'do not include duplicate documents' do
         docs = repo.documents_for_lazy_attribute(:city_names, ['2', '2', Esse::LazyDocumentHeader.coerce(id: '2')])
         expect(docs).to eq([
-          Esse::LazyDocumentHeader.new(id: '2').to_doc(city_names: 'London')
+          Esse::LazyDocumentHeader.new(id: '2').document_for_partial_update(city_names: 'London')
         ])
       end
     end
@@ -169,9 +169,9 @@ RSpec.describe Esse::Repository do
       it 'returns an array of documents that match with the provided ids' do
         docs = repo.documents_for_lazy_attribute(:city_names, ['2', '3', '4'])
         expect(docs).to eq([
-          Esse::LazyDocumentHeader.new(id: '2').to_doc(city_names: 'London'),
-          Esse::LazyDocumentHeader.new(id: '3').to_doc(city_names: nil),
-          Esse::LazyDocumentHeader.new(id: '4').to_doc(city_names: ''),
+          Esse::LazyDocumentHeader.new(id: '2').document_for_partial_update(city_names: 'London'),
+          Esse::LazyDocumentHeader.new(id: '3').document_for_partial_update(city_names: nil),
+          Esse::LazyDocumentHeader.new(id: '4').document_for_partial_update(city_names: ''),
         ])
       end
     end
@@ -202,7 +202,7 @@ RSpec.describe Esse::Repository do
     it 'updates the documents' do
       expect(repo.index).to receive(:bulk).with(
         update: [
-          Esse::LazyDocumentHeader.new(id: '2').to_doc(city_names: 'London')
+          Esse::LazyDocumentHeader.new(id: '2').document_for_partial_update(city_names: 'London')
         ]
       )
       repo.update_documents_attribute(:city_names, '2')
@@ -212,7 +212,7 @@ RSpec.describe Esse::Repository do
       header = Esse::LazyDocumentHeader.coerce(id: '2')
       expect(repo.index).to receive(:bulk).with(
         update: [
-          Esse::LazyDocumentHeader::Document.new(header, source: { city_names: 'London' })
+          Esse::DocumentForPartialUpdate.new(header, source: { city_names: 'London' })
         ]
       )
       repo.update_documents_attribute(:city_names, header)
@@ -221,7 +221,7 @@ RSpec.describe Esse::Repository do
     it 'updates the documents when passing a single hash' do
       expect(repo.index).to receive(:bulk).with(
         update: [
-          Esse::LazyDocumentHeader.new(id: '2', admin: true).to_doc(city_names: 'London')
+          Esse::LazyDocumentHeader.new(id: '2', admin: true).document_for_partial_update(city_names: 'London')
         ]
       )
       repo.update_documents_attribute(:city_names, {id: '2', admin: true})
@@ -230,7 +230,7 @@ RSpec.describe Esse::Repository do
     it 'updates the documents when passing an array of ids' do
       expect(repo.index).to receive(:bulk).with(
         update: [
-          Esse::LazyDocumentHeader.new(id: '2').to_doc(city_names: 'London')
+          Esse::LazyDocumentHeader.new(id: '2').document_for_partial_update(city_names: 'London')
         ]
       )
       repo.update_documents_attribute(:city_names, ['2'])
@@ -240,7 +240,7 @@ RSpec.describe Esse::Repository do
       header = Esse::LazyDocumentHeader.coerce(id: '2')
       expect(repo.index).to receive(:bulk).with(
         update: [
-          Esse::LazyDocumentHeader::Document.new(header, source: { city_names: 'London' })
+          Esse::DocumentForPartialUpdate.new(header, source: { city_names: 'London' })
         ]
       )
       repo.update_documents_attribute(:city_names, [header])
@@ -249,7 +249,7 @@ RSpec.describe Esse::Repository do
     it 'updates the documents when passing an array of hashes' do
       expect(repo.index).to receive(:bulk).with(
         update: [
-          Esse::LazyDocumentHeader.new(id: '2').to_doc(city_names: 'London')
+          Esse::LazyDocumentHeader.new(id: '2').document_for_partial_update(city_names: 'London')
         ]
       )
       repo.update_documents_attribute(:city_names, [{id: '2', admin: true}])
