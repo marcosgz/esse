@@ -38,6 +38,9 @@ RSpec.shared_context 'with stories index definition' do
       repository :story do
         collection do |**context, &block|
           stories = context[:conditions] ? ds.select(&context[:conditions]) : ds
+          if (ids = Esse::ArrayUtils.wrap(context[:id]).map(&:to_i)).any?
+            stories = stories.select { |s| ids.include?(s[:id]) }
+          end
           block.call(stories, **context) unless stories.empty?
         end
         document do |story, **context|

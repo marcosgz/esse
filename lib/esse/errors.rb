@@ -15,6 +15,19 @@ module Esse
       end
     end
 
+    class BulkResponseError < ::Esse::Error
+      attr_reader :response
+
+      def initialize(response)
+        @response = response
+        super(response)
+      end
+
+      def items
+        response.fetch('items', []).select { |item| item.values.dig(0, 'error') }
+      end
+    end
+
     ES_TRANSPORT_ERRORS = {
       'MultipleChoices' => 'MultipleChoicesError', # 300
       'MovedPermanently' => 'MovedPermanentlyError', # 301

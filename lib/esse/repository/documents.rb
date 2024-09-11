@@ -10,8 +10,31 @@ module Esse
       def update_documents_attribute(name, ids_or_doc_headers = [], kwargs = {})
         batch = documents_for_lazy_attribute(name, ids_or_doc_headers)
         return if batch.empty?
+        kwargs = kwargs.transform_keys(&:to_sym)
 
-        index.bulk(**kwargs.transform_keys(&:to_sym), update: batch)
+        if kwargs.delete(:index_on_missing) { true }
+          begin
+            index.bulk(**kwargs, update: batch)
+          rescue Esse::Transport::BulkResponseError => ex
+            ids = ex.items.map { |item| item.dig('update', '_id') }.compact
+            raise ex if ids.empty?
+
+            each_serialized_batch(eager_load_lazy_attributes: false, preload_lazy_attributes: false, id: ids) do |entries|
+              entries.each do |entry|
+                partial_doc = batch.find { |doc| doc.eql?(entry, match_lazy_doc_header: true) }
+                next unless partial_doc
+
+                partial_doc.source.each do |attr_name, attr_value|
+                  entry.mutate(attr_name) { attr_value }
+                end
+              end
+
+              index.bulk(**kwargs, index: entries)
+            end
+          end
+        else
+          index.bulk(**kwargs, update: batch)
+        end
       end
 
       def documents_for_lazy_attribute(name, ids_or_doc_headers)

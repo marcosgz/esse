@@ -49,9 +49,7 @@ module Esse
           requests.each do |request|
             next unless request.body?
             resp = yield request
-            if resp&.[]('errors')
-              raise resp&.fetch('items', [])&.select { |item| item.values.first['error'] }&.join("\n")
-            end
+            raise Esse::Transport::BulkResponseError.new(resp) if resp&.[]('errors')
           end
         rescue Faraday::TimeoutError, Esse::Transport::RequestTimeoutError => e
           retry_count += 1

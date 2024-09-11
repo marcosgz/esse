@@ -22,6 +22,9 @@ RSpec.shared_context 'with venues index definition' do
     stub_index(:venues) do
       repository :default do
         collection do |**context, &block|
+          if (ids = Esse::ArrayUtils.wrap(context[:id]).map(&:to_i)).any?
+            ds = ds.select { |s| ids.include?(s[:id]) }
+          end
           block.call(ds, **context) unless ds.empty?
         end
         document do |venue, **context|

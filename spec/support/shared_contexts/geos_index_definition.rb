@@ -70,6 +70,9 @@ RSpec.shared_context 'with geos index definition' do
         collection do |**context, &block|
           dataset.fetch(:state).each do |batch|
             states = context[:conditions] ? batch.select(&context[:conditions]) : batch
+            if (ids = Esse::ArrayUtils.wrap(context[:id]).map(&:to_i)).any?
+              states = states.select { |s| ids.include?(s[:id]) }
+            end
             block.call(states, **context) unless states.empty?
           end
         end
@@ -79,6 +82,9 @@ RSpec.shared_context 'with geos index definition' do
         collection do |**context, &block|
           dataset.fetch(:county).each do |batch|
             counties = context[:conditions] ? batch.select(&context[:conditions]) : batch
+            if (ids = Esse::ArrayUtils.wrap(context[:id]).map(&:to_i)).any?
+              counties = counties.select { |s| ids.include?(s[:id]) }
+            end
             block.call(counties, **context) unless counties.empty?
           end
         end
