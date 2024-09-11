@@ -315,6 +315,20 @@ module Esse
         cluster.api.update_by_query(**definition)
       end
 
+      # Delete documents by query
+      #
+      # @param options [Hash] Hash of paramenters that will be passed along to elasticsearch request
+      # @option [String, nil] :suffix The index suffix. Defaults to the nil.
+      #
+      # @return [Hash] The elasticsearch response hash
+      def delete_by_query(suffix: nil, **options)
+        definition = {
+          index: index_name(suffix: suffix),
+        }.merge(options)
+        cluster.may_update_type!(definition)
+        cluster.api.delete_by_query(**definition)
+      end
+
       protected
 
       def document?(doc)
