@@ -109,10 +109,10 @@ module Esse
     end
 
     def inspect
-      attributes = %i[id routing source].map do |attr|
-        value = send(attr)
+      attributes = {id: :id, routing: :routing, source: :memoized_source}.map do |attr_name, attr_src|
+        value = send(attr_src)
         next unless value
-        "#{attr}: #{value.inspect}"
+        "#{attr_name}: #{value.inspect}"
       rescue
         nil
       end.compact.join(', ')
@@ -131,9 +131,17 @@ module Esse
     end
 
     def mutated_source
-      return source unless @__mutations__
+      return memoized_source unless @__mutations__
 
-      @__mutated_source__ ||= source.merge(@__mutations__)
+      @__mutated_source__ ||= memoized_source.merge(@__mutations__)
+    end
+
+    protected
+
+    def memoized_source
+      return @__memoized_source__ if defined?(@__memoized_source__)
+
+      @__memoized_source__ = source || {}
     end
   end
 end

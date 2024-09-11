@@ -133,6 +133,23 @@ RSpec.describe Esse::Document do
         expect(document.to_bulk(data: true)).to eq(_id: 1, _type: 'foo', routing: 'bar', timeout: 10, data: {})
       end
     end
+
+    context 'when the document source is not memoized' do
+      before do
+        document_class.class_eval do
+          def source
+            { foo: SecureRandom.hex }
+          end
+        end
+      end
+
+      it 'memoizes the source' do
+        data1 = document.to_bulk(data: true)[:data]
+        expect(document.to_bulk(data: true)[:data]).to eq(data1)
+        data2 = document.to_bulk(data: true)[:data]
+        expect(data1).to be(data2)
+      end
+    end
   end
 
   describe '#doc_header' do
