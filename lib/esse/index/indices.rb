@@ -68,6 +68,7 @@ module Esse
         if index_exist? && aliases.none?
           cluster.api.delete_index(index: index_name)
         end
+
         if import
           import_kwargs = import.is_a?(Hash) ? import : {}
           import_kwargs[:refresh] ||= refresh unless refresh.nil?
