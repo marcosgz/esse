@@ -70,13 +70,16 @@ module Esse
         end
         if import
           import_kwargs = import.is_a?(Hash) ? import : {}
-          import_kwargs[:refresh] ||= refresh if refresh
+          import_kwargs[:refresh] ||= refresh unless refresh.nil?
           import(**options, **import_kwargs, suffix: suffix)
         elsif reindex && (source_indexes = indices_pointing_to_alias).any?
           reindex_kwargs = reindex.is_a?(Hash) ? reindex : {}
-          reindex_kwargs[:wait_for_completion] = true unless reindex_kwargs.key?(:wait_for_completion)
+          reindex_kwargs[:refresh] ||= refresh unless refresh.nil?
           source_indexes.each do |from|
-            cluster.api.reindex(**options, body: { source: { index: from }, dest: { index: index_name(suffix: suffix) } }, refresh: refresh)
+            reindex(**reindex_kwargs, body: {
+              source: { index: from },
+              dest: { index: index_name(suffix: suffix) }
+            })
           end
         end
 
@@ -88,6 +91,13 @@ module Esse
         update_aliases(suffix: suffix)
 
         true
+      end
+
+      # Copies documents from a source to a destination.
+      #
+      # @see https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-reindex.html
+      def reindex(body: , wait_for_completion: false, scroll: '30m', **options)
+        cluster.api.reindex(**options, body: body, scroll: scroll, wait_for_completion: wait_for_completion)
       end
 
       # Checks the index existance. Returns true or false
