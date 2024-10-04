@@ -53,8 +53,11 @@ module Esse
 
         suffix ||= Esse.timestamp
         suffix = Esse.timestamp while index_exist?(suffix: suffix)
+        syncronous_import = true
+        syncronous_import = false if reindex.is_a?(Hash) && reindex[:wait_for_completion] == false
 
-        if optimize && import
+        optimized_creation = optimize && syncronous_import && (import || reindex)
+        if optimized_creation
           definition = [settings_hash(settings: settings), mappings_hash].reduce(&:merge)
           number_of_replicas = definition.dig(Esse::SETTING_ROOT_KEY, :index, :number_of_replicas)
           refresh_interval = definition.dig(Esse::SETTING_ROOT_KEY, :index, :refresh_interval)
@@ -68,26 +71,48 @@ module Esse
         if index_exist? && aliases.none?
           cluster.api.delete_index(index: index_name)
         end
+
         if import
           import_kwargs = import.is_a?(Hash) ? import : {}
-          import_kwargs[:refresh] ||= refresh if refresh
+          import_kwargs[:refresh] ||= refresh unless refresh.nil?
           import(**options, **import_kwargs, suffix: suffix)
         elsif reindex && (source_indexes = indices_pointing_to_alias).any?
           reindex_kwargs = reindex.is_a?(Hash) ? reindex : {}
-          reindex_kwargs[:wait_for_completion] = true unless reindex_kwargs.key?(:wait_for_completion)
+          reindex_kwargs[:refresh] ||= refresh unless refresh.nil?
           source_indexes.each do |from|
-            cluster.api.reindex(**options, body: { source: { index: from }, dest: { index: index_name(suffix: suffix) } }, refresh: refresh)
+            reindex(**reindex_kwargs, body: {
+              source: { index: from },
+              dest: { index: index_name(suffix: suffix) }
+            })
           end
         end
 
-        if optimize && import && number_of_replicas != new_number_of_replicas || refresh_interval != new_refresh_interval
+        if optimized_creation && number_of_replicas != new_number_of_replicas || refresh_interval != new_refresh_interval
           update_settings(suffix: suffix, settings: settings)
           refresh(suffix: suffix)
         end
 
-        update_aliases(suffix: suffix)
+        update_aliases(suffix: suffix) if syncronous_import
 
         true
+      end
+
+      # Copies documents from a source to a destination.
+      #
+      # To avoid http timeout, we are sending the request with `wait_for_completion: false` and polling the task
+      # until it is completed.
+      #
+      # @see https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-reindex.html
+      def reindex(body:, wait_for_completion: true, scroll: '30m', poll_interval: 5, **options)
+        resp = cluster.api.reindex(**options, body: body, scroll: scroll, wait_for_completion: false)
+        return resp unless wait_for_completion
+
+        task_id = resp['task']
+        task = nil
+        while (task = cluster.api.task(id: task_id))['completed'] == false
+          sleep poll_interval
+        end
+        task
       end
 
       # Checks the index existance. Returns true or false

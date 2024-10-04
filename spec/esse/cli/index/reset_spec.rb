@@ -53,7 +53,7 @@ RSpec.describe Esse::CLI::Index, type: :cli do
         cli_exec(%w[index reset all])
       end
 
-      it 'allows to pass --no-import' do
+      it 'allows to pass --no-optimize' do
         expect(CountiesIndex).to receive(:reset_index).with(**defaults, optimize: false).and_return(true)
         cli_exec(%w[index reset CountiesIndex --no-optimize])
       end
@@ -77,7 +77,12 @@ RSpec.describe Esse::CLI::Index, type: :cli do
 
       it 'forwards the --reindex option to the index class' do
         expect(CountiesIndex).to receive(:reset_index).with(**defaults, import: false, reindex: true).and_return(true)
-        cli_exec(%w[index reset CountiesIndex --reindex --no-import])
+        cli_exec(%w[index reset CountiesIndex --reindex --import=false])
+      end
+
+      it 'forwards the --import hash option to the index class' do
+        expect(CountiesIndex).to receive(:reset_index).with(**defaults, import: { lazy_document_attributes: true }).and_return(true)
+        cli_exec(%w[index reset CountiesIndex --import=lazy_document_attributes:true])
       end
     end
   end

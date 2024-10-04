@@ -15,13 +15,15 @@ module Esse
         * Delete the old index.
       DESC
       option :suffix, type: :string, default: nil, aliases: '-s', desc: 'Suffix to append to index name'
-      option :import, type: :boolean, default: true, desc: 'Import documents before point alias to the new index'
-      option :reindex, type: :boolean, default: false, desc: 'Use _reindex API to import documents from the old index to the new index'
+      option :import, desc: 'Import documents before point alias to the new index'
+      option :reindex, desc: 'Use _reindex API to import documents from the old index to the new index'
       option :optimize, type: :boolean, default: true, desc: 'Optimize index before import documents by disabling refresh_interval and setting number_of_replicas to 0'
       option :settings, type: :hash, default: nil, desc: 'List of settings to pass to the index class. Example: --settings=refresh_interval:1s,number_of_replicas:0'
       def reset(*index_classes)
         require_relative 'index/reset'
         opts = HashUtils.deep_transform_keys(options.to_h, &:to_sym)
+        opts[:reindex] = Parser::BoolOrHash.new(:reindex, default: false).parse(opts[:reindex])
+        opts[:import] = Parser::BoolOrHash.new(:import, default: true).parse(opts[:import])
         if opts[:import] && opts[:reindex]
           raise ArgumentError, 'You cannot use --import and --reindex together'
         end
@@ -100,7 +102,6 @@ module Esse
       option :preload_lazy_attributes, type: :string, default: nil, desc: 'Command separated list of lazy document attributes to preload using search API before the bulk import. Or pass `true` to preload all lazy attributes'
       option :eager_load_lazy_attributes, type: :string, default: nil, desc: 'Comma separated list of lazy document attributes to include to the bulk index request. Or pass `true` to include all lazy attributes'
       option :update_lazy_attributes, type: :string, default: nil, desc: 'Comma separated list of lazy document attributes to bulk update after the bulk index request Or pass `true` to include all lazy attributes'
-
       def import(*index_classes)
         require_relative 'index/import'
         opts = HashUtils.deep_transform_keys(options.to_h, &:to_sym)
