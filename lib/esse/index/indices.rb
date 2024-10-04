@@ -53,8 +53,11 @@ module Esse
 
         suffix ||= Esse.timestamp
         suffix = Esse.timestamp while index_exist?(suffix: suffix)
+        syncronous_import = true
+        syncronous_import = false if reindex.is_a?(Hash) && reindex[:wait_for_completion] == false
 
-        if optimize && import
+        optimized_creation = optimize && syncronous_import && (import || reindex)
+        if optimized_creation
           definition = [settings_hash(settings: settings), mappings_hash].reduce(&:merge)
           number_of_replicas = definition.dig(Esse::SETTING_ROOT_KEY, :index, :number_of_replicas)
           refresh_interval = definition.dig(Esse::SETTING_ROOT_KEY, :index, :refresh_interval)
@@ -84,21 +87,32 @@ module Esse
           end
         end
 
-        if optimize && import && number_of_replicas != new_number_of_replicas || refresh_interval != new_refresh_interval
+        if optimized_creation && number_of_replicas != new_number_of_replicas || refresh_interval != new_refresh_interval
           update_settings(suffix: suffix, settings: settings)
           refresh(suffix: suffix)
         end
 
-        update_aliases(suffix: suffix)
+        update_aliases(suffix: suffix) if syncronous_import
 
         true
       end
 
       # Copies documents from a source to a destination.
       #
+      # To avoid http timeout, we are sending the request with `wait_for_completion: false` and polling the task
+      # until it is completed.
+      #
       # @see https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-reindex.html
-      def reindex(body: , wait_for_completion: false, scroll: '30m', **options)
-        cluster.api.reindex(**options, body: body, scroll: scroll, wait_for_completion: wait_for_completion)
+      def reindex(body:, wait_for_completion: true, scroll: '30m', poll_interval: 5, **options)
+        resp = cluster.api.reindex(**options, body: body, scroll: scroll, wait_for_completion: false)
+        return resp unless wait_for_completion
+
+        task_id = resp['task']
+        task = nil
+        while (task = cluster.api.task(id: task_id))['completed'] == false
+          sleep poll_interval
+        end
+        task
       end
 
       # Checks the index existance. Returns true or false
