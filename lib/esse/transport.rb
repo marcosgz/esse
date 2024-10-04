@@ -3,7 +3,7 @@
 module Esse
   class Transport
     require_relative './transport/aliases'
-    require_relative './transport/health'
+    require_relative './transport/cluster'
     require_relative './transport/indices'
     require_relative './transport/search'
     require_relative './transport/documents'
