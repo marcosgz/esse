@@ -40,16 +40,24 @@ module Esse
       #
       # @see https://www.elastic.co/guide/en/elasticsearch/reference/current/tasks.html
       def tasks(**options)
-        # coerce_exception { client.perform_request('GET', '/_tasks', options).body }
-        coerce_exception { client.tasks.list(**options) }
+        Esse::Events.instrument('elasticsearch.tasks') do |payload|
+          payload[:request] = options
+          payload[:response] = coerce_exception { client.tasks.list(**options) }
+        end
       end
 
       def task(id:, **options)
-        coerce_exception { client.tasks.get(task_id: id, **options) }
+        Esse::Events.instrument('elasticsearch.task') do |payload|
+          payload[:request] = { id: id }.merge(options)
+          payload[:response] = coerce_exception { client.tasks.get(task_id: id, **options) }
+        end
       end
 
       def cancel_task(id:, **options)
-        coerce_exception { client.tasks.cancel(task_id: id, **options) }
+        Esse::Events.instrument('elasticsearch.cancel_task') do |payload|
+          payload[:request] = { id: id }.merge(options)
+          payload[:response] = coerce_exception { client.tasks.cancel(task_id: id, **options) }
+        end
       end
     end
 
