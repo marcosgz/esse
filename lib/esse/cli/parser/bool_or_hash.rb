@@ -35,9 +35,16 @@ module Esse
         private
 
         def may_array(value)
-          return value unless ARRAY_SEPARATOR.match?(value)
+          return may_bool(value) unless ARRAY_SEPARATOR.match?(value)
 
-          value.split(ARRAY_SEPARATOR)
+          value.split(ARRAY_SEPARATOR).map { |v| may_bool(v) }
+        end
+
+        def may_bool(value)
+          return true if TRUTHY.include?(value)
+          return false if FALSEY.include?(value)
+
+          value
         end
       end
     end

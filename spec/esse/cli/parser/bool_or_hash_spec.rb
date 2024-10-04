@@ -89,6 +89,11 @@ RSpec.describe Esse::CLI::Parser::BoolOrHash do
       it 'returns the given value when it is already a hash' do
         expect(parser.parse(foo: 'bar')).to eq(foo: 'bar')
       end
+
+      it 'coerces the value of hash to boolean' do
+        expect(parser.parse('foo:true')).to eq(foo: true)
+        expect(parser.parse('foo:false')).to eq(foo: false)
+      end
     end
   end
 end
