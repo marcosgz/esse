@@ -111,7 +111,7 @@ module Esse
         task = nil
         begin
           while (task = cluster.api.task(id: task_id))['completed'] == false
-            sleep poll_interval
+            sleep poll_interval.to_i
           end
         rescue Interrupt => e
           cluster.api.cancel_task(id: task_id)
