@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 * Rename eager_include_document_attributes to eager_load_lazy_attributes
 * Add preload_lazy_attributes option to the import in order to fetch the lazy attributes in a single query before bulk indexing
 * Add `delete_by_query` action to transport and index APIs
+* Extends the index to support the `_reindex` api
 
 ## 0.3.6 - 2024-08-07
 * Esse::LazyDocumentHeader#to_doc return `Esse::DocumentForPartialUpdate` instance to properly separate context metadata from document source
