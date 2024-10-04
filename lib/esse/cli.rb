@@ -3,6 +3,7 @@
 require 'thor'
 
 require_relative 'primitives/output'
+require_relative 'cli/parser/bool_or_hash'
 require_relative 'cli/index'
 require_relative 'cli/generate'
 require_relative 'cli/event_listener'
