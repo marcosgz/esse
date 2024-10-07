@@ -59,5 +59,8 @@ module Esse
     register_event 'elasticsearch.reindex'
     register_event 'elasticsearch.update_by_query'
     register_event 'elasticsearch.delete_by_query'
+    register_event 'elasticsearch.tasks'
+    register_event 'elasticsearch.task'
+    register_event 'elasticsearch.cancel_task'
   end
 end

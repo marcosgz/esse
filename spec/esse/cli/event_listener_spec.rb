@@ -252,6 +252,63 @@ RSpec.describe Esse::CLI::EventListener do
     end
   end
 
+  describe '.elasticsearch_task' do
+    subject do
+      described_class['elasticsearch.task'].call(event)
+    end
+
+    let(:event_id) { 'elasticsearch.task' }
+
+    let(:event) do
+      Esse::Events::Event.new(event_id, payload)
+    end
+
+    let(:payload) do
+      {
+        runtime: 1.32,
+        request: {
+          id: 'task_id',
+        },
+        response: response,
+      }
+    end
+
+    context 'when task is completed' do
+      let(:response) do
+        {
+          'completed' => true,
+          'task' => {
+            'running_time_in_nanos' => 1_000_000,
+          }
+        }
+      end
+
+      it 'prints message' do
+        expect { subject }.to output(<<~MSG).to_stdout
+          [#{formatted_runtime(1.32)}] Task #{colorize('task_id', :bold)} successfuly completed. #{colorize('Elapsed time: 1 ms', :bold)}
+        MSG
+      end
+    end
+
+    context 'when task is not completed' do
+      let(:response) do
+        {
+          'completed' => false,
+          'task' => {
+            'running_time_in_nanos' => 1_000_000,
+            'description' => 'task description',
+          }
+        }
+      end
+
+      it 'prints message' do
+        expect { subject }.to output(<<~MSG).to_stdout
+          [#{formatted_runtime(1.32)}] Task #{colorize('task_id', :bold)} still in progress: task description. #{colorize('Elapsed time: 1 ms', :bold)}
+        MSG
+      end
+    end
+  end
+
   def colorize(*args)
     Esse::Output.colorize(*args)
   end

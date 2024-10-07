@@ -102,6 +102,32 @@ module Esse
           to: colorize(event[:request].dig(:body, :dest, :index), :bold),
           runtime: formatted_runtime(event[:runtime])
       end
+
+      def elasticsearch_task(event)
+        running_time_in_nanos = event[:response].dig('task', 'running_time_in_nanos')
+        runtime = running_time_in_nanos ? "#{running_time_in_nanos / 1_000_000} ms" : 'unknown'
+
+        case event[:response]['completed']
+        when true
+          print_message '[%<runtime>s] Task %<task_id>s successfuly completed. %<total_runtime>s',
+            task_id: colorize(event[:request][:id], :bold),
+            runtime: formatted_runtime(event[:runtime]),
+            total_runtime: colorize("Elapsed time: #{runtime}", :bold)
+        when false
+          description = event[:response].dig('task', 'description')
+          print_message '[%<runtime>s] Task %<task_id>s still in progress: %<description>s. %<total_runtime>s',
+            task_id: colorize(event[:request][:id], :bold),
+            description: description,
+            runtime: formatted_runtime(event[:runtime]),
+            total_runtime: colorize("Elapsed time: #{runtime}", :bold)
+        end
+      end
+
+      def elasticsearch_cancel_task(event)
+        print_message '[%<runtime>s] Task %<task_id>s successfuly canceled',
+          task_id: colorize(event[:request][:id], :bold),
+          runtime: formatted_runtime(event[:runtime])
+      end
     end
   end
 end
