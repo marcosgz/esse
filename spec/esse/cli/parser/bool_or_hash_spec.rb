@@ -81,8 +81,8 @@ RSpec.describe Esse::CLI::Parser::BoolOrHash do
       end
 
       it 'split comma separated values' do
-        expect(parser.parse('a:1,2,3')).to eq(a: %w[1 2 3])
-        expect(parser.parse('a:1,2,3 b:4,5,6')).to eq(a: %w[1 2 3], b: %w[4 5 6])
+        expect(parser.parse('a:c,d,e')).to eq(a: %w[c d e])
+        expect(parser.parse('a:x,y,z b:p,q,r')).to eq(a: %w[x y z], b: %w[p q r])
         expect(parser.parse('a:b,c:d')).to eq(a: %w[b c:d])
       end
 
@@ -93,6 +93,14 @@ RSpec.describe Esse::CLI::Parser::BoolOrHash do
       it 'coerces the value of hash to boolean' do
         expect(parser.parse('foo:true')).to eq(foo: true)
         expect(parser.parse('foo:false')).to eq(foo: false)
+      end
+
+      it 'coerces the value of hash to integer' do
+        expect(parser.parse('foo:123')).to eq(foo: 123)
+      end
+
+      it 'coerces the value of hash to float' do
+        expect(parser.parse('foo:123.456')).to eq(foo: 123.456)
       end
     end
   end

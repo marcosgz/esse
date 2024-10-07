@@ -35,16 +35,20 @@ module Esse
         private
 
         def may_array(value)
-          return may_bool(value) unless ARRAY_SEPARATOR.match?(value)
+          return cast(value) unless ARRAY_SEPARATOR.match?(value)
 
-          value.split(ARRAY_SEPARATOR).map { |v| may_bool(v) }
+          value.split(ARRAY_SEPARATOR).map { |v| cast(v) }
         end
 
-        def may_bool(value)
-          return true if TRUTHY.include?(value)
-          return false if FALSEY.include?(value)
-
-          value
+        def cast(value)
+          case value
+          when *TRUTHY then true
+          when *FALSEY then false
+          when /\A\d+\z/ then value.to_i
+          when /\A\d+\.\d+\z/ then value.to_f
+          else
+            value
+          end
         end
       end
     end
