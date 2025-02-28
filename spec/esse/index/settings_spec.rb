@@ -166,5 +166,63 @@ RSpec.describe Esse::Index do
         )
       end
     end
+
+    context 'with nil values in the simplified settings' do
+      before do
+        stub_index(:geos) do
+          settings do
+            {
+              number_of_shards: nil,
+              number_of_replicas: nil,
+              refresh_interval: nil,
+            }
+          end
+        end
+      end
+
+      specify do
+        expect(GeosIndex.settings_hash).to eq(settings: {})
+      end
+    end
+
+    context 'with nil values in the imploded settings' do
+      before do
+        stub_index(:geos) do
+          settings do
+            {
+              'index.number_of_shards' => nil,
+              'index.number_of_replicas' => nil,
+              'index.refresh_interval' => nil,
+            }
+          end
+        end
+      end
+
+      specify do
+        expect(GeosIndex.settings_hash).to eq(settings: {})
+      end
+    end
+
+    context 'with nil values in the conventional settings' do
+      before do
+        stub_index(:geos) do
+          settings do
+            {
+              'settings' => {
+                'index' => {
+                  'number_of_shards' => nil,
+                  'number_of_replicas' => nil,
+                  'refresh_interval' => nil,
+                },
+              },
+            }
+          end
+        end
+      end
+
+      specify do
+        expect(GeosIndex.settings_hash).to eq(settings: {})
+      end
+    end
   end
 end

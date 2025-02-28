@@ -22,9 +22,17 @@ module Esse
         end
         INDEX_SIMPLIFIED_SETTINGS.each do |key|
           next unless values.key?(key)
+          value = values.delete(key)
+          next if value.nil?
 
-          (values[:index] ||= {}).merge!(key => values.delete(key))
+          (values[:index] ||= {}).merge!(key => value)
         end
+
+        if values[:index].is_a?(Hash)
+          INDEX_SIMPLIFIED_SETTINGS.each { |key| values[:index].delete(key) if values[:index][key].nil? }
+          values.delete(:index) if values[:index].empty?
+        end
+
         { Esse::SETTING_ROOT_KEY => values }
       end
 
