@@ -65,7 +65,7 @@ RSpec.shared_examples 'repository.update_documents_attribute' do
             { _id: '1002', routing: 'nyt' },
             { _id: '1003', routing: 'nyt' }
           ], refresh: true)
-        }.not_to raise_error(Esse::Transport::BulkResponseError)
+        }.not_to raise_error
 
         StoriesIndex.refresh
         expect(StoriesIndex.count).to eq(nyt_stories.size)
