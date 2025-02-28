@@ -81,8 +81,73 @@ RSpec.describe Esse::CLI::Index, type: :cli do
       end
 
       it 'forwards the --import hash option to the index class' do
-        expect(CountiesIndex).to receive(:reset_index).with(**defaults, import: { lazy_document_attributes: true }).and_return(true)
-        cli_exec(%w[index reset CountiesIndex --import=lazy_document_attributes:true])
+        expect(CountiesIndex).to receive(:reset_index).with(**defaults, import: { preload_lazy_attributes: true }).and_return(true)
+        cli_exec(%w[index reset CountiesIndex --import=preload_lazy_attributes:true])
+      end
+
+      it 'forwards the --import hash option to the index class with multiple values' do
+        expect(CountiesIndex).to receive(:reset_index).with(**defaults, import: { preload_lazy_attributes: %w[foo bar] }).and_return(true)
+        cli_exec(%w[index reset CountiesIndex --import=preload_lazy_attributes:foo,bar])
+      end
+
+      it 'adds the preload_lazy_attributes option to the import hash when --preload-lazy-attributes wihout value' do
+        expect(CountiesIndex).to receive(:reset_index).with(**defaults, import: { preload_lazy_attributes: true }).and_return(true)
+        cli_exec(%w[index reset CountiesIndex --preload-lazy-attributes])
+      end
+
+      it 'adds the preload_lazy_attributes option to the import hash when --preload-lazy-attributes with value' do
+        expect(CountiesIndex).to receive(:reset_index).with(**defaults, import: { preload_lazy_attributes: %w[foo bar] }).and_return(true)
+        cli_exec(%w[index reset CountiesIndex --preload-lazy-attributes=foo,bar])
+      end
+
+      it 'adds the preload_lazy_attributes option to the import hash when --preload-lazy-attributes with true value' do
+        expect(CountiesIndex).to receive(:reset_index).with(**defaults, import: { preload_lazy_attributes: true }).and_return(true)
+        cli_exec(%w[index reset CountiesIndex --preload-lazy-attributes=true])
+      end
+
+      it 'does NOT adds the preload_lazy_attributes option to the import hash when --preload-lazy-attributes with false value' do
+        expect(CountiesIndex).to receive(:reset_index).with(**defaults, import: true).and_return(true)
+        cli_exec(%w[index reset CountiesIndex --preload-lazy-attributes=false])
+      end
+
+      it 'adds the eager_load_lazy_attributes option to the import hash when --eager-load-lazy-attributes wihout value' do
+        expect(CountiesIndex).to receive(:reset_index).with(**defaults, import: { eager_load_lazy_attributes: true }).and_return(true)
+        cli_exec(%w[index reset CountiesIndex --eager-load-lazy-attributes])
+      end
+
+      it 'adds the eager_load_lazy_attributes option to the import hash when --eager-load-lazy-attributes with value' do
+        expect(CountiesIndex).to receive(:reset_index).with(**defaults, import: { eager_load_lazy_attributes: %w[foo bar] }).and_return(true)
+        cli_exec(%w[index reset CountiesIndex --eager-load-lazy-attributes=foo,bar])
+      end
+
+      it 'adds the eager_load_lazy_attributes option to the import hash when --eager-load-lazy-attributes with true value' do
+        expect(CountiesIndex).to receive(:reset_index).with(**defaults, import: { eager_load_lazy_attributes: true }).and_return(true)
+        cli_exec(%w[index reset CountiesIndex --eager-load-lazy-attributes=true])
+      end
+
+      it 'does NOT adds the eager_load_lazy_attributes option to the import hash when --eager-load-lazy-attributes with false value' do
+        expect(CountiesIndex).to receive(:reset_index).with(**defaults, import: true).and_return(true)
+        cli_exec(%w[index reset CountiesIndex --eager-load-lazy-attributes=false])
+      end
+
+      it 'adds the update_lazy_attributes option to the import hash when --update-lazy-attributes wihout value' do
+        expect(CountiesIndex).to receive(:reset_index).with(**defaults, import: { update_lazy_attributes: true }).and_return(true)
+        cli_exec(%w[index reset CountiesIndex --update-lazy-attributes])
+      end
+
+      it 'adds the update_lazy_attributes option to the import hash when --update-lazy-attributes with value' do
+        expect(CountiesIndex).to receive(:reset_index).with(**defaults, import: { update_lazy_attributes: %w[foo bar] }).and_return(true)
+        cli_exec(%w[index reset CountiesIndex --update-lazy-attributes=foo,bar])
+      end
+
+      it 'adds the update_lazy_attributes option to the import hash when --update-lazy-attributes with true value' do
+        expect(CountiesIndex).to receive(:reset_index).with(**defaults, import: { update_lazy_attributes: true }).and_return(true)
+        cli_exec(%w[index reset CountiesIndex --update-lazy-attributes=true])
+      end
+
+      it 'does NOT adds the update_lazy_attributes option to the import hash when --update-lazy-attributes with false value' do
+        expect(CountiesIndex).to receive(:reset_index).with(**defaults, import: true).and_return(true)
+        cli_exec(%w[index reset CountiesIndex --update-lazy-attributes=false])
       end
     end
   end

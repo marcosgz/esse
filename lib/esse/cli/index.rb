@@ -19,6 +19,10 @@ module Esse
       option :reindex, desc: 'Use _reindex API to import documents from the old index to the new index'
       option :optimize, type: :boolean, default: true, desc: 'Optimize index before import documents by disabling refresh_interval and setting number_of_replicas to 0'
       option :settings, type: :hash, default: nil, desc: 'List of settings to pass to the index class. Example: --settings=refresh_interval:1s,number_of_replicas:0'
+
+      option :preload_lazy_attributes, type: :string, default: nil, desc: 'Command separated list of lazy document attributes to preload using search API before the bulk import. Or pass `true` to preload all lazy attributes'
+      option :eager_load_lazy_attributes, type: :string, default: nil, desc: 'Comma separated list of lazy document attributes to include to the bulk index request. Or pass `true` to include all lazy attributes'
+      option :update_lazy_attributes, type: :string, default: nil, desc: 'Comma separated list of lazy document attributes to bulk update after the bulk index request Or pass `true` to include all lazy attributes'
       def reset(*index_classes)
         require_relative 'index/reset'
         opts = HashUtils.deep_transform_keys(options.to_h, &:to_sym)
@@ -27,6 +31,22 @@ module Esse
         if opts[:import] && opts[:reindex]
           raise ArgumentError, 'You cannot use --import and --reindex together'
         end
+
+        %i[preload_lazy_attributes eager_load_lazy_attributes update_lazy_attributes].each do |key|
+          val = opts.delete(key)
+          val = 'true' if val == key.to_s
+          next if val.nil? || val == 'false'
+
+          if opts[:reindex]
+            raise ArgumentError, "You cannot use --#{key}=#{val} with --reindex"
+          elsif opts[:import] == false
+            raise ArgumentError, "You cannot use --#{key}=#{val} with --import=false"
+          end
+
+          opts[:import] = {} if opts[:import] == true
+          opts[:import][key] = (val == 'true') ? true : val.split(',')
+        end
+
         Reset.new(indices: index_classes, **opts).run
       end
 
@@ -107,6 +127,7 @@ module Esse
         opts = HashUtils.deep_transform_keys(options.to_h, &:to_sym)
         %i[preload_lazy_attributes eager_load_lazy_attributes update_lazy_attributes].each do |key|
           if (val = opts.delete(key)) && val != 'false'
+            val = 'true' if val == key.to_s
             opts[key] = (val == 'true') ? true : val.split(',')
           end
         end
