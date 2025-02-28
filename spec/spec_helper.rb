@@ -16,7 +16,7 @@ require 'securerandom'
 
 Hooks::ServiceVersion.banner!
 
-Dir[File.expand_path('support/shared_contexts/**/*.rb', __dir__)].sort.each { |f| require f }
+Dir[File.expand_path('support/{shared_contexts,matchers}/**/*.rb', __dir__)].sort.each { |f| require f }
 
 RSpec.configure do |config|
   config.example_status_persistence_file_path = '.rspec_status'

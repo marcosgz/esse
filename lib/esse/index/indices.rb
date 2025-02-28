@@ -59,8 +59,8 @@ module Esse
         optimized_creation = optimize && syncronous_import && (import || reindex)
         if optimized_creation
           definition = [settings_hash(settings: settings), mappings_hash].reduce(&:merge)
-          number_of_replicas = definition.dig(Esse::SETTING_ROOT_KEY, :index, :number_of_replicas)
-          refresh_interval = definition.dig(Esse::SETTING_ROOT_KEY, :index, :refresh_interval)
+          number_of_replicas = definition.dig(Esse::SETTING_ROOT_KEY, :index, :number_of_replicas) || 1
+          refresh_interval = definition.dig(Esse::SETTING_ROOT_KEY, :index, :refresh_interval) || '1s'
           new_number_of_replicas = ((definition[Esse::SETTING_ROOT_KEY] ||= {})[:index] ||= {})[:number_of_replicas] = 0
           new_refresh_interval = ((definition[Esse::SETTING_ROOT_KEY] ||= {})[:index] ||= {})[:refresh_interval] = '-1'
           create_index(**options, suffix: suffix, alias: false, body: definition)
@@ -88,6 +88,10 @@ module Esse
         end
 
         if optimized_creation && number_of_replicas != new_number_of_replicas || refresh_interval != new_refresh_interval
+          settings ||= {}
+          settings[:index] ||= {}
+          settings[:index][:number_of_replicas] = number_of_replicas
+          settings[:index][:refresh_interval] = refresh_interval
           update_settings(suffix: suffix, settings: settings)
           refresh(suffix: suffix)
         end
