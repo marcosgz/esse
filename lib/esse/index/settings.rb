@@ -11,6 +11,7 @@ module Esse
         number_of_shards
         number_of_replicas
         refresh_interval
+        mapping
       ].freeze
 
       def settings_hash(settings: nil)
