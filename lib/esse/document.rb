@@ -108,7 +108,7 @@ module Esse
       DocumentForPartialUpdate.new(self, source: source)
     end
 
-    def inspect
+    def to_s
       attributes = {id: :id, routing: :routing, source: :memoized_source}.map do |attr_name, attr_src|
         value = send(attr_src)
         next unless value
