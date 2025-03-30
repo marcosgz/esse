@@ -36,11 +36,13 @@ module Esse
           definition[:aliases] = { index_name => {} }
         end
 
+        retried = false
         begin
           cluster.api.create_index(index: name, body: definition, **options)
         rescue Esse::Transport::BadRequestError => e
-          if e.message.include?('index exists with the same name') && index_alias == :force
+          if retried == false && e.message.include?('index exists with the same name') && index_alias == :force
             cluster.api.delete_index(index: index_name)
+            retried = true
             retry
           end
           raise
