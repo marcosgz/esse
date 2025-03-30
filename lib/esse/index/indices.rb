@@ -32,14 +32,19 @@ module Esse
         definition = body || [settings_hash(settings: settings), mappings_hash].reduce(&:merge)
         index_alias = options.delete(:alias)
 
-        if index_alias == :force && index_exist? && aliases.none?
-          cluster.api.delete_index(index: index_name)
-        end
         if index_alias && name != index_name
           definition[:aliases] = { index_name => {} }
         end
 
-        cluster.api.create_index(index: name, body: definition, **options)
+        begin
+          cluster.api.create_index(index: name, body: definition, **options)
+        rescue Esse::Transport::BadRequestError => e
+          if e.message.include?('index exists with the same name') && index_alias == :force
+            cluster.api.delete_index(index: index_name)
+            retry
+          end
+          raise
+        end
       end
 
       # Deletes, creates and imports data to the index. Performs zero-downtime index resetting.
