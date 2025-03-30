@@ -31,6 +31,26 @@ RSpec.shared_examples 'index.create_index' do
     end
   end
 
+  it 'creates the index and adds the alias when the given value of alias is :force and no index exists' do
+    es_client do |client, _conf, cluster|
+      expect {
+        GeosIndex.create_index(suffix: '2025', alias: :force)
+      }.to change { GeosIndex.indices_pointing_to_alias }.from([]).to(["#{GeosIndex.index_name}_2025"])
+    end
+  end
+
+  it 'replaces the existing index by the alias when the given value of alias is :force and an index exists' do
+    es_client do |client, _conf, cluster|
+      client.indices.create(index: GeosIndex.index_name)
+      expect(GeosIndex.aliases).to be_empty
+      expect(GeosIndex).to be_index_exist
+
+      expect {
+        GeosIndex.create_index(suffix: '2025', alias: :force)
+      }.to change { GeosIndex.indices_pointing_to_alias }.from([]).to(["#{GeosIndex.index_name}_2025"])
+    end
+  end
+
   it 'uses the default suffix when not provided' do
     es_client do |client, _conf, cluster|
       expect(Esse).to receive(:timestamp).and_return('20220101')

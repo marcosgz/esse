@@ -30,8 +30,12 @@ module Esse
         options = CREATE_INDEX_RESERVED_KEYWORDS.merge(options)
         name = build_real_index_name(suffix)
         definition = body || [settings_hash(settings: settings), mappings_hash].reduce(&:merge)
+        index_alias = options.delete(:alias)
 
-        if options.delete(:alias) && name != index_name
+        if index_alias == :force && index_exist? && aliases.none?
+          cluster.api.delete_index(index: index_name)
+        end
+        if index_alias && name != index_name
           definition[:aliases] = { index_name => {} }
         end
 
