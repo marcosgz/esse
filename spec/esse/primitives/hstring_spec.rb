@@ -135,4 +135,38 @@ RSpec.describe Esse::Hstring do
       it { is_expected.not_to be_an_instance_of(described_class) }
     end
   end
+
+  describe '#coerce_type' do
+    subject { model.coerce_type }
+
+    context 'with an integer string' do
+      let(:arg) { '123' }
+
+      it { is_expected.to eq(123) }
+    end
+
+    context 'with a float string' do
+      let(:arg) { '123.45' }
+
+      it { is_expected.to eq(123.45) }
+    end
+
+    context 'with a true string' do
+      let(:arg) { 'true' }
+
+      it { is_expected.to eq(true) }
+    end
+
+    context 'with a false string' do
+      let(:arg) { 'false' }
+
+      it { is_expected.to eq(false) }
+    end
+
+    context 'with a non-coercible string' do
+      let(:arg) { 'hello' }
+
+      it { is_expected.to eq('hello') }
+    end
+  end
 end

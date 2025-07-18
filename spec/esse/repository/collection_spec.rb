@@ -99,7 +99,7 @@ RSpec.describe Esse::Repository do
         stub_index(:users) do
           repository :user do
             collection do |**opts, &block|
-              [[1], [2], [3]].each do |batch|
+              [[{id: 1}], [{id: 2}], [{id: 3}]].each do |batch|
                 block.call batch, opts
               end
             end
@@ -109,11 +109,22 @@ RSpec.describe Esse::Repository do
 
       it 'yields each block with arguments' do
         o = { active: true }
-        expect { |b| UsersIndex::User.send(:each_batch, **o, &b) }.to yield_successive_args([[1], o], [[2], o], [[3], o])
+        expect { |b| UsersIndex::User.send(:each_batch, **o, &b) }.to yield_successive_args(
+          [[{id: 1}], o],
+          [[{id: 2}], o],
+          [[{id: 3}], o]
+        )
       end
     end
 
     context 'with a collection class' do
+      let(:ids) { (1..6).to_a }
+      let(:repo) do
+        ids.map do |id|
+          { id: id }
+        end
+      end
+
       before do
         stub_index(:geos) do
           repository :city do
@@ -124,8 +135,94 @@ RSpec.describe Esse::Repository do
 
       it 'yields each block with arguments' do
         f = { active: true }
-        o = { repo: (1..6), batch_size: 2 }.merge(f)
-        expect { |b| GeosIndex::City.send(:each_batch, **o, &b) }.to yield_successive_args([[1, 2], f], [[3, 4], f], [[5, 6], f])
+        o = { repo: repo, batch_size: 2 }.merge(f)
+        expect { |b| GeosIndex::City.send(:each_batch, **o, &b) }.to yield_successive_args(
+          [[{id: 1}, {id: 2}], f],
+          [[{id: 3}, {id: 4}], f],
+          [[{id: 5}, {id: 6}], f]
+        )
+      end
+    end
+  end
+
+  describe '.each_batch_ids' do
+    context 'without the collection definition' do
+      before do
+        stub_index(:users) do
+          repository(:user) {}
+        end
+      end
+
+      specify do
+        expect {
+          UsersIndex::User.send(:each_batch_ids) { |batch| puts batch }
+        }.to raise_error(NotImplementedError, 'there is no "user" collection defined for the "UsersIndex" index')
+      end
+    end
+
+    context 'without collection data' do
+      before do
+        stub_index(:users) do
+          repository :user do
+            collection do
+            end
+          end
+        end
+      end
+
+      it 'does not raise any exception' do
+        expect { |b| UsersIndex::User.send(:each_batch_ids, &b) }.not_to yield_control
+      end
+    end
+
+    context 'with the collection definition' do
+      let(:logger) { instance_double(::Logger) }
+
+      before do
+        stub_index(:users) do
+          repository :user do
+            collection do |**opts, &block|
+              [[{id: 1}], [{id: 2}], [{id: 3}]].each do |batch|
+                block.call batch, opts
+              end
+            end
+
+            document do |hash, **opts|
+              Esse::HashDocument.new(hash)
+            end
+          end
+        end
+        allow(::Esse).to receive(:logger).and_return(logger)
+      end
+
+      it "warns user for performance degradation and yields serialized ids" do
+        o = { active: true }
+        expect(Kernel).to receive(:warn).with(a_string_matching("The `#each' method will be used instead, which may lead to performance degradation"))
+
+        expect { |b| UsersIndex::User.send(:each_batch_ids, **o, &b) }.to yield_successive_args([1], [2], [3])
+      end
+    end
+
+    context 'with a collection class' do
+      let(:ids) { (1..6).to_a }
+      let(:repo) do
+        ids.map do |id|
+          { id: id, name: "City #{id}", active: true }
+        end
+      end
+
+      before do
+        stub_index(:geos) do
+          repository :city do
+            collection DummyGeosCollection
+          end
+        end
+      end
+
+      it 'yields each block with arguments' do
+        f = { active: true }
+        o = { repo: repo, batch_size: 2 }.merge(f)
+        expect { |b| GeosIndex::City.send(:each_batch_ids, **o, &b) }.to yield_successive_args([1, 2], [3, 4], [5, 6])
       end
     end
   end

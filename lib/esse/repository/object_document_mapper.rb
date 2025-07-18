@@ -200,6 +200,53 @@ module Esse
       rescue LocalJumpError
         raise(SyntaxError, 'block must be explicitly declared in the collection definition')
       end
+
+      # Used to fetch batches of ids from the collection that implement the `each_batch_ids` method.
+      #
+      # @param [Hash] kwargs The context
+      # @yield [Array] A batch of document IDs to be processed.
+      # @raise [NotImplementedError] if the collection does not implement the `each_batch_ids` method.
+      # @raise [NotImplementedError] if the collection is not defined.
+      # @return [void]
+      # @example
+      #   each_batch_ids(active: true) do |ids|
+      #     puts ids.size
+      #   end
+      def each_batch_ids(*args, **kwargs, &block)
+        if @collection_proc.nil?
+          raise NotImplementedError, format('there is no %<t>p collection defined for the %<k>p index', t: repo_name, k: index.to_s)
+        end
+
+        if @collection_proc.is_a?(Class) && @collection_proc.method_defined?(:each_batch_ids)
+          @collection_proc.new(*args, **kwargs).each_batch_ids(&block)
+        else
+          Kernel.warn(<<~MSG)
+            The public `#each_batch_ids' method is not available for the collection defined in the #{repo_name} index.
+
+            The `#each' method will be used instead, which may lead to performance degradation because it serializes the entire document
+            to only obtain the IDs. Consider implementing a public `#each_batch_ids' method in your collection class for better performance.
+
+            Example implementation taking into account you are dealing with an ActiveRecord model:
+              class UserCollection < Esse::Collection
+                # ....
+
+                def each_batch_ids
+                  user_query.except(:includes, :preload, :eager_load).in_batches do |batch|
+                    yield batch.pluck(:id)
+                  end
+                end
+              end
+          MSG
+          each_batch(*args, **kwargs) do |*args|
+            batch, collection_context = args
+            collection_context ||= {}
+            ids = [*batch].map { |entry| serialize(entry, **collection_context)&.id }.compact
+            block.call(ids)
+          end
+        end
+      rescue LocalJumpError
+        raise(SyntaxError, 'block must be explicitly declared in the collection definition')
+      end
     end
 
     extend ClassMethods

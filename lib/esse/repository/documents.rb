@@ -10,6 +10,7 @@ module Esse
       def update_documents_attribute(name, ids_or_doc_headers = [], kwargs = {})
         batch = documents_for_lazy_attribute(name, ids_or_doc_headers)
         return if batch.empty?
+
         kwargs = kwargs.transform_keys(&:to_sym)
 
         if kwargs.delete(:index_on_missing) { true }
