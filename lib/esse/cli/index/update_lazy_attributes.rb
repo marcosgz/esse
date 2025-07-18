@@ -37,13 +37,13 @@ module Esse
       private
 
       def bulk_options
-        @bulk_options ||= HashUtils.deep_transform_keys(@options[:bulk_options].to_h, &:to_sym).transform_values do |value|
+        @bulk_options ||= (@options[:bulk_options] || {}).transform_values do |value|
           value.is_a?(String) ? Hstring.new(value).coerce_type : value
         end
       end
 
       def context_options
-        @context_options ||= HashUtils.deep_transform_keys(@options[:context].to_h, &:to_sym).transform_values do |value|
+        @context_options ||= (@options[:context] || {}).transform_values do |value|
           value.is_a?(String) ? Hstring.new(value).coerce_type : value
         end
       end
