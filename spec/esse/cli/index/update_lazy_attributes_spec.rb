@@ -56,8 +56,8 @@ RSpec.describe Esse::CLI::Index, type: :cli do
       end
 
       it "calls the update_documents_attribute method with bulk options" do
-        expect(CitiesIndex::City).to receive(:update_documents_attribute).with(:total_events, [1, 2, 3], refresh: true, retry_on_conflict: 3, timeout: "30s").and_return(:ok)
-        expect(CitiesIndex::City).to receive(:update_documents_attribute).with(:total_venues, [1, 2, 3], refresh: true, retry_on_conflict: 3, timeout: "30s").and_return(:ok)
+        expect(CitiesIndex::City).to receive(:update_documents_attribute).with(:total_events, [1, 2, 3], {refresh: true, retry_on_conflict: 3, timeout: "30s"}).and_return(:ok)
+        expect(CitiesIndex::City).to receive(:update_documents_attribute).with(:total_venues, [1, 2, 3], {refresh: true, retry_on_conflict: 3, timeout: "30s"}).and_return(:ok)
 
         cli_exec(%w[index update_lazy_attributes CitiesIndex --bulk-options=timeout:30s refresh:true retry_on_conflict:3])
       end
