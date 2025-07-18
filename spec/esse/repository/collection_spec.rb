@@ -197,7 +197,7 @@ RSpec.describe Esse::Repository do
 
       it "warns user for performance degradation and yields serialized ids" do
         o = { active: true }
-        expect(logger).to receive(:warn).with(a_string_matching("The `#each' method will be used instead, which may lead to performance degradation"))
+        expect(Kernel).to receive(:warn).with(a_string_matching("The `#each' method will be used instead, which may lead to performance degradation"))
 
         expect { |b| UsersIndex::User.send(:each_batch_ids, **o, &b) }.to yield_successive_args([1], [2], [3])
       end

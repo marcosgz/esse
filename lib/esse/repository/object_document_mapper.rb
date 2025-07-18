@@ -220,7 +220,7 @@ module Esse
         if @collection_proc.is_a?(Class) && @collection_proc.method_defined?(:each_batch_ids)
           @collection_proc.new(*args, **kwargs).each_batch_ids(&block)
         else
-          Esse.logger.warn(<<~MSG)
+          Kernel.warn(<<~MSG)
             The public `#each_batch_ids' method is not available for the collection defined in the #{repo_name} index.
 
             The `#each' method will be used instead, which may lead to performance degradation because it serializes the entire document
