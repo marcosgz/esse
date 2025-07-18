@@ -14,5 +14,11 @@ module Esse
     def each
       raise NotImplementedError, 'Override this method to iterate over the collection'
     end
+
+    # @yield [<Array>] A batch of document IDs to be processed.
+    # @abstract Override this method to yield each chunk of document IDs
+    def each_batch_ids
+      raise NotImplementedError, 'Override this method to iterate over the collection in batches of IDs'
+    end
   end
 end

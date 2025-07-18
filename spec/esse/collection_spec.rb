@@ -17,4 +17,16 @@ RSpec.describe Esse::Collection do
 
     it { is_expected.to eq options }
   end
+
+  describe '#each' do
+    it 'raises NotImplementedError' do
+      expect { collection.each }.to raise_error(NotImplementedError, 'Override this method to iterate over the collection')
+    end
+  end
+
+  describe '#each_batch_ids' do
+    it 'raises NotImplementedError' do
+      expect { collection.each_batch_ids }.to raise_error(NotImplementedError, 'Override this method to iterate over the collection in batches of IDs')
+    end
+  end
 end

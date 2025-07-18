@@ -82,5 +82,19 @@ module Esse
       @value
     end
     def_conventional :presence!
+
+    def coerce_type
+      if @value =~ /\A-?\d+\z/
+        return @value.to_i
+      elsif @value =~ /\A-?\d+\.\d+\z/
+        return @value.to_f
+      elsif @value == 'true'
+        return true
+      elsif @value == 'false'
+        return false
+      end
+
+      @value
+    end
   end
 end

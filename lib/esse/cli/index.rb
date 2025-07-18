@@ -59,7 +59,7 @@ module Esse
       DESC
       option :suffix, type: :string, default: nil, aliases: '-s', desc: 'Suffix to append to index name'
       option :alias, type: :boolean, default: false, aliases: '-a', desc: 'Update alias after create index'
-      option :settings, type: :hash, default: nil, desc: 'List of settings to pass to the index class. Example: --settings=index.refresh_interval:-1,index.number_of_replicas:0'
+      option :settings, type: :hash, default: nil, desc: 'List of settings to pass to the index class. Example: --settings=index.refresh_interval:-1 index.number_of_replicas:0'
       def create(*index_classes)
         require_relative 'index/create'
         opts = HashUtils.deep_transform_keys(options.to_h, &:to_sym)
@@ -86,7 +86,7 @@ module Esse
       desc 'update_settings *INDEX_CLASS', 'Closes the index for read/write operations, updates the index settings, and open it again'
       option :suffix, type: :string, default: nil, aliases: '-s', desc: 'Suffix to append to index name'
       option :type, type: :string, default: nil, aliases: '-t', desc: 'Document Type to update mapping for'
-      option :settings, type: :hash, default: nil, desc: 'List of settings to pass to the index class. Example: --settings=index.refresh_interval:-1,index.number_of_replicas:0'
+      option :settings, type: :hash, default: nil, desc: 'List of settings to pass to the index class. Example: --settings=index.refresh_interval:-1 index.number_of_replicas:0'
       def update_settings(*index_classes)
         require_relative 'index/update_settings'
         opts = HashUtils.deep_transform_keys(options.to_h, &:to_sym)
@@ -132,6 +132,17 @@ module Esse
           end
         end
         Import.new(indices: index_classes, **opts).run
+      end
+
+      desc "update_lazy_attributes INDEX_CLASS", "Async update lazy attributes for the given index"
+      option :repo, type: :string, default: nil, alias: "-r", desc: "Repository to use for import"
+      option :suffix, type: :string, default: nil, aliases: "-s", desc: "Suffix to append to index name"
+      option :context, type: :hash, default: {}, required: true, desc: "List of options to pass to the index class"
+      option :bulk_options, type: :hash, default: nil, desc: 'List of options to pass to the bulk update request. Example: --bulk-options=timeout:30s refresh:true retry_on_conflict:3'
+      def update_lazy_attributes(index_class, *attributes)
+        require_relative "index/update_lazy_attributes"
+        opts = HashUtils.deep_transform_keys(options.to_h, &:to_sym)
+        UpdateLazyAttributes.new(indices: [index_class], attributes: attributes, **opts).run
       end
     end
   end
