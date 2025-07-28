@@ -155,7 +155,7 @@ RSpec.describe Esse::Repository do
 
       specify do
         expect {
-          UsersIndex::User.send(:each_batch_ids) { |batch| puts batch }
+          UsersIndex::User.each_batch_ids { |batch| puts batch }
         }.to raise_error(NotImplementedError, 'there is no "user" collection defined for the "UsersIndex" index')
       end
     end
@@ -170,8 +170,16 @@ RSpec.describe Esse::Repository do
         end
       end
 
+      it 'returns an enumerator' do
+        expect(Kernel).to receive(:warn).with(a_string_matching("The `#each' method will be used instead, which may lead to performance degradation")).and_return(nil)
+
+        expect(UsersIndex::User.each_batch_ids).to be_a(Enumerator)
+      end
+
       it 'does not raise any exception' do
-        expect { |b| UsersIndex::User.send(:each_batch_ids, &b) }.not_to yield_control
+        expect(Kernel).to receive(:warn).with(a_string_matching("The `#each' method will be used instead, which may lead to performance degradation")).and_return(nil)
+
+        expect { |b| UsersIndex::User.each_batch_ids(&b) }.not_to yield_control
       end
     end
 
@@ -195,11 +203,17 @@ RSpec.describe Esse::Repository do
         allow(::Esse).to receive(:logger).and_return(logger)
       end
 
-      it "warns user for performance degradation and yields serialized ids" do
-        o = { active: true }
-        expect(Kernel).to receive(:warn).with(a_string_matching("The `#each' method will be used instead, which may lead to performance degradation"))
+      it 'retuns an enumerator' do
+        expect(Kernel).to receive(:warn).with(a_string_matching("The `#each' method will be used instead, which may lead to performance degradation")).and_return(nil)
 
-        expect { |b| UsersIndex::User.send(:each_batch_ids, **o, &b) }.to yield_successive_args([1], [2], [3])
+        expect(UsersIndex::User.each_batch_ids).to be_a(Enumerator)
+      end
+
+      it "warns user for performance degradation and yields serialized ids" do
+        expect(Kernel).to receive(:warn).with(a_string_matching("The `#each' method will be used instead, which may lead to performance degradation")).and_return(nil)
+
+        o = { active: true }
+        expect { |b| UsersIndex::User.each_batch_ids(**o, &b) }.to yield_successive_args([1], [2], [3])
       end
     end
 
@@ -219,10 +233,14 @@ RSpec.describe Esse::Repository do
         end
       end
 
+      it 'returns an enumerator' do
+        expect(GeosIndex::City.each_batch_ids(repo: repo, batcch_size: 2)).to be_a(Enumerator)
+      end
+
       it 'yields each block with arguments' do
         f = { active: true }
         o = { repo: repo, batch_size: 2 }.merge(f)
-        expect { |b| GeosIndex::City.send(:each_batch_ids, **o, &b) }.to yield_successive_args([1, 2], [3, 4], [5, 6])
+        expect { |b| GeosIndex::City.each_batch_ids(**o, &b) }.to yield_successive_args([1, 2], [3, 4], [5, 6])
       end
     end
   end
