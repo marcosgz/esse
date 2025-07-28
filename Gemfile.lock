@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    esse (0.4.0.rc2)
+    esse (0.4.0.rc4)
       multi_json
       thor (>= 0.19)
 
@@ -37,8 +37,7 @@ GEM
     rainbow (3.1.1)
     rake (12.3.3)
     regexp_parser (2.9.2)
-    rexml (3.3.6)
-      strscan
+    rexml (3.4.1)
     rspec (3.13.0)
       rspec-core (~> 3.13.0)
       rspec-expectations (~> 3.13.0)
@@ -85,8 +84,7 @@ GEM
     standard-performance (1.0.1)
       lint_roller (~> 1.0)
       rubocop-performance (~> 1.16.0)
-    strscan (3.1.0)
-    thor (1.3.2)
+    thor (1.4.0)
     unicode-display_width (2.5.0)
     webmock (3.23.1)
       addressable (>= 2.8.0)
@@ -112,4 +110,4 @@ DEPENDENCIES
   yard (~> 0.9.20)
 
 BUNDLED WITH
-   2.3.22
+   2.3.26
