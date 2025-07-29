@@ -56,8 +56,9 @@ module Esse
       def add(operation, entry)
         @mutex.synchronize do
           hash = @entries.dup
-          hash[operation] ||= []
-          hash[operation] << entry
+          arr = (hash[operation] || []).dup
+          arr << entry
+          hash[operation] = arr.freeze
           @entries = hash.freeze
         end
       end

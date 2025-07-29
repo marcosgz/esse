@@ -46,7 +46,8 @@ RSpec.describe Esse::RequestConfigurable do
         entry = Esse::RequestConfigurable::RequestEntry.new(:index, { key: 'value' })
         container.add(:index, entry)
         expect(container.key?(:index)).to be true
-        expect(container.instance_variable_get(:@entries)).to be_frozen
+        expect(entries = container.instance_variable_get(:@entries)).to be_frozen
+        expect(entries.values).to all(be_frozen)
       end
     end
 
@@ -55,6 +56,7 @@ RSpec.describe Esse::RequestConfigurable do
         entry1 = Esse::RequestConfigurable::RequestEntry.new(:index, { key1: 'value1' })
         entry2 = Esse::RequestConfigurable::RequestEntry.new(:index, { key2: 'value2' })
         container.add(:index, entry1)
+        expect(container.instance_variable_get(:@entries)).to be_frozen
         container.add(:index, entry2)
         expect(container.instance_variable_get(:@entries)).to be_frozen
 
