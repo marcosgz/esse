@@ -13,17 +13,6 @@ module Esse
 
         cluster.request_params_for(operation, doc).merge(params)
       end
-
-      def combined_request_body_for?(operation)
-        request_body_for?(operation) || cluster.request_body_for?(operation)
-      end
-
-      def combined_request_body_for(operation, doc)
-        body = request_body_for(operation, doc) || {}
-        return body unless cluster.request_body_for?(operation)
-
-        cluster.request_body_for(operation, doc).merge(body)
-      end
     end
 
     extend Esse::RequestConfigurable

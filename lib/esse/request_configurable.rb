@@ -11,17 +11,6 @@ module Esse
       search
     ].freeze
 
-    BODY_OPERATIONS = %i[
-      index
-      create
-      update
-      bulk_update
-      bulk_delete
-      bulk_create
-      bulk_index
-      search
-    ].freeze
-
     def self.included(base)
       base.include DSL
     end
@@ -30,7 +19,7 @@ module Esse
       base.extend DSL
     end
 
-    class RequestEntry
+    class RequestParams
       attr_reader :operation, :hash, :block
 
       def initialize(operation, hash = {}, &block)
@@ -50,12 +39,6 @@ module Esse
 
         hash.merge(result.transform_keys(&:to_sym))
       end
-    end
-
-    class RequestParams < RequestEntry
-    end
-
-    class RequestBody < RequestEntry
     end
 
     class Container
@@ -99,17 +82,6 @@ module Esse
         self
       end
 
-      def request_body(*operations, **params, &block)
-        operations.each do |operation|
-          raise ArgumentError, "Invalid operation: #{operation}" unless BODY_OPERATIONS.include?(operation)
-
-          @request_body ||= Container.new
-          @request_body.add(operation, RequestBody.new(operation, params, &block))
-        end
-
-        self
-      end
-
       def request_params_for(operation, doc)
         return {} unless request_params_for?(operation)
 
@@ -120,18 +92,6 @@ module Esse
         return false unless @request_params
 
         @request_params.key?(operation)
-      end
-
-      def request_body_for(operation, doc)
-        return {} unless request_body_for?(operation)
-
-        @request_body.retrieve(operation, doc)
-      end
-
-      def request_body_for?(operation)
-        return false unless @request_body
-
-        @request_body.key?(operation)
       end
     end
   end

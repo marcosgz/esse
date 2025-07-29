@@ -19,7 +19,6 @@ RSpec.describe Esse::RequestConfigurable do
       expect(klass.included_modules).to include(Esse::RequestConfigurable::DSL)
       inst = klass.new
       expect(inst).to respond_to(:request_params)
-      expect(inst).to respond_to(:request_body)
     end
   end
 
@@ -31,11 +30,10 @@ RSpec.describe Esse::RequestConfigurable do
 
       expect(klass.singleton_class.included_modules).to include(Esse::RequestConfigurable::DSL)
       expect(klass).to respond_to(:request_params)
-      expect(klass).to respond_to(:request_body)
     end
   end
 
-  describe described_class::RequestEntry do
+  describe described_class::RequestParams do
     describe '#call' do
       context 'when no block is provided' do
         it 'returns the hash' do
@@ -67,7 +65,7 @@ RSpec.describe Esse::RequestConfigurable do
 
     describe '#add' do
       it 'adds an entry for the given operation' do
-        entry = Esse::RequestConfigurable::RequestEntry.new(:index, { key: 'value' })
+        entry = Esse::RequestConfigurable::RequestParams.new(:index, { key: 'value' })
         container.add(:index, entry)
         expect(container.key?(:index)).to be true
         expect(entries = container.instance_variable_get(:@entries)).to be_frozen
@@ -77,8 +75,8 @@ RSpec.describe Esse::RequestConfigurable do
 
     describe '#retrieve' do
       it 'retrieves merged hashes for the given operation' do
-        entry1 = Esse::RequestConfigurable::RequestEntry.new(:index, { key1: 'value1' })
-        entry2 = Esse::RequestConfigurable::RequestEntry.new(:index, { key2: 'value2' })
+        entry1 = Esse::RequestConfigurable::RequestParams.new(:index, { key1: 'value1' })
+        entry2 = Esse::RequestConfigurable::RequestParams.new(:index, { key2: 'value2' })
         container.add(:index, entry1)
         expect(container.instance_variable_get(:@entries)).to be_frozen
         container.add(:index, entry2)
@@ -94,8 +92,8 @@ RSpec.describe Esse::RequestConfigurable do
       end
 
       it 'symbolizes keys in the result' do
-        entry1 = Esse::RequestConfigurable::RequestEntry.new(:index, { 'static' => 'value' })
-        entry2 = Esse::RequestConfigurable::RequestEntry.new(:index) do |doc|
+        entry1 = Esse::RequestConfigurable::RequestParams.new(:index, { 'static' => 'value' })
+        entry2 = Esse::RequestConfigurable::RequestParams.new(:index) do |doc|
           { 'dynamic' => doc }
         end
         container.add(:index, entry1)
@@ -116,17 +114,6 @@ RSpec.describe Esse::RequestConfigurable do
 
       it 'raises an error for invalid operations' do
         expect { dummy_class.request_params(:invalid_operation, key: 'value') }.to raise_error(ArgumentError, 'Invalid operation: invalid_operation')
-      end
-    end
-
-    describe '.request_body' do
-      it 'adds request body for valid operations' do
-        dummy_class.request_body(:create, key: 'value')
-        expect(dummy_class.request_body_for(:create, document)).to eq({ key: 'value' })
-      end
-
-      it 'raises an error for invalid operations' do
-        expect { dummy_class.request_body(:invalid_operation, key: 'value') }.to raise_error(ArgumentError, 'Invalid operation: invalid_operation')
       end
     end
 
@@ -151,27 +138,6 @@ RSpec.describe Esse::RequestConfigurable do
       end
     end
 
-    describe '.request_body_for' do
-      it 'returns an empty hash if no request body exists for the operation' do
-        expect(dummy_class.request_body_for(:create, document)).to eq({})
-      end
-
-      it 'combines static and dynamic request body' do
-        dummy_class.request_body(:create, key: 'static_value') do |doc|
-          { dynamic_key: doc }
-        end
-        expect(dummy_class.request_body_for(:create, 'dynamic_value')).to eq({ key: 'static_value', dynamic_key: 'dynamic_value' })
-      end
-
-      it 'merges multiple request bodies for the same operation' do
-        dummy_class.request_body(:create, key1: 'value1')
-        dummy_class.request_body(:create) do |doc|
-          { key2: doc }
-        end
-        expect(dummy_class.request_body_for(:create, 'dynamic_value')).to eq({ key1: 'value1', key2: 'dynamic_value' })
-      end
-    end
-
     describe '.request_params_for?' do
       it 'returns true if request params exist for the operation' do
         dummy_class.request_params(:index, key: 'value')
@@ -180,17 +146,6 @@ RSpec.describe Esse::RequestConfigurable do
 
       it 'returns false if no request params exist for the operation' do
         expect(dummy_class.request_params_for?(:nonexistent)).to be false
-      end
-    end
-
-    describe '.request_body_for?' do
-      it 'returns true if request body exists for the operation' do
-        dummy_class.request_body(:create, key: 'value')
-        expect(dummy_class.request_body_for?(:create)).to be true
-      end
-
-      it 'returns false if no request body exists for the operation' do
-        expect(dummy_class.request_body_for?(:nonexistent)).to be false
       end
     end
   end
