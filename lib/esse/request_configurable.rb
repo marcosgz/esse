@@ -17,6 +17,7 @@ module Esse
 
     def self.included(base)
       base.extend(ClassMethods)
+      base.include(InstanceMethods)
     end
 
     class RequestEntry
@@ -100,15 +101,45 @@ module Esse
       end
 
       def request_params_for(operation, doc)
-        return {} unless @_request_params && @_request_params.key?(operation)
+        return {} unless request_params_for?(operation)
 
         @_request_params.retrieve(operation, doc)
       end
 
+      def request_params_for?(operation)
+        return false unless @_request_params
+
+        @_request_params.key?(operation)
+      end
+
       def request_body_for(operation, doc)
-        return {} unless @_request_body && @_request_body.key?(operation)
+        return {} unless request_body_for?(operation)
 
         @_request_body.retrieve(operation, doc)
+      end
+
+      def request_body_for?(operation)
+        return false unless @_request_body
+
+        @_request_body.key?(operation)
+      end
+    end
+
+    module InstanceMethods
+      def request_params_for(operation)
+        self.class.request_params_for(operation, self)
+      end
+
+      def request_params_for?(operation)
+        self.class.request_params_for?(operation)
+      end
+
+      def request_body_for(operation)
+        self.class.request_body_for(operation, self)
+      end
+
+      def request_body_for?(operation)
+        self.class.request_body_for?(operation)
       end
     end
   end

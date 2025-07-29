@@ -88,6 +88,8 @@ module Esse
       # @see https://www.elastic.co/guide/en/elasticsearch/reference/7.5/docs-delete.html
       def delete(doc = nil, suffix: nil, **options)
         if document?(doc)
+          options.merge!(cluster.request_params_for(:delete)) if cluster.request_params_for?(:delete)
+          options.merge!(doc.request_params_for(:delete)) if doc.request_params_for?(:delete)
           options[:id] = doc.id
           options[:type] = doc.type if doc.type?
           options[:routing] = doc.routing if doc.routing?
@@ -113,6 +115,8 @@ module Esse
       # @see https://www.elastic.co/guide/en/elasticsearch/reference/7.5/docs-update.html
       def update(doc = nil, suffix: nil, **options)
         if document?(doc)
+          options.merge!(cluster.request_params_for(:update)) if cluster.request_params_for?(:update)
+          options.merge!(doc.request_params_for(:update)) if doc.request_params_for?(:update)
           options[:id] = doc.id
           options[:body] = { doc: doc.mutated_source }
           options[:type] = doc.type if doc.type?
@@ -139,6 +143,8 @@ module Esse
       # @see https://www.elastic.co/guide/en/elasticsearch/reference/7.5/docs-index_.html
       def index(doc = nil, suffix: nil, **options)
         if document?(doc)
+          options.merge!(cluster.request_params_for(:index)) if cluster.request_params_for?(:index)
+          options.merge!(doc.request_params_for(:index)) if doc.request_params_for?(:index)
           options[:id] = doc.id
           options[:body] = doc.mutated_source
           options[:type] = doc.type if doc.type?

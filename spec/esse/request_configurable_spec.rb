@@ -147,5 +147,67 @@ RSpec.describe Esse::RequestConfigurable do
         expect(dummy_class.request_body_for(:create, 'dynamic_value')).to eq({ key1: 'value1', key2: 'dynamic_value' })
       end
     end
+
+    describe '.request_params_for?' do
+      it 'returns true if request params exist for the operation' do
+        dummy_class.request_params(:index, key: 'value')
+        expect(dummy_class.request_params_for?(:index)).to be true
+      end
+
+      it 'returns false if no request params exist for the operation' do
+        expect(dummy_class.request_params_for?(:nonexistent)).to be false
+      end
+    end
+
+    describe '.request_body_for?' do
+      it 'returns true if request body exists for the operation' do
+        dummy_class.request_body(:create, key: 'value')
+        expect(dummy_class.request_body_for?(:create)).to be true
+      end
+
+      it 'returns false if no request body exists for the operation' do
+        expect(dummy_class.request_body_for?(:nonexistent)).to be false
+      end
+    end
+  end
+
+  describe 'InstanceMethods' do
+    let(:instance) { dummy_class.new }
+
+    describe '#request_params_for' do
+      it 'delegates to the class method' do
+        dummy_class.request_params(:index, key: 'value')
+        expect(instance.request_params_for(:index)).to eq({ key: 'value' })
+      end
+    end
+
+    describe '#request_params_for?' do
+      it 'returns true if request params exist for the operation' do
+        dummy_class.request_params(:index, key: 'value')
+        expect(instance.request_params_for?(:index)).to be true
+      end
+
+      it 'returns false if no request params exist for the operation' do
+        expect(instance.request_params_for?(:nonexistent)).to be false
+      end
+    end
+
+    describe '#request_body_for' do
+      it 'delegates to the class method' do
+        dummy_class.request_body(:create, key: 'value')
+        expect(instance.request_body_for(:create)).to eq({ key: 'value' })
+      end
+    end
+
+    describe '#request_body_for?' do
+      it 'returns true if request body exists for the operation' do
+        dummy_class.request_body(:create, key: 'value')
+        expect(instance.request_body_for?(:create)).to be true
+      end
+
+      it 'returns false if no request body exists for the operation' do
+        expect(instance.request_body_for?(:nonexistent)).to be false
+      end
+    end
   end
 end

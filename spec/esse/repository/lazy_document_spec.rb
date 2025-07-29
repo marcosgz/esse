@@ -178,6 +178,10 @@ RSpec.describe Esse::Repository do
   end
 
   describe '.update_documents_attribute' do
+    let(:index) do
+      Class.new(Esse::Index)
+    end
+
     let(:repo) do
       Class.new(Esse::Repository) do
         lazy_document_attribute :city_names do |docs|
@@ -189,14 +193,20 @@ RSpec.describe Esse::Repository do
       end
     end
 
+    before do
+      allow(repo).to receive(:index).and_return(index)
+    end
+
     it 'does nothing when no ids are provided' do
       expect(repo.index).not_to receive(:bulk)
       repo.update_documents_attribute(:city_names)
     end
 
     it 'does nothing when no ids are found' do
-      expect(repo.index).not_to receive(:bulk)
+      allow(repo.index).to receive(:bulk)
       repo.update_documents_attribute(:city_names, '3')
+
+      expect(repo.index).not_to have_received(:bulk)
     end
 
     it 'updates the documents' do

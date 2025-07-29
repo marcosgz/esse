@@ -14,6 +14,8 @@ module Esse
     ATTRIBUTES = %i[index_prefix settings mappings client wait_for_status readonly].freeze
     WAIT_FOR_STATUSES = %w[green yellow red].freeze
 
+    include Esse::RequestConfigurable
+
     # The index prefix. For example an index named UsersIndex.
     # With `index_prefix = 'app1'`. Final index/alias is: 'app1_users'
     attr_accessor :index_prefix
