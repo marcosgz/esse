@@ -2,12 +2,19 @@
 
 module Esse
   module RequestConfigurable
-    OPERATIONS = %i[
+    PARAMS_OPERATIONS = %i[
       index
       create
       update
       delete
       bulk
+      search
+    ].freeze
+
+    BODY_OPERATIONS = %i[
+      index
+      create
+      update
       bulk_update
       bulk_delete
       bulk_create
@@ -83,7 +90,7 @@ module Esse
     module DSL
       def request_params(*operations, **params, &block)
         operations.each do |operation|
-          raise ArgumentError, "Invalid operation: #{operation}" unless OPERATIONS.include?(operation)
+          raise ArgumentError, "Invalid operation: #{operation}" unless PARAMS_OPERATIONS.include?(operation)
 
           @request_params ||= Container.new
           @request_params.add(operation, RequestParams.new(operation, params, &block))
@@ -94,7 +101,7 @@ module Esse
 
       def request_body(*operations, **params, &block)
         operations.each do |operation|
-          raise ArgumentError, "Invalid operation: #{operation}" unless OPERATIONS.include?(operation)
+          raise ArgumentError, "Invalid operation: #{operation}" unless BODY_OPERATIONS.include?(operation)
 
           @request_body ||= Container.new
           @request_body.add(operation, RequestBody.new(operation, params, &block))
