@@ -39,6 +39,8 @@ module Esse
           :@mapping => nil,
           :@cluster_id => :dup,
           :@plugins => :dup,
+          :@request_params => :dup,
+          :@request_body => :dup,
         }
       end
     end

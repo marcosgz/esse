@@ -80,20 +80,92 @@ RSpec.shared_examples 'index.delete' do |doc_type: false|
     end
   end
 
-  it 'deletes the document using the instance of Esse::Document' do |example|
-    es_client do |client, _conf, cluster|
-      VenuesIndex.create_index(alias: true, suffix: index_suffix)
-      VenuesIndex.import(refresh: true, suffix: index_suffix, **params)
+  context 'when using an Esse::Document instance' do
+    let(:doc_class) do
+      Class.new(Esse::HashDocument)
+    end
+    let(:document) { doc_class.new(id: 1, **doc_params) }
 
-      document = Esse::HashDocument.new(id: 1, **doc_params)
-      resp = nil
-      expect {
-        resp = VenuesIndex.delete(document)
-      }.not_to raise_error
-      if %w[1.x 2.x].include?(example.metadata[:es_version])
-        expect(resp['found']).to eq(true)
-      else
-        expect(resp['result']).to eq('deleted')
+    it 'deletes the document using the instance of Esse::Document' do |example|
+      es_client do |client, _conf, cluster|
+        VenuesIndex.create_index(alias: true, suffix: index_suffix)
+        VenuesIndex.import(refresh: true, suffix: index_suffix, **params)
+
+        resp = nil
+        expect {
+          resp = VenuesIndex.delete(document)
+        }.not_to raise_error
+        if %w[1.x 2.x].include?(example.metadata[:es_version])
+          expect(resp['found']).to eq(true)
+        else
+          expect(resp['result']).to eq('deleted')
+        end
+      end
+    end
+
+    it 'deletes the document using custom params from cluster' do |example|
+      es_client do |client, _conf, cluster|
+        cluster.request_params(:update, retry_on_conflict: 2)
+        cluster.request_params(:delete, timeout: '5s')
+
+        VenuesIndex.create_index(alias: true, suffix: index_suffix)
+        VenuesIndex.import(refresh: true, suffix: index_suffix, **params)
+
+        transport = cluster.api
+        allow(cluster).to receive(:api).and_return(transport)
+        allow(transport).to receive(:delete).and_call_original
+
+        resp = nil
+        expect {
+          resp = VenuesIndex.delete(document, refresh: true)
+        }.not_to raise_error
+
+        expect(transport).to have_received(:delete).with(
+          index: VenuesIndex.index_name,
+          id: 1,
+          refresh: true,
+          timeout: '5s',
+          **params
+        )
+
+        if %w[1.x 2.x].include?(example.metadata[:es_version])
+          expect(resp['found']).to eq(true)
+        else
+          expect(resp['result']).to eq('deleted')
+        end
+      end
+    end
+
+    it 'deletes the document using custom params from index' do |example|
+      es_client do |client, _conf, cluster|
+        VenuesIndex.request_params(:update, retry_on_conflict: 2)
+        VenuesIndex.request_params(:delete, timeout: '5s')
+
+        VenuesIndex.create_index(alias: true, suffix: index_suffix)
+        VenuesIndex.import(refresh: true, suffix: index_suffix, **params)
+
+        transport = cluster.api
+        allow(cluster).to receive(:api).and_return(transport)
+        allow(transport).to receive(:delete).and_call_original
+
+        resp = nil
+        expect {
+          resp = VenuesIndex.delete(document, refresh: true)
+        }.not_to raise_error
+
+        expect(transport).to have_received(:delete).with(
+          index: VenuesIndex.index_name,
+          id: 1,
+          refresh: true,
+          timeout: '5s',
+          **params
+        )
+
+        if %w[1.x 2.x].include?(example.metadata[:es_version])
+          expect(resp['found']).to eq(true)
+        else
+          expect(resp['result']).to eq('deleted')
+        end
       end
     end
   end

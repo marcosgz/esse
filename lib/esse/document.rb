@@ -6,22 +6,10 @@
 #
 # @example
 #   class UserDocument < Esse::Document
-#     request_body :bulk_update do |doc|
-#       {
-#         retry_on_conflict: 3,
-#       }
-#     end
-
-#     request_params :update, :index, :delete, :bulk do |doc|
-#       { refresh: true }
-#     end
-#     # OR
-#     request_params :update, :index, :delete, :bulk, refresh: true
-#
 #     def id
 #       object.id
 #     end
-
+#
 #     def source
 #       { name: object.name, email: object.email }
 #     end
@@ -29,7 +17,6 @@
 
 module Esse
   class Document
-    include Esse::RequestConfigurable
 
     MUTATIONS_FALLBACK = {}.freeze
 

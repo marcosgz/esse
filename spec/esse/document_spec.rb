@@ -7,12 +7,6 @@ RSpec.describe Esse::Document do
   let(:object) { double }
   let(:options) { {} }
 
-  describe 'RequestConfigurable' do
-    it 'should include Esse::RequestConfigurable' do
-      expect(described_class.included_modules).to include(Esse::RequestConfigurable)
-    end
-  end
-
   describe '#object' do
     subject { serializer.object }
 

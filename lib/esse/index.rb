@@ -23,5 +23,6 @@ module Esse
     require_relative 'index/indices'
     require_relative 'index/search'
     require_relative 'index/documents'
+    require_relative 'index/request_configurable'
   end
 end

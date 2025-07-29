@@ -16,8 +16,11 @@ module Esse
     ].freeze
 
     def self.included(base)
-      base.extend(ClassMethods)
-      base.include(InstanceMethods)
+      base.include DSL
+    end
+
+    def self.extended(base)
+      base.extend DSL
     end
 
     class RequestEntry
@@ -77,13 +80,13 @@ module Esse
       end
     end
 
-    module ClassMethods
+    module DSL
       def request_params(*operations, **params, &block)
         operations.each do |operation|
           raise ArgumentError, "Invalid operation: #{operation}" unless OPERATIONS.include?(operation)
 
-          @_request_params ||= Container.new
-          @_request_params.add(operation, RequestParams.new(operation, params, &block))
+          @request_params ||= Container.new
+          @request_params.add(operation, RequestParams.new(operation, params, &block))
         end
 
         self
@@ -93,8 +96,8 @@ module Esse
         operations.each do |operation|
           raise ArgumentError, "Invalid operation: #{operation}" unless OPERATIONS.include?(operation)
 
-          @_request_body ||= Container.new
-          @_request_body.add(operation, RequestBody.new(operation, params, &block))
+          @request_body ||= Container.new
+          @request_body.add(operation, RequestBody.new(operation, params, &block))
         end
 
         self
@@ -103,43 +106,25 @@ module Esse
       def request_params_for(operation, doc)
         return {} unless request_params_for?(operation)
 
-        @_request_params.retrieve(operation, doc)
+        @request_params.retrieve(operation, doc)
       end
 
       def request_params_for?(operation)
-        return false unless @_request_params
+        return false unless @request_params
 
-        @_request_params.key?(operation)
+        @request_params.key?(operation)
       end
 
       def request_body_for(operation, doc)
         return {} unless request_body_for?(operation)
 
-        @_request_body.retrieve(operation, doc)
+        @request_body.retrieve(operation, doc)
       end
 
       def request_body_for?(operation)
-        return false unless @_request_body
+        return false unless @request_body
 
-        @_request_body.key?(operation)
-      end
-    end
-
-    module InstanceMethods
-      def request_params_for(operation)
-        self.class.request_params_for(operation, self)
-      end
-
-      def request_params_for?(operation)
-        self.class.request_params_for?(operation)
-      end
-
-      def request_body_for(operation)
-        self.class.request_body_for(operation, self)
-      end
-
-      def request_body_for?(operation)
-        self.class.request_body_for?(operation)
+        @request_body.key?(operation)
       end
     end
   end

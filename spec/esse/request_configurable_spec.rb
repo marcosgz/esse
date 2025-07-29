@@ -5,11 +5,35 @@ require 'spec_helper'
 RSpec.describe Esse::RequestConfigurable do
   let(:dummy_class) do
     Class.new do
-      include Esse::RequestConfigurable
+      extend Esse::RequestConfigurable
     end
   end
 
   let(:document) { instance_double(Esse::Document) }
+
+  describe '.included' do
+    it 'includes the DSL module' do
+      klass = Class.new do
+        include Esse::RequestConfigurable
+      end
+      expect(klass.included_modules).to include(Esse::RequestConfigurable::DSL)
+      inst = klass.new
+      expect(inst).to respond_to(:request_params)
+      expect(inst).to respond_to(:request_body)
+    end
+  end
+
+  describe '.extended' do
+    it 'extends the DSL module' do
+      klass = Class.new do
+        extend Esse::RequestConfigurable
+      end
+
+      expect(klass.singleton_class.included_modules).to include(Esse::RequestConfigurable::DSL)
+      expect(klass).to respond_to(:request_params)
+      expect(klass).to respond_to(:request_body)
+    end
+  end
 
   describe described_class::RequestEntry do
     describe '#call' do
@@ -83,7 +107,7 @@ RSpec.describe Esse::RequestConfigurable do
     end
   end
 
-  describe 'ClassMethods' do
+  describe 'DSL' do
     describe '.request_params' do
       it 'adds request parameters for valid operations' do
         dummy_class.request_params(:index, key: 'value')
@@ -167,46 +191,6 @@ RSpec.describe Esse::RequestConfigurable do
 
       it 'returns false if no request body exists for the operation' do
         expect(dummy_class.request_body_for?(:nonexistent)).to be false
-      end
-    end
-  end
-
-  describe 'InstanceMethods' do
-    let(:instance) { dummy_class.new }
-
-    describe '#request_params_for' do
-      it 'delegates to the class method' do
-        dummy_class.request_params(:index, key: 'value')
-        expect(instance.request_params_for(:index)).to eq({ key: 'value' })
-      end
-    end
-
-    describe '#request_params_for?' do
-      it 'returns true if request params exist for the operation' do
-        dummy_class.request_params(:index, key: 'value')
-        expect(instance.request_params_for?(:index)).to be true
-      end
-
-      it 'returns false if no request params exist for the operation' do
-        expect(instance.request_params_for?(:nonexistent)).to be false
-      end
-    end
-
-    describe '#request_body_for' do
-      it 'delegates to the class method' do
-        dummy_class.request_body(:create, key: 'value')
-        expect(instance.request_body_for(:create)).to eq({ key: 'value' })
-      end
-    end
-
-    describe '#request_body_for?' do
-      it 'returns true if request body exists for the operation' do
-        dummy_class.request_body(:create, key: 'value')
-        expect(instance.request_body_for?(:create)).to be true
-      end
-
-      it 'returns false if no request body exists for the operation' do
-        expect(instance.request_body_for?(:nonexistent)).to be false
       end
     end
   end
