@@ -68,6 +68,18 @@ RSpec.describe Esse::RequestConfigurable do
       it 'returns an empty hash if no entries exist for the operation' do
         expect(container.retrieve(:nonexistent, document)).to eq({})
       end
+
+      it 'symbolizes keys in the result' do
+        entry1 = Esse::RequestConfigurable::RequestEntry.new(:index, { 'static' => 'value' })
+        entry2 = Esse::RequestConfigurable::RequestEntry.new(:index) do |doc|
+          { 'dynamic' => doc }
+        end
+        container.add(:index, entry1)
+        container.add(:index, entry2)
+
+        result = container.retrieve(:index, 'dynamic_value')
+        expect(result).to eq({ static: 'value', dynamic: 'dynamic_value' })
+      end
     end
   end
 

@@ -24,7 +24,7 @@ module Esse
 
       def initialize(operation, hash = {}, &block)
         @operation = operation
-        @hash = hash
+        @hash = hash.transform_keys(&:to_sym)
         @block = block
       end
 
@@ -37,7 +37,7 @@ module Esse
         result = block.call(doc) || {}
         raise ArgumentError, "Expected a Hash, got #{result.class}" unless result.is_a?(Hash)
 
-        hash.merge(result)
+        hash.merge(result.transform_keys(&:to_sym))
       end
     end
 
