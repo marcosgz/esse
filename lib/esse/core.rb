@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 module Esse
+  require_relative 'request_configurable'
   require_relative 'config'
   require_relative 'cluster'
   require_relative 'primitives'
