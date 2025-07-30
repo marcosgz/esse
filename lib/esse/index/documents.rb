@@ -184,7 +184,7 @@ module Esse
           elsif Esse.document?(doc) && !doc.ignore_on_index?
             hash = doc.to_bulk
             hash[:_type] ||= type if type
-            hash = request_params_for(:index, doc).merge(hash) if request_params_for?(:index)
+            hash = request_params_for(:index, doc, bulk: true).merge(hash) if request_params_for?(:index)
             to_index << hash
           end
         end
@@ -194,7 +194,7 @@ module Esse
           elsif Esse.document?(doc) && !doc.ignore_on_index?
             hash = doc.to_bulk
             hash[:_type] ||= type if type
-            hash = request_params_for(:create, doc).merge(hash) if request_params_for?(:create)
+            hash = request_params_for(:create, doc, bulk: true).merge(hash) if request_params_for?(:create)
             to_create << hash
           end
         end
@@ -204,7 +204,7 @@ module Esse
           elsif Esse.document?(doc) && !doc.ignore_on_index?
             hash = doc.to_bulk(operation: :update)
             hash[:_type] ||= type if type
-            hash = request_params_for(:update, doc).merge(hash) if request_params_for?(:update)
+            hash = request_params_for(:update, doc, bulk: true).merge(hash) if request_params_for?(:update)
             to_update << hash
           end
         end
@@ -214,7 +214,7 @@ module Esse
           elsif Esse.document?(doc) && !doc.ignore_on_delete?
             hash = doc.to_bulk(data: false)
             hash[:_type] ||= type if type
-            hash = request_params_for(:delete, doc).merge(hash) if request_params_for?(:delete)
+            hash = request_params_for(:delete, doc, bulk: true).merge(hash) if request_params_for?(:delete)
             to_delete << hash
           end
         end

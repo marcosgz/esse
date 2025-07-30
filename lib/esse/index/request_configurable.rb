@@ -78,10 +78,16 @@ module Esse
           self
         end
 
-        def request_params_for(operation, doc)
+        def request_params_for(operation, doc, bulk: false)
           return {} unless request_params_for?(operation)
 
-          @request_params.retrieve(operation, doc)
+          params = @request_params.retrieve(operation, doc)
+
+          if bulk && BULK_OPERATIONS_AND_PARAMS.key?(operation)
+            params.slice(*BULK_OPERATIONS_AND_PARAMS[operation])
+          else
+            params
+          end
         end
 
         def request_params_for?(operation)

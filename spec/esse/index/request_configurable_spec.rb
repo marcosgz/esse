@@ -51,6 +51,146 @@ RSpec.describe Esse::Index::RequestConfigurable do
       end
       expect(index.request_params_for(:index, 'dynamic_value')).to eq({ key1: 'value1', key2: 'dynamic_value' })
     end
+
+    context 'when retrieving bulk params on :index operation' do
+      before do
+        index.request_params(:index,
+          _index: 'test_index',
+          _type: 'test_type',
+          routing: 'test_routing',
+          if_primary_term: 1,
+          if_seq_no: 2,
+          version: 3,
+          version_type: 'external',
+          dynamic_templates: { test: { match: 'test*', mapping: { type: 'keyword' } } },
+          pipeline: 'test_pipeline',
+          require_alias: true,
+          # non-bulk params
+          timeout: '30s',
+          refresh: true,
+          wait_for_active_shards: 'all'
+        )
+      end
+
+      it 'returns the correct bulk params' do
+        expected_params = {
+          _index: 'test_index',
+          _type: 'test_type',
+          routing: 'test_routing',
+          if_primary_term: 1,
+          if_seq_no: 2,
+          version: 3,
+          version_type: 'external',
+          dynamic_templates: { test: { match: 'test*', mapping: { type: 'keyword' } } },
+          pipeline: 'test_pipeline',
+          require_alias: true,
+        }
+        expect(index.request_params_for(:index, document, bulk: true)).to eq(expected_params)
+      end
+    end
+
+    context 'when retrieving bulk params on :create operation' do
+      before do
+        index.request_params(:create,
+          _index: 'test_index',
+          _type: 'test_type',
+          routing: 'test_routing',
+          if_primary_term: 1,
+          if_seq_no: 2,
+          version: 3,
+          version_type: 'external',
+          dynamic_templates: { test: { match: 'test*', mapping: { type: 'keyword' } } },
+          pipeline: 'test_pipeline',
+          require_alias: true,
+          # non-bulk params
+          timeout: '30s',
+          refresh: true,
+          wait_for_active_shards: 'all'
+        )
+      end
+
+      it 'returns the correct bulk params' do
+        expected_params = {
+          _index: 'test_index',
+          _type: 'test_type',
+          routing: 'test_routing',
+          if_primary_term: 1,
+          if_seq_no: 2,
+          version: 3,
+          version_type: 'external',
+          dynamic_templates: { test: { match: 'test*', mapping: { type: 'keyword' } } },
+          pipeline: 'test_pipeline',
+          require_alias: true,
+        }
+        expect(index.request_params_for(:create, document, bulk: true)).to eq(expected_params)
+      end
+    end
+
+    context 'when retrieving bulk params on :update operation' do
+      before do
+        index.request_params(:update,
+          _index: 'test_index',
+          _type: 'test_type',
+          routing: 'test_routing',
+          if_primary_term: 1,
+          if_seq_no: 2,
+          version: 3,
+          version_type: 'external',
+          require_alias: true,
+          retry_on_conflict: 3,
+          # non-bulk params
+          timeout: '30s',
+          refresh: true,
+          wait_for_active_shards: 'all'
+        )
+      end
+
+      it 'returns the correct bulk params' do
+        expected_params = {
+          _index: 'test_index',
+          _type: 'test_type',
+          routing: 'test_routing',
+          if_primary_term: 1,
+          if_seq_no: 2,
+          version: 3,
+          version_type: 'external',
+          require_alias: true,
+          retry_on_conflict: 3,
+        }
+        expect(index.request_params_for(:update, document, bulk: true)).to eq(expected_params)
+      end
+    end
+
+    context 'when retrieving bulk params on :delete operation' do
+      before do
+        index.request_params(:delete,
+          _index: 'test_index',
+          _type: 'test_type',
+          routing: 'test_routing',
+          if_primary_term: 1,
+          if_seq_no: 2,
+          version: 3,
+          version_type: 'external',
+          # non-bulk params
+          timeout: '30s',
+          refresh: true,
+          wait_for_active_shards: 'all'
+        )
+      end
+
+      it 'returns the correct bulk params' do
+        expected_params = {
+          _index: 'test_index',
+          _type: 'test_type',
+          routing: 'test_routing',
+          if_primary_term: 1,
+          if_seq_no: 2,
+          version: 3,
+          version_type: 'external',
+        }
+        expect(index.request_params_for(:delete, document, bulk: true)).to eq(expected_params)
+      end
+    end
   end
 
   describe '.request_params_for?' do

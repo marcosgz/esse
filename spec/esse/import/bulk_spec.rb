@@ -7,25 +7,25 @@ RSpec.describe Esse::Import::Bulk do
     index = Array(index).select(&Esse.method(:document?)).reject(&:ignore_on_index?).map do |doc|
       value = doc.to_bulk
       value[:_type] ||= type if type
-      value = request_params_for(:index, doc).merge(value) if index_class&.request_params_for?(:index)
+      value = request_params_for(:index, doc, bulk: true).merge(value) if index_class&.request_params_for?(:index)
       value
     end
     create = Array(create).select(&Esse.method(:document?)).reject(&:ignore_on_index?).map do |doc|
       value = doc.to_bulk
       value[:_type] ||= type if type
-      value = request_params_for(:create, doc).merge(value) if index_class&.request_params_for?(:create)
+      value = request_params_for(:create, doc, bulk: true).merge(value) if index_class&.request_params_for?(:create)
       value
     end
     update = Array(update).select(&Esse.method(:document?)).reject(&:ignore_on_index?).map do |doc|
       value = doc.to_bulk(operation: :update)
       value[:_type] ||= type if type
-      value = request_params_for(:update, doc).merge(value) if index_class&.request_params_for?(:update)
+      value = request_params_for(:update, doc, bulk: true).merge(value) if index_class&.request_params_for?(:update)
       value
     end
     delete = Array(delete).select(&Esse.method(:document?)).reject(&:ignore_on_delete?).map do |doc|
       value = doc.to_bulk(data: false)
       value[:_type] ||= type if type
-      value = request_params_for(:delete, doc).merge(value) if index_class&.request_params_for?(:delete)
+      value = request_params_for(:delete, doc, bulk: true).merge(value) if index_class&.request_params_for?(:delete)
       value
     end
     Esse::Import::Bulk.new(index: index, delete: delete, create: create, update: update)
