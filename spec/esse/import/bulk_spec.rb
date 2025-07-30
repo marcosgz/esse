@@ -3,12 +3,40 @@
 require 'spec_helper'
 
 RSpec.describe Esse::Import::Bulk do
+  def build_from_documents(type: nil, index: nil, delete: nil, create: nil, update: nil, index_class: nil)
+    index = Array(index).select(&Esse.method(:document?)).reject(&:ignore_on_index?).map do |doc|
+      value = doc.to_bulk
+      value[:_type] ||= type if type
+      value = request_params_for(:index, doc).merge(value) if index_class&.request_params_for?(:index)
+      value
+    end
+    create = Array(create).select(&Esse.method(:document?)).reject(&:ignore_on_index?).map do |doc|
+      value = doc.to_bulk
+      value[:_type] ||= type if type
+      value = request_params_for(:create, doc).merge(value) if index_class&.request_params_for?(:create)
+      value
+    end
+    update = Array(update).select(&Esse.method(:document?)).reject(&:ignore_on_index?).map do |doc|
+      value = doc.to_bulk(operation: :update)
+      value[:_type] ||= type if type
+      value = request_params_for(:update, doc).merge(value) if index_class&.request_params_for?(:update)
+      value
+    end
+    delete = Array(delete).select(&Esse.method(:document?)).reject(&:ignore_on_delete?).map do |doc|
+      value = doc.to_bulk(data: false)
+      value[:_type] ||= type if type
+      value = request_params_for(:delete, doc).merge(value) if index_class&.request_params_for?(:delete)
+      value
+    end
+    Esse::Import::Bulk.new(index: index, delete: delete, create: create, update: update)
+  end
+
   describe '#each_request' do
     let(:index) { [Esse::HashDocument.new(_id: 1, foo: 'bar')] }
     let(:create) { [Esse::HashDocument.new(_id: 2, foo: 'bar')] }
     let(:delete) { [Esse::HashDocument.new(_id: 3, foo: 'bar')] }
     let(:update) { [Esse::HashDocument.new(_id: 4, foo: 'bar')] }
-    let(:bulk) { described_class.build_from_documents(index: index, create: create, delete: delete, update: update) }
+    let(:bulk) { build_from_documents(index: index, create: create, delete: delete, update: update) }
 
     it 'yields a request body instance' do
       expect { |b| bulk.each_request(&b) }.to yield_with_args(Esse::Import::RequestBodyAsJson)
@@ -61,7 +89,7 @@ RSpec.describe Esse::Import::Bulk do
       let(:delete) do
         %w[foo bar baz].each_with_index.map { |name, idx| Esse::HashDocument.new(id: idx + 30, name: name) }
       end
-      let(:bulk) { described_class.build_from_documents(index: index, create: create, delete: delete) }
+      let(:bulk) { build_from_documents(index: index, create: create, delete: delete) }
 
       it 'retries in small chunks' do
         expect(bulk).to receive(:sleep).with(an_instance_of(Integer)).exactly(3).times

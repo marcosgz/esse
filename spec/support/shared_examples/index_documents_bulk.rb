@@ -40,6 +40,29 @@ RSpec.shared_examples 'index.bulk' do |doc_type: false|
     end
   end
 
+  it 'indexes a batch of documents to the aliased index using custom request parameters' do
+    es_client do |client, _conf, cluster|
+      VenuesIndex.request_params(:index, require_alias: true)
+      VenuesIndex.create_index(alias: true)
+
+      transport = cluster.api
+      allow(cluster).to receive(:api).and_return(transport)
+      allow(transport).to receive(:bulk).and_call_original
+
+      resp = nil
+      expect {
+        resp = VenuesIndex.bulk(index: documents)
+      }.not_to raise_error
+
+      expect(transport).to have_received(:bulk).with(
+        a_hash_including(
+          index: VenuesIndex.name,
+          require_alias: true
+        )
+      )
+    end
+  end
+
   it 'creates a batch of documents to the aliased index' do
     es_client do |client, _conf, cluster|
       VenuesIndex.create_index(alias: true)

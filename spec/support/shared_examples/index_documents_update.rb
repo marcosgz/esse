@@ -107,39 +107,6 @@ RSpec.shared_examples 'index.update' do |doc_type: false|
       end
     end
 
-    it 'updates the document using custom params from cluster' do |example|
-      es_client do |client, _conf, cluster|
-        VenuesIndex.create_index(alias: true)
-        VenuesIndex.import(refresh: true, **params)
-
-        cluster.request_params(:update, retry_on_conflict: 3)
-        cluster.request_params(:delete, timeout: -1)
-
-        transport = cluster.api
-        allow(cluster).to receive(:api).and_return(transport)
-        allow(transport).to receive(:update).and_call_original
-        resp = nil
-        expect {
-          resp = VenuesIndex.update(document, refresh: true)
-        }.not_to raise_error
-
-        expect(cluster.api).to have_received(:update).with(
-          index: VenuesIndex.index_name,
-          id: 1,
-          retry_on_conflict: 3,
-          refresh: true,
-          body: an_instance_of(Hash),
-        )
-
-        unless %w[1.x 2.x].include?(example.metadata[:es_version])
-          expect(resp['result']).to eq('updated')
-        end
-
-        resp = VenuesIndex.get(id: 1)
-        expect(resp['_source']).to include('name' => 'New Name')
-      end
-    end
-
     it 'updates the document using custom params from index' do |example|
       es_client do |client, _conf, cluster|
         VenuesIndex.request_params(:update, retry_on_conflict: 2)

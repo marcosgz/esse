@@ -132,39 +132,6 @@ RSpec.shared_examples 'index.index' do |doc_type: false|
       end
     end
 
-    it 'indexes the document using custom params from cluster' do |example|
-      es_client do |client, _conf, cluster|
-        VenuesIndex.create_index(alias: true)
-
-        cluster.request_params(:index, timeout: '5s')
-        cluster.request_params(:delete, timeout: -1)
-
-        transport = cluster.api
-        allow(cluster).to receive(:api).and_return(transport)
-        allow(transport).to receive(:index).and_call_original
-
-        resp = nil
-        expect {
-          resp = VenuesIndex.index(document, **params)
-        }.not_to raise_error
-
-        unless %w[1.x 2.x].include?(example.metadata[:es_version])
-          expect(resp['result']).to eq('created')
-        end
-
-        expect(transport).to have_received(:index).with(
-          index: VenuesIndex.index_name,
-          id: 1,
-          body: an_instance_of(Hash),
-          timeout: '5s',
-          **params
-        )
-
-        resp = VenuesIndex.get(id: 1)
-        expect(resp['_source']).to include('name' => 'New Name')
-      end
-    end
-
     it 'indexes the document using custom params from index' do |example|
       es_client do |client, _conf, cluster|
         VenuesIndex.create_index(alias: true)

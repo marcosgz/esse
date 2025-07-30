@@ -2,14 +2,13 @@
 
 module Esse
   module RequestConfigurable
-    PARAMS_OPERATIONS = %i[
-      index
-      create
-      update
-      delete
-      bulk
-      search
-    ].freeze
+    OPERATIONS = %i[index create update delete].freeze
+    BULK_OPERATIONS_AND_PARAMS = {
+      index: %i[_index _type routing if_primary_term if_seq_no version version_type dynamic_templates pipeline require_alias],
+      create: %i[_index _type routing if_primary_term if_seq_no version version_type dynamic_templates pipeline require_alias],
+      update: %i[_index _type routing if_primary_term if_seq_no version version_type require_alias retry_on_conflict],
+      delete: %i[_index _type routing if_primary_term if_seq_no version version_type],
+    }.freeze
 
     def self.included(base)
       base.include DSL
@@ -73,7 +72,7 @@ module Esse
     module DSL
       def request_params(*operations, **params, &block)
         operations.each do |operation|
-          raise ArgumentError, "Invalid operation: #{operation}" unless PARAMS_OPERATIONS.include?(operation)
+          raise ArgumentError, "Invalid operation: #{operation}" unless OPERATIONS.include?(operation)
 
           @request_params ||= Container.new
           @request_params.add(operation, RequestParams.new(operation, params, &block))

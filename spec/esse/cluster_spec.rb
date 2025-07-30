@@ -5,12 +5,6 @@ require 'spec_helper'
 RSpec.describe Esse::Cluster do
   let(:model) { described_class.new(id: :v1) }
 
-  describe 'RequestConfigurable' do
-    it 'should include Esse::RequestConfigurable' do
-      expect(described_class.included_modules).to include(Esse::RequestConfigurable)
-    end
-  end
-
   describe '#id' do
     context do
       let(:model) { described_class.new(id: :v1) }
