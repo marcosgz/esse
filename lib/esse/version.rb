@@ -1,5 +1,5 @@
 # frozen_string_literal: true
 
 module Esse
-  VERSION = '0.4.0.rc4'
+  VERSION = '0.4.0.rc5'
 end
