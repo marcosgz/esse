@@ -40,11 +40,12 @@ RSpec.shared_examples 'index.bulk' do |doc_type: false|
     end
   end
 
-  it 'indexes a batch of documents to the aliased index using custom request parameters' do
+  it 'indexes a batch of documents to the aliased index using custom request parameters' do |example|
     doc = documents[0]
+    index_params = %w[1.x 2.x 5.x].include?(example.metadata[:es_version]) ? {} : { require_alias: true }
 
     es_client do |client, _conf, cluster|
-      VenuesIndex.request_params(:index, require_alias: true, timeout: '10s')
+      VenuesIndex.request_params(:index, **index_params, timeout: '10s')
       VenuesIndex.create_index(alias: true)
 
       transport = cluster.api
@@ -62,7 +63,7 @@ RSpec.shared_examples 'index.bulk' do |doc_type: false|
             index: a_hash_including(
               **doc.to_bulk,
               **doc_params,
-              require_alias: true,
+              **index_params,
             )
           })
         )
@@ -84,10 +85,12 @@ RSpec.shared_examples 'index.bulk' do |doc_type: false|
     end
   end
 
-  it 'creates a batch of documents to the aliased index using custom request parameters' do
+  it 'creates a batch of documents to the aliased index using custom request parameters' do |example|
     doc = documents[0]
+    create_params = %w[1.x 2.x 5.x].include?(example.metadata[:es_version]) ? {} : { require_alias: true }
+
     es_client do |client, _conf, cluster|
-      VenuesIndex.request_params(:create, require_alias: true, timeout: '10s')
+      VenuesIndex.request_params(:create, **create_params, timeout: '10s')
       VenuesIndex.create_index(alias: true)
 
       transport = cluster.api
@@ -103,7 +106,7 @@ RSpec.shared_examples 'index.bulk' do |doc_type: false|
             create: a_hash_including(
               **doc.to_bulk,
               **doc_params,
-              require_alias: true
+              **create_params,
             )
           })
         )
@@ -178,9 +181,11 @@ RSpec.shared_examples 'index.bulk' do |doc_type: false|
     end
   end
 
-  it 'updates a batch of documents to the aliased index using custom request parameters' do
+  it 'updates a batch of documents to the aliased index using custom request parameters' do |example|
+    update_params = %w[1.x 2.x 5.x].include?(example.metadata[:es_version]) ? {} : { retry_on_conflict: 2 }
+
     es_client do |client, _conf, cluster|
-      VenuesIndex.request_params(:update, retry_on_conflict: 2, timeout: '10s')
+      VenuesIndex.request_params(:update, **update_params, timeout: '10s')
       VenuesIndex.create_index(alias: true)
       VenuesIndex.import(refresh: true, **params)
 
@@ -201,7 +206,7 @@ RSpec.shared_examples 'index.bulk' do |doc_type: false|
             update: a_hash_including(
               **doc.to_bulk(operation: :update),
               **doc_params,
-              retry_on_conflict: 2,
+              **update_params,
             )
           })
         )

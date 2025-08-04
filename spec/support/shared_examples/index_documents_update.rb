@@ -129,6 +129,7 @@ RSpec.shared_examples 'index.update' do |doc_type: false|
           retry_on_conflict: 2,
           refresh: true,
           body: an_instance_of(Hash),
+          **params,
         )
 
         unless %w[1.x 2.x].include?(example.metadata[:es_version])
