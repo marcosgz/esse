@@ -188,7 +188,7 @@ RSpec.shared_examples 'index.reset_index' do
     end
 
     it 'create async task to reindex data from the old index and do not update the alias' do |example|
-      unless %w[1.x 2.x 5.x].include?(example.metadata[:es_version])
+      unless %w[1.x 2.x 5.x 6.x].include?(example.metadata[:es_version])
         es_client do |client, _conf, cluster|
           GeosIndex.create_index(alias: true, suffix: '2021')
           GeosIndex.import(refresh: true)
@@ -214,7 +214,7 @@ RSpec.shared_examples 'index.reset_index' do
     end
 
     it 'reindex data from the old index to the new index by awaiting for completion' do |example|
-      unless %w[1.x 2.x 5.x].include?(example.metadata[:es_version])
+      unless %w[1.x 2.x 5.x 6.x].include?(example.metadata[:es_version])
         es_client do |client, _conf, cluster|
           GeosIndex.create_index(alias: true, suffix: '2021')
           GeosIndex.import(refresh: true)

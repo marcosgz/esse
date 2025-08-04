@@ -4,11 +4,26 @@ RSpec.shared_examples 'index.update' do |doc_type: false|
   include_context 'with venues index definition'
 
   let(:params) do
-    doc_type ? { type: 'venue' } : {}
+    case doc_type
+    when :_doc
+      { type: :_doc }
+    when true
+      { type: 'venue' }
+    else
+      {}
+    end
   end
   let(:doc_params) do
-    doc_type ? { _type: 'venue' } : {}
+    case doc_type
+    when :_doc
+      { _type: :_doc }
+    when true
+      { _type: 'venue' }
+    else
+      {}
+    end
   end
+
   let(:index_suffix) { SecureRandom.hex(8) }
 
   it 'raises an Esse::Transport::ReadonlyClusterError exception when the cluster is readonly' do

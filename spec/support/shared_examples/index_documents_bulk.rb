@@ -4,11 +4,26 @@ RSpec.shared_examples 'index.bulk' do |doc_type: false|
   include_context 'with venues index definition'
 
   let(:params) do
-    doc_type ? { type: 'venue' } : {}
+    case doc_type
+    when :_doc
+      { type: '_doc' }
+    when true
+      { type: 'venue' }
+    else
+      {}
+    end
   end
   let(:doc_params) do
-    doc_type ? { _type: 'venue' } : {}
+    case doc_type
+    when :_doc
+      { _type: '_doc' }
+    when true
+      { _type: 'venue' }
+    else
+      {}
+    end
   end
+
   let(:documents) do
     venues.flatten.map do |item|
       Esse::HashDocument.new(item.merge(doc_params))
@@ -42,7 +57,7 @@ RSpec.shared_examples 'index.bulk' do |doc_type: false|
 
   it 'indexes a batch of documents to the aliased index using custom request parameters' do |example|
     doc = documents[0]
-    index_params = %w[1.x 2.x 5.x].include?(example.metadata[:es_version]) ? {} : { require_alias: true }
+    index_params = %w[1.x 2.x 5.x 6.x].include?(example.metadata[:es_version]) ? {} : { require_alias: true }
 
     es_client do |client, _conf, cluster|
       VenuesIndex.request_params(:index, **index_params, timeout: '10s')
@@ -87,7 +102,7 @@ RSpec.shared_examples 'index.bulk' do |doc_type: false|
 
   it 'creates a batch of documents to the aliased index using custom request parameters' do |example|
     doc = documents[0]
-    create_params = %w[1.x 2.x 5.x].include?(example.metadata[:es_version]) ? {} : { require_alias: true }
+    create_params = %w[1.x 2.x 5.x 6.x].include?(example.metadata[:es_version]) ? {} : { require_alias: true }
 
     es_client do |client, _conf, cluster|
       VenuesIndex.request_params(:create, **create_params, timeout: '10s')
@@ -182,7 +197,7 @@ RSpec.shared_examples 'index.bulk' do |doc_type: false|
   end
 
   it 'updates a batch of documents to the aliased index using custom request parameters' do |example|
-    update_params = %w[1.x 2.x 5.x].include?(example.metadata[:es_version]) ? {} : { retry_on_conflict: 2 }
+    update_params = %w[1.x 2.x 5.x 6.x].include?(example.metadata[:es_version]) ? {} : { retry_on_conflict: 2 }
 
     es_client do |client, _conf, cluster|
       VenuesIndex.request_params(:update, **update_params, timeout: '10s')
