@@ -53,18 +53,18 @@ jobs:
             allow_failure: false
           - ruby: 3.0.7
             gemfile: gemfiles/Gemfile.elasticsearch-8.x
-            stack: elasticsearch:8.4.2
-            stack_version: "8.4.2"
+            stack: elasticsearch:8.17.9
+            stack_version: "8.17.9"
             allow_failure: false
           - ruby: 3.1.6
             gemfile: gemfiles/Gemfile.elasticsearch-8.x
-            stack: elasticsearch:8.4.2
-            stack_version: "8.4.2"
+            stack: elasticsearch:8.17.9
+            stack_version: "8.17.9"
             allow_failure: false
           - ruby: 3.2.4
             gemfile: gemfiles/Gemfile.elasticsearch-8.x
-            stack: elasticsearch:8.4.2
-            stack_version: "8.4.2"
+            stack: elasticsearch:8.17.9
+            stack_version: "8.17.9"
             allow_failure: false
           - ruby: 2.7.7
             gemfile: gemfiles/Gemfile.opensearch-1.x
@@ -73,8 +73,8 @@ jobs:
             allow_failure: true
           - ruby: 2.7.7
             gemfile: gemfiles/Gemfile.opensearch-2.x
-            stack: opensearch:2.0.1
-            stack_version: "2.0.1"
+            stack: opensearch:2.19.3
+            stack_version: "2.19.3"
             allow_failure: false
           - ruby: 3.2.4
             gemfile: gemfiles/Gemfile.opensearch-2.x
