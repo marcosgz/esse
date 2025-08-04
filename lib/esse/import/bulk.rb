@@ -1,30 +1,6 @@
 module Esse
   module Import
     class Bulk
-      def self.build_from_documents(type: nil, index: nil, delete: nil, create: nil, update: nil)
-        index = Array(index).select(&Esse.method(:document?)).reject(&:ignore_on_index?).map do |doc|
-          value = doc.to_bulk
-          value[:_type] ||= type if type
-          value
-        end
-        create = Array(create).select(&Esse.method(:document?)).reject(&:ignore_on_index?).map do |doc|
-          value = doc.to_bulk
-          value[:_type] ||= type if type
-          value
-        end
-        update = Array(update).select(&Esse.method(:document?)).reject(&:ignore_on_index?).map do |doc|
-          value = doc.to_bulk(operation: :update)
-          value[:_type] ||= type if type
-          value
-        end
-        delete = Array(delete).select(&Esse.method(:document?)).reject(&:ignore_on_delete?).map do |doc|
-          value = doc.to_bulk(data: false)
-          value[:_type] ||= type if type
-          value
-        end
-        new(index: index, delete: delete, create: create, update: update)
-      end
-
       def initialize(index: nil, delete: nil, create: nil, update: nil)
         @index = Esse::ArrayUtils.wrap(index).map { |payload| { index: payload } }
         @create = Esse::ArrayUtils.wrap(create).map { |payload| { create: payload } }

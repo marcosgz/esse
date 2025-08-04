@@ -43,5 +43,5 @@ jobs:
       env: STACK_VERSION=1.3.3 DOCKER_IMAGE=opensearchproject/opensearch
       gemfile: gemfiles/Gemfile.opensearch-2.x
     - rvm: 2.6
-      env: STACK_VERSION=2.0.1 DOCKER_IMAGE=opensearchproject/opensearch
+      env: STACK_VERSION=2.19.3 DOCKER_IMAGE=opensearchproject/opensearch
       gemfile: gemfiles/Gemfile.opensearch-2.x

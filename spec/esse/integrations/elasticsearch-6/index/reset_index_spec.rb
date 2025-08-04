@@ -4,5 +4,5 @@ require 'spec_helper'
 require 'support/shared_examples/index_reset_index'
 
 stack_describe 'elasticsearch', '6.x', Esse::Index, '.reset_index' do
-  include_examples 'index.reset_index'
+  include_examples 'index.reset_index', doc_type: :_doc
 end

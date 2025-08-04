@@ -14,6 +14,8 @@ module ElasticsearchHelpers
       cluster.client.indices.delete(index: [cluster.index_prefix, pattern].compact.join('_'))
       cluster.wait_for_status!(status: :green)
       yield cluster.client, config, cluster if block_given?
+      cluster.remove_instance_variable(:@request_params) if cluster.instance_variable_defined?(:@request_params)
+      cluster.remove_instance_variable(:@request_body) if cluster.instance_variable_defined?(:@request_body)
     end
   end
   alias_method :es_client, :delete_all_indices!

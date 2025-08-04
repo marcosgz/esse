@@ -1,7 +1,23 @@
 # frozen_string_literal: true
 
+# Esse::Document is the base class for all documents in Esse.
+# It provides methods to access the document ID, type, routing, meta, and source.
+# It also provides methods to convert the document to a hash or bulk format.
+#
+# @example
+#   class UserDocument < Esse::Document
+#     def id
+#       object.id
+#     end
+#
+#     def source
+#       { name: object.name, email: object.email }
+#     end
+#   end
+
 module Esse
   class Document
+
     MUTATIONS_FALLBACK = {}.freeze
 
     attr_reader :object, :options
@@ -38,11 +54,6 @@ module Esse
     def routing?
       !routing.nil?
     end
-
-    # @TODO allow import, index, bulk to accept a suffix to tell which index to use
-    # def index_suffix
-    #   nil
-    # end
 
     # @return [Hash] the document meta
     # @abstract Override this method to return the document meta

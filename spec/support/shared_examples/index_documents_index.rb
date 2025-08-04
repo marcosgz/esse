@@ -4,10 +4,24 @@ RSpec.shared_examples 'index.index' do |doc_type: false|
   include_context 'with venues index definition'
 
   let(:params) do
-    doc_type ? { type: 'venue' } : {}
+    case doc_type
+    when :_doc
+      { type: :_doc }
+    when true
+      { type: 'venue' }
+    else
+      {}
+    end
   end
   let(:doc_params) do
-    doc_type ? { _type: 'venue' } : {}
+    case doc_type
+    when :_doc
+      { _type: :_doc }
+    when true
+      { _type: 'venue' }
+    else
+      {}
+    end
   end
 
   it 'raises an Esse::Transport::ReadonlyClusterError exception when the cluster is readonly' do
@@ -109,21 +123,60 @@ RSpec.shared_examples 'index.index' do |doc_type: false|
     end
   end
 
-  it 'indexes the document using the instance of Esse::Document' do |example|
-    es_client do |client, _conf, cluster|
-      VenuesIndex.create_index(alias: true)
+  context 'when using an Esse::Document instance' do
+    let(:doc_class) do
+      Class.new(Esse::HashDocument)
+    end
+    let(:document) { doc_class.new(id: 1, name: 'New Name', **doc_params) }
 
-      document = Esse::HashDocument.new(id: 1, name: 'New Name', **doc_params)
-      resp = nil
-      expect {
-        resp = VenuesIndex.index(document)
-      }.not_to raise_error
-      unless %w[1.x 2.x].include?(example.metadata[:es_version])
-        expect(resp['result']).to eq('created')
+    it 'indexes the document using the instance of Esse::Document' do |example|
+      es_client do |client, _conf, cluster|
+        VenuesIndex.create_index(alias: true)
+
+        resp = nil
+        expect {
+          resp = VenuesIndex.index(document)
+        }.not_to raise_error
+        unless %w[1.x 2.x].include?(example.metadata[:es_version])
+          expect(resp['result']).to eq('created')
+        end
+
+        resp = VenuesIndex.get(id: 1)
+        expect(resp['_source']).to include('name' => 'New Name')
       end
+    end
 
-      resp = VenuesIndex.get(id: 1)
-      expect(resp['_source']).to include('name' => 'New Name')
+    it 'indexes the document using custom params from index' do |example|
+      es_client do |client, _conf, cluster|
+        VenuesIndex.create_index(alias: true)
+
+        VenuesIndex.request_params(:index, timeout: '5s')
+        VenuesIndex.request_params(:delete, timeout: -1)
+
+        transport = cluster.api
+        allow(cluster).to receive(:api).and_return(transport)
+        allow(transport).to receive(:index).and_call_original
+
+        resp = nil
+        expect {
+          resp = VenuesIndex.index(document, **params)
+        }.not_to raise_error
+
+        unless %w[1.x 2.x].include?(example.metadata[:es_version])
+          expect(resp['result']).to eq('created')
+        end
+
+        expect(transport).to have_received(:index).with(
+          index: VenuesIndex.index_name,
+          id: 1,
+          body: an_instance_of(Hash),
+          timeout: '5s',
+          **params
+        )
+
+        resp = VenuesIndex.get(id: 1)
+        expect(resp['_source']).to include('name' => 'New Name')
+      end
     end
   end
 end

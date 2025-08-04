@@ -144,55 +144,56 @@ RSpec.shared_examples 'repository.import' do
   end
 
   context 'when the preload_lazy_attributes is set' do
-    it 'search the given lazy document attributes before the bulk import' do
-      es_client do |client, _conf, cluster|
-        GeosIndex.create_index(alias: true)
+    it 'search the given lazy document attributes before the bulk import' do |example|
+      unless %w[1.x 2.x 5.x].include?(example.metadata[:es_version])
+        es_client do |client, _conf, cluster|
+          doc_to_import = GeosIndex::County.documents(conditions: ->(h) { h[:id] == 888 }).first
+          doc_to_import.mutate(:country) { 'BR' }
+          GeosIndex.index(doc_to_import, refresh: :wait_for)
 
-        doc_to_import = GeosIndex::County.documents(conditions: ->(h) { h[:id] == 888 }).first
-        doc_to_import.mutate(:country) { 'BR' }
-        GeosIndex.index(doc_to_import, refresh: :wait_for)
+          resp = nil
+          expect {
+            resp = GeosIndex::County.import(preload_lazy_attributes: %i[country])
+          }.not_to raise_error
+          expect(resp).to eq(total_counties)
 
-        resp = nil
-        expect {
-          resp = GeosIndex::County.import(preload_lazy_attributes: %i[country])
-        }.not_to raise_error
-        expect(resp).to eq(total_counties)
+          GeosIndex.refresh
+          expect(GeosIndex.count).to eq(total_counties)
 
-        GeosIndex.refresh
-        expect(GeosIndex.count).to eq(total_counties)
+          doc = GeosIndex.get(id: '888')
+          expect(doc.dig('_source', 'country')).to eq('BR')
 
-        doc = GeosIndex.get(id: '888')
-        expect(doc.dig('_source', 'country')).to eq('BR')
-
-        doc = GeosIndex.get(id: '999')
-        expect(doc.dig('_source', 'country')).to eq(nil)
+          doc = GeosIndex.get(id: '999')
+          expect(doc.dig('_source', 'country')).to eq(nil)
+        end
       end
     end
   end
 
   context 'when the both preload_lazy_attributes and update_lazy_attributes are set' do
-    it 'search the given lazy document attributes before the bulk import, and do an additional bulk update for the not preloaded attributes' do
-      es_client do |client, _conf, cluster|
-        GeosIndex.create_index(alias: true)
+    it 'search the given lazy document attributes before the bulk import, and do an additional bulk update for the not preloaded attributes' do |example|
+      unless %w[1.x 2.x 5.x].include?(example.metadata[:es_version])
+        es_client do |client, _conf, cluster|
+          GeosIndex.create_index(alias: true)
+          doc_to_import = GeosIndex::County.documents(conditions: ->(h) { h[:id] == 888 }).first
+          doc_to_import.mutate(:country) { 'BR' }
+          GeosIndex.index(doc_to_import, refresh: :wait_for)
 
-        doc_to_import = GeosIndex::County.documents(conditions: ->(h) { h[:id] == 888 }).first
-        doc_to_import.mutate(:country) { 'BR' }
-        GeosIndex.index(doc_to_import, refresh: :wait_for)
+          resp = nil
+          expect {
+            resp = GeosIndex::County.import(preload_lazy_attributes: %i[country], update_lazy_attributes: %i[country])
+          }.not_to raise_error
+          expect(resp).to eq(total_counties)
 
-        resp = nil
-        expect {
-          resp = GeosIndex::County.import(preload_lazy_attributes: %i[country], update_lazy_attributes: %i[country])
-        }.not_to raise_error
-        expect(resp).to eq(total_counties)
+          GeosIndex.refresh
+          expect(GeosIndex.count).to eq(total_counties)
 
-        GeosIndex.refresh
-        expect(GeosIndex.count).to eq(total_counties)
+          doc = GeosIndex.get(id: '888')
+          expect(doc.dig('_source', 'country')).to eq('BR')
 
-        doc = GeosIndex.get(id: '888')
-        expect(doc.dig('_source', 'country')).to eq('BR')
-
-        doc = GeosIndex.get(id: '999')
-        expect(doc.dig('_source', 'country')).to eq('US')
+          doc = GeosIndex.get(id: '999')
+          expect(doc.dig('_source', 'country')).to eq('US')
+        end
       end
     end
   end
