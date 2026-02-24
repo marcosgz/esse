@@ -29,6 +29,30 @@ module Esse
         end
       end
 
+      # Allows to get multiple documents in a single request.
+      #
+      # @option [String] :index The name of the index
+      # @option [Hash] :body Document identifiers; can be either `docs` (specifying full document information)
+      #   or `ids` (when index is provided). (*Required*)
+      # @option [String] :preference Specify the node or shard the operation should be performed on (default: random)
+      # @option [Boolean] :realtime Specify whether to perform the operation in realtime or search mode
+      # @option [Boolean] :refresh Refresh the shard containing the document before performing the operation
+      # @option [String] :routing Specific routing value
+      # @option [List] :stored_fields A comma-separated list of stored fields to return in the response
+      # @option [List] :_source True or false to return the _source field or not, or a list of fields to return
+      # @option [List] :_source_excludes A list of fields to exclude from the returned _source field
+      # @option [List] :_source_includes A list of fields to extract and return from the _source field
+      # @option [Hash] :headers Custom HTTP headers
+      #
+      # @see https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-multi-get.html
+      #
+      def mget(index:, body:, **options)
+        Esse::Events.instrument('elasticsearch.mget') do |payload|
+          payload[:request] = opts = options.merge(index: index, body: body)
+          payload[:response] = coerce_exception { client.mget(**opts) }
+        end
+      end
+
       # Returns information about whether a document exists in an index.
       #
       # @option [String] :id The document ID

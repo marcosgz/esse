@@ -29,6 +29,37 @@ module Esse
         cluster.api.get(**options)
       end
 
+      # Retrieves multiple JSON documents by ID from an index.
+      #
+      #   UsersIndex.mget(ids: [1, 2, 3])
+      #   UsersIndex.mget(ids: [Esse::HashDocument.new(id: 1), Esse::HashDocument.new(id: 2)])
+      #
+      # @param ids [Array<Esse::Document, Hash, String, Integer>] documents, hashes, or IDs to retrieve
+      # @param options [Hash] Hash of paramenters that will be passed along to elasticsearch request
+      # @option [String, nil] :suffix The index suffix. Defaults to the nil.
+      # @return [Hash] The elasticsearch response with 'docs' array
+      #
+      # @see https://www.elastic.co/guide/en/elasticsearch/reference/7.5/docs-multi-get.html
+      def mget(ids:, suffix: nil, **options)
+        options[:body] = {
+          docs: ids.map do |doc|
+            if document?(doc)
+              datum = { _id: doc.id }
+              datum[:_type] = doc.type if doc.type?
+              datum[:routing] = doc.routing if doc.routing?
+              datum
+            elsif doc.is_a?(Hash)
+              doc
+            else
+              { _id: doc }
+            end
+          end,
+        }
+        options[:index] = index_name(suffix: suffix)
+        cluster.may_update_type!(options)
+        cluster.api.mget(**options)
+      end
+
       # Check if a JSON document exists
       #
       #   UsersIndex.exist?(id: 1) # true
