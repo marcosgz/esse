@@ -270,4 +270,131 @@ RSpec.describe Esse::Search::Query do
       it { is_expected.to eq(20) }
     end
   end
+
+  describe '#search_after_hits', events: %w[elasticsearch.execute_search_query] do
+    let(:transport) { instance_double(Esse::Transport) }
+
+    def build_response(hits)
+      {
+        'took' => 5, 'timed_out' => false, '_shards' => { 'total' => 1, 'successful' => 1, 'skipped' => 0, 'failed' => 0 },
+        'hits' => {
+          'total' => { 'value' => hits.size, 'relation' => 'eq' },
+          'hits' => hits
+        }
+      }
+    end
+
+    it 'raises ArgumentError when no sort is present in the body' do
+      query = described_class.new(transport, 'events', body: { query: { match_all: {} } })
+
+      expect {
+        query.search_after_hits { |_hits| }
+      }.to raise_error(ArgumentError, /must include a :sort/)
+    end
+
+    it 'raises ArgumentError when body is empty' do
+      query = described_class.new(transport, 'events', body: {})
+
+      expect {
+        query.search_after_hits { |_hits| }
+      }.to raise_error(ArgumentError, /must include a :sort/)
+    end
+
+    it 'yields batches of hits across multiple pages' do
+      query = described_class.new(transport, 'events', body: { query: { match_all: {} }, sort: [{ id: :asc }] })
+      page1_hits = [{ '_id' => '1', 'sort' => [1] }, { '_id' => '2', 'sort' => [2] }]
+      page2_hits = [{ '_id' => '3', 'sort' => [3] }]
+
+      expect(transport).to receive(:search)
+        .with(index: 'events', body: { query: { match_all: {} }, sort: [{ id: :asc }], size: 2 })
+        .and_return(build_response(page1_hits))
+      expect(transport).to receive(:search)
+        .with(index: 'events', body: { query: { match_all: {} }, sort: [{ id: :asc }], size: 2, search_after: [2] })
+        .and_return(build_response(page2_hits))
+
+      batches = []
+      query.search_after_hits(batch_size: 2) { |hits| batches << hits }
+      expect(batches).to eq([page1_hits, page2_hits])
+    end
+
+    it 'stops when response returns empty hits' do
+      query = described_class.new(transport, 'events', body: { query: { match_all: {} }, sort: [{ id: :asc }] })
+
+      expect(transport).to receive(:search)
+        .with(index: 'events', body: { query: { match_all: {} }, sort: [{ id: :asc }], size: 1_000 })
+        .and_return(build_response([]))
+
+      batches = []
+      query.search_after_hits { |hits| batches << hits }
+      expect(batches).to be_empty
+    end
+
+    it 'stops when last page has fewer hits than batch_size' do
+      query = described_class.new(transport, 'events', body: { query: { match_all: {} }, sort: [{ id: :asc }] })
+      page_hits = [{ '_id' => '1', 'sort' => [1] }]
+
+      expect(transport).to receive(:search)
+        .with(index: 'events', body: { query: { match_all: {} }, sort: [{ id: :asc }], size: 5 })
+        .once
+        .and_return(build_response(page_hits))
+
+      batches = []
+      query.search_after_hits(batch_size: 5) { |hits| batches << hits }
+      expect(batches).to eq([page_hits])
+    end
+
+    it 'strips :from from body' do
+      query = described_class.new(transport, 'events', body: { query: { match_all: {} }, sort: [{ id: :asc }], from: 10 })
+
+      expect(transport).to receive(:search)
+        .with(index: 'events', body: { query: { match_all: {} }, sort: [{ id: :asc }], size: 1_000 })
+        .and_return(build_response([]))
+
+      query.search_after_hits { |_hits| }
+    end
+
+    it 'strips string-keyed "from" from body' do
+      query = described_class.new(transport, 'events', body: { query: { match_all: {} }, sort: [{ id: :asc }], 'from' => 10 })
+
+      expect(transport).to receive(:search)
+        .with(index: 'events', body: { query: { match_all: {} }, sort: [{ id: :asc }], size: 1_000 })
+        .and_return(build_response([]))
+
+      query.search_after_hits { |_hits| }
+    end
+
+    it 'works with string-keyed sort in body' do
+      query = described_class.new(transport, 'events', body: { query: { match_all: {} }, 'sort' => [{ 'id' => 'asc' }] })
+
+      expect(transport).to receive(:search)
+        .with(index: 'events', body: { query: { match_all: {} }, 'sort' => [{ 'id' => 'asc' }], size: 1_000 })
+        .and_return(build_response([]))
+
+      query.search_after_hits { |_hits| }
+    end
+
+    it 'stops when last hit has no sort values' do
+      query = described_class.new(transport, 'events', body: { query: { match_all: {} }, sort: [{ id: :asc }] })
+      page_hits = [{ '_id' => '1' }]
+
+      expect(transport).to receive(:search)
+        .with(index: 'events', body: { query: { match_all: {} }, sort: [{ id: :asc }], size: 1 })
+        .once
+        .and_return(build_response(page_hits))
+
+      batches = []
+      query.search_after_hits(batch_size: 1) { |hits| batches << hits }
+      expect(batches).to eq([page_hits])
+    end
+
+    it 'does not mutate the original definition body' do
+      original_body = { query: { match_all: {} }, sort: [{ id: :asc }], from: 10 }
+      query = described_class.new(transport, 'events', body: original_body)
+
+      expect(transport).to receive(:search).and_return(build_response([]))
+
+      query.search_after_hits { |_hits| }
+      expect(original_body).to eq(query: { match_all: {} }, sort: [{ id: :asc }], from: 10)
+    end
+  end
 end
