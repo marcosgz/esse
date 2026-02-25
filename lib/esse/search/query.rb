@@ -59,6 +59,30 @@ module Esse
         end
       end
 
+      def search_after_hits(batch_size: 1_000)
+        body = HashUtils.deep_dup(definition.fetch(:body, {}))
+        body[:size] = batch_size
+        body.delete(:from)
+        body.delete('from')
+
+        unless body.key?(:sort) || body.key?('sort')
+          raise ArgumentError, 'The query body must include a :sort to use search_after'
+        end
+
+        loop do
+          response = execute_search_query!(body: body)
+          break if response.hits.empty?
+
+          yield(response.hits)
+
+          last_sort = response.hits.last['sort']
+          break unless last_sort
+          break if response.hits.size < batch_size
+
+          body[:search_after] = last_sort
+        end
+      end
+
       private
 
       def execute_search_query!(**execution_options)
