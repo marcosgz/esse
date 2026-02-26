@@ -40,7 +40,7 @@ module Esse
 
       def scroll_hits(batch_size: 1_000, scroll: '1m')
         response = execute_search_query!(size: batch_size, scroll: scroll)
-        scroll_id = nil
+        scroll_id = response.raw_response['scroll_id'] || response.raw_response['_scroll_id']
         fetched = 0
         total = response.total
 
@@ -48,9 +48,9 @@ module Esse
           fetched += response.hits.size
           yield(response.hits) if response.hits.any?
           break if fetched >= total
-          scroll_id = response.raw_response['scroll_id'] || response.raw_response['_scroll_id']
           break unless scroll_id
           response = execute_scroll_query(scroll: scroll, scroll_id: scroll_id)
+          scroll_id = response.raw_response['scroll_id'] || response.raw_response['_scroll_id']
         end
       ensure
         begin
@@ -83,12 +83,16 @@ module Esse
         end
       end
 
+      def reset!
+        @response = nil
+      end
+
       private
 
       def execute_search_query!(**execution_options)
         resp, err = nil
         Esse::Events.instrument('elasticsearch.execute_search_query') do |payload|
-          payload[:query] = self
+          payload[:query_definition] = definition
           begin
             resp = Response.new(self, transport.search(**definition, **execution_options))
           rescue => e
@@ -105,7 +109,7 @@ module Esse
       def execute_scroll_query(scroll:, scroll_id:)
         resp, err = nil
         Esse::Events.instrument('elasticsearch.execute_search_query') do |payload|
-          payload[:query] = self
+          payload[:query_definition] = definition
           begin
             resp = Response.new(self, transport.scroll(scroll: scroll, body: { scroll_id: scroll_id }))
           rescue => e
@@ -117,10 +121,6 @@ module Esse
         raise err if err
 
         resp
-      end
-
-      def reset!
-        @response = nil
       end
     end
   end

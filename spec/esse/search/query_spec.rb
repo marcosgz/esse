@@ -107,7 +107,7 @@ RSpec.describe Esse::Search::Query do
       expect(transport).to receive(:search).with(index: 'events', body: request_body).and_return(body)
 
       expect(resp = query.response).to be_an_instance_of(Esse::Search::Response)
-      expect(resp.query).to eq(query)
+      expect(resp.query_definition).to eq(query.definition)
     end
   end
 
@@ -124,7 +124,7 @@ RSpec.describe Esse::Search::Query do
         expect(transport).to receive(:search).with(index: 'events', body: request_body).and_return(response_body)
 
         expect(query.response).to be_an_instance_of(Esse::Search::Response)
-        assert_event 'elasticsearch.execute_search_query', { query: query, response: query.response }
+        assert_event 'elasticsearch.execute_search_query', { query_definition: query.definition, response: query.response }
       end
     end
 
@@ -138,7 +138,7 @@ RSpec.describe Esse::Search::Query do
         expect {
           query.response
         }.to raise_error(Esse::Transport::BadRequestError)
-        assert_event 'elasticsearch.execute_search_query', { query: query, error: exception }
+        assert_event 'elasticsearch.execute_search_query', { query_definition: query.definition, error: exception }
       end
     end
   end
