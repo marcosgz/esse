@@ -92,9 +92,14 @@ module Esse
 
       # @api private
       def process(event_id, payload)
+        # Build the event once and reuse for all listeners. Previously, a new
+        # Event was created per listener via Event#payload which does
+        # @payload.merge(data) — a full hash copy each time. With 24+
+        # esse-rails subscribers, each search was creating 24+ Event objects
+        # with 24+ hash merges of the full payload (including Response with
+        # the entire OpenSearch JSON). Now it's 1 Event + 1 merge total.
+        event = events[event_id].payload(payload)
         listeners[event_id].each do |listener|
-          event = events[event_id].payload(payload)
-
           yield(event, listener)
         end
       end

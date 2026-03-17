@@ -60,6 +60,11 @@ module Esse
           if publish_event
             payload[:runtime] ||= Time.now - payload.delete(:__started_at__) if payload[:__started_at__]
             __bus__.publish(event_id, payload)
+            # Release references to large objects (Query, Response with full
+            # OpenSearch JSON) so they become GC-eligible immediately after
+            # event dispatch, rather than being held until the caller's stack
+            # frame unwinds.
+            payload.clear
           end
         end
 
