@@ -1,7 +1,7 @@
 PATH
   remote: ..
   specs:
-    esse (0.4.0.rc5)
+    esse (0.4.0)
       multi_json
       thor (>= 0.19)
 
@@ -95,7 +95,7 @@ GEM
     standard-performance (1.0.1)
       lint_roller (~> 1.0)
       rubocop-performance (~> 1.16.0)
-    thor (1.4.0)
+    thor (1.5.0)
     unicode-display_width (2.5.0)
     webmock (3.23.1)
       addressable (>= 2.8.0)
