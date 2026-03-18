@@ -61,14 +61,14 @@ case "${service_name}-${service_version}" in
     # docker-compose up -d elasticsearch-v8
     ;;
   opensearch-v1)
-    export STACK_VERSION=1.3.3
+    export STACK_VERSION=1.3.20
     export DOCKER_OS_V1=${STACK_VERSION}
     export ESSE_URL=http://localhost:19201
     export BUNDLE_GEMFILE=gemfiles/Gemfile.opensearch-1.x
     # docker-compose up -d opensearch-v1
     ;;
   opensearch-v2)
-    export STACK_VERSION=2.19.3
+    export STACK_VERSION=2.19.5
     export DOCKER_OS_V2=${STACK_VERSION}
     export ESSE_URL=http://localhost:19202
     export BUNDLE_GEMFILE=gemfiles/Gemfile.opensearch-2.x

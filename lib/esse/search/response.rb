@@ -7,13 +7,13 @@ module Esse
       extend Forwardable
 
       def_delegators :hits, :each, :size, :empty?
-      attr_reader :query, :raw_response, :options
+      attr_reader :query_definition, :raw_response, :options
 
-      # @param [Esse::Search::Query] query The search query
+      # @param [Esse::Search::Query, Hash] query The search query or its definition hash
       # @param [Hash] raw_response The raw response from Elasticsearch
       # @param [Hash] options The options passed to the search
       def initialize(query, raw_response, **options)
-        @query = query
+        @query_definition = query.is_a?(Hash) ? query : query.definition
         @raw_response = raw_response
         @options = options
       end

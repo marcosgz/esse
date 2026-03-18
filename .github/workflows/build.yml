@@ -6,21 +6,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - ruby: 2.6.10
-            gemfile: gemfiles/Gemfile.elasticsearch-1.x
-            stack: elasticsearch:1.7.6
-            stack_version: "1.7.6"
-            allow_failure: true
-          - ruby: 2.6.10
-            gemfile: gemfiles/Gemfile.elasticsearch-2.x
-            stack: elasticsearch:2.4.6
-            stack_version: "2.4.6"
-            allow_failure: true
-          - ruby: 2.6.10
-            gemfile: gemfiles/Gemfile.elasticsearch-5.x
-            stack: elasticsearch:5.6.16
-            stack_version: "5.6.16"
-            allow_failure: true
           - ruby: 2.7.7
             gemfile: gemfiles/Gemfile.elasticsearch-6.x
             stack: elasticsearch:6.8.16
@@ -68,23 +53,28 @@ jobs:
             allow_failure: false
           - ruby: 2.7.7
             gemfile: gemfiles/Gemfile.opensearch-1.x
-            stack: opensearch:1.3.3
-            stack_version: "1.3.3"
+            stack: opensearch:1.3.20
+            stack_version: "1.3.20"
             allow_failure: true
           - ruby: 2.7.7
             gemfile: gemfiles/Gemfile.opensearch-2.x
-            stack: opensearch:2.19.3
-            stack_version: "2.19.3"
+            stack: opensearch:2.19.5
+            stack_version: "2.19.5"
             allow_failure: false
           - ruby: 3.2.4
             gemfile: gemfiles/Gemfile.opensearch-2.x
-            stack: opensearch:2.1.0
-            stack_version: "2.1.0"
+            stack: opensearch:2.19.5
+            stack_version: "2.19.5"
             allow_failure: false
           - ruby: 3.3.3
             gemfile: gemfiles/Gemfile.opensearch-2.x
-            stack: opensearch:2.1.0
-            stack_version: "2.1.0"
+            stack: opensearch:2.19.5
+            stack_version: "2.19.5"
+            allow_failure: false
+          - ruby: 3.4.8
+            gemfile: gemfiles/Gemfile.opensearch-2.x
+            stack: opensearch:3.5.0
+            stack_version: "3.5.0"
             allow_failure: false
     runs-on: ubuntu-latest
     env:
