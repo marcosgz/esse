@@ -6,21 +6,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - ruby: 2.6.10
-            gemfile: gemfiles/Gemfile.elasticsearch-1.x
-            stack: elasticsearch:1.7.6
-            stack_version: "1.7.6"
-            allow_failure: true
-          - ruby: 2.6.10
-            gemfile: gemfiles/Gemfile.elasticsearch-2.x
-            stack: elasticsearch:2.4.6
-            stack_version: "2.4.6"
-            allow_failure: true
-          - ruby: 2.6.10
-            gemfile: gemfiles/Gemfile.elasticsearch-5.x
-            stack: elasticsearch:5.6.16
-            stack_version: "5.6.16"
-            allow_failure: true
           - ruby: 2.7.7
             gemfile: gemfiles/Gemfile.elasticsearch-6.x
             stack: elasticsearch:6.8.16
