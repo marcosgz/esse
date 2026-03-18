@@ -88,7 +88,13 @@ module Esse
       def execute_search_query!(**execution_options)
         resp, err = nil
         Esse::Events.instrument('elasticsearch.execute_search_query') do |payload|
-          payload[:query] = self
+          # Store only the definition hash instead of the full Query object.
+          # The Query holds a reference to transport (connection pool) and
+          # storing it in the event payload causes it to be copied into a new
+          # Event object for each listener (via @payload.merge). With 24+
+          # esse-rails subscribers, this means 24+ copies of the Query reference
+          # per search. The definition hash is lightweight and already exists.
+          payload[:query_definition] = definition
           begin
             resp = Response.new(self, transport.search(**definition, **execution_options))
           rescue => e
@@ -105,7 +111,7 @@ module Esse
       def execute_scroll_query(scroll:, scroll_id:)
         resp, err = nil
         Esse::Events.instrument('elasticsearch.execute_search_query') do |payload|
-          payload[:query] = self
+          payload[:query_definition] = definition
           begin
             resp = Response.new(self, transport.scroll(scroll: scroll, body: { scroll_id: scroll_id }))
           rescue => e
