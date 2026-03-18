@@ -71,6 +71,11 @@ jobs:
             stack: opensearch:2.19.5
             stack_version: "2.19.5"
             allow_failure: false
+          - ruby: 3.4.8
+            gemfile: gemfiles/Gemfile.opensearch-2.x
+            stack: opensearch:3.5.0
+            stack_version: "3.5.0"
+            allow_failure: false
     runs-on: ubuntu-latest
     env:
       BUNDLE_GEMFILE: ${{ matrix.gemfile }}
