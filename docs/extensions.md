@@ -108,6 +108,15 @@ UsersIndex.search(body: body)
 @pagy, @response = pagy_esse(UsersIndex.pagy_search(params[:q]), items: 10)
 ```
 
+### [esse-will_paginate](../../esse-will_paginate/docs/README.md)
+`gem 'esse-will_paginate'` — WillPaginate integration. Adds `.paginate(page:, per_page:)` on search queries.
+
+```ruby
+@search = UsersIndex.search(params[:q]).paginate(page: params[:page], per_page: 10)
+# View
+<%= will_paginate @search.paginated_results %>
+```
+
 ---
 
 ## Testing
@@ -164,7 +173,6 @@ end
 
 These extensions are not part of this workspace but are mentioned in the main README:
 
-- **esse-will_paginate** — WillPaginate pagination support.
 - **esse-redis_storage** — Redis-backed storage for long-running state.
 
 Visit the [main project](https://github.com/marcosgz/esse) for the complete list.
