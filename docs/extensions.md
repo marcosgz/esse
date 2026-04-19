@@ -110,12 +110,48 @@ UsersIndex.search(body: body)
 
 ---
 
+## Testing
+
+### [esse-rspec](../../esse-rspec/docs/README.md)
+`gem 'esse-rspec'` — RSpec matchers and index stubs for testing Esse-backed code without a live Elasticsearch/OpenSearch cluster. Intercepts any `Esse::Transport` method and returns canned responses or realistic `Esse::Transport::*` errors. Auto-included on `require 'esse/rspec'`.
+
+Stub a search and assert on the request body:
+
+```ruby
+expect(ProductsIndex).to esse_receive_request(:search)
+  .with(body: { query: { match_all: {} }, size: 10 })
+  .and_return('hits' => { 'total' => 0, 'hits' => [] })
+
+ProductsIndex.search(query: { match_all: {} }, size: 10).response.total # => 0
+```
+
+Simulate an HTTP error — the status code maps to the right `Esse::Transport::*` subclass:
+
+```ruby
+expect(ProductsIndex).to esse_receive_request(:search)
+  .and_raise_http_status(500, { 'error' => 'Something went wrong' })
+# raises Esse::Transport::InternalServerError when called
+```
+
+Scaffold a disposable `Esse::Index` scoped to a single example:
+
+```ruby
+before do
+  stub_esse_index('products') do
+    repository :product, const: true do
+      document { |record| { id: record[:id], name: record[:name] } }
+    end
+  end
+end
+```
+
+---
+
 ## Other extensions
 
 These extensions are not part of this workspace but are mentioned in the main README:
 
 - **esse-will_paginate** — WillPaginate pagination support.
-- **esse-rspec** — RSpec helpers and matchers.
 - **esse-redis_storage** — Redis-backed storage for long-running state.
 
 Visit the [main project](https://github.com/marcosgz/esse) for the complete list.
