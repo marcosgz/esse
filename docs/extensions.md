@@ -125,6 +125,19 @@ expect(ProductsIndex).to esse_receive_request(:search)
 ProductsIndex.search(query: { match_all: {} }, size: 10).response.total # => 0
 ```
 
+`.with(...)` also accepts any RSpec argument matcher for loose assertions on a subset of the request:
+
+```ruby
+expect(PostsIndex).to esse_receive_request(:search)
+  .with(
+    hash_including(
+      _source: false,
+      body: hash_including('aggregations' => anything),
+    ),
+  )
+  .and_return('aggregations' => { 'tags' => { 'buckets' => [] } })
+```
+
 Simulate an HTTP error — the status code maps to the right `Esse::Transport::*` subclass:
 
 ```ruby
