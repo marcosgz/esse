@@ -18,6 +18,10 @@ This gem is a Ruby simple and extremely flexible client for ElasticSearch and Op
 - [esse-redis_storage](https://github.com/marcosgz/esse-redis_storage) - Add-on for the esse gem to be used with Redis as a storage backend
 - [esse-async_indexing](https://github.com/marcosgz/esse-async_indexing) - Esse extension to allow async indexing using Faktory or Sidekiq.
 
+## Documentation
+
+Full guides, recipes, and API reference are published at **[gems.marcosz.com.br/esse](https://gems.marcosz.com.br/esse/)** — part of the [marcosgz Ruby gem catalogue](https://gems.marcosz.com.br).
+
 ## Components
 
 The main idea of the gem is to be compatible with any type of datasource. It means that you can use it with ActiveRecord, Sequel, HTTP APIs, or any other data source. The gem is divided into three main components:
