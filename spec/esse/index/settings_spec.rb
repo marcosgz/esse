@@ -167,6 +167,36 @@ RSpec.describe Esse::Index do
       end
     end
 
+    # Regression: when the cluster (global) settings are authored in the
+    # flat form (e.g. `number_of_shards: 1` at the top level) and the
+    # per-index template is authored in the nested form (under `index:`),
+    # the per-index nested values must win — not be clobbered by the
+    # flat global values.
+    context 'with flat global settings and nested local settings' do
+      before do
+        stub_index(:geos) do
+          settings(index: { number_of_shards: 8, number_of_replicas: 1, max_result_window: 50_000_000 })
+        end
+      end
+
+      it 'lets the local nested values win over the flat global values' do
+        with_cluster_config(settings: {
+          number_of_shards: 1,
+          number_of_replicas: 0,
+          refresh_interval: '5s',
+        }) do
+          expect(GeosIndex.settings_hash).to eq(
+            settings: { index: {
+              number_of_shards: 8,
+              number_of_replicas: 1,
+              refresh_interval: '5s',
+              max_result_window: 50_000_000,
+            } },
+          )
+        end
+      end
+    end
+
     context 'with nil values in the simplified settings' do
       before do
         stub_index(:geos) do

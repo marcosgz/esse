@@ -4,29 +4,15 @@ module Esse
   # https://github.com/elastic/elasticsearch-ruby/blob/master/elasticsearch-api/lib/elasticsearch/api/actions/indices/put_settings.rb
   class Index
     module ClassMethods
-      # Elasticsearch supports passing index.* related settings directly in the body of the request.
-      # We are moving it to the index key to make it more explicit and to be the source-of-truth when merging settings.
-      # So the settings `{ number_of_shards: 1 }` will be transformed to `{ index: { number_of_shards: 1 } }`
-      INDEX_SIMPLIFIED_SETTINGS = %i[
-        number_of_shards
-        number_of_replicas
-        refresh_interval
-        mapping
-      ].freeze
+      # Backwards-compatible alias. The canonical list now lives on
+      # +Esse::IndexSetting::INDEX_SIMPLIFIED_SETTINGS+ so that the merge
+      # logic and the simplified-key promotion stay in sync.
+      INDEX_SIMPLIFIED_SETTINGS = Esse::IndexSetting::INDEX_SIMPLIFIED_SETTINGS
 
       def settings_hash(settings: nil)
-        hash = setting.body
-        values = (hash.key?(Esse::SETTING_ROOT_KEY) ? hash[Esse::SETTING_ROOT_KEY] : hash)
-        values = HashUtils.explode_keys(values)
+        values = setting.body
         if settings.is_a?(Hash)
-          values = HashUtils.deep_merge(values, HashUtils.explode_keys(settings))
-        end
-        INDEX_SIMPLIFIED_SETTINGS.each do |key|
-          next unless values.key?(key)
-          value = values.delete(key)
-          next if value.nil?
-
-          (values[:index] ||= {}).merge!(key => value)
+          values = HashUtils.deep_merge(values, Esse::IndexSetting.normalize(settings))
         end
 
         if values[:index].is_a?(Hash)
