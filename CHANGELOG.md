@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.4.1
+* Fix `Esse::Index.settings_hash` clobbering nested per-index template values (e.g. `index.number_of_shards`) with flat top-level cluster-level globals (e.g. top-level `number_of_shards`). Both forms are now normalized to the nested form on each side before merging, so the per-index template's explicit value wins as expected.
+* Move `INDEX_SIMPLIFIED_SETTINGS` to `Esse::IndexSetting` (kept as a backwards-compatible alias on `Esse::Index::ClassMethods`).
+
 ## 0.4.0 - 2024-08-16
 * Rename lazy_update_document_attributes to update_lazy_attributes
 * Rename eager_include_document_attributes to eager_load_lazy_attributes

@@ -4,29 +4,21 @@ module Esse
   # https://github.com/elastic/elasticsearch-ruby/blob/master/elasticsearch-api/lib/elasticsearch/api/actions/indices/put_settings.rb
   class Index
     module ClassMethods
-      # Elasticsearch supports passing index.* related settings directly in the body of the request.
-      # We are moving it to the index key to make it more explicit and to be the source-of-truth when merging settings.
-      # So the settings `{ number_of_shards: 1 }` will be transformed to `{ index: { number_of_shards: 1 } }`
-      INDEX_SIMPLIFIED_SETTINGS = %i[
-        number_of_shards
-        number_of_replicas
-        refresh_interval
-        mapping
-      ].freeze
+      # Backwards-compatible alias. The canonical list now lives on
+      # +Esse::IndexSetting::INDEX_SIMPLIFIED_SETTINGS+ so that the merge
+      # logic and the simplified-key promotion stay in sync.
+      INDEX_SIMPLIFIED_SETTINGS = Esse::IndexSetting::INDEX_SIMPLIFIED_SETTINGS
 
       def settings_hash(settings: nil)
-        hash = setting.body
-        values = (hash.key?(Esse::SETTING_ROOT_KEY) ? hash[Esse::SETTING_ROOT_KEY] : hash)
-        values = HashUtils.explode_keys(values)
-        if settings.is_a?(Hash)
-          values = HashUtils.deep_merge(values, HashUtils.explode_keys(settings))
-        end
-        INDEX_SIMPLIFIED_SETTINGS.each do |key|
-          next unless values.key?(key)
-          value = values.delete(key)
-          next if value.nil?
+        # Normalize each side (global vs local) separately before merging so
+        # a flat global key (e.g. top-level :number_of_shards) cannot clobber
+        # an explicit nested local value (e.g. :index => { :number_of_shards => 8 }).
+        global = Esse::IndexSetting.normalize(setting.globals)
+        local = Esse::IndexSetting.normalize(setting.to_h)
+        values = HashUtils.deep_merge(global, local)
 
-          (values[:index] ||= {}).merge!(key => value)
+        if settings.is_a?(Hash)
+          values = HashUtils.deep_merge(values, Esse::IndexSetting.normalize(settings))
         end
 
         if values[:index].is_a?(Hash)
