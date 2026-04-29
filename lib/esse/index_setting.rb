@@ -41,7 +41,18 @@ module Esse
     end
 
     def body
-      HashUtils.deep_merge(self.class.normalize(@globals.call), self.class.normalize(to_h))
+      global = HashUtils.deep_transform_keys(@globals.call, &:to_sym)
+      local = HashUtils.deep_transform_keys(to_h, &:to_sym)
+      HashUtils.deep_merge(global, local)
+    end
+
+    # Returns the raw (unsymbolized) global settings as supplied by the
+    # +globals+ proc. Public so that callers like
+    # +Esse::Index.settings_hash+ can normalize it independently before
+    # merging it with the local template — preventing a flat global value
+    # from clobbering a nested local value once both are merged.
+    def globals
+      @globals.call || {}
     end
 
     # Normalize a settings hash by:
@@ -49,9 +60,9 @@ module Esse
     #   * stripping the `:settings` root if present
     #   * exploding dotted keys ('index.number_of_replicas' -> { index: { number_of_replicas: ... } })
     #   * promoting simplified flat keys (number_of_shards, etc.) into the
-    #     nested `:index` form, while preserving any value already present
-    #     under `:index` (so we never overwrite an explicit nested setting
-    #     with a flat value from the same source).
+    #     nested `:index` form, preserving any value already present under
+    #     `:index` (we never overwrite an explicit nested setting with a
+    #     flat value from the same source).
     def self.normalize(hash)
       values = HashUtils.deep_transform_keys(hash || {}, &:to_sym)
       values = values[Esse::SETTING_ROOT_KEY] if values.key?(Esse::SETTING_ROOT_KEY)

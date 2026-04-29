@@ -10,7 +10,13 @@ module Esse
       INDEX_SIMPLIFIED_SETTINGS = Esse::IndexSetting::INDEX_SIMPLIFIED_SETTINGS
 
       def settings_hash(settings: nil)
-        values = setting.body
+        # Normalize each side (global vs local) separately before merging so
+        # a flat global key (e.g. top-level :number_of_shards) cannot clobber
+        # an explicit nested local value (e.g. :index => { :number_of_shards => 8 }).
+        global = Esse::IndexSetting.normalize(setting.globals)
+        local = Esse::IndexSetting.normalize(setting.to_h)
+        values = HashUtils.deep_merge(global, local)
+
         if settings.is_a?(Hash)
           values = HashUtils.deep_merge(values, Esse::IndexSetting.normalize(settings))
         end
