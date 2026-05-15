@@ -138,7 +138,7 @@ RSpec.describe Esse::Import::Bulk do
         ].join("\n"))
       end
 
-      it 'discards documents that are larger than the bulk size' do
+      it 'sends documents larger than the bulk size in their own request instead of discarding them' do
         bulk_size = 200 # 200 bytes
         body = elasticsearch_response_fixture(file: 'bulk_request_too_large', version: '7.x', assigns: { request_size: bulk_size })
 
@@ -147,22 +147,82 @@ RSpec.describe Esse::Import::Bulk do
           requests << request
           raise Esse::Transport::RequestEntityTooLargeError.new(MultiJson.dump(body)) if requests.size == 1
         }
-        expect(requests.size).to eq(3)
+        expect(requests.size).to eq(4)
         expect(requests[0]).to be_an_instance_of(Esse::Import::RequestBodyAsJson)
-        expect(requests[1]).to be_an_instance_of(Esse::Import::RequestBodyRaw)
-        expect(requests[2]).to be_an_instance_of(Esse::Import::RequestBodyRaw)
+        expect(requests[1..]).to all(be_an_instance_of(Esse::Import::RequestBodyRaw))
 
-        expect(requests[1].body).to eq([
+        bodies = requests[1..].map(&:body)
+        expect(bodies).to include([
           %[{"index":{"_id":1}}],
           %[{"name":"#{'Aaa' * 30}"}],
           nil
         ].join("\n"))
-        expect(requests[2].body).to eq([
+        expect(bodies).to include([
+          %[{"create":{"_id":2}}],
+          %[{"name":"#{'Bbbb' * 100}"}],
+          nil
+        ].join("\n"))
+        expect(bodies).to include([
           %[{"update":{"_id":4}}],
           %[{"doc":{"name":"#{'Dddd' * 30}"}}],
           %[{"delete":{"_id":3}}],
           nil
         ].join("\n"))
+      end
+
+      it 'retries one document per request when balanced requests still raise 413' do
+        bulk_size = 500
+        body = elasticsearch_response_fixture(file: 'bulk_request_too_large', version: '7.x', assigns: { request_size: bulk_size })
+
+        requests = []
+        bulk.each_request { |request|
+          requests << request
+          if requests.size <= 2
+            raise Esse::Transport::RequestEntityTooLargeError.new(MultiJson.dump(body))
+          end
+        }
+
+        # 1 optimistic (413) + 1 first balanced (413, breaks loop) + 4 per-document = 6
+        expect(requests.size).to eq(6)
+        expect(requests[0]).to be_an_instance_of(Esse::Import::RequestBodyAsJson)
+        expect(requests[1]).to be_an_instance_of(Esse::Import::RequestBodyRaw)
+        expect(requests[2..]).to all(be_an_instance_of(Esse::Import::RequestBodyAsJson))
+        expect(requests[2..].map { |r| r.body.size }).to all(eq(1))
+      end
+
+      it 'raises when a single-document bulk still returns 413' do
+        bulk_size = 500
+        body = elasticsearch_response_fixture(file: 'bulk_request_too_large', version: '7.x', assigns: { request_size: bulk_size })
+
+        expect {
+          bulk.each_request { |_request|
+            raise Esse::Transport::RequestEntityTooLargeError.new(MultiJson.dump(body))
+          }
+        }.to raise_error(Esse::Transport::RequestEntityTooLargeError)
+      end
+
+      it 'falls through to per-document retry when the 413 message has no parseable size' do
+        requests = []
+        bulk.each_request { |request|
+          requests << request
+          raise Esse::Transport::RequestEntityTooLargeError.new('payload too large') if requests.size == 1
+        }
+
+        # 1 optimistic + 4 per-document = 5
+        expect(requests.size).to eq(5)
+        expect(requests[0]).to be_an_instance_of(Esse::Import::RequestBodyAsJson)
+        expect(requests[1..]).to all(be_an_instance_of(Esse::Import::RequestBodyAsJson))
+        expect(requests[1..].map { |r| r.body.size }).to all(eq(1))
+      end
+
+      it 'does not retry per-document when last_retry_per_document is false' do
+        body = elasticsearch_response_fixture(file: 'bulk_request_too_large', version: '7.x', assigns: { request_size: 500 })
+
+        expect {
+          bulk.each_request(last_retry_per_document: false) { |request|
+            raise Esse::Transport::RequestEntityTooLargeError.new(MultiJson.dump(body))
+          }
+        }.to raise_error(Esse::Transport::RequestEntityTooLargeError)
       end
     end
   end
