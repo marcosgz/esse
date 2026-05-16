@@ -256,7 +256,10 @@ module Esse
           delete: to_delete,
           index: to_index,
           update: to_update,
-        ).each_request do |request_body|
+        ).each_request(
+          retry_on_failure_max_retries: bulk_retry_on_failure_max_retries,
+          retry_on_failure_wait: bulk_retry_on_failure_wait,
+        ) do |request_body|
           cluster.api.bulk(**definition, body: request_body.body) do |event_payload|
             event_payload[:body_stats] = request_body.stats
             if bulk_wait_interval > 0

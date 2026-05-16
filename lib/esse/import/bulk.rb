@@ -18,11 +18,13 @@ module Esse
       # document still returns 413 does the error bubble up.
       #
       # @yield [RequestBody] A request body instance
-      def each_request(max_retries: 4, last_retry_in_small_chunks: true, last_retry_per_document: true)
+      def each_request(max_retries: 4, last_retry_in_small_chunks: true, last_retry_per_document: true,
+                       retry_on_failure_max_retries: 3, retry_on_failure_wait: 2.0)
         # @TODO create indexes when by checking all the index suffixes (if mapping is not empty)
         requests = [optimistic_request]
         retry_count = 0
         too_large_retry_count = 0
+        transient_failure_count = 0
 
         begin
           requests.each do |request|
@@ -63,6 +65,16 @@ module Esse
             Request entity too large after balancing, retrying one document per request as a last resort.
             If a single document still exceeds the bulk size, the error will be raised.
           MSG
+          retry
+        rescue Esse::Transport::BadGatewayError,
+               Esse::Transport::ServiceUnavailableError,
+               Esse::Transport::GatewayTimeoutError,
+               Esse::Transport::TooManyRequestsError => e
+          transient_failure_count += 1
+          raise e if transient_failure_count >= retry_on_failure_max_retries
+          wait = retry_on_failure_wait * (2**(transient_failure_count - 1))
+          Esse.logger.warn "#{e.class} error, retrying in #{wait}s (attempt #{transient_failure_count}/#{retry_on_failure_max_retries})"
+          sleep(wait)
           retry
         end
       end

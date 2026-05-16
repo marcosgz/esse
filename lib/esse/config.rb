@@ -43,7 +43,7 @@ module Esse
   #   end
   class Config
     DEFAULT_CLUSTER_ID = :default
-    ATTRIBUTES = %i[indices_directory bulk_wait_interval].freeze
+    ATTRIBUTES = %i[indices_directory bulk_wait_interval bulk_retry_on_failure_max_retries bulk_retry_on_failure_wait].freeze
 
     # The location of the indices. Defaults to the `app/indices`
     attr_reader :indices_directory
@@ -51,9 +51,17 @@ module Esse
     # wait a given period between posting pages to give Elasticsearch time to catch up.
     attr_reader :bulk_wait_interval
 
+    # number of retries on transient server errors (502, 503, 504, 429) before raising
+    attr_reader :bulk_retry_on_failure_max_retries
+
+    # base wait in seconds between transient-error retries (doubles each attempt)
+    attr_reader :bulk_retry_on_failure_wait
+
     def initialize
       self.indices_directory = 'app/indices'
       self.bulk_wait_interval = 0.1
+      self.bulk_retry_on_failure_max_retries = 3
+      self.bulk_retry_on_failure_wait = 2.0
       @clusters = {}
       cluster(DEFAULT_CLUSTER_ID) # initialize the :default client
     end
@@ -79,6 +87,14 @@ module Esse
 
     def bulk_wait_interval=(value)
       @bulk_wait_interval = value.to_f
+    end
+
+    def bulk_retry_on_failure_max_retries=(value)
+      @bulk_retry_on_failure_max_retries = value.to_i
+    end
+
+    def bulk_retry_on_failure_wait=(value)
+      @bulk_retry_on_failure_wait = value.to_f
     end
 
     def load(arg)

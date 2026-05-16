@@ -68,6 +68,51 @@ RSpec.describe Esse::Import::Bulk do
       expect(retries).to eq(3)
     end
 
+    it 'retries on transient server errors and eventually raises' do
+      expect(bulk).to receive(:sleep).with(2.0).once
+      expect(bulk).to receive(:sleep).with(4.0).once
+      expect(Esse.logger).to receive(:warn).with(an_instance_of(String)).twice
+      retries = 0
+      expect {
+        bulk.each_request(retry_on_failure_max_retries: 3, retry_on_failure_wait: 2.0) { |_request|
+          retries += 1
+          raise Esse::Transport::BadGatewayError
+        }
+      }.to raise_error(Esse::Transport::BadGatewayError)
+      expect(retries).to eq(3)
+    end
+
+    it 'retries all transient server error classes' do
+      [
+        Esse::Transport::BadGatewayError,
+        Esse::Transport::ServiceUnavailableError,
+        Esse::Transport::GatewayTimeoutError,
+        Esse::Transport::TooManyRequestsError,
+      ].each do |error_class|
+        allow(bulk).to receive(:sleep)
+        allow(Esse.logger).to receive(:warn)
+        retries = 0
+        expect {
+          bulk.each_request(retry_on_failure_max_retries: 2, retry_on_failure_wait: 0) { |_request|
+            retries += 1
+            raise error_class
+          }
+        }.to raise_error(error_class)
+        expect(retries).to eq(2)
+      end
+    end
+
+    it 'succeeds when transient error resolves before threshold' do
+      allow(bulk).to receive(:sleep)
+      allow(Esse.logger).to receive(:warn)
+      call_count = 0
+      bulk.each_request(retry_on_failure_max_retries: 3, retry_on_failure_wait: 0) { |_request|
+        call_count += 1
+        raise Esse::Transport::ServiceUnavailableError if call_count == 1
+      }
+      expect(call_count).to eq(2)
+    end
+
     context 'without data' do
       let(:index) { [] }
       let(:create) { [] }
