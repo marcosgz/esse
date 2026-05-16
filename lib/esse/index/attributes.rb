@@ -72,6 +72,22 @@ module Esse
         @bulk_wait_interval = value.to_f
       end
 
+      def bulk_retry_on_failure_max_retries
+        @bulk_retry_on_failure_max_retries || Esse.config.bulk_retry_on_failure_max_retries
+      end
+
+      def bulk_retry_on_failure_max_retries=(value)
+        @bulk_retry_on_failure_max_retries = value.to_i
+      end
+
+      def bulk_retry_on_failure_wait
+        @bulk_retry_on_failure_wait || Esse.config.bulk_retry_on_failure_wait
+      end
+
+      def bulk_retry_on_failure_wait=(value)
+        @bulk_retry_on_failure_wait = value.to_f
+      end
+
       def mapping_single_type=(value)
         @mapping_single_type = !!value
       end

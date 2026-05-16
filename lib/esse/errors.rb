@@ -57,6 +57,7 @@ module Esse
       'ExpectationFailed' => 'ExpectationFailedError', # 417
       'ImATeapot' => 'ImATeapotError', # 418
       'TooManyConnectionsFromThisIP' => 'TooManyConnectionsFromThisIPError', # 421
+      'TooManyRequests' => 'TooManyRequestsError', # 429
       'UpgradeRequired' => 'UpgradeRequiredError', # 426
       'BlockedByWindowsParentalControls' => 'BlockedByWindowsParentalControlsError', # 450
       'RequestHeaderTooLarge' => 'RequestHeaderTooLargeError', # 494
