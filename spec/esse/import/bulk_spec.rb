@@ -145,6 +145,20 @@ RSpec.describe Esse::Import::Bulk do
         }
         expect(requests.size).to eq(3 + index.size + create.size + delete.size)
       end
+
+      it 'includes document IDs in the timeout per-document retry warning' do
+        warnings = []
+        allow(Esse.logger).to receive(:warn) { |msg| warnings << msg }
+        allow(bulk).to receive(:sleep)
+        requests = []
+        bulk.each_request(last_retry_in_small_chunks: true) { |request|
+          requests << request
+          raise Faraday::TimeoutError if requests.size <= 2
+        }
+        small_chunk_warning = warnings.find { |w| w.include?('one document per request') }
+        expect(small_chunk_warning).to include('document IDs:')
+        expect(small_chunk_warning).to include('10', '11', '12')
+      end
     end
 
     context 'with a request entity too large error' do
@@ -258,6 +272,15 @@ RSpec.describe Esse::Import::Bulk do
         expect(requests[0]).to be_an_instance_of(Esse::Import::RequestBodyAsJson)
         expect(requests[1..]).to all(be_an_instance_of(Esse::Import::RequestBodyAsJson))
         expect(requests[1..].map { |r| r.body.size }).to all(eq(1))
+      end
+
+      it 'includes document IDs in the per-document retry warning' do
+        warning = nil
+        allow(Esse.logger).to receive(:warn) { |msg| warning = msg }
+        bulk.each_request { |request|
+          raise Esse::Transport::RequestEntityTooLargeError.new('payload too large') if warning.nil?
+        }
+        expect(warning).to include('document IDs: 2, 1, 4, 3')
       end
 
       it 'does not retry per-document when last_retry_per_document is false' do
