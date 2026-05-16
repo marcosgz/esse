@@ -61,8 +61,10 @@ module Esse
 
           raise e unless last_retry_per_document
           requests = requests_per_document
+          ids = document_ids
+          id_info = ids.any? ? " (document IDs: #{ids.join(', ')})" : ''
           Esse.logger.warn <<~MSG
-            Request entity too large after balancing, retrying one document per request as a last resort.
+            Request entity too large after balancing, retrying one document per request as a last resort#{id_info}.
             If a single document still exceeds the bulk size, the error will be raised.
           MSG
           retry
@@ -92,15 +94,21 @@ module Esse
 
       def requests_in_small_chunks(chunk_size: 1)
         arr = build_per_document_requests(chunk_size: chunk_size)
+        ids = document_ids
+        id_info = ids.any? ? " (document IDs: #{ids.join(', ')})" : ''
         Esse.logger.warn <<~MSG
-          Retrying the last request in small chunks of #{chunk_size} documents.
-          This is a last resort to avoid timeout errors, consider increasing the bulk size or reducing the batch size.
+          Timeout error, retrying one document per request as a last resort#{id_info}.
+          Consider increasing the bulk size or reducing the batch size.
         MSG
         arr
       end
 
       def requests_per_document
         build_per_document_requests(chunk_size: 1)
+      end
+
+      def document_ids
+        (@create + @index + @update + @delete).filter_map { |op| op.values.first[:_id] }
       end
 
       def build_per_document_requests(chunk_size: 1)
