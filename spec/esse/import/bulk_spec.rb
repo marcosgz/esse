@@ -84,6 +84,7 @@ RSpec.describe Esse::Import::Bulk do
 
     it 'retries all transient server error classes' do
       [
+        Faraday::ConnectionFailed,
         Esse::Transport::BadGatewayError,
         Esse::Transport::ServiceUnavailableError,
         Esse::Transport::GatewayTimeoutError,

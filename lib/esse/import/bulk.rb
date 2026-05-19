@@ -68,7 +68,8 @@ module Esse
             If a single document still exceeds the bulk size, the error will be raised.
           MSG
           retry
-        rescue Esse::Transport::BadGatewayError,
+        rescue Faraday::ConnectionFailed,
+               Esse::Transport::BadGatewayError,
                Esse::Transport::ServiceUnavailableError,
                Esse::Transport::GatewayTimeoutError,
                Esse::Transport::TooManyRequestsError => e
