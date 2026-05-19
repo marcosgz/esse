@@ -84,7 +84,6 @@ RSpec.describe Esse::Import::Bulk do
 
     it 'retries all transient server error classes' do
       [
-        Faraday::ConnectionFailed,
         Esse::Transport::BadGatewayError,
         Esse::Transport::ServiceUnavailableError,
         Esse::Transport::GatewayTimeoutError,
@@ -101,6 +100,19 @@ RSpec.describe Esse::Import::Bulk do
         }.to raise_error(error_class)
         expect(retries).to eq(2)
       end
+    end
+
+    it 'retries on Faraday::ConnectionFailed' do
+      allow(bulk).to receive(:sleep)
+      allow(Esse.logger).to receive(:warn)
+      retries = 0
+      expect {
+        bulk.each_request(retry_on_failure_max_retries: 2, retry_on_failure_wait: 0) { |_request|
+          retries += 1
+          raise Faraday::ConnectionFailed, RuntimeError.new('getaddrinfo: Try again')
+        }
+      }.to raise_error(Faraday::ConnectionFailed)
+      expect(retries).to eq(2)
     end
 
     it 'succeeds when transient error resolves before threshold' do
