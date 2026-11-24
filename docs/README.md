@@ -118,4 +118,4 @@ Requires Ruby **>= 2.7** and one of:
 
 ## License
 
-MIT — see [LICENSE.txt](../LICENSE.txt).
+GPL-3.0-or-later — see [LICENSE.txt](../LICENSE.txt).
