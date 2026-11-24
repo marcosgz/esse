@@ -15,7 +15,7 @@ Gem::Specification.new do |spec|
                      'data from any data source into ElasticSearch/OpenSearch and also to search it. It is framework-agnostic, ' \
                      'which means you can use it with any Ruby framework or even without any framework at all.'
   spec.homepage = 'https://github.com/marcosgz/esse'
-  spec.license = 'MIT'
+  spec.license = 'GPL-3.0-or-later'
   spec.required_ruby_version = Gem::Requirement.new('>= 2.7')
 
   spec.metadata['homepage_uri'] = spec.homepage

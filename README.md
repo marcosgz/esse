@@ -113,4 +113,4 @@ Bug reports and pull requests are welcome on GitHub at https://github.com/marcos
 
 ## License
 
-The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
+The gem is available as open source under the terms of the [GNU General Public License v3.0 or later](https://www.gnu.org/licenses/gpl-3.0.html).
